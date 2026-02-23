@@ -1,63 +1,250 @@
 package de.tif23.studienarbeit.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
+import smartvillageapp.composeapp.generated.resources.account_circle
+import smartvillageapp.composeapp.generated.resources.background_dark
+import smartvillageapp.composeapp.generated.resources.background_light
+import smartvillageapp.composeapp.generated.resources.home
+import smartvillageapp.composeapp.generated.resources.map
+import smartvillageapp.composeapp.generated.resources.notifications
+import smartvillageapp.composeapp.generated.resources.pinboard
+import smartvillageapp.composeapp.generated.resources.settings
+import smartvillageapp.composeapp.generated.resources.thermometer
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
-    Scaffold(
-        topBar = {
-            Text("Hallo Lörrach!")
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(paddingValues)
-        ) {
-            item {
-                Text("Aktuelle Sensordaten:")
+    val notifications = listOf(
+        "Baustelle B317",
+        "Wochenmarkt"
+    )
+    val notificationTimes = listOf("heute", "Sa")
+    val sensors = listOf(
+        SensorCardData("22 C", "Temperatur"),
+        SensorCardData("60 %", "Luftfeuchtigkeit"),
+        SensorCardData("42 dB", "Lärm")
+    )
+    val backgroundPainter = painterResource(
+        if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
+    )
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Image(
+            painter = backgroundPainter,
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        shape = RoundedCornerShape(6.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "LOGO",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Smart Village")
+                        }
+                    },
+                    actions = {
+                        Icon(
+                            painter = painterResource(Res.drawable.notifications),
+                            contentDescription = "Benachrichtigungen",
+                            modifier = Modifier.padding(end = 12.dp)
+                        )
+                        Icon(
+                            painter = painterResource(Res.drawable.account_circle),
+                            contentDescription = "Profil",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent
+                    )
+                )
+            },
+            bottomBar = {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = true,
+                        onClick = { },
+                        icon = { Icon(painterResource(Res.drawable.home), contentDescription = "Home") },
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { },
+                        icon = { Icon(painterResource(Res.drawable.map), contentDescription = "Karte") },
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { },
+                        icon = { Icon(painterResource(Res.drawable.thermometer), contentDescription = "Sensoren") },
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { },
+                        icon = { Icon(painterResource(Res.drawable.pinboard), contentDescription = "Pinboard") },
+                    )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { },
+                        icon = { Icon(painterResource(Res.drawable.settings), contentDescription = "Einstellungen") },
+                    )
+                }
             }
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clickable { /* TODO: Navigate to details */ },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-//                    Icon(
-//                        painter = painterResource(Res.drawable.ic_temperature),
-//                        contentDescription = "Temperatur",
-//                        tint = MaterialTheme.colorScheme.primary,
-//                        modifier = Modifier.size(40.dp)
-//                    )
-                    Column(
-                        modifier = Modifier.padding(start = 16.dp)
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Temperatur: 22°C")
-                        Text("Luftfeuchtigkeit: 60%")
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RectangleShape
+                                )
+                        )
+                    }
+                }
+                item {
+                    Text(
+                        text = "Neuigkeiten",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 8.dp)
+                    )
+                }
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Column {
+                            notifications.forEachIndexed { index, title ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { }
+                                        .padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(text = title)
+                                    Text(
+                                        text = notificationTimes.getOrElse(index) { "" },
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                                if (index < notifications.lastIndex) {
+                                    HorizontalDivider()
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    Text(
+                        text = "Umweltdaten",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                    )
+                }
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        sensors.forEach { sensor ->
+                            Card(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(92.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(text = sensor.value, style = MaterialTheme.typography.titleLarge)
+                                    Spacer(modifier = Modifier.size(16.dp))
+                                    Text(text = sensor.label, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+
+private data class SensorCardData(
+    val value: String,
+    val label: String
+)

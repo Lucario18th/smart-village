@@ -253,7 +253,7 @@ val unspecified_scheme = ColorFamily(
 expect fun getPlatformColorScheme(darkTheme: Boolean): ColorScheme?
 
 @Composable
-fun AppTheme(
+fun SmartVillageTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable() () -> Unit

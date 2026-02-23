@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import de.tif23.studienarbeit.ui.screens.MainScreen
+import de.tif23.studienarbeit.ui.theme.SmartVillageTheme
 import org.jetbrains.compose.resources.painterResource
 
 import smartvillageapp.composeapp.generated.resources.Res
@@ -23,7 +24,7 @@ import smartvillageapp.composeapp.generated.resources.compose_multiplatform
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    SmartVillageTheme {
         var showContent by remember { mutableStateOf(false) }
         MainScreen()
     }
