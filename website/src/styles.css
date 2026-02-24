@@ -27,6 +27,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-form-grid label{display:grid;gap:6px;font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
 .admin-form-grid .full-width{grid-column:1 / -1}
 .admin-form-grid input,.admin-form-grid textarea,.admin-form-grid select,.module-controls select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
+.design-hint{margin:0 0 12px;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
 .general-form-header{display:flex;justify-content:flex-end;margin-top:8px}
 .edit-toggle-button{padding:8px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
 .edit-hint{grid-column:1 / -1;margin:2px 0 0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}

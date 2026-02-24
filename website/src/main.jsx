@@ -12,7 +12,7 @@ import './styles.css'
 const container = document.getElementById('root')
 const root = createRoot(container)
 
-document.body.classList.add('light')
+document.documentElement.classList.add('light')
 
 root.render(<App />)
 

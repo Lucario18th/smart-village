@@ -9,6 +9,7 @@ import {
   loadConfigFromStorage,
   saveConfigToStorage,
 } from '../config/configStorage'
+import { applyThemeToDOM, getThemeClass } from '../config/themeManager'
 
 export function useVillageConfig(username) {
   const [config, setConfig] = useState(() => createDefaultVillageConfig(username))
@@ -23,16 +24,21 @@ export function useVillageConfig(username) {
         setConfig(fromApiPayload(storedPayload, username))
         setHasUnsavedChanges(false)
         setStorageMessage('Lokale Konfiguration geladen.')
+        const themeClass = getThemeClass(storedPayload.config.design.themeMode, storedPayload.config.design.contrast)
+        applyThemeToDOM(themeClass)
         return
       }
 
       setConfig(createDefaultVillageConfig(username))
       setHasUnsavedChanges(false)
       setStorageMessage('Keine lokale Konfiguration gefunden. Standardwerte aktiv.')
+      const defaultThemeClass = getThemeClass('light', 'standard')
+      applyThemeToDOM(defaultThemeClass)
     } catch {
       setConfig(createDefaultVillageConfig(username))
       setHasUnsavedChanges(false)
       setStorageMessage('Lokale Konfiguration konnte nicht gelesen werden.')
+      applyThemeToDOM('light')
     }
   }, [username])
 
@@ -109,6 +115,11 @@ export function useVillageConfig(username) {
       return markUpdated(nextConfig)
     })
   }
+
+  useEffect(() => {
+    const themeClass = getThemeClass(config.design.themeMode, config.design.contrast)
+    applyThemeToDOM(themeClass)
+  }, [config.design.themeMode, config.design.contrast])
 
   const saveConfig = () => {
     try {
