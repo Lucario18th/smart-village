@@ -1,0 +1,8 @@
+{
+  "items": [
+    { "id": 1, "title": "Energie", "description": "Informationen zur Energieversorgung im Smart Village." },
+    { "id": 2, "title": "Wasser", "description": "Daten zur Wasserversorgung und -qualität." },
+    { "id": 3, "title": "Mobilität", "description": "Lösungen für nachhaltige Mobilität." }
+  ]
+}
+
