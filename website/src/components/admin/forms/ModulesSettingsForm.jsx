@@ -1,62 +1,63 @@
 import React from 'react'
 
-function ModuleRow({ title, description, value, onEnabledChange, onSourceChange }) {
+function ModuleRow({ title, description, moduleId, isEnabled, sensorCount, onEnabledChange, onManageSensors }) {
   return (
     <article className="module-row">
       <div>
         <h3>{title}</h3>
         <p>{description}</p>
+        <p className="module-sensors-info">{sensorCount} Sensor{sensorCount !== 1 ? 'en' : ''}</p>
       </div>
 
       <div className="module-controls">
         <label className="checkbox-label">
           <input
             type="checkbox"
-            checked={value.enabled}
+            checked={isEnabled}
             onChange={(event) => onEnabledChange(event.target.checked)}
           />
           Aktiv
         </label>
 
-        <label>
-          Datenquelle
-          <select value={value.source} onChange={(event) => onSourceChange(event.target.value)}>
-            <option value="simulated">Simuliert</option>
-            <option value="mqtt">MQTT</option>
-            <option value="rest">REST</option>
-            <option value="lora">LoRa</option>
-          </select>
-        </label>
+        <button type="button" className="sensor-button" onClick={onManageSensors}>
+          Sensoren verwalten →
+        </button>
       </div>
     </article>
   )
 }
 
-export default function ModulesSettingsForm({ values, onModuleEnabledChange, onModuleSourceChange }) {
+export default function ModulesSettingsForm({ values, onModuleEnabledChange, onNavigateToSensors }) {
   return (
     <div className="module-list">
       <ModuleRow
         title="Mitfahrbank"
         description="Digitale Mitfahrbank mit Status-/Anfrage-Informationen"
-        value={values.rideShareBench}
+        moduleId="rideShareBench"
+        isEnabled={values.rideShareBench.enabled}
+        sensorCount={values.rideShareBench.sensors?.length ?? 0}
         onEnabledChange={(enabled) => onModuleEnabledChange('rideShareBench', enabled)}
-        onSourceChange={(source) => onModuleSourceChange('rideShareBench', source)}
+        onManageSensors={() => onNavigateToSensors('rideShareBench')}
       />
 
       <ModuleRow
         title="Altkleidercontainer"
         description="Sensorische Füllstandserfassung für Entleerungsplanung"
-        value={values.textileContainer}
+        moduleId="textileContainer"
+        isEnabled={values.textileContainer.enabled}
+        sensorCount={values.textileContainer.sensors?.length ?? 0}
         onEnabledChange={(enabled) => onModuleEnabledChange('textileContainer', enabled)}
-        onSourceChange={(source) => onModuleSourceChange('textileContainer', source)}
+        onManageSensors={() => onNavigateToSensors('textileContainer')}
       />
 
       <ModuleRow
         title="Strommonitoring"
         description="Lokale Energie- und Verbrauchsdaten visualisieren"
-        value={values.energyMonitor}
+        moduleId="energyMonitor"
+        isEnabled={values.energyMonitor.enabled}
+        sensorCount={values.energyMonitor.sensors?.length ?? 0}
         onEnabledChange={(enabled) => onModuleEnabledChange('energyMonitor', enabled)}
-        onSourceChange={(source) => onModuleSourceChange('energyMonitor', source)}
+        onManageSensors={() => onNavigateToSensors('energyMonitor')}
       />
     </div>
   )

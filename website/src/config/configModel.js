@@ -11,15 +11,36 @@ const BASE_CONFIG = {
   modules: {
     rideShareBench: {
       enabled: true,
-      source: 'simulated',
+      sensors: [
+        {
+          id: 'rideShareBench-1',
+          name: 'Mitfahrbank Standard',
+          source: 'simulated',
+          config: {},
+        },
+      ],
     },
     textileContainer: {
       enabled: true,
-      source: 'simulated',
+      sensors: [
+        {
+          id: 'textileContainer-1',
+          name: 'Altkleider Container A',
+          source: 'simulated',
+          config: {},
+        },
+      ],
     },
     energyMonitor: {
       enabled: true,
-      source: 'simulated',
+      sensors: [
+        {
+          id: 'energyMonitor-1',
+          name: 'Hauptstromzähler',
+          source: 'simulated',
+          config: {},
+        },
+      ],
     },
   },
   design: {
@@ -148,9 +169,9 @@ export function getSectionSummary(config, sectionId) {
 
   if (sectionId === 'modules') {
     return [
-      `Mitfahrbank: ${config.modules.rideShareBench.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.rideShareBench.source})`,
-      `Altkleider-Sensor: ${config.modules.textileContainer.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.textileContainer.source})`,
-      `Strommonitoring: ${config.modules.energyMonitor.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.energyMonitor.source})`,
+      `Mitfahrbank: ${config.modules.rideShareBench.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.rideShareBench.sensors?.length ?? 0} Sensor${config.modules.rideShareBench.sensors?.length !== 1 ? 'en' : ''})`,
+      `Altkleider-Sensor: ${config.modules.textileContainer.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.textileContainer.sensors?.length ?? 0} Sensor${config.modules.textileContainer.sensors?.length !== 1 ? 'en' : ''})`,
+      `Strommonitoring: ${config.modules.energyMonitor.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.energyMonitor.sensors?.length ?? 0} Sensor${config.modules.energyMonitor.sensors?.length !== 1 ? 'en' : ''})`,
     ]
   }
 

@@ -48,3 +48,32 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .card p{margin-bottom:0;color:var(--md-sys-color-on-surface-variant)}
 .app-footer{text-align:center;color:var(--md-sys-color-on-surface-variant);margin-top:28px;font-size:14px}
 
+/* Sensor Management Styles */
+.sensors-container{display:grid;gap:16px}
+.module-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.module-tab{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer;font-size:14px}
+.module-tab.active{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.sensors-content{display:grid;gap:12px}
+.sensors-content h3{margin:0 0 4px;color:var(--md-sys-color-primary)}
+.sensors-description{margin:0 0 12px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.sensors-list{display:grid;gap:10px;margin:12px 0}
+.sensor-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--md-sys-color-surface);border-left:4px solid var(--md-sys-color-tertiary)}
+.sensor-row h4{margin:0 0 4px;color:var(--md-sys-color-primary);font-size:15px}
+.sensor-source{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-actions{display:flex;gap:6px}
+.sensor-action-btn{padding:6px 10px;border:none;border-radius:6px;background:transparent;color:var(--md-sys-color-on-surface-variant);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s}
+.sensor-action-btn.edit{color:var(--md-sys-color-primary)}
+.sensor-action-btn.edit:hover{background:var(--md-sys-color-primary-container)}
+.sensor-action-btn.delete{color:var(--md-sys-color-error)}
+.sensor-action-btn.delete:hover{background:var(--md-sys-color-error-container)}
+.sensor-form{display:grid;gap:12px;padding:14px;border-radius:10px;background:var(--md-sys-color-surface);border-left:4px solid var(--md-sys-color-secondary)}
+.sensor-form .form-group{display:grid;gap:6px}
+.sensor-form .form-group label{font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
+.sensor-form .form-group input,.sensor-form .form-group select{padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;width:100%}
+.sensor-form-actions{display:flex;gap:8px;margin-top:4px}
+.sensor-form-actions button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer;font-size:14px}
+.sensor-form-actions button.primary{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.add-sensor-btn{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-primary);font-weight:600;cursor:pointer;font-size:14px;margin-top:6px}
+.add-sensor-btn:hover{background:var(--md-sys-color-primary-container)}
+.no-sensors{margin:12px 0;padding:12px;text-align:center;background:var(--md-sys-color-surface);border-radius:8px;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.sensor-button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer;font-size:13px}

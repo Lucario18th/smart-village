@@ -12,6 +12,12 @@ export const ADMIN_SECTIONS = [
     description: 'Funktionen für die Gemeinde aktivieren oder deaktivieren.',
   },
   {
+    id: 'sensors',
+    label: 'Sensoren',
+    title: 'Sensor-Verwaltung',
+    description: 'Sensoren und Datenquellen pro Modul konfigurieren.',
+  },
+  {
     id: 'design',
     label: 'Design',
     title: 'Design und Theme',

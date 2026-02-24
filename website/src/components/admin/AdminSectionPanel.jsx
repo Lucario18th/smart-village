@@ -1,15 +1,20 @@
 import React from 'react'
 import GeneralSettingsForm from './forms/GeneralSettingsForm'
 import ModulesSettingsForm from './forms/ModulesSettingsForm'
+import SensorsSettingsForm from './forms/SensorsSettingsForm'
 import DesignSettingsForm from './forms/DesignSettingsForm'
 
 export default function AdminSectionPanel({
   section,
   entries,
   config,
+  selectedModule,
   onGeneralFieldChange,
   onModuleEnabledChange,
-  onModuleSourceChange,
+  onNavigateToSensors,
+  onAddSensor,
+  onUpdateSensor,
+  onRemoveSensor,
   onDesignFieldChange,
 }) {
   const renderForm = () => {
@@ -22,7 +27,20 @@ export default function AdminSectionPanel({
         <ModulesSettingsForm
           values={config.modules}
           onModuleEnabledChange={onModuleEnabledChange}
-          onModuleSourceChange={onModuleSourceChange}
+          onNavigateToSensors={onNavigateToSensors}
+        />
+      )
+    }
+
+    if (section.id === 'sensors') {
+      return (
+        <SensorsSettingsForm
+          modules={config.modules}
+          selectedModule={selectedModule}
+          onAddSensor={onAddSensor}
+          onUpdateSensor={onUpdateSensor}
+          onRemoveSensor={onRemoveSensor}
+          onSelectModule={onNavigateToSensors}
         />
       )
     }

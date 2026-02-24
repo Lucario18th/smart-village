@@ -83,7 +83,7 @@ export function useVillageConfig(username) {
     })
   }
 
-  const updateModuleSource = (moduleId, source) => {
+  const addSensor = (moduleId, newSensor) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
@@ -91,7 +91,45 @@ export function useVillageConfig(username) {
           ...currentConfig.modules,
           [moduleId]: {
             ...currentConfig.modules[moduleId],
-            source,
+            sensors: [...(currentConfig.modules[moduleId].sensors || []), newSensor],
+          },
+        },
+      }
+
+      setHasUnsavedChanges(true)
+      return markUpdated(nextConfig)
+    })
+  }
+
+  const updateSensor = (moduleId, sensorId, updates) => {
+    setConfig((currentConfig) => {
+      const nextConfig = {
+        ...currentConfig,
+        modules: {
+          ...currentConfig.modules,
+          [moduleId]: {
+            ...currentConfig.modules[moduleId],
+            sensors: (currentConfig.modules[moduleId].sensors || []).map((sensor) =>
+              sensor.id === sensorId ? { ...sensor, ...updates } : sensor
+            ),
+          },
+        },
+      }
+
+      setHasUnsavedChanges(true)
+      return markUpdated(nextConfig)
+    })
+  }
+
+  const removeSensor = (moduleId, sensorId) => {
+    setConfig((currentConfig) => {
+      const nextConfig = {
+        ...currentConfig,
+        modules: {
+          ...currentConfig.modules,
+          [moduleId]: {
+            ...currentConfig.modules[moduleId],
+            sensors: (currentConfig.modules[moduleId].sensors || []).filter((sensor) => sensor.id !== sensorId),
           },
         },
       }
@@ -163,7 +201,9 @@ export function useVillageConfig(username) {
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
-    updateModuleSource,
+    addSensor,
+    updateSensor,
+    removeSensor,
     updateDesignField,
     hasUnsavedChanges,
     storageMessage,
