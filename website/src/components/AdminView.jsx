@@ -13,6 +13,11 @@ export default function AdminView({ username, onLogout }) {
     updateModuleEnabled,
     updateModuleSource,
     updateDesignField,
+    hasUnsavedChanges,
+    storageMessage,
+    saveConfig,
+    loadConfig,
+    resetConfig,
   } = useVillageConfig(username)
 
   const activeSection = useMemo(() => {
@@ -52,6 +57,22 @@ export default function AdminView({ username, onLogout }) {
         onModuleSourceChange={updateModuleSource}
         onDesignFieldChange={updateDesignField}
       />
+
+      <section className="config-actions" aria-label="Lokale Konfiguration">
+        <button type="button" onClick={loadConfig}>
+          Laden
+        </button>
+        <button type="button" className="primary" onClick={saveConfig}>
+          Speichern
+        </button>
+        <button type="button" onClick={resetConfig}>
+          Standard laden
+        </button>
+      </section>
+
+      <p className="storage-status">
+        Status: {storageMessage || '—'} {hasUnsavedChanges ? '• Ungespeicherte Änderungen vorhanden' : ''}
+      </p>
 
       <footer className="app-footer">
         MVP-Stand: Login, Session und Formulare aktiv · Letzte Änderung:{' '}

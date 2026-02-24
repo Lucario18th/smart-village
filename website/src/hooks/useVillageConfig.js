@@ -1,11 +1,39 @@
 import { useEffect, useState } from 'react'
-import { createDefaultVillageConfig, getSectionSummary } from '../config/configModel'
+import {
+  createDefaultVillageConfig,
+  fromApiPayload,
+  getSectionSummary,
+} from '../config/configModel'
+import {
+  clearConfigInStorage,
+  loadConfigFromStorage,
+  saveConfigToStorage,
+} from '../config/configStorage'
 
 export function useVillageConfig(username) {
   const [config, setConfig] = useState(() => createDefaultVillageConfig(username))
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [storageMessage, setStorageMessage] = useState('')
 
   useEffect(() => {
-    setConfig(createDefaultVillageConfig(username))
+    try {
+      const storedPayload = loadConfigFromStorage(username)
+
+      if (storedPayload) {
+        setConfig(fromApiPayload(storedPayload, username))
+        setHasUnsavedChanges(false)
+        setStorageMessage('Lokale Konfiguration geladen.')
+        return
+      }
+
+      setConfig(createDefaultVillageConfig(username))
+      setHasUnsavedChanges(false)
+      setStorageMessage('Keine lokale Konfiguration gefunden. Standardwerte aktiv.')
+    } catch {
+      setConfig(createDefaultVillageConfig(username))
+      setHasUnsavedChanges(false)
+      setStorageMessage('Lokale Konfiguration konnte nicht gelesen werden.')
+    }
   }, [username])
 
   const markUpdated = (nextConfig) => ({
@@ -26,6 +54,7 @@ export function useVillageConfig(username) {
         },
       }
 
+      setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
   }
@@ -43,6 +72,7 @@ export function useVillageConfig(username) {
         },
       }
 
+      setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
   }
@@ -60,6 +90,7 @@ export function useVillageConfig(username) {
         },
       }
 
+      setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
   }
@@ -74,8 +105,44 @@ export function useVillageConfig(username) {
         },
       }
 
+      setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
+  }
+
+  const saveConfig = () => {
+    try {
+      const result = saveConfigToStorage(config)
+      setHasUnsavedChanges(false)
+      setStorageMessage(`Gespeichert: ${new Date(result.savedAt).toLocaleString('de-DE')}`)
+    } catch {
+      setStorageMessage('Speichern fehlgeschlagen.')
+    }
+  }
+
+  const loadConfig = () => {
+    try {
+      const storedPayload = loadConfigFromStorage(username)
+
+      if (!storedPayload) {
+        setStorageMessage('Keine gespeicherte Konfiguration vorhanden.')
+        return
+      }
+
+      setConfig(fromApiPayload(storedPayload, username))
+      setHasUnsavedChanges(false)
+      setStorageMessage('Gespeicherte Konfiguration geladen.')
+    } catch {
+      setStorageMessage('Laden fehlgeschlagen.')
+    }
+  }
+
+  const resetConfig = () => {
+    const defaultConfig = createDefaultVillageConfig(username)
+    clearConfigInStorage(username)
+    setConfig(defaultConfig)
+    setHasUnsavedChanges(true)
+    setStorageMessage('Auf Standardwerte zurückgesetzt. Bitte speichern, um den Stand lokal abzulegen.')
   }
 
   const getSummaryForSection = (sectionId) => getSectionSummary(config, sectionId)
@@ -87,5 +154,10 @@ export function useVillageConfig(username) {
     updateModuleEnabled,
     updateModuleSource,
     updateDesignField,
+    hasUnsavedChanges,
+    storageMessage,
+    saveConfig,
+    loadConfig,
+    resetConfig,
   }
 }
