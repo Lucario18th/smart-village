@@ -17,7 +17,14 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-header h1{margin:0 0 6px;color:var(--md-sys-color-primary)}
 .admin-header p{margin:0;color:var(--md-sys-color-on-surface-variant)}
 .admin-header button{padding:10px 14px;border:none;border-radius:8px;background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer}
-.admin-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.admin-nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.admin-nav-button{padding:9px 14px;border-radius:999px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
+.admin-nav-button.active{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.admin-panel{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:20px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
+.admin-panel h2{margin:0 0 8px;color:var(--md-sys-color-primary)}
+.admin-panel p{margin:0 0 12px;color:var(--md-sys-color-on-surface-variant)}
+.admin-panel ul{margin:0;padding-left:20px;color:var(--md-sys-color-on-surface)}
+.admin-panel li+li{margin-top:6px}
 .card{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:16px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
 .card h2{margin-top:0}
 .card p{margin-bottom:0;color:var(--md-sys-color-on-surface-variant)}

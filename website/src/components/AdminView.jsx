@@ -1,32 +1,42 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
+import AdminNavigation from './admin/AdminNavigation'
+import AdminSectionPanel from './admin/AdminSectionPanel'
+import { ADMIN_SECTIONS } from '../config/adminSections'
+import { useVillageConfig } from '../hooks/useVillageConfig'
 
 export default function AdminView({ username, onLogout }) {
+  const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
+  const { config, getSummaryForSection } = useVillageConfig(username)
+
+  const activeSection = useMemo(() => {
+    return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
+  }, [activeSectionId])
+
+  const sectionEntries = useMemo(() => {
+    return getSummaryForSection(activeSection.id)
+  }, [activeSection.id, getSummaryForSection])
+
   return (
     <main className="admin-page">
       <header className="admin-header">
         <div>
           <h1>Smart Village Admin</h1>
-          <p>Angemeldet als: {username}</p>
+          <p>
+            Angemeldet als: {username} · Gemeinde: {config.general.villageName || 'nicht gesetzt'}
+          </p>
         </div>
         <button type="button" onClick={onLogout}>
           Logout
         </button>
       </header>
 
-      <section className="admin-cards">
-        <article className="card">
-          <h2>Allgemein</h2>
-          <p>Ortsname, Kontaktinformationen und Basisdaten konfigurieren.</p>
-        </article>
-        <article className="card">
-          <h2>Module</h2>
-          <p>Dienste wie Mitfahrbank, Sensorik und Stromdaten aktivieren.</p>
-        </article>
-        <article className="card">
-          <h2>Design</h2>
-          <p>Theme und Darstellung für die Gemeinde festlegen.</p>
-        </article>
-      </section>
+      <AdminNavigation
+        sections={ADMIN_SECTIONS}
+        activeSectionId={activeSection.id}
+        onChange={setActiveSectionId}
+      />
+
+      <AdminSectionPanel section={activeSection} entries={sectionEntries} />
 
       <footer className="app-footer">MVP-Stand: Login, Session und Logout aktiv</footer>
     </main>
