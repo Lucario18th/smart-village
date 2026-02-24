@@ -23,8 +23,21 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-panel{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:20px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
 .admin-panel h2{margin:0 0 8px;color:var(--md-sys-color-primary)}
 .admin-panel p{margin:0 0 12px;color:var(--md-sys-color-on-surface-variant)}
-.admin-panel ul{margin:0;padding-left:20px;color:var(--md-sys-color-on-surface)}
-.admin-panel li+li{margin-top:6px}
+.admin-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px;margin:14px 0 8px}
+.admin-form-grid label{display:grid;gap:6px;font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
+.admin-form-grid .full-width{grid-column:1 / -1}
+.admin-form-grid input,.admin-form-grid textarea,.admin-form-grid select,.module-controls select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
+.general-form-header{display:flex;justify-content:flex-end;margin-top:8px}
+.edit-toggle-button{padding:8px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
+.edit-hint{grid-column:1 / -1;margin:2px 0 0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.module-list{display:grid;gap:12px;margin:12px 0 10px}
+.module-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:14px;border-radius:10px;background:var(--md-sys-color-surface)}
+.module-row h3{margin:0 0 6px;color:var(--md-sys-color-primary)}
+.module-row p{margin:0;color:var(--md-sys-color-on-surface-variant)}
+.module-controls{display:grid;gap:8px;min-width:180px}
+.checkbox-label{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--md-sys-color-on-surface)}
+.summary-list{margin:10px 0 0;padding-left:20px;color:var(--md-sys-color-on-surface)}
+.summary-list li+li{margin-top:6px}
 .card{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:16px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
 .card h2{margin-top:0}
 .card p{margin-bottom:0;color:var(--md-sys-color-on-surface-variant)}

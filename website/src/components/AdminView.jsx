@@ -6,7 +6,14 @@ import { useVillageConfig } from '../hooks/useVillageConfig'
 
 export default function AdminView({ username, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
-  const { config, getSummaryForSection } = useVillageConfig(username)
+  const {
+    config,
+    getSummaryForSection,
+    updateGeneralField,
+    updateModuleEnabled,
+    updateModuleSource,
+    updateDesignField,
+  } = useVillageConfig(username)
 
   const activeSection = useMemo(() => {
     return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
@@ -36,9 +43,20 @@ export default function AdminView({ username, onLogout }) {
         onChange={setActiveSectionId}
       />
 
-      <AdminSectionPanel section={activeSection} entries={sectionEntries} />
+      <AdminSectionPanel
+        section={activeSection}
+        entries={sectionEntries}
+        config={config}
+        onGeneralFieldChange={updateGeneralField}
+        onModuleEnabledChange={updateModuleEnabled}
+        onModuleSourceChange={updateModuleSource}
+        onDesignFieldChange={updateDesignField}
+      />
 
-      <footer className="app-footer">MVP-Stand: Login, Session und Logout aktiv</footer>
+      <footer className="app-footer">
+        MVP-Stand: Login, Session und Formulare aktiv · Letzte Änderung:{' '}
+        {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
+      </footer>
     </main>
   )
 }
