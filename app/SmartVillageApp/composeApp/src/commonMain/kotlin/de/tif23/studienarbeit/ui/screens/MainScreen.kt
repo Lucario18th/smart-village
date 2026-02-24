@@ -36,6 +36,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
+import org.maplibre.compose.map.GestureOptions
+import org.maplibre.compose.map.MapOptions
+import org.maplibre.compose.map.MaplibreMap
+import org.maplibre.compose.style.BaseStyle
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
@@ -165,7 +169,11 @@ fun MainScreen() {
                                     color = MaterialTheme.colorScheme.surfaceVariant,
                                     shape = RectangleShape
                                 )
-                        )
+                        ) {
+                            MaplibreMap(
+                                baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/bright")
+                            )
+                        }
                     }
                 }
                 item {
