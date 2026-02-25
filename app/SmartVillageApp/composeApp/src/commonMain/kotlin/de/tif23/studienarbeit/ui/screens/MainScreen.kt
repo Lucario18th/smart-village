@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,17 +30,35 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.Key.Companion.Symbol
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
-import org.maplibre.compose.map.GestureOptions
+import org.maplibre.compose.camera.CameraPosition
+import org.maplibre.compose.camera.rememberCameraState
+import org.maplibre.compose.expressions.dsl.coalesce
+import org.maplibre.compose.expressions.dsl.const
+import org.maplibre.compose.expressions.dsl.image
+import org.maplibre.compose.layers.CircleLayer
+import org.maplibre.compose.layers.SymbolLayer
 import org.maplibre.compose.map.MapOptions
 import org.maplibre.compose.map.MaplibreMap
+import org.maplibre.compose.map.OrnamentOptions
+import org.maplibre.compose.material3.CompassButton
+import org.maplibre.compose.sources.GeoJsonData
+import org.maplibre.compose.sources.GeoJsonOptions
+import org.maplibre.compose.sources.GeoJsonSource
+import org.maplibre.compose.sources.getBaseSource
+import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.style.BaseStyle
+import org.maplibre.compose.style.rememberStyleState
+import org.maplibre.spatialk.geojson.Position
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
@@ -149,6 +168,16 @@ fun MainScreen() {
                 }
             }
         ) { paddingValues ->
+
+            val cameraState = rememberCameraState(
+                firstPosition = CameraPosition(
+                    target = Position(latitude = 47.61379, longitude = 7.66707),
+                    zoom = 14.0
+                )
+            )
+            val styleState = rememberStyleState()
+            val coroutineScope = rememberCoroutineScope()
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,15 +193,40 @@ fun MainScreen() {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(180.dp)
+                                .height(360.dp)
                                 .background(
                                     color = MaterialTheme.colorScheme.surfaceVariant,
                                     shape = RectangleShape
                                 )
                         ) {
                             MaplibreMap(
-                                baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/bright")
-                            )
+                                baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/bright"),
+                                cameraState = cameraState,
+                                styleState = styleState,
+                                options = MapOptions(ornamentOptions = OrnamentOptions.AllDisabled),
+                            ) {
+                                coroutineScope.launch {
+                                    val poiData =
+                                        Res.readBytes("files/pois.geojson").decodeToString()
+                                }
+                                val pois = rememberGeoJsonSource(
+                                    data = GeoJsonData.JsonString(getPois()),
+                                )
+
+                                SymbolLayer(
+                                    id = "containers",
+                                    source = pois,
+                                    iconColor = const(Color.Blue),
+                                    iconImage = coalesce(
+                                        image("marker-15"),
+                                        image("marker"),        // optionaler alternativer Name
+                                        image("default-marker") // letzter Fallback, muss im Sprite existieren
+                                    )
+                                )
+                            }
+                            Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                                CompassButton(cameraState, modifier = Modifier.align(Alignment.TopEnd))
+                            }
                         }
                     }
                 }
@@ -256,3 +310,54 @@ private data class SensorCardData(
     val value: String,
     val label: String
 )
+
+private fun getPois(): String {
+    return """
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "type": "AltglasContainer", "name": "Altglas 1" },
+      "geometry": { "type": "Point", "coordinates": [7.6588259, 47.6158539] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "AltglasContainer", "name": "Altglas 2" },
+      "geometry": { "type": "Point", "coordinates": [7.6625086, 47.6020404] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "AltglasContainer", "name": "Altglas 3" },
+      "geometry": { "type": "Point", "coordinates": [7.6656273, 47.6060166] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "AltglasContainer", "name": "Altglas 4" },
+      "geometry": { "type": "Point", "coordinates": [7.6821256, 47.6046121] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "AltglasContainer", "name": "Altglas 5" },
+      "geometry": { "type": "Point", "coordinates": [7.6575314, 47.6257573] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "AltglasContainer", "name": "Altglas 6" },
+      "geometry": { "type": "Point", "coordinates": [7.6576323, 47.6074133] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "Altkleidercontainer", "name": "Altkleider 1" },
+      "geometry": { "type": "Point", "coordinates": [7.6593509, 47.6169543] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "type": "Altkleidercontainer", "name": "Altkleider 2" },
+      "geometry": { "type": "Point", "coordinates": [7.6574422, 47.6030977] }
+    }
+  ]
+}
+    """.trimIndent()
+}
+

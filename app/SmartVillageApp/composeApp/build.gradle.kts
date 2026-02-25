@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.maplibre.compose)
+            implementation(libs.maplibre.composeMaterial3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
