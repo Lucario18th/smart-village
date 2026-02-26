@@ -29,6 +29,10 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+            implementation("io.ktor:ktor-client-android:3.4.0")
+        }
+        iosMain.dependencies {
+            implementation("io.ktor:ktor-client-darwin:3.4.0")
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -41,6 +45,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.maplibre.compose)
             implementation(libs.maplibre.composeMaterial3)
+            implementation("ovh.plrapps:mapcompose-mp:0.12.0")
+            implementation("io.ktor:ktor-client-core:3.4.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

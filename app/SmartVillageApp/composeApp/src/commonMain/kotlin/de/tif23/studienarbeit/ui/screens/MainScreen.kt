@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key.Companion.Symbol
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import de.tif23.studienarbeit.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.maplibre.compose.camera.CameraPosition
@@ -59,6 +61,8 @@ import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.compose.style.rememberStyleState
 import org.maplibre.spatialk.geojson.Position
+import ovh.plrapps.mapcompose.core.TileStreamProvider
+import ovh.plrapps.mapcompose.ui.MapUI
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
@@ -72,7 +76,7 @@ import smartvillageapp.composeapp.generated.resources.thermometer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val notifications = listOf(
         "Baustelle B317",
         "Wochenmarkt"
@@ -169,14 +173,14 @@ fun MainScreen() {
             }
         ) { paddingValues ->
 
-            val cameraState = rememberCameraState(
-                firstPosition = CameraPosition(
-                    target = Position(latitude = 47.61379, longitude = 7.66707),
-                    zoom = 14.0
-                )
-            )
-            val styleState = rememberStyleState()
-            val coroutineScope = rememberCoroutineScope()
+//            val cameraState = rememberCameraState(
+//                firstPosition = CameraPosition(
+//                    target = Position(latitude = 47.61379, longitude = 7.66707),
+//                    zoom = 14.0
+//                )
+//            )
+//            val styleState = rememberStyleState()
+//            val coroutineScope = rememberCoroutineScope()
 
             LazyColumn(
                 modifier = Modifier
@@ -199,34 +203,36 @@ fun MainScreen() {
                                     shape = RectangleShape
                                 )
                         ) {
-                            MaplibreMap(
-                                baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/bright"),
-                                cameraState = cameraState,
-                                styleState = styleState,
-                                options = MapOptions(ornamentOptions = OrnamentOptions.AllDisabled),
-                            ) {
-                                coroutineScope.launch {
-                                    val poiData =
-                                        Res.readBytes("files/pois.geojson").decodeToString()
-                                }
-                                val pois = rememberGeoJsonSource(
-                                    data = GeoJsonData.JsonString(getPois()),
-                                )
+//                            MaplibreMap(
+//                                baseStyle = BaseStyle.Uri("https://tiles.openfreemap.org/styles/bright"),
+//                                cameraState = cameraState,
+//                                styleState = styleState,
+//                                options = MapOptions(ornamentOptions = OrnamentOptions.AllDisabled),
+//                            ) {
+//                                coroutineScope.launch {
+//                                    val poiData =
+//                                        Res.readBytes("files/pois.geojson").decodeToString()
+//                                }
+//                                val pois = rememberGeoJsonSource(
+//                                    data = GeoJsonData.JsonString(getPois()),
+//                                )
+//
+//                                SymbolLayer(
+//                                    id = "containers",
+//                                    source = pois,
+//                                    iconColor = const(Color.Blue),
+//                                    iconImage = coalesce(
+//                                        image("marker-15"),
+//                                        image("marker"),        // optionaler alternativer Name
+//                                        image("default-marker") // letzter Fallback, muss im Sprite existieren
+//                                    )
+//                                )
+//                            }
+//                            Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+//                                CompassButton(cameraState, modifier = Modifier.align(Alignment.TopEnd))
+//                            }
 
-                                SymbolLayer(
-                                    id = "containers",
-                                    source = pois,
-                                    iconColor = const(Color.Blue),
-                                    iconImage = coalesce(
-                                        image("marker-15"),
-                                        image("marker"),        // optionaler alternativer Name
-                                        image("default-marker") // letzter Fallback, muss im Sprite existieren
-                                    )
-                                )
-                            }
-                            Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-                                CompassButton(cameraState, modifier = Modifier.align(Alignment.TopEnd))
-                            }
+                            MapUI(state = viewModel.state)
                         }
                     }
                 }
