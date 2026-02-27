@@ -43,6 +43,7 @@ import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
 import smartvillageapp.composeapp.generated.resources.home
+import smartvillageapp.composeapp.generated.resources.logo
 import smartvillageapp.composeapp.generated.resources.map
 import smartvillageapp.composeapp.generated.resources.notifications
 import smartvillageapp.composeapp.generated.resources.pinboard
@@ -80,21 +81,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 TopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primaryContainer,
-                                        shape = RoundedCornerShape(6.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "LOGO",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
+                            Image(
+                                painter = painterResource(Res.drawable.logo),
+                                contentDescription = null
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Smart Village")
                         }
