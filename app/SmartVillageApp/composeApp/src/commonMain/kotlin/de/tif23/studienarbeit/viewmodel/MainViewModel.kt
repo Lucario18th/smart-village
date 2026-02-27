@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -46,29 +43,12 @@ class MainViewModel : ViewModel() {
 
     val mapState = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 16) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel)))
-        scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))  // Paris
+        scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
     }.apply {
         addLayer(tileStreamProvider)
-//        addMarker("altglas1", lonToX(7.6588259), latToY(47.6158539)) {
-//            Icon(
-//                painter = painterResource(Res.drawable.altglas_location),
-//                contentDescription = null,
-//                modifier = Modifier.size(24.dp),
-//                tint = MaterialTheme.colorScheme.primary
-//            )
-//        }
-//        addMarker("altglas2", lonToX(7.6625086), latToY(47.6020404)) {
-//            Icon(
-//                painter = painterResource(Res.drawable.altglas_location),
-//                contentDescription = null,
-//                modifier = Modifier.size(24.dp),
-//                tint = MaterialTheme.colorScheme.primary
-//            )
-//        }
         scale = 1.0 // to zoom out initially
 
         onMarkerClick { id, x, y ->
-            var shouldAnimate by mutableStateOf(true)
             addCallout(
                 id, x, y,
                 absoluteOffset = DpOffset(0.dp, (-50).dp),
@@ -95,11 +75,9 @@ class MainViewModel : ViewModel() {
     private fun loadMarkers() {
         viewModelScope.launch {
             val container = Res.readBytes("files/container.json").decodeToString()
-            println(container)
             val containerList = JsonArray(Json.parseToJsonElement(container).jsonArray).map {
                 Json.decodeFromJsonElement<RecyclingContainer>(it)
             }
-            println(containerList)
             containerList.forEach {
                 mapState.addMarker(
                     id = it.id,
@@ -114,7 +92,6 @@ class MainViewModel : ViewModel() {
                     )
                 }
             }
-            println("end")
         }
     }
 }
