@@ -39,8 +39,6 @@ ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "k
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktorClientCore" }
 mapcompose-mp = { module = "ovh.plrapps:mapcompose-mp", version.ref = "mapcomposeMp" }
-maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version.ref = "maplibre" }
-maplibre-composeMaterial3 = { module = "org.maplibre.compose:maplibre-compose-material3", version.ref = "maplibre" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
