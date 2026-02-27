@@ -78,63 +78,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
-                TopAppBar(
-                    title = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painter = painterResource(Res.drawable.logo),
-                                contentDescription = null
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Smart Village")
-                        }
-                    },
-                    actions = {
-                        Icon(
-                            painter = painterResource(Res.drawable.notifications),
-                            contentDescription = "Benachrichtigungen",
-                            modifier = Modifier.padding(end = 12.dp)
-                        )
-                        Icon(
-                            painter = painterResource(Res.drawable.account_circle),
-                            contentDescription = "Profil",
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent
-                    )
-                )
+                TopBar()
             },
             bottomBar = {
-                NavigationBar {
-                    NavigationBarItem(
-                        selected = true,
-                        onClick = { },
-                        icon = { Icon(painterResource(Res.drawable.home), contentDescription = "Home") },
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { },
-                        icon = { Icon(painterResource(Res.drawable.map), contentDescription = "Karte") },
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { },
-                        icon = { Icon(painterResource(Res.drawable.thermometer), contentDescription = "Sensoren") },
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { },
-                        icon = { Icon(painterResource(Res.drawable.pinboard), contentDescription = "Pinboard") },
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { },
-                        icon = { Icon(painterResource(Res.drawable.settings), contentDescription = "Einstellungen") },
-                    )
-                }
+                NavBar()
             }
         ) { paddingValues ->
 
@@ -237,6 +184,85 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             }
         }
     }
+}
+
+@Composable
+private fun NavBar() {
+    NavigationBar {
+        NavigationBarItem(
+            selected = true,
+            onClick = { },
+            icon = { Icon(painterResource(Res.drawable.home), contentDescription = "Home") },
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { },
+            icon = { Icon(painterResource(Res.drawable.map), contentDescription = "Karte") },
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { },
+            icon = {
+                Icon(
+                    painterResource(Res.drawable.thermometer),
+                    contentDescription = "Sensoren"
+                )
+            },
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { },
+            icon = {
+                Icon(
+                    painterResource(Res.drawable.pinboard),
+                    contentDescription = "Pinboard"
+                )
+            },
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { },
+            icon = {
+                Icon(
+                    painterResource(Res.drawable.settings),
+                    contentDescription = "Einstellungen"
+                )
+            },
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TopBar() {
+    TopAppBar(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(Res.drawable.logo),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Smart Village")
+            }
+        },
+        actions = {
+            Icon(
+                painter = painterResource(Res.drawable.notifications),
+                contentDescription = "Benachrichtigungen",
+                modifier = Modifier.padding(end = 12.dp)
+            )
+            Icon(
+                painter = painterResource(Res.drawable.account_circle),
+                contentDescription = "Profil",
+                modifier = Modifier.padding(end = 8.dp)
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
+        )
+    )
 }
 
 private data class SensorCardData(
