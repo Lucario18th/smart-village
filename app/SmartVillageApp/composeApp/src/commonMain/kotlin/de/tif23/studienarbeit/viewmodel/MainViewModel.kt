@@ -19,6 +19,7 @@ import de.tif23.studienarbeit.util.lonToX
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
+import de.tif23.studienarbeit.viewmodel.data.RecyclingType
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -34,6 +35,7 @@ import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.altglas_location
+import smartvillageapp.composeapp.generated.resources.altkleider_location
 import kotlin.math.pow
 
 class MainViewModel : ViewModel() {
@@ -105,7 +107,7 @@ class MainViewModel : ViewModel() {
                     y = latToY(it.coordinates.lat)
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.altglas_location),
+                        painter = if (it.type == RecyclingType.ALTGLAS.name) painterResource(Res.drawable.altglas_location) else painterResource(Res.drawable.altkleider_location),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.primary
