@@ -30,8 +30,8 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     container_name: smartvillage-backend
-    env_file:
-      - ../backend/.env
+    # env_file:
+    #   - ../backend/.env
     depends_on:
       - postgres
     networks:
