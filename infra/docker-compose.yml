@@ -1,1 +1,73 @@
+version: "3.9"
 
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: smartvillage-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      # Unsere Nginx-Konfiguration
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # Static Files vom Frontend-Container (wird per Volume-Share bereitgestellt)
+      - frontend-build:/usr/share/nginx/html:ro
+    networks:
+      - smartvillage-net
+
+  frontend:
+    build:
+      context: ../website
+      dockerfile: Dockerfile
+    container_name: smartvillage-frontend
+    # Dieser Container baut das React-Frontend und legt Build in /usr/share/nginx/html ab
+    volumes:
+      - frontend-build:/usr/share/nginx/html
+    networks:
+      - smartvillage-net
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: smartvillage-backend
+    env_file:
+      - ../backend/.env
+    depends_on:
+      - postgres
+      - mongo
+    networks:
+      - smartvillage-net
+
+  postgres:
+    image: timescale/timescaledb-postgis:latest
+    container_name: smartvillage-postgres
+    environment:
+      POSTGRES_USER: smartvillage
+      POSTGRES_PASSWORD: smartvillage
+      POSTGRES_DB: smartvillage
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - smartvillage-net
+
+  mongo:
+    image: mongo:6
+    container_name: smartvillage-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: smartvillage
+      MONGO_INITDB_ROOT_PASSWORD: smartvillage
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - smartvillage-net
+
+networks:
+  smartvillage-net:
+
+volumes:
+  postgres-data:
+  mongo-data:
+  frontend-build:
