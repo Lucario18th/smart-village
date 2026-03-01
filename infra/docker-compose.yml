@@ -30,8 +30,15 @@ services:
     container_name: smartvillage-backend
     depends_on:
       - postgres
+    environment:
+      DATABASE_URL: postgres://smartvillage:smartvillage@smartvillage-postgres:5432/smartvillage
+    ports:
+      - "8000:8000"
     networks:
       - smartvillage-net
+
+
+
 
 
   postgres:

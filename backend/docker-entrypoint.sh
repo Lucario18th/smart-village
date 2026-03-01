@@ -1,8 +1,5 @@
 #!/bin/sh
 set -e
 
-echo "Running Prisma migrations..."
-npx prisma migrate deploy
-
-echo "Starting NestJS..."
+echo "Starting NestJS (without Prisma migrations)..."
 node dist/main.js
