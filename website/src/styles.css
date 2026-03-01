@@ -1,0 +1,79 @@
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:var(--md-sys-color-background);color:var(--md-sys-color-on-background)}
+
+.auth-page{min-height:100vh;display:grid;place-items:center;padding:24px}
+.auth-card{width:min(100%,440px);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:24px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
+.auth-card h1{margin:0 0 10px;color:var(--md-sys-color-primary)}
+.auth-card p{margin:0 0 18px;color:var(--md-sys-color-on-surface-variant)}
+.auth-form{display:grid;gap:10px}
+.auth-form label{font-size:14px;font-weight:600}
+.auth-form input{padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+.auth-form button{margin-top:6px;padding:11px 14px;border:none;border-radius:8px;background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);font-weight:600;cursor:pointer}
+.auth-error{margin:0;color:var(--md-sys-color-error)}
+.auth-hint{margin-top:14px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+
+.admin-page{max-width:1040px;margin:48px auto;padding:24px}
+.admin-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.admin-header h1{margin:0 0 6px;color:var(--md-sys-color-primary)}
+.admin-header p{margin:0;color:var(--md-sys-color-on-surface-variant)}
+.admin-header button{padding:10px 14px;border:none;border-radius:8px;background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer}
+.admin-nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.admin-nav-button{padding:9px 14px;border-radius:999px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
+.admin-nav-button.active{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.admin-panel{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:20px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
+.admin-panel h2{margin:0 0 8px;color:var(--md-sys-color-primary)}
+.admin-panel p{margin:0 0 12px;color:var(--md-sys-color-on-surface-variant)}
+.admin-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px;margin:14px 0 8px}
+.admin-form-grid label{display:grid;gap:6px;font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
+.admin-form-grid .full-width{grid-column:1 / -1}
+.admin-form-grid input,.admin-form-grid textarea,.admin-form-grid select,.module-controls select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
+.design-hint{margin:0 0 12px;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
+.general-form-header{display:flex;justify-content:flex-end;margin-top:8px}
+.edit-toggle-button{padding:8px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
+.edit-hint{grid-column:1 / -1;margin:2px 0 0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.module-list{display:grid;gap:12px;margin:12px 0 10px}
+.module-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:14px;border-radius:10px;background:var(--md-sys-color-surface)}
+.module-row h3{margin:0 0 6px;color:var(--md-sys-color-primary)}
+.module-row p{margin:0;color:var(--md-sys-color-on-surface-variant)}
+.module-controls{display:grid;gap:8px;min-width:180px}
+.checkbox-label{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--md-sys-color-on-surface)}
+.summary-list{margin:10px 0 0;padding-left:20px;color:var(--md-sys-color-on-surface)}
+.summary-list li+li{margin-top:6px}
+.config-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.config-actions button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
+.config-actions .primary{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.storage-status{margin:10px 0 0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.card{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:16px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
+.card h2{margin-top:0}
+.card p{margin-bottom:0;color:var(--md-sys-color-on-surface-variant)}
+.app-footer{text-align:center;color:var(--md-sys-color-on-surface-variant);margin-top:28px;font-size:14px}
+
+/* Sensor Management Styles */
+.sensors-container{display:grid;gap:16px}
+.module-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.module-tab{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer;font-size:14px}
+.module-tab.active{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.sensors-content{display:grid;gap:12px}
+.sensors-content h3{margin:0 0 4px;color:var(--md-sys-color-primary)}
+.sensors-description{margin:0 0 12px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.sensors-list{display:grid;gap:10px;margin:12px 0}
+.sensor-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--md-sys-color-surface);border-left:4px solid var(--md-sys-color-tertiary)}
+.sensor-row h4{margin:0 0 4px;color:var(--md-sys-color-primary);font-size:15px}
+.sensor-source{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-actions{display:flex;gap:6px}
+.sensor-action-btn{padding:6px 10px;border:none;border-radius:6px;background:transparent;color:var(--md-sys-color-on-surface-variant);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s}
+.sensor-action-btn.edit{color:var(--md-sys-color-primary)}
+.sensor-action-btn.edit:hover{background:var(--md-sys-color-primary-container)}
+.sensor-action-btn.delete{color:var(--md-sys-color-error)}
+.sensor-action-btn.delete:hover{background:var(--md-sys-color-error-container)}
+.sensor-form{display:grid;gap:12px;padding:14px;border-radius:10px;background:var(--md-sys-color-surface);border-left:4px solid var(--md-sys-color-secondary)}
+.sensor-form .form-group{display:grid;gap:6px}
+.sensor-form .form-group label{font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
+.sensor-form .form-group input,.sensor-form .form-group select{padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;width:100%}
+.sensor-form-actions{display:flex;gap:8px;margin-top:4px}
+.sensor-form-actions button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer;font-size:14px}
+.sensor-form-actions button.primary{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.add-sensor-btn{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-primary);font-weight:600;cursor:pointer;font-size:14px;margin-top:6px}
+.add-sensor-btn:hover{background:var(--md-sys-color-primary-container)}
+.no-sensors{margin:12px 0;padding:12px;text-align:center;background:var(--md-sys-color-surface);border-radius:8px;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.sensor-button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer;font-size:13px}
