@@ -35,16 +35,19 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.viewmodel.MainViewModel
+import de.tif23.studienarbeit.viewmodel.NavDestinations
 import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.ui.MapUI
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
+import smartvillageapp.composeapp.generated.resources.commute
 import smartvillageapp.composeapp.generated.resources.home
 import smartvillageapp.composeapp.generated.resources.logo
-import smartvillageapp.composeapp.generated.resources.map
 import smartvillageapp.composeapp.generated.resources.notifications
 import smartvillageapp.composeapp.generated.resources.pinboard
 import smartvillageapp.composeapp.generated.resources.settings
@@ -52,7 +55,7 @@ import smartvillageapp.composeapp.generated.resources.thermometer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel = viewModel()) {
+fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewModel()) {
     val notifications = listOf(
         "Baustelle B317",
         "Wochenmarkt"
@@ -81,7 +84,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 TopBar()
             },
             bottomBar = {
-                NavBar()
+                NavBar(backStack)
             }
         ) { paddingValues ->
 
@@ -187,17 +190,17 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 }
 
 @Composable
-private fun NavBar() {
+private fun NavBar(backStack: NavBackStack<NavKey>) {
     NavigationBar {
         NavigationBarItem(
             selected = true,
-            onClick = { },
+            onClick = {  },
             icon = { Icon(painterResource(Res.drawable.home), contentDescription = "Home") },
         )
         NavigationBarItem(
             selected = false,
-            onClick = { },
-            icon = { Icon(painterResource(Res.drawable.map), contentDescription = "Karte") },
+            onClick = { backStack.add(NavDestinations.MobilityScreen) },
+            icon = { Icon(painterResource(Res.drawable.commute), contentDescription = "Karte") },
         )
         NavigationBarItem(
             selected = false,
