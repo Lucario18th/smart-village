@@ -10,6 +10,9 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import de.tif23.studienarbeit.ui.screens.MainScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
+import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
+import de.tif23.studienarbeit.ui.screens.RideOfferScreen
+import de.tif23.studienarbeit.ui.screens.StationDeparturesScreen
 import de.tif23.studienarbeit.ui.theme.SmartVillageTheme
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import kotlinx.serialization.modules.SerializersModule
@@ -63,6 +66,18 @@ fun App() {
 
                 entry<NavDestinations.NotificationsScreen> {
 
+                }
+
+                entry<NavDestinations.RideDetailsScreen> {
+                    RideDetailsScreen(backStack)
+                }
+
+                entry<NavDestinations.RideOfferScreen> {
+                    RideOfferScreen(backStack)
+                }
+
+                entry<NavDestinations.StationScreen> {
+                    StationDeparturesScreen(backStack)
                 }
             }
         )
