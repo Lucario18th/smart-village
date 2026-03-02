@@ -1,0 +1,12 @@
+# Node dependencies
+node_modules/
+backend/node_modules/
+website/node_modules/
+
+# Build-Artefakte
+website/dist/
+backend/dist/
+
+# Sonstiges
+.env
+backend/.env
