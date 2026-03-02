@@ -1,33 +1,33 @@
+# --- Build-Stage ---
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# deps
 COPY package*.json ./
 RUN npm install
 
-# source
+# Code + Prisma-Schema (inkl. prisma/)
 COPY . .
 
-# Prisma Client bauen
+# Prisma Client generieren (nutzt prisma/schema.prisma)
 RUN npx prisma generate
 
-# Nest build
+# NestJS build
 RUN npm run build
 
-# --- Runtime-Image ---
+
+# --- Runtime-Stage ---
 FROM node:20-alpine
 WORKDIR /app
 
-# nur was nötig ist
 COPY package*.json ./
 RUN npm install --only=production
 
+# Prisma-Client + Schema + dist aus der Build-Stage
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/dist ./dist
 
-# Entry-Script
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
