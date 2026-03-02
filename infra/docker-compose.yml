@@ -4,12 +4,14 @@ services:
     container_name: smartvillage-nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - frontend
       - backend
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - frontend-build:/usr/share/nginx/html:ro
+      - /opt/smartvillage/certs:/etc/nginx/certs:ro
     networks:
       - smartvillage-net
 
@@ -37,10 +39,6 @@ services:
     networks:
       - smartvillage-net
 
-
-
-
-
   postgres:
     image: timescale/timescaledb:latest-pg15
     container_name: smartvillage-postgres
@@ -50,6 +48,8 @@ services:
       POSTGRES_DB: smartvillage
     volumes:
       - /srv/smartvillage/postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
       - smartvillage-net
 
