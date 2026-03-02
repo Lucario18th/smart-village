@@ -1,6 +1,8 @@
 package de.tif23.studienarbeit.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
@@ -26,6 +31,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,11 +39,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.viewmodel.NavDestinations
+import org.jetbrains.compose.resources.painterResource
+import smartvillageapp.composeapp.generated.resources.Res
+import smartvillageapp.composeapp.generated.resources.background_dark
+import smartvillageapp.composeapp.generated.resources.background_light
+import smartvillageapp.composeapp.generated.resources.bus_railway
+import smartvillageapp.composeapp.generated.resources.departure_board
+import smartvillageapp.composeapp.generated.resources.settings
+import smartvillageapp.composeapp.generated.resources.train
+import smartvillageapp.composeapp.generated.resources.transportation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,33 +62,50 @@ import de.tif23.studienarbeit.viewmodel.NavDestinations
 fun MobilityScreen(backStack: NavBackStack<NavKey>) {
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabs = listOf("Mitfahren", "ÖPNV", "Route")
+    val backgroundPainter = painterResource(
+        if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
+    )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Mobilität") }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(title) }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = backgroundPainter,
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text("Mobilität") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent
                     )
-                }
+                )
             }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = { Text(title, fontWeight = FontWeight.Bold) }
+                        )
+                    }
+                }
 
-            when (selectedTabIndex) {
-                0 -> CarpoolTabContent(backStack)
-                1 -> TransitTabContent(backStack)
-                else -> RoutingTabContent()
+                when (selectedTabIndex) {
+                    0 -> CarpoolTabContent(backStack)
+                    1 -> TransitTabContent(backStack)
+                    else -> RoutingTabContent()
+                }
             }
         }
     }
@@ -93,15 +127,30 @@ private fun CarpoolTabContent(backStack: NavBackStack<NavKey>) {
         items(rides) { ride ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Ziel: ${ride.destination}", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(Res.drawable.transportation),
+                            contentDescription = "Mitfahren",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Ziel: ${ride.destination}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(text = "Zeit: ${ride.time}")
-                    Text(text = "Fahrerin/Fahrer: ${ride.driver} - ${ride.seats}")
+                    Text(
+                        text = "Fahrerin/Fahrer: ${ride.driver} - ${ride.seats}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = { backStack.add(NavDestinations.RideDetailsScreen("abc")) }) {
+                    Button(onClick = { backStack.add(NavDestinations.RideDetailsScreen("abc")) }) {
                         Text("Mitfahren anfragen")
                     }
                 }
@@ -158,10 +207,20 @@ private fun TransitTabContent(backStack: NavBackStack<NavKey>) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(
-                text = "Nächste Haltestellen",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.departure_board),
+                    contentDescription = "Haltestellen",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Nächste Haltestellen",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
         items(nearbyStops) { stop ->
             StopCard(stop) {
@@ -169,10 +228,21 @@ private fun TransitTabContent(backStack: NavBackStack<NavKey>) {
             }
         }
         item {
-            Text(
-                text = "Bahnhöfe",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.train),
+                    contentDescription = "Bahnhöfe",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                // TODO: Passendes Bahnhof-Icon fehlt, Platzhalter.
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Bahnhöfe",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
         items(stations) { station ->
             StationCard(station)
@@ -184,7 +254,7 @@ private fun TransitTabContent(backStack: NavBackStack<NavKey>) {
 private fun RoutingTabContent() {
     val routeOptions = listOf(
         RouteOption("Auto", "25 Min - 18 km - über B33"),
-        RouteOption("OePNV", "45 Min - Bus 204 + RE 2"),
+        RouteOption("ÖPNV", "45 Min - Bus 204 + RE 2"),
         RouteOption("Rad", "55 Min - 15 km - Radweg R3")
     )
 
@@ -214,9 +284,9 @@ private fun RoutingTabContent() {
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = true, onClick = { }, label = { Text("Auto") })
-                FilterChip(selected = false, onClick = { }, label = { Text("OePNV") })
+                FilterChip(selected = false, onClick = { }, label = { Text("ÖPNV") })
                 FilterChip(selected = false, onClick = { }, label = { Text("Rad") })
-                FilterChip(selected = false, onClick = { }, label = { Text("Fuss") })
+                FilterChip(selected = false, onClick = { }, label = { Text("Fuß") })
             }
         }
         item {
@@ -230,19 +300,28 @@ private fun RoutingTabContent() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Kartenplatzhalter", style = MaterialTheme.typography.bodyMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(Res.drawable.settings),
+                            contentDescription = "Karte",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        // TODO: Passendes Karten-Icon fehlt, Platzhalter.
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Kartenplatzhalter", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
         }
         items(routeOptions) { option ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(option.title, style = MaterialTheme.typography.titleMedium)
+                    Text(option.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(option.subtitle)
+                    Text(option.subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -256,23 +335,36 @@ private fun StopCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Haltestelle: ${stop.name}",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.clickable { onClick() }
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(Res.drawable.bus_railway),
+                        contentDescription = "Haltestelle",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Haltestelle: ${stop.name}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { onClick() }
+                    )
+                }
                 Text(text = stop.distance, style = MaterialTheme.typography.bodySmall)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            stop.departures.forEach { departure ->
+            stop.departures.forEachIndexed { index, departure ->
                 DepartureRow(departure)
+                if (index < stop.departures.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                }
             }
         }
     }
@@ -282,19 +374,35 @@ private fun StopCard(
 private fun StationCard(station: StationDepartures) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Bahnhof: ${station.name}", style = MaterialTheme.typography.titleMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(Res.drawable.train),
+                        contentDescription = "Bahnhof",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Bahnhof: ${station.name}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 Text(text = station.distance, style = MaterialTheme.typography.bodySmall)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            station.departures.forEach { departure ->
+            station.departures.forEachIndexed { index, departure ->
                 DepartureRow(departure)
+                if (index < station.departures.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(onClick = { }) {
@@ -312,11 +420,12 @@ private fun DepartureRow(departure: Departure) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text("${departure.line} - ${departure.destination}")
+            Text("${departure.line} - ${departure.destination}", fontWeight = FontWeight.SemiBold)
             Text(
                 text = departure.status,
                 style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
             )
         }
         Spacer(modifier = Modifier.width(12.dp))

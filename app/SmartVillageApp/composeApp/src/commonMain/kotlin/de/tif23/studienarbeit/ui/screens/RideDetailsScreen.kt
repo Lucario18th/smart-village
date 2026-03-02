@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -23,9 +26,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import org.jetbrains.compose.resources.painterResource
+import smartvillageapp.composeapp.generated.resources.Res
+import smartvillageapp.composeapp.generated.resources.commute
+import smartvillageapp.composeapp.generated.resources.settings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,28 +64,60 @@ fun RideDetailsScreen(backStack: NavBackStack<NavKey>) {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Kartenplatzhalter", style = MaterialTheme.typography.bodyMedium)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(Res.drawable.settings),
+                                contentDescription = "Karte",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            // TODO: Passendes Karten-Icon fehlt, Platzhalter.
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Kartenplatzhalter", style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Max Mustermann", style = MaterialTheme.typography.titleMedium)
-                        Text("4.8 Sterne - 23 Fahrten", style = MaterialTheme.typography.bodySmall)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(Res.drawable.commute),
+                                contentDescription = "Fahrer",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text("Max Mustermann", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                Text("4.8 Sterne - 23 Fahrten", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
                     }
                 }
             }
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Von: Gengenbach, Hauptstrasse")
-                    Text("Nach: Freiburg Hbf")
-                    Text("Datum: 15.07.2026")
-                    Text("Zeit: 10:00")
-                    Text("Plaetze: 2 von 3 frei")
+                Text(
+                    "Fahrtinformationen",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Von: Gengenbach, Hauptstrasse", fontWeight = FontWeight.SemiBold)
+                        Text("Nach: Freiburg Hbf", fontWeight = FontWeight.SemiBold)
+                        Text("Datum: 15.07.2026")
+                        Text("Zeit: 10:00")
+                        Text("Plaetze: 2 von 3 frei")
+                    }
                 }
             }
             item {
@@ -87,11 +127,19 @@ fun RideDetailsScreen(backStack: NavBackStack<NavKey>) {
                 )
             }
             item {
-                Text("Mitfahrer", style = MaterialTheme.typography.titleMedium)
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+            }
+            item {
+                Text("Mitfahrer", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Lisa K. (bestaetigt)")
-                    Text("1 Platz reserviert (offen)")
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Lisa K. (bestaetigt)", fontWeight = FontWeight.SemiBold)
+                        Text("1 Platz reserviert (offen)")
+                    }
                 }
             }
             item {
