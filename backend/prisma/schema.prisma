@@ -75,15 +75,15 @@ model SensorType {
 }
 
 model Sensor {
-  id           Int          @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   villageId    Int
   sensorTypeId Int
   name         String
   infoText     String?
-  isActive     Boolean      @default(true)
+  isActive     Boolean       @default(true)
 
-  village      Village      @relation(fields: [villageId], references: [id])
-  sensorType   SensorType   @relation(fields: [sensorTypeId], references: [id])
+  village      Village       @relation(fields: [villageId], references: [id])
+  sensorType   SensorType    @relation(fields: [sensorTypeId], references: [id])
   status       SensorStatus?
   readings     SensorReading[]
 }
