@@ -15,9 +15,15 @@ RUN npx prisma generate
 RUN npm run build
 
 
+
 # --- Runtime-Stage ---
 FROM node:20-alpine
 WORKDIR /app
+
+# Tools für DB-Wait + Prisma (nc + openssl)
+RUN apk add --no-cache \
+    netcat-openbsd \
+    openssl
 
 COPY package*.json ./
 RUN npm install --only=production

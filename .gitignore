@@ -10,3 +10,6 @@ backend/dist/
 # Sonstiges
 .env
 backend/.env
+infra/.env
+frontend/.env
+

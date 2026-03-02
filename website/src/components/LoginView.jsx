@@ -1,23 +1,45 @@
 import React, { useState } from 'react'
 import { AUTH_HINT } from '../auth/accounts'
+import { useNavigate } from 'react-router-dom'
 
-export default function LoginView({ onLogin }) {
+export default function LoginView() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-
-    const result = onLogin({ username, password })
-
-    if (!result.success) {
-      setErrorMessage(result.error)
-      return
-    }
-
-    setPassword('')
     setErrorMessage('')
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: username, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.message || 'Login fehlgeschlagen.')
+        return
+      }
+
+      if (data.accessToken) {
+        localStorage.setItem('authToken', data.accessToken)
+      }
+
+      setPassword('')
+      setErrorMessage('')
+
+      // zurück auf die "alte" Seite (z.B. Admin-Dashboard)
+      navigate('/admin') // Pfad anpassen auf deine frühere Seite[web:233][web:239]
+    } catch (error) {
+      setErrorMessage('Server nicht erreichbar.')
+    }
   }
 
   return (
@@ -30,7 +52,7 @@ export default function LoginView({ onLogin }) {
           <label htmlFor="username">Benutzername</label>
           <input
             id="username"
-            type="text"
+            type="email"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             autoComplete="username"
