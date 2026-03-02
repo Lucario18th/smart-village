@@ -67,7 +67,6 @@ fun StationDeparturesScreen(backStack: NavBackStack<NavKey>) {
                         contentDescription = "Bahnhof",
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    // TODO: Passendes Bahnhof-Icon fehlt, Platzhalter.
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "~8km entfernt",
@@ -97,7 +96,6 @@ fun StationDeparturesScreen(backStack: NavBackStack<NavKey>) {
                                 contentDescription = "Abfahrt",
                                 tint = MaterialTheme.colorScheme.primary
                             )
-                            // TODO: Passendes Abfahrts-Icon fehlt, Platzhalter.
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 "${item.time}  ${item.line}",

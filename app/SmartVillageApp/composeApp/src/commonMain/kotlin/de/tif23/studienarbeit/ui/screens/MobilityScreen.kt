@@ -234,7 +234,6 @@ private fun TransitTabContent(backStack: NavBackStack<NavKey>) {
                     contentDescription = "Bahnhöfe",
                     tint = MaterialTheme.colorScheme.primary
                 )
-                // TODO: Passendes Bahnhof-Icon fehlt, Platzhalter.
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Bahnhöfe",
@@ -306,7 +305,6 @@ private fun RoutingTabContent() {
                             contentDescription = "Karte",
                             tint = MaterialTheme.colorScheme.primary
                         )
-                        // TODO: Passendes Karten-Icon fehlt, Platzhalter.
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Kartenplatzhalter", style = MaterialTheme.typography.bodyMedium)
                     }

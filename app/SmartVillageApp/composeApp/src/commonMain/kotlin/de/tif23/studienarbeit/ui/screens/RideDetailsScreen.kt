@@ -70,7 +70,6 @@ fun RideDetailsScreen(backStack: NavBackStack<NavKey>) {
                                 contentDescription = "Karte",
                                 tint = MaterialTheme.colorScheme.primary
                             )
-                            // TODO: Passendes Karten-Icon fehlt, Platzhalter.
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Kartenplatzhalter", style = MaterialTheme.typography.bodyMedium)
                         }
