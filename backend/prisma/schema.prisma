@@ -8,14 +8,35 @@ generator client {
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-model Account {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
-  passwordHash  String
-  createdAt     DateTime  @default(now())
-  lastLoginAt   DateTime?
+// Rollen für Nutzer im Dorf / Account
+enum UserRole {
+  ADMIN      // darf alles, inkl. Sensor-Setup, User-Verwaltung
+  TECH       // darf Sensoren / Technik konfigurieren
+  VIEWER     // darf nur ansehen
+}
 
-  villages      Village[]
+// Standardisierte Statuswerte
+enum SensorHealthStatus {
+  OK
+  WARN
+  ERROR
+  UNKNOWN
+}
+
+enum ReadingStatus {
+  OK
+  SUSPECT
+  ERROR
+}
+
+model Account {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  lastLoginAt  DateTime?
+
+  villages     Village[]
 }
 
 model Village {
@@ -39,6 +60,7 @@ model User {
   displayName  String
   phone        String?
   infoText     String?
+  role         UserRole  @default(VIEWER)
 
   village      Village   @relation(fields: [villageId], references: [id])
 }
@@ -67,24 +89,24 @@ model Sensor {
 }
 
 model SensorStatus {
-  id        Int      @id @default(autoincrement())
-  sensorId  Int      @unique
-  status    String
+  id        Int                @id @default(autoincrement())
+  sensorId  Int                @unique
+  status    SensorHealthStatus @default(UNKNOWN)
   message   String?
-  updatedAt DateTime @default(now())
+  updatedAt DateTime           @default(now())
 
-  sensor    Sensor   @relation(fields: [sensorId], references: [id])
+  sensor    Sensor             @relation(fields: [sensorId], references: [id])
 }
 
 model SensorReading {
-  id       Int      @id @default(autoincrement())
+  id       Int           @id @default(autoincrement())
   sensorId Int
   ts       DateTime
   value    Float
-  status   String?
+  status   ReadingStatus @default(OK)
   extra    Json?
 
-  sensor   Sensor   @relation(fields: [sensorId], references: [id])
+  sensor   Sensor        @relation(fields: [sensorId], references: [id])
 
   @@index([sensorId, ts])
   @@index([ts])
