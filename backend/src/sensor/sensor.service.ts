@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class SensorService {
@@ -9,11 +9,16 @@ export class SensorService {
     return this.prisma.sensor.findMany({
       where: { villageId },
       include: { sensorType: true, status: true },
-      orderBy: { id: 'asc' },
+      orderBy: { id: "asc" },
     });
   }
 
-  create(villageId: number, sensorTypeId: number, name: string, infoText?: string) {
+  create(
+    villageId: number,
+    sensorTypeId: number,
+    name: string,
+    infoText?: string,
+  ) {
     return this.prisma.sensor.create({
       data: {
         villageId,
@@ -31,7 +36,10 @@ export class SensorService {
     });
   }
 
-  update(sensorId: number, data: { name?: string; infoText?: string; isActive?: boolean }) {
+  update(
+    sensorId: number,
+    data: { name?: string; infoText?: string; isActive?: boolean },
+  ) {
     return this.prisma.sensor.update({
       where: { id: sensorId },
       data,

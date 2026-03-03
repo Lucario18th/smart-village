@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import * as bcrypt from "bcrypt";
+import { JwtService } from "@nestjs/jwt";
+import { RegisterDto } from "./dto/register.dto";
+import { LoginDto } from "./dto/login.dto";
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (existing) {
-      throw new UnauthorizedException('Email already in use');
+      throw new UnauthorizedException("Email already in use");
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -47,12 +47,12 @@ export class AuthService {
     });
 
     if (!account) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const valid = await bcrypt.compare(dto.password, account.passwordHash);
     if (!valid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const payload = { sub: account.id, email: account.email };

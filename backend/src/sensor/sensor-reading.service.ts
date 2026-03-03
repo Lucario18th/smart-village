@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class SensorReadingService {
@@ -8,13 +8,18 @@ export class SensorReadingService {
 
   async createReadings(
     sensorId: number,
-    readings: Array<{ ts: string; value: number; status?: string; extra?: unknown }>,
+    readings: Array<{
+      ts: string;
+      value: number;
+      status?: string;
+      extra?: unknown;
+    }>,
   ) {
     const mapped: Prisma.SensorReadingCreateManyInput[] = readings.map((r) => ({
       sensorId,
       ts: new Date(r.ts),
       value: r.value,
-      status: (r.status as any) ?? 'OK',
+      status: (r.status as any) ?? "OK",
       extra: (r.extra as Prisma.InputJsonValue) ?? Prisma.JsonNull, // <- wichtig
     }));
 
@@ -30,7 +35,7 @@ export class SensorReadingService {
     from?: string,
     to?: string,
     limit = 1000,
-    order: 'asc' | 'desc' = 'desc',
+    order: "asc" | "desc" = "desc",
   ) {
     const where: any = { sensorId };
     if (from) where.ts = { ...(where.ts || {}), gte: new Date(from) };
@@ -82,7 +87,7 @@ export class SensorReadingService {
 
   async summary(sensorId: number, from: string, to: string) {
     const [agg] = await this.prisma.sensorReading.groupBy({
-      by: ['sensorId'],
+      by: ["sensorId"],
       where: {
         sensorId,
         ts: {
@@ -104,7 +109,7 @@ export class SensorReadingService {
           lte: new Date(to),
         },
       },
-      orderBy: { ts: 'desc' },
+      orderBy: { ts: "desc" },
     });
 
     return {
