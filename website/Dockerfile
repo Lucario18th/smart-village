@@ -9,8 +9,12 @@ RUN npm ci
 # 2. Quellcode
 COPY . .
 
-# 3. Build-Ziel-Verzeichnis = Volume-Pfad aus docker-compose
-ENV BUILD_DIR=/usr/share/nginx/html
+# 3. Build
+RUN npm run build
 
-# 4. Beim Container-Start: Build nach /usr/share/nginx/html schreiben
-CMD ["sh", "-c", "npm run build && rm -rf $BUILD_DIR/* && cp -r dist/* $BUILD_DIR/"]
+# 4. Finale Stage mit nginx für Production
+FROM node:20-alpine
+WORKDIR /app
+
+# Nur den dist Ordner für den Build
+COPY --from=0 /app/dist /usr/share/nginx/html/
