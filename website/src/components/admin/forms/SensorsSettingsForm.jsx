@@ -33,6 +33,8 @@ function SensorForm({ sensor, sensorTypes, onSave, onCancel }) {
       sensorTypeId: sensorTypes[0]?.id || 1,
       infoText: '',
       active: true,
+      dataSourceUrl: '',
+      updateInterval: '300', // 5 minutes default
     }
   )
 
@@ -94,6 +96,35 @@ function SensorForm({ sensor, sensorTypes, onSave, onCancel }) {
           placeholder="Optionale Beschreibung..."
           rows="3"
         />
+      </div>
+
+      <div className="form-group config-section">
+        <h4>Datenquellen-Konfiguration</h4>
+        <label htmlFor="sensor-datasource">API-Endpunkt (optional)</label>
+        <input
+          id="sensor-datasource"
+          type="url"
+          name="dataSourceUrl"
+          value={formData.dataSourceUrl}
+          onChange={handleChange}
+          placeholder="https://api.example.com/sensor/data"
+        />
+        <small>Automatisch abzurufen von dieser Quelle</small>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="sensor-interval">Aktualisierungsintervall (Sekunden)</label>
+        <input
+          id="sensor-interval"
+          type="number"
+          name="updateInterval"
+          value={formData.updateInterval}
+          onChange={handleChange}
+          min="60"
+          max="3600"
+          step="60"
+        />
+        <small>Wie oft die Daten aktualisiert werden sollen</small>
       </div>
 
       <div className="form-group">

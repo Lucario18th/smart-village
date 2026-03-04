@@ -46,6 +46,9 @@ model Village {
   locationName String
   phone        String?
   infoText     String?
+  contactEmail String?
+  contactPhone String?
+  municipalityCode String?
 
   account      Account   @relation(fields: [accountId], references: [id])
   users        User[]

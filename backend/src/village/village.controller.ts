@@ -46,6 +46,9 @@ export class VillageController {
       locationName?: string
       phone?: string
       infoText?: string
+      contactEmail?: string
+      contactPhone?: string
+      municipalityCode?: string
     },
   ) {
     const updatedVillage = await this.prisma.village.update({
@@ -57,6 +60,9 @@ export class VillageController {
         }),
         ...(body.phone !== undefined && { phone: body.phone }),
         ...(body.infoText !== undefined && { infoText: body.infoText }),
+        ...(body.contactEmail !== undefined && { contactEmail: body.contactEmail }),
+        ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone }),
+        ...(body.municipalityCode !== undefined && { municipalityCode: body.municipalityCode }),
       },
       include: {
         sensors: {

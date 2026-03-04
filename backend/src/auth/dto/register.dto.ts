@@ -23,4 +23,16 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   infoText?: string;
+
+  @IsOptional()
+  @IsString()
+  contactEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  contactPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  municipalityCode?: string;
 }

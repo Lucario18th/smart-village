@@ -2,6 +2,7 @@ import React from 'react'
 import GeneralSettingsForm from './forms/GeneralSettingsForm'
 import ModulesSettingsForm from './forms/ModulesSettingsForm'
 import SensorsSettingsForm from './forms/SensorsSettingsForm'
+import StatisticsForm from './forms/StatisticsForm'
 import DesignSettingsForm from './forms/DesignSettingsForm'
 
 export default function AdminSectionPanel({
@@ -43,6 +44,10 @@ export default function AdminSectionPanel({
           onRemoveSensor={onRemoveSensor}
         />
       )
+    }
+
+    if (section.id === 'statistics') {
+      return <StatisticsForm config={config} />
     }
 
     if (section.id === 'design') {

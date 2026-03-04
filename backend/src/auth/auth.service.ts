@@ -32,6 +32,9 @@ export class AuthService {
             locationName: dto.locationName ?? "",
             phone: dto.phone ?? "",
             infoText: dto.infoText ?? "",
+            contactEmail: dto.contactEmail ?? dto.email, // Default to email if not provided
+            contactPhone: dto.contactPhone ?? "",
+            municipalityCode: dto.municipalityCode ?? "",
           },
         },
       },

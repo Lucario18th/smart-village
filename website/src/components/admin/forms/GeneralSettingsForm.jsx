@@ -7,6 +7,13 @@ export default function GeneralSettingsForm({ values, onChange }) {
     setIsEditing((current) => !current)
   }
 
+  const isValidPhone = (phone) => {
+    if (!phone) return true
+    // Simple validation: must start with + and contain only digits, spaces, hyphens
+    const phoneRegex = /^\+?[\d\s\-()]+$/
+    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10
+  }
+
   return (
     <>
       <div className="general-form-header">
@@ -47,6 +54,7 @@ export default function GeneralSettingsForm({ values, onChange }) {
           placeholder="verwaltung@gemeinde.de"
           disabled={!isEditing}
         />
+        <small>Standard: Email des Accounts</small>
       </label>
 
       <label>
@@ -55,9 +63,13 @@ export default function GeneralSettingsForm({ values, onChange }) {
           type="text"
           value={values.contactPhone}
           onChange={(event) => onChange('contactPhone', event.target.value)}
-          placeholder="+49 ..."
+          placeholder="+49 ... (mind. 10 Ziffern)"
           disabled={!isEditing}
+          style={{ borderColor: isEditing && values.contactPhone && !isValidPhone(values.contactPhone) ? '#d32f2f' : undefined }}
         />
+        {isEditing && values.contactPhone && !isValidPhone(values.contactPhone) ? (
+          <small style={{ color: '#d32f2f' }}>Ungültige Telefonnummer</small>
+        ) : null}
       </label>
 
       <label className="full-width">
