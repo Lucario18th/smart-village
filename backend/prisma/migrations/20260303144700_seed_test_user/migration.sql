@@ -1,11 +1,12 @@
--- CreateAccount for testing
-INSERT INTO "Account" (email, "passwordHash", "createdAt")
-VALUES ('test@test.de', '$2b$10$q4P.5.F9k1HGpPGc1hzWwOcQdpg9WDEa0RP6oGqfHZJl8zDvKi4Ya', NOW())
-ON CONFLICT (email) DO NOTHING;
+-- Migration 20260303144700_seed_test_user
+-- 
+-- Previously, this migration seeded a test "Account" with a fixed email and
+-- password hash (test@test.de) and an associated "Village". This created a
+-- static, known set of credentials in every environment where migrations were
+-- run, including production, which is insecure.
+--
+-- To avoid exposing predictable credentials in production databases, the
+-- seeding logic has been removed and this migration is now intentionally a
+-- no-op.
 
--- CreateVillage for test user
-INSERT INTO "Village" ("accountId", "name", "locationName")
-SELECT id, 'Test Village', 'Test Location'
-FROM "Account"
-WHERE email = 'test@test.de'
-ON CONFLICT DO NOTHING;
+-- Intentionally left blank: test user seeding removed for security reasons.
