@@ -45,4 +45,10 @@ export class SensorService {
       data,
     });
   }
+
+  delete(sensorId: number) {
+    return this.prisma.sensor.delete({
+      where: { id: sensorId },
+    });
+  }
 }

@@ -73,6 +73,26 @@ export const apiClient = {
     update(sensorId, data) {
       return apiClient.request('PATCH', `/sensors/${sensorId}`, data);
     },
+    delete(sensorId) {
+      return apiClient.request('DELETE', `/sensors/${sensorId}`);
+    },
+  },
+
+  // Village Endpoints
+  villages: {
+    get(villageId) {
+      return apiClient.request('GET', `/villages/${villageId}`);
+    },
+    update(villageId, data) {
+      return apiClient.request('PUT', `/villages/${villageId}`, data);
+    },
+  },
+
+  // Sensor Types Endpoints
+  sensorTypes: {
+    list() {
+      return apiClient.request('GET', '/sensor-types');
+    },
   },
 
   // Sensor Reading Endpoints
