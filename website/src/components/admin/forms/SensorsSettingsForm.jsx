@@ -1,68 +1,55 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
-const MODULE_METADATA = {
-  rideShareBench: {
-    label: 'Mitfahrbank',
-    description: 'Digitale Mitfahrbank mit Status-/Anfrage-Informationen',
-  },
-  textileContainer: {
-    label: 'Altkleidercontainer',
-    description: 'Sensorische Füllstandserfassung für Entleerungsplanung',
-  },
-  energyMonitor: {
-    label: 'Strommonitoring',
-    description: 'Lokale Energie- und Verbrauchsdaten visualisieren',
-  },
-}
-
-const SOURCE_OPTIONS = [
-  { value: 'simulated', label: 'Simuliert' },
-  { value: 'mqtt', label: 'MQTT' },
-  { value: 'rest', label: 'REST' },
-  { value: 'lora', label: 'LoRa' },
-]
-
-function SensorRow({ sensor, onEdit, onDelete }) {
+function SensorRow({ sensor, sensorTypes, onEdit, onDelete }) {
+  const sensorType = sensorTypes.find(t => t.id === sensor.sensorTypeId)
   return (
     <div className="sensor-row">
       <div>
         <h4>{sensor.name}</h4>
-        <p className="sensor-source">
-          Quelle: <strong>{SOURCE_OPTIONS.find((s) => s.value === sensor.source)?.label || sensor.source}</strong>
+        <p className="sensor-info">
+          Typ: <strong>{sensorType?.name || 'Unbekannt'}</strong> ({sensorType?.unit || '?'})
+        </p>
+        {sensor.infoText && <p className="sensor-description">{sensor.infoText}</p>}
+        <p className="sensor-status">
+          Status: <strong>{sensor.active ? 'Aktiv' : 'Inaktiv'}</strong>
         </p>
       </div>
       <div className="sensor-actions">
         <button type="button" className="sensor-action-btn edit" onClick={onEdit} title="Bearbeiten">
-          ✎ Bearbeiten
+          Bearbeiten
         </button>
         <button type="button" className="sensor-action-btn delete" onClick={onDelete} title="Löschen">
-          × Löschen
+          Löschen
         </button>
       </div>
     </div>
   )
 }
 
-function SensorForm({ sensor, onSave, onCancel, sourceOptions }) {
+function SensorForm({ sensor, sensorTypes, onSave, onCancel }) {
   const [formData, setFormData] = useState(
     sensor || {
       name: '',
-      source: 'simulated',
+      sensorTypeId: sensorTypes[0]?.id || 1,
+      infoText: '',
+      active: true,
+      dataSourceUrl: '',
+      updateInterval: '300', // 5 minutes default
     }
   )
 
   const handleChange = (event) => {
-    const { name, value } = event.target
+    const { name, value, type, checked } = event.target
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }))
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
     if (!formData.name.trim()) {
-      alert('Bitte Sensornamen eingeben')
+      alert('Sensornamen eingeben')
       return
     }
     onSave(formData)
@@ -78,27 +65,86 @@ function SensorForm({ sensor, onSave, onCancel, sourceOptions }) {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          placeholder="z.B. 'Sensor Nord'"
+          placeholder="z.B. Temperatur Rathaus"
           required
         />
       </div>
 
       <div className="form-group">
-        <label htmlFor="sensor-source">Datenquelle</label>
-        <select id="sensor-source" name="source" value={formData.source} onChange={handleChange}>
-          {sourceOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
+        <label htmlFor="sensor-type">Sensortyp</label>
+        <select
+          id="sensor-type"
+          name="sensorTypeId"
+          value={formData.sensorTypeId}
+          onChange={handleChange}
+        >
+          {sensorTypes.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name} ({type.unit})
             </option>
           ))}
         </select>
       </div>
 
-      <div className="sensor-form-actions">
-        <button type="submit" className="primary">
+      <div className="form-group">
+        <label htmlFor="sensor-info">Beschreibung</label>
+        <textarea
+          id="sensor-info"
+          name="infoText"
+          value={formData.infoText}
+          onChange={handleChange}
+          placeholder="Optionale Beschreibung..."
+          rows="3"
+        />
+      </div>
+
+      <div className="form-group config-section">
+        <h4>Datenquellen-Konfiguration</h4>
+        <label htmlFor="sensor-datasource">API-Endpunkt (optional)</label>
+        <input
+          id="sensor-datasource"
+          type="url"
+          name="dataSourceUrl"
+          value={formData.dataSourceUrl}
+          onChange={handleChange}
+          placeholder="https://api.example.com/sensor/data"
+        />
+        <small>Automatisch abzurufen von dieser Quelle</small>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="sensor-interval">Aktualisierungsintervall (Sekunden)</label>
+        <input
+          id="sensor-interval"
+          type="number"
+          name="updateInterval"
+          value={formData.updateInterval}
+          onChange={handleChange}
+          min="60"
+          max="3600"
+          step="60"
+        />
+        <small>Wie oft die Daten aktualisiert werden sollen</small>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="sensor-active">
+          <input
+            id="sensor-active"
+            type="checkbox"
+            name="active"
+            checked={formData.active}
+            onChange={handleChange}
+          />
+          Sensor aktiv
+        </label>
+      </div>
+
+      <div className="form-actions">
+        <button type="submit" className="btn-save">
           Speichern
         </button>
-        <button type="button" onClick={onCancel}>
+        <button type="button" className="btn-cancel" onClick={onCancel}>
           Abbrechen
         </button>
       </div>
@@ -107,102 +153,98 @@ function SensorForm({ sensor, onSave, onCancel, sourceOptions }) {
 }
 
 export default function SensorsSettingsForm({
-  modules,
-  selectedModule,
+  config,
+  sensorTypes,
   onAddSensor,
   onUpdateSensor,
   onRemoveSensor,
-  onSelectModule,
 }) {
-  const moduleIds = Object.keys(MODULE_METADATA)
-  const currentModuleId = selectedModule || moduleIds[0]
-  const currentModule = modules[currentModuleId]
-  const currentSensors = currentModule?.sensors || []
-
   const [editingSensorId, setEditingSensorId] = useState(null)
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [isAddingNew, setIsAddingNew] = useState(false)
+
+  const sensors = useMemo(() => {
+    return config?.sensors || []
+  }, [config?.sensors])
 
   const handleAddSensor = (formData) => {
-    const newSensor = {
-      id: `${currentModuleId}-${Date.now()}`,
+    onAddSensor({
       name: formData.name,
-      source: formData.source,
-      config: {},
-    }
-    onAddSensor(currentModuleId, newSensor)
-    setShowAddForm(false)
+      sensorTypeId: parseInt(formData.sensorTypeId),
+      infoText: formData.infoText,
+      active: formData.active,
+    })
+    setIsAddingNew(false)
   }
 
-  const handleUpdateSensor = (sensorId, formData) => {
-    onUpdateSensor(currentModuleId, sensorId, {
+  const handleUpdateSensor = (formData) => {
+    onUpdateSensor(editingSensorId, {
       name: formData.name,
-      source: formData.source,
+      sensorTypeId: parseInt(formData.sensorTypeId),
+      infoText: formData.infoText,
+      active: formData.active,
     })
     setEditingSensorId(null)
   }
 
   const handleDeleteSensor = (sensorId) => {
-    if (confirm('Sensor wirklich löschen?')) {
-      onRemoveSensor(currentModuleId, sensorId)
+    if (window.confirm('Sensor wirklich löschen?')) {
+      onRemoveSensor(sensorId)
     }
   }
 
   return (
-    <div className="sensors-container">
-      <div className="module-tabs">
-        {moduleIds.map((moduleId) => (
-          <button
-            key={moduleId}
-            type="button"
-            className={`module-tab ${currentModuleId === moduleId ? 'active' : ''}`}
-            onClick={() => onSelectModule(moduleId)}
-          >
-            {MODULE_METADATA[moduleId].label}
-          </button>
-        ))}
+    <section className="sensors-settings">
+      <div className="settings-header">
+        <h2>Sensoren</h2>
+        <button
+          type="button"
+          className="btn-add-sensor"
+          onClick={() => setIsAddingNew(true)}
+          disabled={isAddingNew || editingSensorId !== null}
+        >
+          Neuer Sensor
+        </button>
       </div>
 
-      <div className="sensors-content">
-        <h3>Sensoren: {MODULE_METADATA[currentModuleId].label}</h3>
-        <p className="sensors-description">{MODULE_METADATA[currentModuleId].description}</p>
+      {isAddingNew && (
+        <div className="sensor-form-container">
+          <h3>Neuen Sensor hinzufügen</h3>
+          <SensorForm
+            sensorTypes={sensorTypes}
+            onSave={handleAddSensor}
+            onCancel={() => setIsAddingNew(false)}
+          />
+        </div>
+      )}
 
-        {currentSensors.length === 0 ? (
-          <p className="no-sensors">Noch keine Sensoren konfiguriert</p>
+      <div className="sensors-list">
+        {sensors.length === 0 ? (
+          <p className="empty-message">Noch keine Sensoren konfiguriert.</p>
         ) : (
-          <div className="sensors-list">
-            {currentSensors.map((sensor) => (
-              <div key={sensor.id}>
-                {editingSensorId === sensor.id ? (
+          sensors.map((sensor) => (
+            <div key={sensor.id}>
+              {editingSensorId === sensor.id ? (
+                <div className="sensor-form-container">
+                  <h3>Sensor bearbeiten</h3>
                   <SensorForm
                     sensor={sensor}
-                    onSave={(formData) => handleUpdateSensor(sensor.id, formData)}
+                    sensorTypes={sensorTypes}
+                    onSave={handleUpdateSensor}
                     onCancel={() => setEditingSensorId(null)}
-                    sourceOptions={SOURCE_OPTIONS}
                   />
-                ) : (
-                  <SensorRow
-                    sensor={sensor}
-                    onEdit={() => setEditingSensorId(sensor.id)}
-                    onDelete={() => handleDeleteSensor(sensor.id)}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {showAddForm ? (
-          <SensorForm
-            onSave={handleAddSensor}
-            onCancel={() => setShowAddForm(false)}
-            sourceOptions={SOURCE_OPTIONS}
-          />
-        ) : (
-          <button type="button" className="add-sensor-btn" onClick={() => setShowAddForm(true)}>
-            + Neue Sensor hinzufügen
-          </button>
+                </div>
+              ) : (
+                <SensorRow
+                  sensor={sensor}
+                  sensorTypes={sensorTypes}
+                  onEdit={() => setEditingSensorId(sensor.id)}
+                  onDelete={() => handleDeleteSensor(sensor.id)}
+                />
+              )}
+            </div>
+          ))
         )}
       </div>
-    </div>
+    </section>
   )
 }

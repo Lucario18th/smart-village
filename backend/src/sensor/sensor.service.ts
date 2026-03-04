@@ -47,8 +47,14 @@ export class SensorService {
   }
 
   delete(sensorId: number) {
-    return this.prisma.sensor.delete({
-      where: { id: sensorId },
-    });
+    // First delete all sensor readings to avoid foreign key constraint error
+    return this.prisma.$transaction([
+      this.prisma.sensorReading.deleteMany({
+        where: { sensorId },
+      }),
+      this.prisma.sensor.delete({
+        where: { id: sensorId },
+      }),
+    ]);
   }
 }

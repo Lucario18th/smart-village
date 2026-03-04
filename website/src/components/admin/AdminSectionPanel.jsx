@@ -2,6 +2,7 @@ import React from 'react'
 import GeneralSettingsForm from './forms/GeneralSettingsForm'
 import ModulesSettingsForm from './forms/ModulesSettingsForm'
 import SensorsSettingsForm from './forms/SensorsSettingsForm'
+import StatisticsForm from './forms/StatisticsForm'
 import DesignSettingsForm from './forms/DesignSettingsForm'
 
 export default function AdminSectionPanel({
@@ -9,6 +10,7 @@ export default function AdminSectionPanel({
   entries,
   config,
   selectedModule,
+  sensorTypes,
   onGeneralFieldChange,
   onModuleEnabledChange,
   onNavigateToSensors,
@@ -35,14 +37,17 @@ export default function AdminSectionPanel({
     if (section.id === 'sensors') {
       return (
         <SensorsSettingsForm
-          modules={config.modules}
-          selectedModule={selectedModule}
+          config={config}
+          sensorTypes={sensorTypes || []}
           onAddSensor={onAddSensor}
           onUpdateSensor={onUpdateSensor}
           onRemoveSensor={onRemoveSensor}
-          onSelectModule={onNavigateToSensors}
         />
       )
+    }
+
+    if (section.id === 'statistics') {
+      return <StatisticsForm config={config} />
     }
 
     if (section.id === 'design') {

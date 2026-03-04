@@ -29,12 +29,13 @@ const CONFIG = {
   // Use HTTP_MODE env var to switch between HTTPS and HTTP for testing
   API_URL: process.env.HTTP_MODE === 'true' ? 'http://localhost:8000' : 'https://localhost:8000',
   TEST_USER: {
-    email: 'test@test.de',
+    email: 'e2etest@test.de',
     password: 'test1234',
   },
 };
 
 let authToken = null;
+let accountData = null;
 
 // HTTPS Request Helper
 function httpsRequest(method, path, body = null) {
@@ -143,6 +144,7 @@ async function testGetAccount() {
     const res = await httpsRequest('GET', '/api/auth/me');
 
     if (res.status === 200) {
+      accountData = res.data; // Store account data for later use
       log.success('Account info retrieved');
       log.info(`Email: ${res.data.email}`);
       log.info(`ID: ${res.data.id}`);
@@ -161,7 +163,13 @@ async function testGetAccount() {
 async function testGetSensors() {
   log.header('Test 4: Get Sensors');
   try {
-    const res = await httpsRequest('GET', '/api/sensors');
+    if (!accountData || !accountData.villages || accountData.villages.length === 0) {
+      log.error('No village data available');
+      return false;
+    }
+    
+    const villageId = accountData.villages[0].id;
+    const res = await httpsRequest('GET', `/api/sensors/village/${villageId}`);
 
     if (res.status === 200 && Array.isArray(res.data)) {
       log.success(`Retrieved ${res.data.length} sensors`);
@@ -183,13 +191,19 @@ async function testGetSensors() {
 async function testCreateSensor() {
   log.header('Test 5: Create Sensor');
   try {
+    if (!accountData || !accountData.villages || accountData.villages.length === 0) {
+      log.error('No village data available');
+      return null;
+    }
+    
+    const villageId = accountData.villages[0].id;
     const sensorData = {
-      name: `Test Sensor ${Date.now()}`,
       sensorTypeId: 1, // Temperature
-      location: 'Test Location',
+      name: `Test Sensor ${Date.now()}`,
+      infoText: 'Test Location',
     };
 
-    const res = await httpsRequest('POST', '/api/sensors', sensorData);
+    const res = await httpsRequest('POST', `/api/sensors/village/${villageId}`, sensorData);
 
     if (res.status === 201 || res.status === 200) {
       log.success(`Sensor created: ${res.data.name} (ID: ${res.data.id})`);
@@ -209,16 +223,14 @@ async function testSendReading(sensorId) {
   log.header('Test 6: Send Sensor Reading');
   try {
     const readingData = {
-      value: (Math.random() * 30 + 10).toFixed(2), // Random temp between 10-40°C
-      status: 'OK',
-      timestamp: new Date().toISOString(),
+      ts: new Date().toISOString(),
+      value: Math.random() * 30 + 10, // Random temp between 10-40°C
     };
 
-    const res = await httpsRequest('POST', `/api/sensors/${sensorId}/readings`, readingData);
+    const res = await httpsRequest('POST', `/api/sensor-readings/${sensorId}`, readingData);
 
     if (res.status === 201 || res.status === 200) {
-      log.success(`Reading sent: ${readingData.value}°C`);
-      log.info(`Status: ${readingData.status}`);
+      log.success(`Reading sent: ${readingData.value.toFixed(2)}°C`);
       return true;
     } else {
       log.error(`Send reading failed: ${res.status}`);
@@ -238,15 +250,14 @@ async function testMultipleReadings(sensorId) {
   for (let i = 0; i < 5; i++) {
     try {
       const readingData = {
-        value: (Math.random() * 30 + 10).toFixed(2),
-        status: 'OK',
-        timestamp: new Date().toISOString(),
+        ts: new Date().toISOString(),
+        value: Math.random() * 30 + 10,
       };
 
-      const res = await httpsRequest('POST', `/api/sensors/${sensorId}/readings`, readingData);
+      const res = await httpsRequest('POST', `/api/sensor-readings/${sensorId}`, readingData);
 
       if (res.status === 201 || res.status === 200) {
-        log.info(`  Reading ${i + 1}: ${readingData.value}°C`);
+        log.info(`  Reading ${i + 1}: ${readingData.value.toFixed(2)}°C`);
         successCount++;
       }
     } catch (error) {
@@ -267,12 +278,12 @@ async function testMultipleReadings(sensorId) {
 async function testGetReadings(sensorId) {
   log.header('Test 8: Get Sensor Readings');
   try {
-    const res = await httpsRequest('GET', `/api/sensors/${sensorId}/readings`);
+    const res = await httpsRequest('GET', `/api/sensor-readings/${sensorId}`);
 
     if (res.status === 200 && Array.isArray(res.data)) {
       log.success(`Retrieved ${res.data.length} readings`);
       res.data.slice(0, 3).forEach((reading) => {
-        log.info(`  - Value: ${reading.value}, Status: ${reading.status}`);
+        log.info(`  - Value: ${reading.value}`);
       });
       return true;
     } else {

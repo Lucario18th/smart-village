@@ -18,6 +18,12 @@ export const ADMIN_SECTIONS = [
     description: 'Sensoren und Datenquellen pro Modul konfigurieren.',
   },
   {
+    id: 'statistics',
+    label: 'Statistiken',
+    title: 'Sensor-Statistiken',
+    description: 'Daten und Kennzahlen der Sensoren anzeigen.',
+  },
+  {
     id: 'design',
     label: 'Design',
     title: 'Design und Theme',

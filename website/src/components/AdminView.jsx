@@ -22,6 +22,7 @@ export default function AdminView({ session, onLogout }) {
     loadConfig,
     resetConfig,
     isLoading,
+    sensorTypes,
   } = useVillageConfig(session)
 
   const handleNavigateToSensors = (moduleId) => {
@@ -65,6 +66,7 @@ export default function AdminView({ session, onLogout }) {
         entries={sectionEntries}
         config={config}
         selectedModule={selectedModule}
+        sensorTypes={sensorTypes}
         onGeneralFieldChange={updateGeneralField}
         onModuleEnabledChange={updateModuleEnabled}
         onNavigateToSensors={handleNavigateToSensors}
