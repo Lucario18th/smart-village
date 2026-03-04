@@ -1,5 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+val gtfsZipFile = layout.projectDirectory.file("src/commonMain/composeResources/files/bwgesamt.zip")
+val generatedGtfsResourcesDir = layout.buildDirectory.dir("generated/gtfsResources/commonMain")
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -34,25 +37,54 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
-        commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.mapcompose.mp)
-            implementation(libs.ktor.client.core)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.jetbrains.navigation3.ui)
-            implementation(libs.jetbrains.material3.adaptiveNavigation3)
-            implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
+        commonMain {
+            resources.srcDir(generatedGtfsResourcesDir)
+            dependencies {
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material3)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.components.resources)
+                implementation(libs.compose.uiToolingPreview)
+                implementation(libs.androidx.lifecycle.viewmodelCompose)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(libs.mapcompose.mp)
+                implementation(libs.ktor.client.core)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.jetbrains.navigation3.ui)
+                implementation(libs.jetbrains.material3.adaptiveNavigation3)
+                implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
+            }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+    }
+}
+
+val extractGtfsResources by tasks.registering(Copy::class) {
+    description = "Extract GTFS text files from bwgesamt.zip into generated commonMain resources"
+    group = "build"
+
+    from(zipTree(gtfsZipFile)) {
+        include(
+            "stops.txt",
+            "routes.txt",
+            "trips.txt",
+            "stop_times.txt",
+            "calendar.txt",
+            "calendar_dates.txt"
+        )
+    }
+    into(generatedGtfsResourcesDir.map { it.dir("files/gtfs") })
+}
+
+tasks.configureEach {
+    if (
+        name != extractGtfsResources.name &&
+        (name.contains("compose", ignoreCase = true) || name.contains("resources", ignoreCase = true))
+    ) {
+        dependsOn(extractGtfsResources)
     }
 }
 
@@ -86,4 +118,3 @@ android {
 dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
-
