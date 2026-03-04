@@ -171,12 +171,7 @@ export function useVillageConfig(session) {
     setIsLoading(true)
     try {
       // Save to local storage
-      const payload = {
-        villageId: config.meta.villageId,
-        schemaVersion: config.meta.schemaVersion,
-        config,
-      }
-      saveConfigToStorage(session.email, payload)
+      saveConfigToStorage(config)
 
       setHasUnsavedChanges(false)
       setStorageMessage('Konfiguration erfolgreich gespeichert! ✓')
