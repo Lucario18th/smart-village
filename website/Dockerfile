@@ -1,20 +1,11 @@
-FROM node:20-alpine
-
+# 1. Build-Stage
+FROM node:20-alpine AS build
 WORKDIR /app
-
-# 1. Dependencies
 COPY package*.json ./
 RUN npm ci
-
-# 2. Quellcode
 COPY . .
+RUN npm run build   # erzeugt /app/dist
 
-# 3. Build
-RUN npm run build
-
-# 4. Finale Stage mit nginx für Production
-FROM node:20-alpine
-WORKDIR /app
-
-# Nur den dist Ordner für den Build
-COPY --from=0 /app/dist /usr/share/nginx/html/
+# 2. Runtime-Stage: Nginx mit React-Build
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html

@@ -4,7 +4,7 @@ import AdminSectionPanel from './admin/AdminSectionPanel'
 import { ADMIN_SECTIONS } from '../config/adminSections'
 import { useVillageConfig } from '../hooks/useVillageConfig'
 
-export default function AdminView({ username, onLogout }) {
+export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
   const [selectedModule, setSelectedModule] = useState(null)
   const {
@@ -21,7 +21,8 @@ export default function AdminView({ username, onLogout }) {
     saveConfig,
     loadConfig,
     resetConfig,
-  } = useVillageConfig(username)
+    isLoading,
+  } = useVillageConfig(session)
 
   const handleNavigateToSensors = (moduleId) => {
     setSelectedModule(moduleId)
@@ -36,16 +37,19 @@ export default function AdminView({ username, onLogout }) {
     return getSummaryForSection(activeSection.id)
   }, [activeSection.id, getSummaryForSection])
 
+  const userEmail = session?.email || 'Unbekannt'
+  const villageName = config.general.villageName || 'nicht gesetzt'
+
   return (
     <main className="admin-page">
       <header className="admin-header">
         <div>
           <h1>Smart Village Admin</h1>
           <p>
-            Angemeldet als: {username} · Gemeinde: {config.general.villageName || 'nicht gesetzt'}
+            Angemeldet als: {userEmail} · Gemeinde: {villageName}
           </p>
         </div>
-        <button type="button" onClick={onLogout}>
+        <button type="button" onClick={onLogout} disabled={isLoading}>
           Logout
         </button>
       </header>
@@ -70,15 +74,15 @@ export default function AdminView({ username, onLogout }) {
         onDesignFieldChange={updateDesignField}
       />
 
-      <section className="config-actions" aria-label="Lokale Konfiguration">
-        <button type="button" onClick={loadConfig}>
-          Laden
+      <section className="config-actions" aria-label="Konfiguration">
+        <button type="button" onClick={loadConfig} disabled={isLoading}>
+          {isLoading ? 'Wird geladen...' : 'Von Server laden'}
         </button>
-        <button type="button" className="primary" onClick={saveConfig}>
-          Speichern
+        <button type="button" className="primary" onClick={saveConfig} disabled={isLoading || !hasUnsavedChanges}>
+          {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
         </button>
-        <button type="button" onClick={resetConfig}>
-          Standard laden
+        <button type="button" onClick={resetConfig} disabled={isLoading}>
+          Zurücksetzen
         </button>
       </section>
 
@@ -87,7 +91,7 @@ export default function AdminView({ username, onLogout }) {
       </p>
 
       <footer className="app-footer">
-        MVP-Stand: Login, Session und Formulare aktiv · Letzte Änderung:{' '}
+        Smart Village Admin · Letzte Änderung:{' '}
         {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
       </footer>
     </main>
