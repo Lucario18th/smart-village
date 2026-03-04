@@ -1,6 +1,8 @@
 services:
   nginx:
-    image: nginx:alpine
+    build:
+      context: ../website
+      dockerfile: Dockerfile
     container_name: smartvillage-nginx
     ports:
       - "80:80"
@@ -10,7 +12,6 @@ services:
         condition: service_healthy
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - frontend-build:/usr/share/nginx/html:ro
       - /opt/smartvillage/certs:/etc/nginx/certs:ro
     networks:
       - smartvillage-net
@@ -20,16 +21,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-
-  frontend:
-    build:
-      context: ../website
-      dockerfile: Dockerfile
-    container_name: smartvillage-frontend
-    volumes:
-      - frontend-build:/usr/share/nginx/html
-    networks:
-      - smartvillage-net
 
   backend:
     build:
@@ -74,4 +65,3 @@ networks:
 
 volumes:
   postgres-data:
-  frontend-build:
