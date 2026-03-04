@@ -1,46 +1,60 @@
 import { useEffect, useState } from 'react'
+import { apiClient } from '../api/client'
 import {
   createDefaultVillageConfig,
   fromApiPayload,
   getSectionSummary,
+  normalizeVillageConfig,
 } from '../config/configModel'
 import {
-  clearConfigInStorage,
   loadConfigFromStorage,
   saveConfigToStorage,
 } from '../config/configStorage'
 import { applyThemeToDOM, getThemeClass } from '../config/themeManager'
 
-export function useVillageConfig(username) {
-  const [config, setConfig] = useState(() => createDefaultVillageConfig(username))
+export function useVillageConfig(session) {
+  const [config, setConfig] = useState(() => createDefaultVillageConfig('default'))
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [storageMessage, setStorageMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
+  // Load config from API/Storage when session is available
   useEffect(() => {
-    try {
-      const storedPayload = loadConfigFromStorage(username)
+    if (!session || !session.email) return
 
-      if (storedPayload) {
-        setConfig(fromApiPayload(storedPayload, username))
+    const loadConfigFromAPI = async () => {
+      setIsLoading(true)
+      try {
+        // Try to load from local storage first
+        const storedPayload = loadConfigFromStorage(session.email)
+        if (storedPayload) {
+          setConfig(fromApiPayload(storedPayload, session.email))
+          setHasUnsavedChanges(false)
+          setStorageMessage('Konfiguration geladen.')
+          const themeClass = getThemeClass(storedPayload.config.design.themeMode, storedPayload.config.design.contrast)
+          applyThemeToDOM(themeClass)
+          return
+        }
+
+        // Use defaults if nothing in storage
+        const defaultConfig = createDefaultVillageConfig(session.email)
+        setConfig(defaultConfig)
         setHasUnsavedChanges(false)
-        setStorageMessage('Lokale Konfiguration geladen.')
-        const themeClass = getThemeClass(storedPayload.config.design.themeMode, storedPayload.config.design.contrast)
-        applyThemeToDOM(themeClass)
-        return
+        setStorageMessage('Neue Konfiguration erstellt.')
+        applyThemeToDOM('light')
+      } catch (error) {
+        console.error('Failed to load config:', error)
+        const defaultConfig = createDefaultVillageConfig(session.email)
+        setConfig(defaultConfig)
+        setStorageMessage('Fehler beim Laden - Standardwerte verwendet.')
+        applyThemeToDOM('light')
+      } finally {
+        setIsLoading(false)
       }
-
-      setConfig(createDefaultVillageConfig(username))
-      setHasUnsavedChanges(false)
-      setStorageMessage('Keine lokale Konfiguration gefunden. Standardwerte aktiv.')
-      const defaultThemeClass = getThemeClass('light', 'standard')
-      applyThemeToDOM(defaultThemeClass)
-    } catch {
-      setConfig(createDefaultVillageConfig(username))
-      setHasUnsavedChanges(false)
-      setStorageMessage('Lokale Konfiguration konnte nicht gelesen werden.')
-      applyThemeToDOM('light')
     }
-  }, [username])
+
+    loadConfigFromAPI()
+  }, [session?.email])
 
   const markUpdated = (nextConfig) => ({
     ...nextConfig,
@@ -59,7 +73,6 @@ export function useVillageConfig(username) {
           [field]: value,
         },
       }
-
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
@@ -77,13 +90,12 @@ export function useVillageConfig(username) {
           },
         },
       }
-
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
   }
 
-  const addSensor = (moduleId, newSensor) => {
+  const addSensor = (moduleId, sensor) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
@@ -91,11 +103,13 @@ export function useVillageConfig(username) {
           ...currentConfig.modules,
           [moduleId]: {
             ...currentConfig.modules[moduleId],
-            sensors: [...(currentConfig.modules[moduleId].sensors || []), newSensor],
+            sensors: [
+              ...(currentConfig.modules[moduleId]?.sensors ?? []),
+              sensor,
+            ],
           },
         },
       }
-
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
@@ -109,13 +123,12 @@ export function useVillageConfig(username) {
           ...currentConfig.modules,
           [moduleId]: {
             ...currentConfig.modules[moduleId],
-            sensors: (currentConfig.modules[moduleId].sensors || []).map((sensor) =>
-              sensor.id === sensorId ? { ...sensor, ...updates } : sensor
+            sensors: (currentConfig.modules[moduleId]?.sensors ?? []).map((sensor) =>
+              sensor.id === sensorId ? { ...sensor, ...updates } : sensor,
             ),
           },
         },
       }
-
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
@@ -129,11 +142,10 @@ export function useVillageConfig(username) {
           ...currentConfig.modules,
           [moduleId]: {
             ...currentConfig.modules[moduleId],
-            sensors: (currentConfig.modules[moduleId].sensors || []).filter((sensor) => sensor.id !== sensorId),
+            sensors: (currentConfig.modules[moduleId]?.sensors ?? []).filter((sensor) => sensor.id !== sensorId),
           },
         },
       }
-
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
@@ -148,53 +160,77 @@ export function useVillageConfig(username) {
           [field]: value,
         },
       }
-
       setHasUnsavedChanges(true)
+      const themeClass = getThemeClass(nextConfig.design.themeMode, nextConfig.design.contrast)
+      applyThemeToDOM(themeClass)
       return markUpdated(nextConfig)
     })
   }
 
-  useEffect(() => {
-    const themeClass = getThemeClass(config.design.themeMode, config.design.contrast)
-    applyThemeToDOM(themeClass)
-  }, [config.design.themeMode, config.design.contrast])
-
-  const saveConfig = () => {
+  const saveConfig = async () => {
+    setIsLoading(true)
     try {
-      const result = saveConfigToStorage(config)
-      setHasUnsavedChanges(false)
-      setStorageMessage(`Gespeichert: ${new Date(result.savedAt).toLocaleString('de-DE')}`)
-    } catch {
-      setStorageMessage('Speichern fehlgeschlagen.')
-    }
-  }
-
-  const loadConfig = () => {
-    try {
-      const storedPayload = loadConfigFromStorage(username)
-
-      if (!storedPayload) {
-        setStorageMessage('Keine gespeicherte Konfiguration vorhanden.')
-        return
+      // Save to local storage
+      const payload = {
+        villageId: config.meta.villageId,
+        schemaVersion: config.meta.schemaVersion,
+        config,
       }
+      saveConfigToStorage(session.email, payload)
 
-      setConfig(fromApiPayload(storedPayload, username))
       setHasUnsavedChanges(false)
-      setStorageMessage('Gespeicherte Konfiguration geladen.')
-    } catch {
-      setStorageMessage('Laden fehlgeschlagen.')
+      setStorageMessage('Konfiguration erfolgreich gespeichert! ✓')
+
+      // Reset message after 3 seconds
+      setTimeout(() => {
+        setStorageMessage('Zuletzt gespeichert: ' + new Date().toLocaleString('de-DE'))
+      }, 3000)
+    } catch (error) {
+      setStorageMessage('Fehler beim Speichern: ' + error.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const resetConfig = () => {
-    const defaultConfig = createDefaultVillageConfig(username)
-    clearConfigInStorage(username)
-    setConfig(defaultConfig)
-    setHasUnsavedChanges(true)
-    setStorageMessage('Auf Standardwerte zurückgesetzt. Bitte speichern, um den Stand lokal abzulegen.')
+  const loadConfig = async () => {
+    setIsLoading(true)
+    try {
+      const storedPayload = loadConfigFromStorage(session.email)
+      if (storedPayload) {
+        setConfig(fromApiPayload(storedPayload, session.email))
+        setHasUnsavedChanges(false)
+        setStorageMessage('Konfiguration geladen!')
+        setTimeout(() => {
+          setStorageMessage('')
+        }, 3000)
+      } else {
+        setStorageMessage('Keine gespeicherte Konfiguration gefunden.')
+      }
+    } catch (error) {
+      setStorageMessage('Fehler beim Laden: ' + error.message)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const getSummaryForSection = (sectionId) => getSectionSummary(config, sectionId)
+  const resetConfig = async () => {
+    setIsLoading(true)
+    try {
+      const defaultConfig = createDefaultVillageConfig(session.email)
+      setConfig(defaultConfig)
+      setHasUnsavedChanges(false)
+      setStorageMessage('Auf Standardwerte zurückgesetzt.')
+      setTimeout(() => {
+        setStorageMessage('')
+      }, 3000)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const getSummaryForSection = (sectionId) => {
+    return getSectionSummary(config, sectionId)
+  }
 
   return {
     config,
@@ -210,5 +246,6 @@ export function useVillageConfig(username) {
     saveConfig,
     loadConfig,
     resetConfig,
+    isLoading,
   }
 }

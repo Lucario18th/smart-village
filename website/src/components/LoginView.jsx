@@ -1,45 +1,35 @@
 import React, { useState } from 'react'
 import { AUTH_HINT } from '../auth/accounts'
-import { useNavigate } from 'react-router-dom'
 
-export default function LoginView() {
-  const [username, setUsername] = useState('')
+export default function LoginView({ onLogin, onRegister }) {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
-  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    setIsLoading(true)
     setErrorMessage('')
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: username, password }),
-      })
+      const result = await onLogin({ email, password })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        setErrorMessage(data.message || 'Login fehlgeschlagen.')
+      if (!result.success) {
+        setErrorMessage(result.error)
         return
-      }
-
-      if (data.accessToken) {
-        localStorage.setItem('authToken', data.accessToken)
       }
 
       setPassword('')
       setErrorMessage('')
-
-      // zurück auf die "alte" Seite (z.B. Admin-Dashboard)
-      navigate('/admin') // Pfad anpassen auf deine frühere Seite[web:233][web:239]
-    } catch (error) {
-      setErrorMessage('Server nicht erreichbar.')
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+  if (showRegister) {
+    return onRegister(() => setShowRegister(false))
   }
 
   return (
@@ -49,14 +39,15 @@ export default function LoginView() {
         <p>Bitte melde dich an, um die Gemeindekonfiguration zu bearbeiten.</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label htmlFor="username">Benutzername</label>
+          <label htmlFor="email">E-Mail</label>
           <input
-            id="username"
+            id="email"
             type="email"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            autoComplete="username"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            autoComplete="email"
             required
+            disabled={isLoading}
           />
 
           <label htmlFor="password">Passwort</label>
@@ -67,14 +58,30 @@ export default function LoginView() {
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
             required
+            disabled={isLoading}
           />
 
           {errorMessage ? <p className="auth-error">{errorMessage}</p> : null}
 
-          <button type="submit">Anmelden</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
+          </button>
         </form>
 
-        <p className="auth-hint">{AUTH_HINT}</p>
+        <p className="auth-hint">
+          Noch kein Konto?{' '}
+          <button
+            type="button"
+            onClick={() => setShowRegister(true)}
+            className="link-button"
+            style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Hier registrieren
+          </button>
+          <br />
+          <br />
+          {AUTH_HINT}
+        </p>
       </section>
     </main>
   )

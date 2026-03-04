@@ -1,20 +1,26 @@
-import { ACCOUNTS } from './accounts'
+import { apiClient } from '../api/client'
 
 const SESSION_KEY = 'smart-village-admin-session'
+const TOKEN_KEY = 'access_token'
 
-function normalizeUsername(username) {
-  return username.trim().toLowerCase()
-}
-
-export function validateCredentials(username, password) {
-  const normalizedUsername = normalizeUsername(username)
-  const expectedPassword = ACCOUNTS[normalizedUsername]
-
-  if (!expectedPassword || password !== expectedPassword) {
+/**
+ * Validate credentials against backend API
+ */
+export async function validateCredentials(email, password) {
+  try {
+    const result = await apiClient.auth.login(email, password)
+    if (result.accessToken) {
+      return {
+        email,
+        token: result.accessToken,
+        loginTime: new Date().toISOString(),
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('Login failed:', error)
     return null
   }
-
-  return { username: normalizedUsername }
 }
 
 export function readSession() {
@@ -25,22 +31,26 @@ export function readSession() {
     }
 
     const parsedSession = JSON.parse(rawSession)
-    if (!parsedSession?.username || !ACCOUNTS[parsedSession.username]) {
+    if (!parsedSession?.token || !parsedSession?.email) {
       localStorage.removeItem(SESSION_KEY)
+      localStorage.removeItem(TOKEN_KEY)
       return null
     }
 
     return parsedSession
   } catch {
     localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(TOKEN_KEY)
     return null
   }
 }
 
 export function persistSession(session) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  localStorage.setItem(TOKEN_KEY, session.token)
 }
 
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(TOKEN_KEY)
 }

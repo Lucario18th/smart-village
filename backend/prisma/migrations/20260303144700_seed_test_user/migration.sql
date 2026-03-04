@@ -1,0 +1,12 @@
+-- Migration 20260303144700_seed_test_user
+-- 
+-- Previously, this migration seeded a test "Account" with a fixed email and
+-- password hash (test@test.de) and an associated "Village". This created a
+-- static, known set of credentials in every environment where migrations were
+-- run, including production, which is insecure.
+--
+-- To avoid exposing predictable credentials in production databases, the
+-- seeding logic has been removed and this migration is now intentionally a
+-- no-op.
+
+-- Intentionally left blank: test user seeding removed for security reasons.
