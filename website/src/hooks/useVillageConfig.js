@@ -1,15 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { apiClient } from '../api/client'
 import {
   createDefaultVillageConfig,
-  fromApiPayload,
   getSectionSummary,
-  normalizeVillageConfig,
 } from '../config/configModel'
-import {
-  loadConfigFromStorage,
-  saveConfigToStorage,
-} from '../config/configStorage'
 import { applyThemeToDOM, getThemeClass } from '../config/themeManager'
 
 export function useVillageConfig(session) {
@@ -17,44 +11,85 @@ export function useVillageConfig(session) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [storageMessage, setStorageMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [villageId, setVillageId] = useState(null)
+  const [sensorTypes, setSensorTypes] = useState([])
+  const [nextSensorId, setNextSensorId] = useState(-1) // Für neue Sensoren
 
-  // Load config from API/Storage when session is available
+  // Load village data and sensor types from API
   useEffect(() => {
-    if (!session || !session.email) return
+    if (!session || !session.email || !session.token) return
 
-    const loadConfigFromAPI = async () => {
+    const loadDataFromAPI = async () => {
       setIsLoading(true)
       try {
-        // Try to load from local storage first
-        const storedPayload = loadConfigFromStorage(session.email)
-        if (storedPayload) {
-          setConfig(fromApiPayload(storedPayload, session.email))
-          setHasUnsavedChanges(false)
-          setStorageMessage('Konfiguration geladen.')
-          const themeClass = getThemeClass(storedPayload.config.design.themeMode, storedPayload.config.design.contrast)
-          applyThemeToDOM(themeClass)
+        // Use sub from session (now extracted during login)
+        const accountId = session.sub
+        if (!accountId) {
+          setStorageMessage('Fehler: Account ID nicht gefunden')
           return
         }
 
-        // Use defaults if nothing in storage
-        const defaultConfig = createDefaultVillageConfig(session.email)
-        setConfig(defaultConfig)
+        setVillageId(accountId)
+
+        // Load sensor types
+        const types = await apiClient.sensorTypes.list()
+        setSensorTypes(types)
+
+        // Load village data
+        const village = await apiClient.villages.get(accountId)
+
+        // Build config from API response
+        const newConfig = {
+          meta: {
+            id: village.id,
+            email: session.email,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          general: {
+            villageName: village.name || '',
+            locationName: village.locationName || '',
+            phone: village.phone || '',
+            infoText: village.infoText || '',
+          },
+          modules: {
+            sensors: { enabled: true },
+            weather: { enabled: false },
+            news: { enabled: false },
+            events: { enabled: false },
+          },
+          design: {
+            themeMode: 'light',
+            contrast: 'normal',
+            primaryColor: '#3498db',
+          },
+          sensors: (village.sensors || []).map(sensor => ({
+            id: sensor.id,
+            name: sensor.name,
+            type: sensor.sensorType?.name || 'Unknown',
+            sensorTypeId: sensor.sensorTypeId,
+            active: sensor.isActive,
+            infoText: sensor.infoText || '',
+          })),
+        }
+
+        setConfig(newConfig)
         setHasUnsavedChanges(false)
-        setStorageMessage('Neue Konfiguration erstellt.')
+        setStorageMessage('Konfiguration vom Server geladen')
         applyThemeToDOM('light')
       } catch (error) {
-        console.error('Failed to load config:', error)
+        console.error('Failed to load config from API:', error)
+        setStorageMessage(`Fehler beim Laden: ${error.message}`)
+        // Fallback to defaults
         const defaultConfig = createDefaultVillageConfig(session.email)
         setConfig(defaultConfig)
-        setStorageMessage('Fehler beim Laden - Standardwerte verwendet.')
-        applyThemeToDOM('light')
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadConfigFromAPI()
-  }, [session?.email])
+    loadDataFromAPI()
+  }, [session?.email, session?.token])
 
   const markUpdated = (nextConfig) => ({
     ...nextConfig,
@@ -64,7 +99,7 @@ export function useVillageConfig(session) {
     },
   })
 
-  const updateGeneralField = (field, value) => {
+  const updateGeneralField = useCallback((field, value) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
@@ -76,9 +111,9 @@ export function useVillageConfig(session) {
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
-  }
+  }, [])
 
-  const updateModuleEnabled = (moduleId, enabled) => {
+  const updateModuleEnabled = useCallback((moduleId, enabled) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
@@ -93,65 +128,58 @@ export function useVillageConfig(session) {
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
-  }
+  }, [])
 
-  const addSensor = (moduleId, sensor) => {
+  // Add sensor mit temporärer ID
+  const addSensor = useCallback((sensorData) => {
+    setConfig((currentConfig) => {
+      const newSensor = {
+        id: nextSensorId, // Negative IDs sind neue Sensoren
+        name: sensorData.name || 'Neuer Sensor',
+        type: sensorData.type || '',
+        sensorTypeId: sensorData.sensorTypeId || 1,
+        active: true,
+        infoText: sensorData.infoText || '',
+      }
+
+      const nextConfig = {
+        ...currentConfig,
+        sensors: [...(currentConfig.sensors || []), newSensor],
+      }
+
+      setHasUnsavedChanges(true)
+      setNextSensorId(nextSensorId - 1) // Decrement for next new sensor
+      return markUpdated(nextConfig)
+    })
+  }, [nextSensorId])
+
+  // Update bestehenden sensor
+  const updateSensor = useCallback((sensorId, updates) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
-        modules: {
-          ...currentConfig.modules,
-          [moduleId]: {
-            ...currentConfig.modules[moduleId],
-            sensors: [
-              ...(currentConfig.modules[moduleId]?.sensors ?? []),
-              sensor,
-            ],
-          },
-        },
+        sensors: (currentConfig.sensors || []).map(sensor =>
+          sensor.id === sensorId ? { ...sensor, ...updates } : sensor
+        ),
       }
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
-  }
+  }, [])
 
-  const updateSensor = (moduleId, sensorId, updates) => {
+  // Mark sensor for deletion
+  const removeSensor = useCallback((sensorId) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
-        modules: {
-          ...currentConfig.modules,
-          [moduleId]: {
-            ...currentConfig.modules[moduleId],
-            sensors: (currentConfig.modules[moduleId]?.sensors ?? []).map((sensor) =>
-              sensor.id === sensorId ? { ...sensor, ...updates } : sensor,
-            ),
-          },
-        },
+        sensors: (currentConfig.sensors || []).filter(sensor => sensor.id !== sensorId),
       }
       setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
-  }
+  }, [])
 
-  const removeSensor = (moduleId, sensorId) => {
-    setConfig((currentConfig) => {
-      const nextConfig = {
-        ...currentConfig,
-        modules: {
-          ...currentConfig.modules,
-          [moduleId]: {
-            ...currentConfig.modules[moduleId],
-            sensors: (currentConfig.modules[moduleId]?.sensors ?? []).filter((sensor) => sensor.id !== sensorId),
-          },
-        },
-      }
-      setHasUnsavedChanges(true)
-      return markUpdated(nextConfig)
-    })
-  }
-
-  const updateDesignField = (field, value) => {
+  const updateDesignField = useCallback((field, value) => {
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
@@ -160,77 +188,126 @@ export function useVillageConfig(session) {
           [field]: value,
         },
       }
+
+      if (field === 'themeMode' || field === 'contrast') {
+        const themeClass = getThemeClass(nextConfig.design.themeMode, nextConfig.design.contrast)
+        applyThemeToDOM(themeClass)
+      }
+
       setHasUnsavedChanges(true)
-      const themeClass = getThemeClass(nextConfig.design.themeMode, nextConfig.design.contrast)
-      applyThemeToDOM(themeClass)
       return markUpdated(nextConfig)
     })
-  }
+  }, [])
 
-  const saveConfig = async () => {
+  // Save to backend API
+  const saveConfig = useCallback(async () => {
+    if (!villageId) {
+      setStorageMessage('Fehler: Village ID nicht gefunden')
+      return false
+    }
+
     setIsLoading(true)
     try {
-      // Save to local storage
-      const payload = {
-        villageId: config.meta.villageId,
-        schemaVersion: config.meta.schemaVersion,
-        config,
+      // Update village data
+      await apiClient.villages.update(villageId, {
+        name: config.general.villageName,
+        locationName: config.general.locationName,
+        phone: config.general.phone,
+        infoText: config.general.infoText,
+      })
+
+      // Handle sensors
+      for (const sensor of config.sensors || []) {
+        if (sensor.id < 0) {
+          // New sensor - create
+          const created = await apiClient.sensors.create(
+            villageId,
+            sensor.sensorTypeId,
+            sensor.name,
+            sensor.infoText
+          )
+          // Update the sensor ID in config
+          setConfig(prev => ({
+            ...prev,
+            sensors: (prev.sensors || []).map(s =>
+              s.id === sensor.id ? { ...s, id: created.id } : s
+            ),
+          }))
+        } else {
+          // Existing sensor - update
+          await apiClient.sensors.update(sensor.id, {
+            name: sensor.name,
+            infoText: sensor.infoText,
+            isActive: sensor.active,
+          })
+        }
       }
-      saveConfigToStorage(session.email, payload)
 
       setHasUnsavedChanges(false)
-      setStorageMessage('Konfiguration erfolgreich gespeichert! ✓')
-
-      // Reset message after 3 seconds
-      setTimeout(() => {
-        setStorageMessage('Zuletzt gespeichert: ' + new Date().toLocaleString('de-DE'))
-      }, 3000)
+      setStorageMessage('Erfolgreich gespeichert')
+      return true
     } catch (error) {
-      setStorageMessage('Fehler beim Speichern: ' + error.message)
+      console.error('Save failed:', error)
+      setStorageMessage(`Speichern fehlgeschlagen: ${error.message}`)
+      return false
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [villageId, config])
 
-  const loadConfig = async () => {
+  // Reload from API
+  const loadConfig = useCallback(async () => {
+    if (!villageId) {
+      setStorageMessage('Fehler: Village ID nicht gefunden')
+      return
+    }
+
     setIsLoading(true)
     try {
-      const storedPayload = loadConfigFromStorage(session.email)
-      if (storedPayload) {
-        setConfig(fromApiPayload(storedPayload, session.email))
-        setHasUnsavedChanges(false)
-        setStorageMessage('Konfiguration geladen!')
-        setTimeout(() => {
-          setStorageMessage('')
-        }, 3000)
-      } else {
-        setStorageMessage('Keine gespeicherte Konfiguration gefunden.')
+      const village = await apiClient.villages.get(villageId)
+      const types = await apiClient.sensorTypes.list()
+      setSensorTypes(types)
+
+      const newConfig = {
+        ...config,
+        general: {
+          villageName: village.name || '',
+          locationName: village.locationName || '',
+          phone: village.phone || '',
+          infoText: village.infoText || '',
+        },
+        sensors: (village.sensors || []).map(sensor => ({
+          id: sensor.id,
+          name: sensor.name,
+          type: sensor.sensorType?.name || 'Unknown',
+          sensorTypeId: sensor.sensorTypeId,
+          active: sensor.isActive,
+          infoText: sensor.infoText || '',
+        })),
       }
-    } catch (error) {
-      setStorageMessage('Fehler beim Laden: ' + error.message)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
-  const resetConfig = async () => {
-    setIsLoading(true)
-    try {
-      const defaultConfig = createDefaultVillageConfig(session.email)
-      setConfig(defaultConfig)
+      setConfig(newConfig)
       setHasUnsavedChanges(false)
-      setStorageMessage('Auf Standardwerte zurückgesetzt.')
-      setTimeout(() => {
-        setStorageMessage('')
-      }, 3000)
+      setStorageMessage('Von Server neu geladen')
+    } catch (error) {
+      console.error('Load failed:', error)
+      setStorageMessage(`Laden fehlgeschlagen: ${error.message}`)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [villageId, config])
 
-  const getSummaryForSection = (sectionId) => {
+  // Reset to defaults
+  const resetConfig = useCallback(async () => {
+    const defaultConfig = createDefaultVillageConfig(session.email)
+    setConfig(defaultConfig)
+    setHasUnsavedChanges(false)
+    setStorageMessage('Auf Standardwerte zurückgesetzt')
+  }, [session.email])
+
+  const getSummaryForSection = useCallback((sectionId) => {
     return getSectionSummary(config, sectionId)
-  }
+  }, [config])
 
   return {
     config,
@@ -247,5 +324,6 @@ export function useVillageConfig(session) {
     loadConfig,
     resetConfig,
     isLoading,
+    sensorTypes,
   }
 }

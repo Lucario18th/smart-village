@@ -12,8 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 let AppController = class AppController {
-    getHealth() {
-        return { status: 'ok', timestamp: new Date().toISOString() };
+    health() {
+        return {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+        };
     }
 };
 exports.AppController = AppController;
@@ -22,7 +26,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], AppController.prototype, "getHealth", null);
+], AppController.prototype, "health", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)()
 ], AppController);

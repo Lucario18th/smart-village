@@ -9,6 +9,7 @@ export default function AdminSectionPanel({
   entries,
   config,
   selectedModule,
+  sensorTypes,
   onGeneralFieldChange,
   onModuleEnabledChange,
   onNavigateToSensors,
@@ -35,12 +36,11 @@ export default function AdminSectionPanel({
     if (section.id === 'sensors') {
       return (
         <SensorsSettingsForm
-          modules={config.modules}
-          selectedModule={selectedModule}
+          config={config}
+          sensorTypes={sensorTypes || []}
           onAddSensor={onAddSensor}
           onUpdateSensor={onUpdateSensor}
           onRemoveSensor={onRemoveSensor}
-          onSelectModule={onNavigateToSensors}
         />
       )
     }
