@@ -11,9 +11,9 @@
     <h1>🧪 Smart Village Test Suite</h1>
     
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-      <button class="tab-btn" onclick="switchTab('sensors')">Sensoren</button>
-      <button class="tab-btn" onclick="switchTab('account')">Account</button>
+      <button class="tab-btn active" onclick="switchTab(event, 'login')">Login</button>
+      <button class="tab-btn" onclick="switchTab(event, 'sensors')">Sensoren</button>
+      <button class="tab-btn" onclick="switchTab(event, 'account')">Account</button>
     </div>
 
     <!-- LOGIN TAB -->
@@ -79,7 +79,7 @@
     }
 
     // Tab Switching
-    function switchTab(tabName) {
+    function switchTab(event, tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       
