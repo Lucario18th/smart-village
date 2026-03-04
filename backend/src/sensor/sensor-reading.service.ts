@@ -49,6 +49,16 @@ export class SensorReadingService {
   }
 
   async timeseries(sensorId: number, from: string, to: string, bucket: string) {
+    // Normalize bucket format: convert "1h" to "hour", "1d" to "day", etc.
+    let bucketUnit = bucket.toLowerCase();
+    bucketUnit = bucketUnit
+      .replace(/^[0-9]+\s*(h|hour|hr)$/i, 'hour')
+      .replace(/^[0-9]+\s*(d|day)$/i, 'day')
+      .replace(/^[0-9]+\s*(m|minute|min)$/i, 'minute')
+      .replace(/^[0-9]+\s*(s|second|sec)$/i, 'second')
+      .replace(/^[0-9]+\s*(mon|month)$/i, 'month')
+      .replace(/^[0-9]+\s*(y|year|yr)$/i, 'year');
+
     const rows: Array<{
       bucket_start: Date;
       value_min: number | null;
@@ -70,7 +80,7 @@ export class SensorReadingService {
       GROUP BY bucket_start
       ORDER BY bucket_start ASC;
     `,
-      bucket,
+      bucketUnit,
       sensorId,
       new Date(from),
       new Date(to),

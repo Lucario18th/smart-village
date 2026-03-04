@@ -28,10 +28,10 @@ export class AuthService {
         passwordHash,
         villages: {
           create: {
-            name: dto.villageName,
-            locationName: dto.locationName,
-            phone: dto.phone,
-            infoText: dto.infoText,
+            name: dto.villageName ?? "",
+            locationName: dto.locationName ?? "",
+            phone: dto.phone ?? "",
+            infoText: dto.infoText ?? "",
           },
         },
       },
