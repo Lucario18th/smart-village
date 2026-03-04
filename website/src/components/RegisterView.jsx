@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { AUTH_HINT } from '../auth/accounts'
 
 export default function RegisterView({ onRegister, onBack }) {
   const [email, setEmail] = useState('')
