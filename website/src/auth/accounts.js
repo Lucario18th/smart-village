@@ -1,6 +1,6 @@
-export const ACCOUNTS = {
-  dorf1: 'dorf1',
-  dorf2: 'dorf2',
-}
+/**
+ * Auth-Hinweis für Login-Seite
+ * Benutzer müssen sich jetzt mit Backend API authentifizieren
+ */
 
-export const AUTH_HINT = 'Testzugänge: dorf1/dorf1 und dorf2/dorf2'
+export const AUTH_HINT = 'Melden Sie sich mit Ihrem Benutzerkonto an. Test-Account: test@example.com / TestPassword123!'

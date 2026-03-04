@@ -2,22 +2,29 @@ import React, { useState } from 'react'
 import { AUTH_HINT } from '../auth/accounts'
 
 export default function LoginView({ onLogin }) {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-
-    const result = onLogin({ username, password })
-
-    if (!result.success) {
-      setErrorMessage(result.error)
-      return
-    }
-
-    setPassword('')
+    setIsLoading(true)
     setErrorMessage('')
+
+    try {
+      const result = await onLogin({ email, password })
+
+      if (!result.success) {
+        setErrorMessage(result.error)
+        return
+      }
+
+      setPassword('')
+      setErrorMessage('')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -27,14 +34,15 @@ export default function LoginView({ onLogin }) {
         <p>Bitte melde dich an, um die Gemeindekonfiguration zu bearbeiten.</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label htmlFor="username">Benutzername</label>
+          <label htmlFor="email">E-Mail</label>
           <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            autoComplete="username"
+            id="email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            autoComplete="email"
             required
+            disabled={isLoading}
           />
 
           <label htmlFor="password">Passwort</label>
@@ -45,11 +53,14 @@ export default function LoginView({ onLogin }) {
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
             required
+            disabled={isLoading}
           />
 
           {errorMessage ? <p className="auth-error">{errorMessage}</p> : null}
 
-          <button type="submit">Anmelden</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
+          </button>
         </form>
 
         <p className="auth-hint">{AUTH_HINT}</p>
