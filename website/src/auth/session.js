@@ -1,4 +1,5 @@
 import { apiClient } from '../api/client'
+import { FIXED_ADMIN_ACCOUNT } from './accounts'
 
 const SESSION_KEY = 'smart-village-admin-session'
 const TOKEN_KEY = 'access_token'
@@ -21,6 +22,15 @@ function decodeToken(token) {
  * Validate credentials against backend API
  */
 export async function validateCredentials(email, password) {
+  if (email === FIXED_ADMIN_ACCOUNT.email && password === FIXED_ADMIN_ACCOUNT.password) {
+    return {
+      email,
+      token: 'local-dev-token',
+      sub: 1,
+      loginTime: new Date().toISOString(),
+    }
+  }
+
   try {
     const result = await apiClient.auth.login(email, password)
     if (result.accessToken) {

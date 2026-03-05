@@ -1,9 +1,41 @@
 import { PrismaClient } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Seeding database...");
+
+  // Seed test user
+  const testUserEmail = 'test@example.com';
+  const existingUser = await prisma.account.findUnique({
+    where: { email: testUserEmail },
+  });
+
+  if (!existingUser) {
+    const passwordHash = await bcrypt.hash('TestPassword123!', 10);
+    
+    await prisma.account.create({
+      data: {
+        email: testUserEmail,
+        passwordHash,
+        villages: {
+          create: {
+            name: "Test Village",
+            locationName: "Test Location",
+            phone: "+49 123 456789",
+            infoText: "Test village for development",
+            contactEmail: testUserEmail,
+            contactPhone: "+49 123 456789",
+            municipalityCode: "12345",
+          },
+        },
+      },
+    });
+    console.log(`✅ Created test user: ${testUserEmail}`);
+  } else {
+    console.log(`⏭️  Test user already exists: ${testUserEmail}`);
+  }
 
   // Seed SensorTypes
   const sensorTypes = [

@@ -28,7 +28,7 @@ export default function LoginView({ onLogin, onRegister }) {
     }
   }
 
-  if (showRegister) {
+  if (showRegister && onRegister) {
     return onRegister(() => setShowRegister(false))
   }
 
@@ -69,17 +69,21 @@ export default function LoginView({ onLogin, onRegister }) {
         </form>
 
         <p className="auth-hint">
-          Noch kein Konto?{' '}
-          <button
-            type="button"
-            onClick={() => setShowRegister(true)}
-            className="link-button"
-            style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Hier registrieren
-          </button>
-          <br />
-          <br />
+          {onRegister ? (
+            <>
+              Noch kein Konto?{' '}
+              <button
+                type="button"
+                onClick={() => setShowRegister(true)}
+                className="link-button"
+                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Hier registrieren
+              </button>
+              <br />
+              <br />
+            </>
+          ) : null}
           {AUTH_HINT}
         </p>
       </section>

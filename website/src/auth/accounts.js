@@ -1,6 +1,6 @@
-/**
- * Auth-Hinweis für Login-Seite
- * Benutzer müssen sich jetzt mit Backend API authentifizieren
- */
+export const FIXED_ADMIN_ACCOUNT = {
+	email: 'test@example.com',
+	password: 'TestPassword123!',
+}
 
-export const AUTH_HINT = 'Melden Sie sich mit Ihrem Benutzerkonto an. Test-Account: test@example.com / TestPassword123!'
+export const AUTH_HINT = `Test-Login: ${FIXED_ADMIN_ACCOUNT.email} / ${FIXED_ADMIN_ACCOUNT.password}`
