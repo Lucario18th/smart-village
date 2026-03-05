@@ -40,6 +40,8 @@ export default function AdminView({ session, onLogout }) {
 
   const userEmail = session?.email || 'Unbekannt'
   const villageName = config.general.villageName || 'nicht gesetzt'
+  const isErrorStatus = storageMessage.toLowerCase().includes('nicht') || storageMessage.toLowerCase().includes('fehler')
+  const visibleStatus = isErrorStatus ? '' : storageMessage
 
   return (
     <main className="admin-page">
@@ -80,18 +82,20 @@ export default function AdminView({ session, onLogout }) {
 
           <section className="config-actions" aria-label="Konfiguration">
             <button type="button" onClick={loadConfig} disabled={isLoading}>
-              {isLoading ? 'Wird geladen...' : 'Von Server laden'}
+              {isLoading ? 'Lädt…' : 'Aktuelle Daten laden'}
             </button>
-            <button type="button" className="primary" onClick={saveConfig} disabled={isLoading || !hasUnsavedChanges}>
-              {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
+            <button type="button" onClick={saveConfig} disabled={isLoading || !hasUnsavedChanges}>
+              {isLoading ? 'Speichert…' : 'Änderungen speichern'}
             </button>
             <button type="button" onClick={resetConfig} disabled={isLoading}>
-              Zurücksetzen
+              Änderungen zurücksetzen
             </button>
           </section>
 
           <p className="storage-status">
-            Status: {storageMessage || '—'} {hasUnsavedChanges ? '• Ungespeicherte Änderungen vorhanden' : ''}
+            {visibleStatus ? `Status: ${visibleStatus}` : ''}
+            {visibleStatus && hasUnsavedChanges ? ' · ' : ''}
+            {hasUnsavedChanges ? 'Ungespeicherte Änderungen vorhanden' : ''}
           </p>
 
           <footer className="app-footer">

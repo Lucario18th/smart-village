@@ -21,36 +21,43 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 
 .admin-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:0;align-items:start}
 .admin-sidebar{padding:8px 0 0}
-.admin-main-content{border-radius:16px;background:var(--md-sys-color-surface-container);padding:18px;min-height:640px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 20%, transparent)}
+.admin-main-content{padding:8px 18px 18px;min-height:640px}
 
 .admin-nav{display:flex;flex-direction:column;gap:8px;position:sticky;top:20px;padding-right:14px}
 .admin-nav-button{position:relative;text-align:left;width:calc(100% + 26px);margin-right:-26px;padding:12px 40px 12px 14px;border:none;border-radius:0;background:transparent;color:var(--md-sys-color-on-surface-variant);font-weight:700;cursor:pointer;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 0,calc(100% - 26px) 100%,0 100%);transition:transform .24s ease,color .24s ease,background .24s ease,box-shadow .24s ease}
 .admin-nav-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 55%, transparent);color:var(--md-sys-color-on-surface);transform:translateX(2px)}
 .admin-nav-button.active{color:var(--md-sys-color-on-primary);background:var(--md-sys-color-primary);transform:translateX(0);box-shadow:0 4px 14px color-mix(in srgb, var(--md-sys-color-primary) 35%, transparent)}
 
-.admin-panel{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:20px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
-.admin-panel h2{margin:0 0 8px;color:var(--md-sys-color-primary)}
-.admin-panel p{margin:0 0 12px;color:var(--md-sys-color-on-surface-variant)}
+.admin-panel{color:var(--md-sys-color-on-surface);padding:0}
+.admin-section-header{margin:0 0 18px;padding:0 0 12px;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 38%, transparent)}
+.admin-section-header h2{margin:0 0 6px;color:var(--md-sys-color-primary);font-size:clamp(28px,2.4vw,40px);line-height:1.08}
+.admin-section-header p{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:21px;line-height:1.35;max-width:72ch}
 .admin-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px;margin:14px 0 8px}
 .admin-form-grid label{display:grid;gap:6px;font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
 .admin-form-grid .full-width{grid-column:1 / -1}
 .admin-form-grid input,.admin-form-grid textarea,.admin-form-grid select,.module-controls select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
 .design-hint{margin:0 0 12px;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
-.general-form-header{display:flex;justify-content:flex-end;margin-top:8px}
-.edit-toggle-button{padding:8px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
-.edit-hint{grid-column:1 / -1;margin:2px 0 0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.general-settings{display:grid;gap:14px}
+.general-form-header{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:6px 0}
+.edit-toggle-button{padding:8px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.edit-toggle-button:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
+.general-form-grid{margin:0;gap:14px 16px}
+.general-form-grid label{padding:12px;border-radius:10px;background:var(--md-sys-color-surface-container-low)}
+.input-invalid{border-color:var(--md-sys-color-error)!important}
+.field-error{font-size:12px;color:var(--md-sys-color-error)}
 .module-list{display:grid;gap:12px;margin:12px 0 10px}
 .module-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:14px;border-radius:10px;background:var(--md-sys-color-surface)}
 .module-row h3{margin:0 0 6px;color:var(--md-sys-color-primary)}
 .module-row p{margin:0;color:var(--md-sys-color-on-surface-variant)}
 .module-controls{display:grid;gap:8px;min-width:180px}
 .checkbox-label{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--md-sys-color-on-surface)}
-.summary-list{margin:10px 0 0;padding-left:20px;color:var(--md-sys-color-on-surface)}
-.summary-list li+li{margin-top:6px}
-.config-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-.config-actions button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
-.config-actions .primary{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
-.storage-status{margin:10px 0 0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.summary-list{margin:16px 0 0;padding:12px 16px 12px 30px;border-radius:10px;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+.summary-list li+li{margin-top:5px}
+.config-actions{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:10px;max-width:820px;margin-top:16px}
+.config-actions button{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.config-actions button:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary);transform:translateY(-1px)}
+.config-actions button:disabled{opacity:1;cursor:not-allowed;transform:none;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);border-color:var(--md-sys-color-outline)}
+.storage-status{min-height:22px;margin:10px 0 0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
 .card{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:16px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
 .card h2{margin-top:0}
 .card p{margin-bottom:0;color:var(--md-sys-color-on-surface-variant)}
@@ -68,6 +75,9 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 	.admin-header{padding:12px;align-items:flex-start;flex-direction:column}
 	.logout-button{width:100%}
 	.admin-nav{grid-template-columns:1fr}
+	.admin-main-content{padding:4px 0 12px}
+	.admin-section-header p{font-size:18px}
+	.config-actions{grid-template-columns:1fr;max-width:none}
 }
 
 /* Sensor Management Styles */

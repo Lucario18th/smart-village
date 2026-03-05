@@ -25,7 +25,7 @@ export function useVillageConfig(session) {
         // Use sub from session (now extracted during login)
         const accountId = session.sub
         if (!accountId) {
-          setStorageMessage('Fehler: Account ID nicht gefunden')
+          setStorageMessage('Daten konnten nicht geladen werden.')
           return
         }
 
@@ -82,7 +82,7 @@ export function useVillageConfig(session) {
         applyThemeToDOM('light')
       } catch (error) {
         console.error('Failed to load config from API:', error)
-        setStorageMessage(`Fehler beim Laden: ${error.message}`)
+        setStorageMessage('Daten konnten nicht geladen werden.')
         // Fallback to defaults
         const defaultConfig = createDefaultVillageConfig(session.email)
         setConfig(defaultConfig)
@@ -205,7 +205,7 @@ export function useVillageConfig(session) {
   // Save to backend API
   const saveConfig = useCallback(async () => {
     if (!villageId) {
-      setStorageMessage('Fehler: Village ID nicht gefunden')
+      setStorageMessage('Speichern aktuell nicht möglich.')
       return false
     }
 
@@ -254,7 +254,7 @@ export function useVillageConfig(session) {
       return true
     } catch (error) {
       console.error('Save failed:', error)
-      setStorageMessage(`Speichern fehlgeschlagen: ${error.message}`)
+      setStorageMessage('Änderungen konnten nicht gespeichert werden.')
       return false
     } finally {
       setIsLoading(false)
@@ -264,7 +264,7 @@ export function useVillageConfig(session) {
   // Reload from API
   const loadConfig = useCallback(async () => {
     if (!villageId) {
-      setStorageMessage('Fehler: Village ID nicht gefunden')
+      setStorageMessage('Laden aktuell nicht möglich.')
       return
     }
 
@@ -300,7 +300,7 @@ export function useVillageConfig(session) {
       setStorageMessage('Von Server neu geladen')
     } catch (error) {
       console.error('Load failed:', error)
-      setStorageMessage(`Laden fehlgeschlagen: ${error.message}`)
+      setStorageMessage('Daten konnten nicht geladen werden.')
     } finally {
       setIsLoading(false)
     }

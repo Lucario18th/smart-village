@@ -59,8 +59,10 @@ export default function AdminSectionPanel({
 
   return (
     <section className="admin-panel" aria-live="polite">
-      <h2>{section.title}</h2>
-      <p>{section.description}</p>
+      <header className="admin-section-header">
+        <h2>{section.title}</h2>
+        <p>{section.description}</p>
+      </header>
 
       {renderForm()}
 
