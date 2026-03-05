@@ -12,14 +12,22 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .auth-error{margin:0;color:var(--md-sys-color-error)}
 .auth-hint{margin-top:14px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
 
-.admin-page{max-width:1040px;margin:48px auto;padding:24px}
-.admin-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
-.admin-header h1{margin:0 0 6px;color:var(--md-sys-color-primary)}
-.admin-header p{margin:0;color:var(--md-sys-color-on-surface-variant)}
-.admin-header button{padding:10px 14px;border:none;border-radius:8px;background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer}
-.admin-nav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
-.admin-nav-button{padding:9px 14px;border-radius:999px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer}
-.admin-nav-button.active{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.admin-page{width:100%;max-width:none;margin:0;padding:20px}
+.admin-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;padding:14px 18px;border-radius:14px;background:var(--md-sys-color-surface-container);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent)}
+.admin-header-content h1{margin:0 0 4px;color:var(--md-sys-color-primary);font-size:clamp(24px,2.6vw,34px);line-height:1.1}
+.admin-header-content p{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.logout-button{padding:10px 16px;border-radius:10px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer;transition:background .18s ease,border-color .18s ease}
+.logout-button:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
+
+.admin-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:0;align-items:start}
+.admin-sidebar{padding:8px 0 0}
+.admin-main-content{border-radius:16px;background:var(--md-sys-color-surface-container);padding:18px;min-height:640px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 20%, transparent)}
+
+.admin-nav{display:flex;flex-direction:column;gap:8px;position:sticky;top:20px;padding-right:14px}
+.admin-nav-button{position:relative;text-align:left;width:calc(100% + 26px);margin-right:-26px;padding:12px 40px 12px 14px;border:none;border-radius:0;background:transparent;color:var(--md-sys-color-on-surface-variant);font-weight:700;cursor:pointer;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 0,calc(100% - 26px) 100%,0 100%);transition:transform .24s ease,color .24s ease,background .24s ease,box-shadow .24s ease}
+.admin-nav-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 55%, transparent);color:var(--md-sys-color-on-surface);transform:translateX(2px)}
+.admin-nav-button.active{color:var(--md-sys-color-on-primary);background:var(--md-sys-color-primary);transform:translateX(0);box-shadow:0 4px 14px color-mix(in srgb, var(--md-sys-color-primary) 35%, transparent)}
+
 .admin-panel{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);padding:20px;border-radius:12px;box-shadow:0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent)}
 .admin-panel h2{margin:0 0 8px;color:var(--md-sys-color-primary)}
 .admin-panel p{margin:0 0 12px;color:var(--md-sys-color-on-surface-variant)}
@@ -47,6 +55,20 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .card h2{margin-top:0}
 .card p{margin-bottom:0;color:var(--md-sys-color-on-surface-variant)}
 .app-footer{text-align:center;color:var(--md-sys-color-on-surface-variant);margin-top:28px;font-size:14px}
+
+@media (max-width: 900px){
+	.admin-layout{grid-template-columns:1fr;gap:14px}
+	.admin-sidebar{padding-top:0}
+	.admin-nav{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-right:0}
+	.admin-nav-button{width:100%;margin-right:0;padding:12px 14px;clip-path:none;border-radius:10px;text-align:center}
+}
+
+@media (max-width: 640px){
+	.admin-page{margin:0;padding:12px}
+	.admin-header{padding:12px;align-items:flex-start;flex-direction:column}
+	.logout-button{width:100%}
+	.admin-nav{grid-template-columns:1fr}
+}
 
 /* Sensor Management Styles */
 .sensors-container{display:grid;gap:16px}
