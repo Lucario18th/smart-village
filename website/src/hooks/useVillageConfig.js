@@ -6,6 +6,33 @@ import {
 } from '../config/configModel'
 import { applyThemeToDOM, getThemeClass } from '../config/themeManager'
 
+const DEFAULT_MODULES = {
+  weather: { enabled: true, sensors: [] },
+  rideShareBench: { enabled: true, sensors: [] },
+  textileContainer: { enabled: true, sensors: [] },
+  energyMonitor: { enabled: true, sensors: [] },
+  wasteCalendar: { enabled: false, sensors: [] },
+}
+
+const DEFAULT_CONTENT = {
+  news: { enabled: true },
+  events: { enabled: true },
+}
+
+function normalizeFeatureToggles(config) {
+  return {
+    ...config,
+    modules: {
+      ...DEFAULT_MODULES,
+      ...(config.modules || {}),
+    },
+    content: {
+      ...DEFAULT_CONTENT,
+      ...(config.content || {}),
+    },
+  }
+}
+
 export function useVillageConfig(session) {
   const [config, setConfig] = useState(() => createDefaultVillageConfig('default'))
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -56,10 +83,15 @@ export function useVillageConfig(session) {
             municipalityCode: village.municipalityCode || '',
           },
           modules: {
-            sensors: { enabled: true },
-            weather: { enabled: false },
-            news: { enabled: false },
-            events: { enabled: false },
+            weather: { enabled: true, sensors: [] },
+            rideShareBench: { enabled: true, sensors: [] },
+            textileContainer: { enabled: true, sensors: [] },
+            energyMonitor: { enabled: true, sensors: [] },
+            wasteCalendar: { enabled: false, sensors: [] },
+          },
+          content: {
+            news: { enabled: true },
+            events: { enabled: true },
           },
           design: {
             themeMode: 'light',
@@ -76,7 +108,7 @@ export function useVillageConfig(session) {
           })),
         }
 
-        setConfig(newConfig)
+        setConfig(normalizeFeatureToggles(newConfig))
         setHasUnsavedChanges(false)
         setStorageMessage('Konfiguration vom Server geladen')
         applyThemeToDOM('light')
@@ -85,7 +117,7 @@ export function useVillageConfig(session) {
         setStorageMessage('Daten konnten nicht geladen werden.')
         // Fallback to defaults
         const defaultConfig = createDefaultVillageConfig(session.email)
-        setConfig(defaultConfig)
+        setConfig(normalizeFeatureToggles(defaultConfig))
       } finally {
         setIsLoading(false)
       }
@@ -124,6 +156,23 @@ export function useVillageConfig(session) {
           ...currentConfig.modules,
           [moduleId]: {
             ...currentConfig.modules[moduleId],
+            enabled,
+          },
+        },
+      }
+      setHasUnsavedChanges(true)
+      return markUpdated(nextConfig)
+    })
+  }, [])
+
+  const updateContentEnabled = useCallback((contentId, enabled) => {
+    setConfig((currentConfig) => {
+      const nextConfig = {
+        ...currentConfig,
+        content: {
+          ...(currentConfig.content || {}),
+          [contentId]: {
+            ...(currentConfig.content?.[contentId] || {}),
             enabled,
           },
         },
@@ -295,7 +344,7 @@ export function useVillageConfig(session) {
         })),
       }
 
-      setConfig(newConfig)
+      setConfig(normalizeFeatureToggles(newConfig))
       setHasUnsavedChanges(false)
       setStorageMessage('Von Server neu geladen')
     } catch (error) {
@@ -309,7 +358,7 @@ export function useVillageConfig(session) {
   // Reset to defaults
   const resetConfig = useCallback(async () => {
     const defaultConfig = createDefaultVillageConfig(session.email)
-    setConfig(defaultConfig)
+    setConfig(normalizeFeatureToggles(defaultConfig))
     setHasUnsavedChanges(false)
     setStorageMessage('Auf Standardwerte zurückgesetzt')
   }, [session.email])
@@ -323,6 +372,7 @@ export function useVillageConfig(session) {
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
+    updateContentEnabled,
     addSensor,
     updateSensor,
     removeSensor,

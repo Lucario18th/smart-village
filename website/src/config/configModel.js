@@ -9,6 +9,10 @@ const BASE_CONFIG = {
     infoText: '',
   },
   modules: {
+    weather: {
+      enabled: true,
+      sensors: [],
+    },
     rideShareBench: {
       enabled: true,
       sensors: [
@@ -41,6 +45,18 @@ const BASE_CONFIG = {
           config: {},
         },
       ],
+    },
+    wasteCalendar: {
+      enabled: false,
+      sensors: [],
+    },
+  },
+  content: {
+    news: {
+      enabled: true,
+    },
+    events: {
+      enabled: true,
     },
   },
   design: {
@@ -169,9 +185,22 @@ export function getSectionSummary(config, sectionId) {
 
   if (sectionId === 'modules') {
     return [
+      `Wetterdaten: ${config.modules.weather?.enabled ? 'aktiv' : 'inaktiv'}`,
       `Mitfahrbank: ${config.modules.rideShareBench.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.rideShareBench.sensors?.length ?? 0} Sensor${config.modules.rideShareBench.sensors?.length !== 1 ? 'en' : ''})`,
-      `Altkleider-Sensor: ${config.modules.textileContainer.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.textileContainer.sensors?.length ?? 0} Sensor${config.modules.textileContainer.sensors?.length !== 1 ? 'en' : ''})`,
+      `Altkleidercontainer: ${config.modules.textileContainer.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.textileContainer.sensors?.length ?? 0} Sensor${config.modules.textileContainer.sensors?.length !== 1 ? 'en' : ''})`,
+    ]
+  }
+
+  if (sectionId === 'energy') {
+    return [
       `Strommonitoring: ${config.modules.energyMonitor.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.energyMonitor.sensors?.length ?? 0} Sensor${config.modules.energyMonitor.sensors?.length !== 1 ? 'en' : ''})`,
+    ]
+  }
+
+  if (sectionId === 'content') {
+    return [
+      `Nachrichten: ${config.content?.news?.enabled ? 'aktiv' : 'inaktiv'}`,
+      `Veranstaltungen: ${config.content?.events?.enabled ? 'aktiv' : 'inaktiv'}`,
     ]
   }
 

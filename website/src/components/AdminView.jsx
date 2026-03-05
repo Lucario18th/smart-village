@@ -6,12 +6,12 @@ import { useVillageConfig } from '../hooks/useVillageConfig'
 
 export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
-  const [selectedModule, setSelectedModule] = useState(null)
   const {
     config,
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
+    updateContentEnabled,
     addSensor,
     updateSensor,
     removeSensor,
@@ -24,11 +24,6 @@ export default function AdminView({ session, onLogout }) {
     isLoading,
     sensorTypes,
   } = useVillageConfig(session)
-
-  const handleNavigateToSensors = (moduleId) => {
-    setSelectedModule(moduleId)
-    setActiveSectionId('sensors')
-  }
 
   const activeSection = useMemo(() => {
     return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
@@ -69,11 +64,10 @@ export default function AdminView({ session, onLogout }) {
             section={activeSection}
             entries={sectionEntries}
             config={config}
-            selectedModule={selectedModule}
             sensorTypes={sensorTypes}
             onGeneralFieldChange={updateGeneralField}
             onModuleEnabledChange={updateModuleEnabled}
-            onNavigateToSensors={handleNavigateToSensors}
+            onContentEnabledChange={updateContentEnabled}
             onAddSensor={addSensor}
             onUpdateSensor={updateSensor}
             onRemoveSensor={removeSensor}

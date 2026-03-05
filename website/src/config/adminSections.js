@@ -12,6 +12,18 @@ export const ADMIN_SECTIONS = [
     description: 'Funktionen für die Gemeinde aktivieren oder deaktivieren.',
   },
   {
+    id: 'content',
+    label: 'Inhalte',
+    title: 'Inhalte und Kommunikation',
+    description: 'Nachrichten und Veranstaltungen für Bürgerinnen und Bürger steuern.',
+  },
+  {
+    id: 'energy',
+    label: 'Strommonitoring',
+    title: 'Strommonitoring',
+    description: 'Energie-Monitoring der Gemeinde aktivieren und verwalten.',
+  },
+  {
     id: 'sensors',
     label: 'Sensoren',
     title: 'Sensor-Verwaltung',

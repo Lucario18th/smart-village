@@ -1,6 +1,8 @@
 import React from 'react'
 import GeneralSettingsForm from './forms/GeneralSettingsForm'
 import ModulesSettingsForm from './forms/ModulesSettingsForm'
+import ContentSettingsForm from './forms/ContentSettingsForm'
+import EnergySettingsForm from './forms/EnergySettingsForm'
 import SensorsSettingsForm from './forms/SensorsSettingsForm'
 import StatisticsForm from './forms/StatisticsForm'
 import DesignSettingsForm from './forms/DesignSettingsForm'
@@ -9,11 +11,10 @@ export default function AdminSectionPanel({
   section,
   entries,
   config,
-  selectedModule,
   sensorTypes,
   onGeneralFieldChange,
   onModuleEnabledChange,
-  onNavigateToSensors,
+  onContentEnabledChange,
   onAddSensor,
   onUpdateSensor,
   onRemoveSensor,
@@ -29,9 +30,16 @@ export default function AdminSectionPanel({
         <ModulesSettingsForm
           values={config.modules}
           onModuleEnabledChange={onModuleEnabledChange}
-          onNavigateToSensors={onNavigateToSensors}
         />
       )
+    }
+
+    if (section.id === 'content') {
+      return <ContentSettingsForm values={config.content} onContentEnabledChange={onContentEnabledChange} />
+    }
+
+    if (section.id === 'energy') {
+      return <EnergySettingsForm values={config.modules} onModuleEnabledChange={onModuleEnabledChange} />
     }
 
     if (section.id === 'sensors') {
@@ -66,11 +74,13 @@ export default function AdminSectionPanel({
 
       {renderForm()}
 
-      <ul className="summary-list">
-        {entries.map((entry) => (
-          <li key={entry}>{entry}</li>
-        ))}
-      </ul>
+      {section.id !== 'modules' && section.id !== 'content' && section.id !== 'energy' ? (
+        <ul className="summary-list">
+          {entries.map((entry) => (
+            <li key={entry}>{entry}</li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   )
 }
