@@ -4,6 +4,8 @@ Uebersicht
 
 Das AdminView ist die Hauptbenutzeroberflaeche fuer die Verwaltung von Gemeindedaten und Sensoren. Es wird mit React implementiert und kommuniziert direkt mit dem NestJS Backend ueber REST API.
 
+Neu: Es gibt jetzt einen ersten Tab „Karte“, der eine OpenStreetMap-Karte anzeigt. Die Karte zentriert auf die Koordinaten der hinterlegten Postleitzahl (sofern vorhanden) und faellt sonst auf Lörrach zurück. Der „Module“-Tab ist zusätzlich robust gegen fehlende oder fehlerhafte Backend-Daten und zeigt freundliche Hinweise statt abzustürzen.
+
 Architektur Diagramm
 
 Frontend Layer (React Components)
