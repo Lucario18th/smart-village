@@ -9,10 +9,27 @@ import './css/dark-mc.css'
 import './css/dark-hc.css'
 import './styles.css'
 
+/**
+ * Initialize MSW (Mock Service Worker) in development mode only.
+ * This intercepts all API calls and returns mock responses for local development.
+ * In production, this code is never imported or executed.
+ */
+async function initializeMocks() {
+  if (process.env.NODE_ENV === 'development') {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({
+      onUnhandledRequest: 'warn',
+    });
+  }
+}
+
 const container = document.getElementById('root')
 const root = createRoot(container)
 
 document.documentElement.classList.add('light')
 
-root.render(<App />)
+// Start mocks before rendering the app (dev mode only)
+initializeMocks().then(() => {
+  root.render(<App />)
+})
 
