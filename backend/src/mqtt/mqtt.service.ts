@@ -382,7 +382,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         }
       }
 
-      for (const sensor of [...sensorsWithId, ...sensorsWithoutId]) {
+      for (const sensor of sensorsWithId) {
         const sensorId = sensor.sensorId ?? null;
         const baseData = {
           villageId: village.id,
@@ -400,16 +400,28 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
             create: { id: sensorId as number, ...baseData },
             update: baseData,
           });
+        }
+      }
+
+      for (const sensor of sensorsWithoutId) {
+        const baseData = {
+          villageId: village.id,
+          sensorTypeId: sensor.sensorTypeId,
+          name: sensor.name,
+          infoText: sensor.infoText ?? null,
+          deviceId: deviceInternalId,
+          latitude: sensor.latitude ?? null,
+          longitude: sensor.longitude ?? null,
+        };
+
+        const existing = existingByName[sensor.name];
+        if (existing) {
+          await this.prisma.sensor.update({
+            where: { id: existing.id },
+            data: baseData,
+          });
         } else {
-          const existing = existingByName[sensor.name];
-          if (existing) {
-            await this.prisma.sensor.update({
-              where: { id: existing.id },
-              data: baseData,
-            });
-          } else {
-            await this.prisma.sensor.create({ data: baseData });
-          }
+          await this.prisma.sensor.create({ data: baseData });
         }
       }
     }
