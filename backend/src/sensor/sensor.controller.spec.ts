@@ -11,6 +11,7 @@ describe('SensorController', () => {
     listByVillage: jest.fn(),
     getById: jest.fn(),
     update: jest.fn(),
+    delete: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -36,14 +37,32 @@ describe('SensorController', () => {
         name: 'Temperature Sensor',
         infoText: 'Test sensor',
         isActive: true,
+        latitude: 48.1,
+        longitude: 7.9,
       };
 
       mockSensorService.create.mockResolvedValue(mockSensor);
 
-      const result = await controller.create(1, 1, 'Temperature Sensor', 'Test sensor');
+      const result = await controller.create(
+        1,
+        1,
+        'Temperature Sensor',
+        'Test sensor',
+        2,
+        48.1,
+        7.9,
+      );
 
       expect(result).toEqual(mockSensor);
-      expect(sensorService.create).toHaveBeenCalledWith(1, 1, 'Temperature Sensor', 'Test sensor');
+      expect(sensorService.create).toHaveBeenCalledWith({
+        villageId: 1,
+        sensorTypeId: 1,
+        name: 'Temperature Sensor',
+        infoText: 'Test sensor',
+        deviceId: 2,
+        latitude: 48.1,
+        longitude: 7.9,
+      });
     });
   });
 
@@ -83,7 +102,7 @@ describe('SensorController', () => {
 
   describe('update', () => {
     it('should update a sensor', async () => {
-      const updateData = { name: 'Updated Sensor' };
+      const updateData = { name: 'Updated Sensor', latitude: 10.1, longitude: 11.2 };
       const mockSensor = {
         id: 1,
         villageId: 1,

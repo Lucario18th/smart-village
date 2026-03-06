@@ -10,10 +10,14 @@ import {
 } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { PrismaService } from '../prisma/prisma.service'
+import { SensorService } from '../sensor/sensor.service'
 
 @Controller('villages')
 export class VillageController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sensorService: SensorService,
+  ) {}
 
   @Get(':villageId')
   @UseGuards(JwtAuthGuard)
@@ -22,11 +26,7 @@ export class VillageController {
       where: { id: villageId },
       include: {
         postalCode: true,
-        sensors: {
-          include: {
-            sensorType: true,
-          },
-        },
+        devices: true,
       },
     })
 
@@ -34,7 +34,12 @@ export class VillageController {
       throw new BadRequestException('Village not found')
     }
 
-    return village
+    const sensors = await this.sensorService.listByVillage(villageId)
+
+    return {
+      ...village,
+      sensors,
+    }
   }
 
   @Put(':villageId')
@@ -78,14 +83,11 @@ export class VillageController {
       },
       include: {
         postalCode: true,
-        sensors: {
-          include: {
-            sensorType: true,
-          },
-        },
+        devices: true,
       },
     })
 
-    return updatedVillage
+    const sensors = await this.sensorService.listByVillage(villageId)
+    return { ...updatedVillage, sensors }
   }
 }

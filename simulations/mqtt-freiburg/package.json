@@ -1,0 +1,18 @@
+{
+  "name": "mqtt-freiburg-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "simulate": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "dayjs": "^1.11.19",
+    "mqtt": "^5.3.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.9.0"
+  }
+}

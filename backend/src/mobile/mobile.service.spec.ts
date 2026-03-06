@@ -144,6 +144,11 @@ describe('MobileService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].latitude).toBe(48.5);
       expect(result[0].longitude).toBe(7.3);
+      expect(prisma.sensor.findMany).toHaveBeenCalledWith({
+        where: { villageId: 1, isActive: true },
+        include: { sensorType: true, status: true, device: true },
+        orderBy: { name: 'asc' },
+      });
     });
 
     it('should generate mock coordinates when real ones are missing', async () => {
@@ -168,6 +173,28 @@ describe('MobileService', () => {
       expect(result[0].longitude).toBeDefined();
       expect(typeof result[0].latitude).toBe('number');
       expect(typeof result[0].longitude).toBe('number');
+    });
+
+    it('should use device coordinates when sensor has none', async () => {
+      const mockSensors = [
+        {
+          id: 1,
+          name: 'Sensor 1',
+          infoText: null,
+          latitude: null,
+          longitude: null,
+          isActive: true,
+          device: { latitude: 50.1, longitude: 8.2 },
+          sensorType: { id: 1, name: 'Temperature', unit: '°C' },
+          status: null,
+        },
+      ];
+      (mockPrismaService.sensor.findMany as jest.Mock).mockResolvedValue(mockSensors);
+
+      const result = await service.getSensorsForVillage(2);
+
+      expect(result[0].latitude).toBe(50.1);
+      expect(result[0].longitude).toBe(8.2);
     });
   });
 

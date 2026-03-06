@@ -70,11 +70,14 @@ export const apiClient = {
     listByVillage(villageId) {
       return apiClient.request('GET', `/sensors/village/${villageId}`);
     },
-    create(villageId, sensorTypeId, name, infoText) {
+    create(villageId, sensorTypeId, name, infoText, deviceId, latitude, longitude) {
       return apiClient.request('POST', `/sensors/village/${villageId}`, {
         sensorTypeId,
         name,
         infoText: infoText || '',
+        deviceId: deviceId ?? null,
+        latitude: latitude ?? null,
+        longitude: longitude ?? null,
       });
     },
     get(sensorId) {
@@ -85,6 +88,18 @@ export const apiClient = {
     },
     delete(sensorId) {
       return apiClient.request('DELETE', `/sensors/${sensorId}`);
+    },
+  },
+
+  devices: {
+    listByVillage(villageId) {
+      return apiClient.request('GET', `/devices/village/${villageId}`);
+    },
+    create(villageId, data) {
+      return apiClient.request('POST', `/devices/village/${villageId}`, data);
+    },
+    update(deviceId, data) {
+      return apiClient.request('PATCH', `/devices/${deviceId}`, data);
     },
   },
 

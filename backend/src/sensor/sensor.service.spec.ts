@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { SensorService } from './sensor.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -22,6 +23,9 @@ describe('SensorService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
     },
+    device: {
+      findUnique: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -43,8 +47,15 @@ describe('SensorService', () => {
   describe('create', () => {
     it('should create a new sensor', async () => {
       mockPrismaService.sensor.create.mockResolvedValue(mockSensor);
+      mockPrismaService.device.findUnique.mockResolvedValue({ id: 2, villageId: 1 });
 
-      const result = await service.create(1, 1, 'Temperature Sensor', 'Test sensor');
+      const result = await service.create({
+        villageId: 1,
+        sensorTypeId: 1,
+        name: 'Temperature Sensor',
+        infoText: 'Test sensor',
+        deviceId: 2,
+      });
 
       expect(result).toEqual(mockSensor);
       expect(prismaService.sensor.create).toHaveBeenCalledWith({
@@ -53,8 +64,25 @@ describe('SensorService', () => {
           sensorTypeId: 1,
           name: 'Temperature Sensor',
           infoText: 'Test sensor',
+          deviceId: 2,
+          latitude: null,
+          longitude: null,
         },
+        include: { device: true, sensorType: true, status: true },
       });
+    });
+
+    it('throws when device belongs to different village', async () => {
+      mockPrismaService.device.findUnique.mockResolvedValue({ id: 3, villageId: 9 });
+
+      await expect(
+        service.create({
+          villageId: 1,
+          sensorTypeId: 1,
+          name: 'Bad',
+          deviceId: 3,
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 
@@ -70,7 +98,7 @@ describe('SensorService', () => {
       expect(result).toEqual(mockSensors);
       expect(prismaService.sensor.findMany).toHaveBeenCalledWith({
         where: { villageId },
-        include: { sensorType: true, status: true },
+        include: { sensorType: true, status: true, device: true },
         orderBy: { id: 'asc' },
       });
     });
@@ -95,7 +123,7 @@ describe('SensorService', () => {
       expect(result).toEqual(mockSensor);
       expect(prismaService.sensor.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
-        include: { sensorType: true, village: true, status: true },
+        include: { sensorType: true, village: true, status: true, device: true },
       });
     });
   });
@@ -106,13 +134,18 @@ describe('SensorService', () => {
       const updatedSensor = { ...mockSensor, name: 'Updated Sensor Name' };
 
       mockPrismaService.sensor.update.mockResolvedValue(updatedSensor);
+      mockPrismaService.device.findUnique.mockResolvedValue({ id: 3, villageId: 1 });
+      mockPrismaService.sensor.findUnique.mockResolvedValue({ id: 1, villageId: 1 });
 
       const result = await service.update(1, updateData);
 
       expect(result).toEqual(updatedSensor);
       expect(prismaService.sensor.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: updateData,
+        data: {
+          name: 'Updated Sensor Name',
+        },
+        include: { device: true, sensorType: true, status: true },
       });
     });
   });

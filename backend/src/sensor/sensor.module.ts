@@ -10,5 +10,6 @@ import { SensorTypeController } from "./sensor-type.controller";
   imports: [PrismaModule],
   controllers: [SensorController, SensorReadingController, SensorTypeController],
   providers: [SensorService, SensorReadingService],
+  exports: [SensorService, SensorReadingService],
 })
 export class SensorModule {}
