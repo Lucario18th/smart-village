@@ -101,7 +101,7 @@ describe('AuthService', () => {
         email: registerDto.email,
         verificationCode: '999999',
         verificationCodeExpiresAt: new Date(),
-        villages: [{ id: 1, name: registerDto.villageName }],
+        villages: [{ id: 1, name: registerDto.villageName, postalCode: mockPostalCode }],
       });
 
       const result = await service.register(registerDto);
@@ -120,8 +120,10 @@ describe('AuthService', () => {
             }),
           }),
         }),
-        include: { villages: true },
+        include: { villages: { include: { postalCode: true } } },
       });
+      expect(result.villages?.[0]?.postalCode?.lat).toBe(mockPostalCode.lat);
+      expect(result.villages?.[0]?.postalCode?.lng).toBe(mockPostalCode.lng);
       expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
         registerDto.email,
         '999999',

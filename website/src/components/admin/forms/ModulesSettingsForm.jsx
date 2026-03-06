@@ -41,6 +41,8 @@ function ServiceCard({ title, description, moduleId, isEnabled, sensorCount, onE
 }
 
 export default function ModulesSettingsForm({ values, onModuleEnabledChange, onNavigateToSensors }) {
+  const safeValues = values && typeof values === 'object' ? values : {}
+
   const modules = [
     {
       id: 'sensors',
@@ -65,7 +67,7 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onN
   ]
 
   const getSensorCount = (moduleId) => {
-    const sensors = values[moduleId]?.sensors
+    const sensors = safeValues[moduleId]?.sensors
     return Array.isArray(sensors) ? sensors.length : 0
   }
 
@@ -75,6 +77,10 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onN
         Technische Datenquellen aktivieren. Sensoren und Messpunkte konfigurierst du im Navigationspunkt „Sensoren“.
       </p>
 
+      {!values && (
+        <p className="auth-hint">Moduldaten konnten nicht geladen werden. Standardwerte werden angezeigt.</p>
+      )}
+
       <div className="service-grid">
         {modules.map((module) => (
           <ServiceCard
@@ -82,7 +88,7 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onN
             title={module.title}
             description={module.description}
             moduleId={module.id}
-            isEnabled={values[module.id]?.enabled ?? false}
+            isEnabled={safeValues[module.id]?.enabled ?? false}
             sensorCount={getSensorCount(module.id)}
             onEnabledChange={(enabled) => onModuleEnabledChange(module.id, enabled)}
             onManageSensors={onNavigateToSensors}

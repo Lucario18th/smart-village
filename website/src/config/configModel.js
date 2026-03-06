@@ -1,4 +1,5 @@
 const CONFIG_SCHEMA_VERSION = 1
+export const FALLBACK_LOCATION = { lat: 47.615, lng: 7.664 } // Lörrach
 
 const BASE_CONFIG = {
   general: {
@@ -10,41 +11,14 @@ const BASE_CONFIG = {
     postalCode: '',
     city: '',
     postalCodeId: null,
+    lat: null,
+    lng: null,
   },
   modules: {
-    rideShareBench: {
-      enabled: true,
-      sensors: [
-        {
-          id: 'rideShareBench-1',
-          name: 'Mitfahrbank Standard',
-          source: 'simulated',
-          config: {},
-        },
-      ],
-    },
-    textileContainer: {
-      enabled: true,
-      sensors: [
-        {
-          id: 'textileContainer-1',
-          name: 'Altkleider Container A',
-          source: 'simulated',
-          config: {},
-        },
-      ],
-    },
-    energyMonitor: {
-      enabled: true,
-      sensors: [
-        {
-          id: 'energyMonitor-1',
-          name: 'Hauptstromzähler',
-          source: 'simulated',
-          config: {},
-        },
-      ],
-    },
+    sensors: { enabled: true, sensors: [] },
+    weather: { enabled: false, sensors: [] },
+    news: { enabled: false, sensors: [] },
+    events: { enabled: false, sensors: [] },
   },
   design: {
     themeMode: 'light',
@@ -175,12 +149,43 @@ export function getSectionSummary(config, sectionId) {
     ]
   }
 
+  if (sectionId === 'map') {
+    const lat =
+      typeof config.general.lat === 'number'
+        ? config.general.lat
+        : Number.parseFloat(config.general.lat)
+    const lng =
+      typeof config.general.lng === 'number'
+        ? config.general.lng
+        : Number.parseFloat(config.general.lng)
+    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng)
+    const locationLabel =
+      config.general.postalCode && config.general.city
+        ? `${config.general.postalCode} ${config.general.city}`
+        : 'Lörrach (Fallback)'
+
+    const coordsLabel = hasCoords
+      ? `Koordinaten: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      : `Koordinaten: ${FALLBACK_LOCATION.lat.toFixed(4)}, ${FALLBACK_LOCATION.lng.toFixed(4)}`
+
+    return [`Zentrum: ${locationLabel}`, coordsLabel]
+  }
+
   if (sectionId === 'modules') {
-    return [
-      `Mitfahrbank: ${config.modules.rideShareBench.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.rideShareBench.sensors?.length ?? 0} Sensor${config.modules.rideShareBench.sensors?.length !== 1 ? 'en' : ''})`,
-      `Altkleider-Sensor: ${config.modules.textileContainer.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.textileContainer.sensors?.length ?? 0} Sensor${config.modules.textileContainer.sensors?.length !== 1 ? 'en' : ''})`,
-      `Strommonitoring: ${config.modules.energyMonitor.enabled ? 'aktiv' : 'inaktiv'} (${config.modules.energyMonitor.sensors?.length ?? 0} Sensor${config.modules.energyMonitor.sensors?.length !== 1 ? 'en' : ''})`,
+    const moduleSummaries = [
+      { id: 'sensors', label: 'Sensoren' },
+      { id: 'weather', label: 'Wetter' },
+      { id: 'news', label: 'News' },
+      { id: 'events', label: 'Events' },
     ]
+
+    return moduleSummaries.map(({ id, label }) => {
+      const moduleState = config.modules?.[id] || {}
+      const enabled = moduleState.enabled ? 'aktiv' : 'inaktiv'
+      const count = Array.isArray(moduleState.sensors) ? moduleState.sensors.length : 0
+      const sensorLabel = count === 1 ? 'Sensor' : 'Sensoren'
+      return `${label}: ${enabled} (${count} ${sensorLabel})`
+    })
   }
 
   if (sectionId === 'design') {

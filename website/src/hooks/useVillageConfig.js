@@ -57,6 +57,8 @@ export function useVillageConfig(session) {
             postalCode: village.postalCode?.postalCode || '',
             city: village.postalCode?.city || '',
             postalCodeId: village.postalCodeId || village.postalCode?.id || null,
+            lat: village.postalCode?.lat ?? null,
+            lng: village.postalCode?.lng ?? null,
           },
           modules: {
             sensors: { enabled: true },
@@ -291,6 +293,8 @@ export function useVillageConfig(session) {
           postalCode: village.postalCode?.postalCode || '',
           city: village.postalCode?.city || '',
           postalCodeId: village.postalCodeId || village.postalCode?.id || null,
+          lat: village.postalCode?.lat ?? null,
+          lng: village.postalCode?.lng ?? null,
         },
         sensors: (village.sensors || []).map(sensor => ({
           id: sensor.id,

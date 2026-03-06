@@ -4,6 +4,7 @@ import ModulesSettingsForm from './forms/ModulesSettingsForm'
 import SensorsSettingsForm from './forms/SensorsSettingsForm'
 import StatisticsForm from './forms/StatisticsForm'
 import DesignSettingsForm from './forms/DesignSettingsForm'
+import MapPanel from './MapPanel'
 
 export default function AdminSectionPanel({
   section,
@@ -20,6 +21,10 @@ export default function AdminSectionPanel({
   onDesignFieldChange,
 }) {
   const renderForm = () => {
+    if (section.id === 'map') {
+      return <MapPanel general={config.general} />
+    }
+
     if (section.id === 'general') {
       return <GeneralSettingsForm values={config.general} onChange={onGeneralFieldChange} />
     }

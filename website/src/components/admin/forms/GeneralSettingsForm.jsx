@@ -42,11 +42,15 @@ export default function GeneralSettingsForm({ values, onChange }) {
               onChange('postalCodeId', null)
               onChange('postalCode', '')
               onChange('city', '')
+              onChange('lat', null)
+              onChange('lng', null)
               return
             }
             onChange('postalCodeId', option.id)
             onChange('postalCode', option.postalCode)
             onChange('city', option.city)
+            onChange('lat', option.lat ?? null)
+            onChange('lng', option.lng ?? null)
           }}
         />
 
