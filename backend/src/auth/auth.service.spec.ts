@@ -19,6 +19,7 @@ describe('AuthService', () => {
     id: 1,
     email: 'test@example.com',
     passwordHash: 'hashed_password',
+    isAdmin: false,
     emailVerified: true,
     verificationCode: '123456',
     verificationCodeExpiresAt: new Date(now.getTime() + 5 * 60 * 1000),
@@ -180,6 +181,7 @@ describe('AuthService', () => {
       expect(jwtService.signAsync).toHaveBeenCalledWith({
         sub: mockAccount.id,
         email: mockAccount.email,
+        isAdmin: mockAccount.isAdmin,
       });
     });
 

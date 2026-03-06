@@ -151,7 +151,7 @@ export class AuthService {
       });
     }
 
-    const payload = { sub: account.id, email: account.email };
+    const payload = { sub: account.id, email: account.email, isAdmin: account.isAdmin };
 
     const token = await this.jwtService.signAsync(payload);
 

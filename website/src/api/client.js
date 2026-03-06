@@ -98,6 +98,12 @@ export const apiClient = {
     },
   },
 
+  admin: {
+    deleteAccount(accountId) {
+      return apiClient.request('DELETE', `/admin/accounts/${accountId}`);
+    },
+  },
+
   // Location search
   locations: {
     search(query) {

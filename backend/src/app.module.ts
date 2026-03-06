@@ -6,6 +6,7 @@ import { VillageModule } from "./village/village.module";
 import { MobileModule } from "./mobile/mobile.module";
 import { AppController } from "./app.controller";
 import { LocationModule } from "./location/location.module";
+import { AdminModule } from "./admin/admin.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { LocationModule } from "./location/location.module";
     VillageModule,
     MobileModule,
     LocationModule,
+    AdminModule,
   ],
   controllers: [AppController],
 })
