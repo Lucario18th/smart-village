@@ -61,6 +61,7 @@ model Village {
   sensors      Sensor[]
   messages     Message[]
   rideshares   RideShare[]
+  devices      Device[]
 
   @@index([accountId])
   @@index([postalCodeId])
@@ -104,6 +105,7 @@ model SensorType {
 model Sensor {
   id           Int           @id @default(autoincrement())
   villageId    Int
+  deviceId     Int?
   sensorTypeId Int
   name         String
   infoText     String?
@@ -112,11 +114,13 @@ model Sensor {
   longitude    Float?
 
   village      Village       @relation(fields: [villageId], references: [id])
+  device       Device?       @relation(fields: [deviceId], references: [id])
   sensorType   SensorType    @relation(fields: [sensorTypeId], references: [id])
   status       SensorStatus?
   readings     SensorReading[]
 
   @@index([villageId])
+  @@index([deviceId])
 }
 
 model SensorStatus {
@@ -174,4 +178,18 @@ model RideShare {
 
   @@index([villageId])
   @@index([status])
+}
+
+model Device {
+  id        Int       @id @default(autoincrement())
+  deviceId  String    @unique
+  villageId Int
+  name      String?
+  latitude  Float?
+  longitude Float?
+
+  village   Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  sensors   Sensor[]
+
+  @@index([villageId])
 }

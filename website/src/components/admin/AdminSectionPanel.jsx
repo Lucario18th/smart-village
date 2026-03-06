@@ -18,6 +18,8 @@ export default function AdminSectionPanel({
   onAddSensor,
   onUpdateSensor,
   onRemoveSensor,
+  onAddDevice,
+  onUpdateDevice,
   onDesignFieldChange,
 }) {
   const renderForm = () => {
@@ -47,6 +49,8 @@ export default function AdminSectionPanel({
           onAddSensor={onAddSensor}
           onUpdateSensor={onUpdateSensor}
           onRemoveSensor={onRemoveSensor}
+          onAddDevice={onAddDevice}
+          onUpdateDevice={onUpdateDevice}
         />
       )
     }

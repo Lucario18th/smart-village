@@ -14,6 +14,13 @@ export function useVillageConfig(session) {
   const [villageId, setVillageId] = useState(null)
   const [sensorTypes, setSensorTypes] = useState([])
   const [nextSensorId, setNextSensorId] = useState(-1) // Für neue Sensoren
+  const [nextDeviceId, setNextDeviceId] = useState(-1)
+
+  const toNumberOrNull = (value) => {
+    if (value === '' || value === null || value === undefined) return null
+    const num = Number(value)
+    return Number.isFinite(num) ? num : null
+  }
 
   // Load village data and sensor types from API
   useEffect(() => {
@@ -78,6 +85,17 @@ export function useVillageConfig(session) {
             sensorTypeId: sensor.sensorTypeId,
             active: sensor.isActive,
             infoText: sensor.infoText || '',
+            deviceId: sensor.device?.id ?? null,
+            deviceIdentifier: sensor.device?.deviceId || '',
+            latitude: sensor.latitude ?? '',
+            longitude: sensor.longitude ?? '',
+          })),
+          devices: (village.devices || []).map(device => ({
+            id: device.id,
+            deviceId: device.deviceId,
+            name: device.name || '',
+            latitude: device.latitude ?? '',
+            longitude: device.longitude ?? '',
           })),
         }
 
@@ -146,8 +164,11 @@ export function useVillageConfig(session) {
         name: sensorData.name || 'Neuer Sensor',
         type: sensorData.type || '',
         sensorTypeId: sensorData.sensorTypeId || 1,
-        active: true,
+        active: sensorData.active ?? true,
         infoText: sensorData.infoText || '',
+        deviceId: sensorData.deviceId ?? null,
+        latitude: sensorData.latitude ?? '',
+        longitude: sensorData.longitude ?? '',
       }
 
       const nextConfig = {
@@ -168,6 +189,39 @@ export function useVillageConfig(session) {
         ...currentConfig,
         sensors: (currentConfig.sensors || []).map(sensor =>
           sensor.id === sensorId ? { ...sensor, ...updates } : sensor
+        ),
+      }
+      setHasUnsavedChanges(true)
+      return markUpdated(nextConfig)
+    })
+  }, [])
+
+  const addDevice = useCallback((deviceData) => {
+    setConfig((currentConfig) => {
+      const newDevice = {
+        id: nextDeviceId,
+        deviceId: deviceData.deviceId || '',
+        name: deviceData.name || '',
+        latitude: deviceData.latitude ?? '',
+        longitude: deviceData.longitude ?? '',
+      }
+
+      const nextConfig = {
+        ...currentConfig,
+        devices: [...(currentConfig.devices || []), newDevice],
+      }
+      setHasUnsavedChanges(true)
+      setNextDeviceId(nextDeviceId - 1)
+      return markUpdated(nextConfig)
+    })
+  }, [nextDeviceId])
+
+  const updateDevice = useCallback((deviceId, updates) => {
+    setConfig((currentConfig) => {
+      const nextConfig = {
+        ...currentConfig,
+        devices: (currentConfig.devices || []).map(device =>
+          device.id === deviceId ? { ...device, ...updates } : device
         ),
       }
       setHasUnsavedChanges(true)
@@ -216,6 +270,58 @@ export function useVillageConfig(session) {
 
     setIsLoading(true)
     try {
+      const deviceIdMap = new Map()
+      let devicesState = config.devices || []
+      let sensorsState = config.sensors || []
+
+      for (const device of config.devices || []) {
+        const latitude = toNumberOrNull(device.latitude)
+        const longitude = toNumberOrNull(device.longitude)
+
+        if (device.id < 0) {
+          const created = await apiClient.devices.create(villageId, {
+            deviceId: device.deviceId,
+            name: device.name,
+            latitude,
+            longitude,
+          })
+          deviceIdMap.set(device.id, created.id)
+          devicesState = devicesState.map(d =>
+            d.id === device.id
+              ? {
+                  ...d,
+                  id: created.id,
+                  latitude: created.latitude ?? '',
+                  longitude: created.longitude ?? '',
+                }
+              : d
+          )
+        } else {
+          const updated = await apiClient.devices.update(device.id, {
+            name: device.name,
+            latitude,
+            longitude,
+          })
+          devicesState = devicesState.map(d =>
+            d.id === device.id
+              ? {
+                  ...d,
+                  name: updated.name ?? d.name,
+                  latitude: updated.latitude ?? '',
+                  longitude: updated.longitude ?? '',
+                }
+              : d
+          )
+        }
+      }
+
+      if (deviceIdMap.size > 0) {
+        sensorsState = sensorsState.map(sensor => {
+          const mappedId = deviceIdMap.get(sensor.deviceId)
+          return mappedId ? { ...sensor, deviceId: mappedId } : sensor
+        })
+      }
+
       // Update village data
       await apiClient.villages.update(villageId, {
         name: config.general.villageName,
@@ -230,31 +336,64 @@ export function useVillageConfig(session) {
 
       // Handle sensors
       for (const sensor of config.sensors || []) {
+        const latitude = toNumberOrNull(sensor.latitude)
+        const longitude = toNumberOrNull(sensor.longitude)
+
         if (sensor.id < 0) {
           // New sensor - create
+          const resolvedDeviceId =
+            sensor.deviceId && sensor.deviceId < 0
+              ? deviceIdMap.get(sensor.deviceId) ?? null
+              : sensor.deviceId ?? null
+
           const created = await apiClient.sensors.create(
             villageId,
             sensor.sensorTypeId,
             sensor.name,
-            sensor.infoText
+            sensor.infoText,
+            resolvedDeviceId,
+            latitude,
+            longitude
           )
-          // Update the sensor ID in config
-          setConfig(prev => ({
-            ...prev,
-            sensors: (prev.sensors || []).map(s =>
-              s.id === sensor.id ? { ...s, id: created.id } : s
-            ),
-          }))
+          sensorsState = sensorsState.map(s =>
+            s.id === sensor.id ? { ...s, id: created.id } : s
+          )
         } else {
           // Existing sensor - update
+          const resolvedDeviceId =
+            sensor.deviceId && sensor.deviceId < 0
+              ? deviceIdMap.get(sensor.deviceId) ?? null
+              : sensor.deviceId ?? null
+
           await apiClient.sensors.update(sensor.id, {
             name: sensor.name,
             infoText: sensor.infoText,
             isActive: sensor.active,
+            deviceId: resolvedDeviceId,
+            latitude,
+            longitude,
           })
+          sensorsState = sensorsState.map(s =>
+            s.id === sensor.id
+              ? {
+                  ...s,
+                  name: sensor.name,
+                  infoText: sensor.infoText,
+                  active: sensor.active,
+                  deviceId: resolvedDeviceId,
+                  latitude: sensor.latitude ?? '',
+                  longitude: sensor.longitude ?? '',
+                }
+              : s
+          )
         }
       }
 
+      setConfig((prev) => ({
+        ...prev,
+        devices: devicesState,
+        sensors: sensorsState,
+      }))
       setHasUnsavedChanges(false)
       setStorageMessage('Erfolgreich gespeichert')
       return true
@@ -303,6 +442,17 @@ export function useVillageConfig(session) {
           sensorTypeId: sensor.sensorTypeId,
           active: sensor.isActive,
           infoText: sensor.infoText || '',
+          deviceId: sensor.device?.id ?? null,
+          deviceIdentifier: sensor.device?.deviceId || '',
+          latitude: sensor.latitude ?? '',
+          longitude: sensor.longitude ?? '',
+        })),
+        devices: (village.devices || []).map(device => ({
+          id: device.id,
+          deviceId: device.deviceId,
+          name: device.name || '',
+          latitude: device.latitude ?? '',
+          longitude: device.longitude ?? '',
         })),
       }
 
@@ -337,6 +487,8 @@ export function useVillageConfig(session) {
     addSensor,
     updateSensor,
     removeSensor,
+    addDevice,
+    updateDevice,
     updateDesignField,
     hasUnsavedChanges,
     storageMessage,

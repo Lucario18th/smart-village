@@ -14,6 +14,7 @@ const BASE_CONFIG = {
     lat: null,
     lng: null,
   },
+  devices: [],
   modules: {
     sensors: { enabled: true, sensors: [] },
     weather: { enabled: false, sensors: [] },

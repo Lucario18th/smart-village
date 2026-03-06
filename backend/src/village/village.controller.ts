@@ -25,8 +25,10 @@ export class VillageController {
         sensors: {
           include: {
             sensorType: true,
+            device: true,
           },
         },
+        devices: true,
       },
     })
 
@@ -81,8 +83,10 @@ export class VillageController {
         sensors: {
           include: {
             sensorType: true,
+            device: true,
           },
         },
+        devices: true,
       },
     })
 

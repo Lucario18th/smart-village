@@ -133,16 +133,25 @@ export class MobileService {
       include: {
         sensorType: true,
         status: true,
+        device: true,
       },
       orderBy: { name: 'asc' },
     } as any);
 
     return sensors.map((sensor: any) => {
-      // Verwende echte Koordinaten oder generiere Mock-Daten
-      const coordinates =
-        sensor.latitude && sensor.longitude
-          ? { latitude: sensor.latitude, longitude: sensor.longitude }
-          : this.generateMockCoordinates(villageId);
+      // Verwende Sensor-Koordinaten, ansonsten Device-Koordinaten oder Mock-Daten
+      const hasSensorCoords =
+        typeof sensor.latitude === 'number' && typeof sensor.longitude === 'number';
+      const hasDeviceCoords =
+        sensor.device &&
+        typeof sensor.device.latitude === 'number' &&
+        typeof sensor.device.longitude === 'number';
+
+      const coordinates = hasSensorCoords
+        ? { latitude: sensor.latitude, longitude: sensor.longitude }
+        : hasDeviceCoords
+        ? { latitude: sensor.device.latitude, longitude: sensor.device.longitude }
+        : this.generateMockCoordinates(villageId);
 
       return {
         id: sensor.id,
