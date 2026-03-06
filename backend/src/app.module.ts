@@ -8,6 +8,7 @@ import { AppController } from "./app.controller";
 import { LocationModule } from "./location/location.module";
 import { AdminModule } from "./admin/admin.module";
 import { DeviceModule } from "./device/device.module";
+import { MqttModule } from "./mqtt/mqtt.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DeviceModule } from "./device/device.module";
     LocationModule,
     AdminModule,
     DeviceModule,
+    MqttModule,
   ],
   controllers: [AppController],
 })
