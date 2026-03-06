@@ -24,11 +24,16 @@ export default function App() {
     return (
       <LoginView 
         onLogin={login}
-        onRegister={(onBack) => <RegisterView onRegister={handleRegister} onBack={onBack} />}
+        onRegister={({ onBack, initialEmail }) => (
+          <RegisterView
+            onRegister={handleRegister}
+            onBack={onBack}
+            initialEmail={initialEmail}
+          />
+        )}
       />
     )
   }
 
   return <AdminView session={session} onLogout={logout} />
 }
-

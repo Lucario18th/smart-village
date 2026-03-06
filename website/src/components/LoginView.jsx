@@ -5,8 +5,10 @@ export default function LoginView({ onLogin, onRegister }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [errorCode, setErrorCode] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
+  const [registerEmail, setRegisterEmail] = useState('')
   // Safety: if the parent removes the registration flow after initial render,
   // ensure we return to the login view.
   React.useEffect(() => {
@@ -19,24 +21,35 @@ export default function LoginView({ onLogin, onRegister }) {
     event.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
+    setErrorCode(null)
 
     try {
       const result = await onLogin({ email, password })
 
       if (!result.success) {
         setErrorMessage(result.error)
+        setErrorCode(result.code || null)
+
+        if (result.code === 'USER_NOT_FOUND' && onRegister) {
+          setRegisterEmail(email)
+        }
         return
       }
 
       setPassword('')
       setErrorMessage('')
+      setErrorCode(null)
+      setRegisterEmail('')
     } finally {
       setIsLoading(false)
     }
   }
 
   if (showRegister) {
-    return onRegister(() => setShowRegister(false))
+    return onRegister({
+      onBack: () => setShowRegister(false),
+      initialEmail: registerEmail || email,
+    })
   }
 
   return (
@@ -68,7 +81,25 @@ export default function LoginView({ onLogin, onRegister }) {
             disabled={isLoading}
           />
 
-          {errorMessage ? <p className="auth-error">{errorMessage}</p> : null}
+          {errorMessage ? (
+            <div className="auth-error">
+              <p>{errorMessage}</p>
+              {errorCode === 'USER_NOT_FOUND' && onRegister ? (
+                <button
+                  type="button"
+                  className="link-button"
+                  style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  onClick={() => {
+                    setRegisterEmail(email)
+                    setShowRegister(true)
+                  }}
+                  disabled={isLoading}
+                >
+                  Konto erstellen
+                </button>
+              ) : null}
+            </div>
+          ) : null}
 
           <button type="submit" disabled={isLoading}>
             {isLoading ? 'Wird angemeldet...' : 'Anmelden'}

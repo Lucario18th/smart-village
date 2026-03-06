@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
 import { AUTH_HINT } from '../auth/accounts'
 
-export default function RegisterView({ onRegister, onBack }) {
-  const [email, setEmail] = useState('')
+export default function RegisterView({ onRegister, onBack, initialEmail = '' }) {
+  const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  React.useEffect(() => {
+    setEmail(initialEmail)
+  }, [initialEmail])
 
   const handleSubmit = async (event) => {
     event.preventDefault()

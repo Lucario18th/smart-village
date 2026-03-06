@@ -32,7 +32,11 @@ export const apiClient = {
       
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || `HTTP ${response.status}`);
+        const enrichedError = new Error(error.message || `HTTP ${response.status}`);
+        if (error.code) {
+          enrichedError.code = error.code;
+        }
+        throw enrichedError;
       }
 
       return await response.json();

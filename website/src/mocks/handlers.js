@@ -35,11 +35,25 @@ const authHandlers = [
       )
     }
 
-    // Return 401 for invalid credentials
+    // Distinguish between unknown user and wrong password for the known user
+    if (email !== TEST_USER.email) {
+      return HttpResponse.json(
+        {
+          statusCode: 401,
+          error: 'Unauthorized',
+          message: 'User does not exist',
+          code: 'USER_NOT_FOUND',
+        },
+        { status: 401 },
+      )
+    }
+
     return HttpResponse.json(
       {
-        error: 'Invalid credentials',
-        message: 'Email or password is incorrect',
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'Invalid password',
+        code: 'INVALID_PASSWORD',
       },
       { status: 401 },
     )

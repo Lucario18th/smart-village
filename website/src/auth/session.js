@@ -21,21 +21,17 @@ function decodeToken(token) {
  * Validate credentials against backend API
  */
 export async function validateCredentials(email, password) {
-  try {
-    const result = await apiClient.auth.login(email, password)
-    if (result.accessToken) {
-      const decoded = decodeToken(result.accessToken)
-      return {
-        email,
-        token: result.accessToken,
-        sub: decoded?.sub,
-        loginTime: new Date().toISOString(),
-      }
-    }
-    return null
-  } catch (error) {
-    console.error('Login failed:', error)
-    return null
+  const result = await apiClient.auth.login(email, password)
+  if (!result.accessToken) {
+    throw new Error('Ungültige Anmeldeinformationen')
+  }
+
+  const decoded = decodeToken(result.accessToken)
+  return {
+    email,
+    token: result.accessToken,
+    sub: decoded?.sub,
+    loginTime: new Date().toISOString(),
   }
 }
 

@@ -50,12 +50,22 @@ export class AuthService {
     });
 
     if (!account) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException({
+        statusCode: 401,
+        message: "User does not exist",
+        error: "Unauthorized",
+        code: "USER_NOT_FOUND",
+      });
     }
 
     const valid = await bcrypt.compare(dto.password, account.passwordHash);
     if (!valid) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException({
+        statusCode: 401,
+        message: "Invalid password",
+        error: "Unauthorized",
+        code: "INVALID_PASSWORD",
+      });
     }
 
     const payload = { sub: account.id, email: account.email };
