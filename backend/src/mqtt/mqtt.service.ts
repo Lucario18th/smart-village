@@ -315,7 +315,11 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     } else if (
       (device && (device.name !== undefined || device.latitude !== undefined || device.longitude !== undefined))
     ) {
-      const updateData: Record<string, any> = {};
+      const updateData: {
+        name?: string | null;
+        latitude?: number | null;
+        longitude?: number | null;
+      } = {};
       if (device.name !== undefined) {
         updateData.name = device.name;
       }
@@ -334,13 +338,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (Array.isArray(sensors)) {
-      if (!deviceRecord) {
-        this.logger.warn(
-          `MQTT discovery: Device ${deviceId} could not be created or loaded`,
-        );
-        return;
-      }
-
       const deviceInternalId = deviceRecord.id;
 
       for (const sensor of sensors) {
