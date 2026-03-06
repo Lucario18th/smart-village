@@ -54,6 +54,12 @@ export const apiClient = {
     login(email, password) {
       return apiClient.request('POST', '/auth/login', { email, password });
     },
+    verifyCode(email, code) {
+      return apiClient.request('POST', '/auth/verify-code', { email, code });
+    },
+    resendVerification(email) {
+      return apiClient.request('POST', '/auth/resend-verification', { email });
+    },
     getMe() {
       return apiClient.request('GET', '/auth/me');
     },

@@ -9,7 +9,9 @@ import { apiClient } from './api/client'
 
 export default function App() {
   const { session, login, logout } = useAdminAuth()
-  const [pendingVerificationEmail, setPendingVerificationEmail] = React.useState('')
+  const [pendingVerificationEmail, setPendingVerificationEmail] = React.useState(() =>
+    localStorage.getItem('pending_verification_email') || ''
+  )
   const [verificationResult, setVerificationResult] = React.useState(() => {
     const params = new URLSearchParams(window.location.search)
     const status = params.get('verification')
@@ -25,11 +27,19 @@ export default function App() {
   const verificationFailureMessage =
     verificationResult?.status === 'failed'
       ? {
-          expired: 'Der Bestätigungslink ist abgelaufen. Bitte fordere einen neuen Link an.',
-          invalid: 'Der Bestätigungslink ist ungültig oder wurde bereits verwendet.',
+          expired: 'Der Bestätigungscode ist abgelaufen. Bitte fordere einen neuen Code an.',
+          invalid: 'Der eingegebene Bestätigungscode ist ungültig.',
           not_found: 'Das zugehörige Konto wurde nicht gefunden.',
         }[verificationResult.reason] || 'Die E-Mail-Bestätigung ist fehlgeschlagen.'
       : null
+
+  React.useEffect(() => {
+    if (pendingVerificationEmail) {
+      localStorage.setItem('pending_verification_email', pendingVerificationEmail)
+    } else {
+      localStorage.removeItem('pending_verification_email')
+    }
+  }, [pendingVerificationEmail])
 
   const handleLogin = async ({ email, password }) => {
     const result = await login({ email, password })
@@ -57,6 +67,34 @@ export default function App() {
     }
   }
 
+  const handleVerifyCode = async (code) => {
+    try {
+      await apiClient.auth.verifyCode(pendingVerificationEmail, code)
+      setVerificationResult({ status: 'success' })
+      setPendingVerificationEmail('')
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        code: error.code,
+        message: error.message || 'Die E-Mail-Bestätigung ist fehlgeschlagen.',
+      }
+    }
+  }
+
+  const handleResendCode = async () => {
+    try {
+      await apiClient.auth.resendVerification(pendingVerificationEmail)
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        code: error.code,
+        message: error.message || 'Der Code konnte nicht gesendet werden.',
+      }
+    }
+  }
+
   if (verificationResult?.status === 'success') {
     return (
       <EmailVerifiedView
@@ -73,6 +111,8 @@ export default function App() {
       <EmailVerificationPending
         email={pendingVerificationEmail}
         onBackToLogin={() => setPendingVerificationEmail('')}
+        onVerifyCode={handleVerifyCode}
+        onResendCode={handleResendCode}
       />
     )
   }

@@ -10,8 +10,8 @@ describe('AuthController', () => {
     register: jest.fn(),
     login: jest.fn(),
     getMe: jest.fn(),
-    verifyEmailToken: jest.fn(),
-    buildVerificationRedirectUrl: jest.fn(),
+    verifyEmailCode: jest.fn(),
+    resendVerificationCode: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -88,22 +88,34 @@ describe('AuthController', () => {
     });
   });
 
-  describe('verify', () => {
-    it('should redirect with verification result', async () => {
-      const mockResponse = {
-        redirect: jest.fn(),
-      };
+  describe('verifyCode', () => {
+    it('should delegate to authService.verifyEmailCode', async () => {
+      mockAuthService.verifyEmailCode.mockResolvedValue({ success: true });
 
-      mockAuthService.verifyEmailToken.mockResolvedValue({ success: true });
-      mockAuthService.buildVerificationRedirectUrl.mockReturnValue(
-        'http://frontend.example.com/?verification=success',
+      const result = await controller.verifyCode({
+        email: 'test@example.com',
+        code: '123456',
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(authService.verifyEmailCode).toHaveBeenCalledWith(
+        'test@example.com',
+        '123456',
       );
+    });
+  });
 
-      await controller.verify('token', mockResponse as any);
+  describe('resendVerification', () => {
+    it('should delegate to authService.resendVerificationCode', async () => {
+      mockAuthService.resendVerificationCode.mockResolvedValue({ success: true });
 
-      expect(authService.verifyEmailToken).toHaveBeenCalledWith('token');
-      expect(mockResponse.redirect).toHaveBeenCalledWith(
-        'http://frontend.example.com/?verification=success',
+      const result = await controller.resendVerification({
+        email: 'test@example.com',
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(authService.resendVerificationCode).toHaveBeenCalledWith(
+        'test@example.com',
       );
     });
   });

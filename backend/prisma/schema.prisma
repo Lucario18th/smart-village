@@ -34,6 +34,8 @@ model Account {
   email        String    @unique
   passwordHash String
   emailVerified Boolean   @default(false)
+  verificationCode String?
+  verificationCodeExpiresAt DateTime?
   createdAt    DateTime  @default(now())
   lastLoginAt  DateTime?
 

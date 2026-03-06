@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Post, Req, UseGuards, HttpCode, Query, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+  HttpCode,
+} from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { Request } from "express";
-import { Response } from "express";
+import { VerifyEmailCodeDto } from "./dto/verify-email-code.dto";
+import { ResendVerificationDto } from "./dto/resend-verification.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -28,10 +37,15 @@ export class AuthController {
     return this.authService.getMe(user.sub);
   }
 
-  @Get("verify")
-  async verify(@Query("token") token: string, @Res() res: Response) {
-    const result = await this.authService.verifyEmailToken(token);
-    const redirectUrl = this.authService.buildVerificationRedirectUrl(result);
-    return res.redirect(redirectUrl);
+  @Post("verify-code")
+  @HttpCode(200)
+  verifyCode(@Body() dto: VerifyEmailCodeDto) {
+    return this.authService.verifyEmailCode(dto.email, dto.code);
+  }
+
+  @Post("resend-verification")
+  @HttpCode(200)
+  resendVerification(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendVerificationCode(dto.email);
   }
 }

@@ -14,12 +14,15 @@ describe('AuthService', () => {
   let jwtService: JwtService;
   let emailService: EmailService;
 
+  const now = new Date();
   const mockAccount = {
     id: 1,
     email: 'test@example.com',
     passwordHash: 'hashed_password',
     emailVerified: true,
-    createdAt: new Date(),
+    verificationCode: '123456',
+    verificationCodeExpiresAt: new Date(now.getTime() + 5 * 60 * 1000),
+    createdAt: now,
     lastLoginAt: null,
   };
 
@@ -37,7 +40,7 @@ describe('AuthService', () => {
   };
 
   const mockEmailService = {
-    sendVerificationEmail: jest.fn(),
+    sendVerificationCodeEmail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -71,13 +74,18 @@ describe('AuthService', () => {
         infoText: 'Test info',
       };
 
+      const codeSpy = jest
+        .spyOn<any, any>(service as any, 'generateVerificationCode')
+        .mockReturnValue('999999');
+
       mockPrismaService.account.findUnique.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
-      mockJwtService.signAsync.mockResolvedValue('verification_token');
       mockPrismaService.account.create.mockResolvedValue({
         ...mockAccount,
         emailVerified: false,
         email: registerDto.email,
+        verificationCode: '999999',
+        verificationCodeExpiresAt: new Date(),
         villages: [{ id: 1, name: registerDto.villageName }],
       });
 
@@ -89,14 +97,17 @@ describe('AuthService', () => {
         data: expect.objectContaining({
           email: registerDto.email,
           emailVerified: false,
+          verificationCode: expect.any(String),
+          verificationCodeExpiresAt: expect.any(Date),
         }),
         include: { villages: true },
       });
-      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+      expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
         registerDto.email,
-        expect.stringContaining('auth/verify?token=verification_token'),
+        '999999',
       );
       expect(prismaService.account.create).toHaveBeenCalled();
+      codeSpy.mockRestore();
     });
 
     it('should throw error if email already exists', async () => {
@@ -154,6 +165,10 @@ describe('AuthService', () => {
           code: 'EMAIL_NOT_VERIFIED',
         }),
       });
+      expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
+        loginDto.email,
+        mockAccount.verificationCode,
+      );
     });
 
     it('should throw error if account not found', async () => {
@@ -190,45 +205,87 @@ describe('AuthService', () => {
     });
   });
 
-  describe('verifyEmailToken', () => {
-    it('should verify token and update account', async () => {
-      mockJwtService.verifyAsync.mockResolvedValue({
-        sub: 1,
-        email: 'test@example.com',
-        purpose: 'email-verification',
-      });
-      mockPrismaService.account.findUnique.mockResolvedValue({
+  describe('verifyEmailCode', () => {
+    it('should verify code and update account', async () => {
+      const account = {
         ...mockAccount,
         emailVerified: false,
-      });
-      mockPrismaService.account.update.mockResolvedValue({
-        ...mockAccount,
-        emailVerified: true,
-      });
+        verificationCode: '654321',
+        verificationCodeExpiresAt: new Date(Date.now() + 1_000),
+      };
+      mockPrismaService.account.findUnique.mockResolvedValue(account);
 
-      const result = await service.verifyEmailToken('token');
+      const result = await service.verifyEmailCode(account.email, '654321');
 
       expect(result).toEqual({ success: true });
       expect(prismaService.account.update).toHaveBeenCalledWith({
-        where: { id: mockAccount.id },
-        data: { emailVerified: true },
+        where: { id: account.id },
+        data: {
+          emailVerified: true,
+          verificationCode: null,
+          verificationCodeExpiresAt: null,
+        },
       });
     });
 
-    it('should return expired reason for expired token', async () => {
-      mockJwtService.verifyAsync.mockRejectedValue({ name: 'TokenExpiredError' });
+    it('should throw when code is expired', async () => {
+      const account = {
+        ...mockAccount,
+        emailVerified: false,
+        verificationCode: '654321',
+        verificationCodeExpiresAt: new Date(Date.now() - 1_000),
+      };
+      mockPrismaService.account.findUnique.mockResolvedValue(account);
 
-      const result = await service.verifyEmailToken('token');
-
-      expect(result).toEqual({ success: false, reason: 'expired' });
+      await expect(
+        service.verifyEmailCode(account.email, '654321'),
+      ).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'EMAIL_VERIFICATION_CODE_EXPIRED',
+        }),
+      });
     });
 
-    it('should return invalid reason for invalid token', async () => {
-      mockJwtService.verifyAsync.mockRejectedValue(new Error('invalid'));
+    it('should throw when code is invalid', async () => {
+      const account = {
+        ...mockAccount,
+        emailVerified: false,
+        verificationCode: '654321',
+        verificationCodeExpiresAt: new Date(Date.now() + 1_000),
+      };
+      mockPrismaService.account.findUnique.mockResolvedValue(account);
 
-      const result = await service.verifyEmailToken('token');
+      await expect(
+        service.verifyEmailCode(account.email, '123123'),
+      ).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'EMAIL_VERIFICATION_CODE_INVALID',
+        }),
+      });
+    });
+  });
 
-      expect(result).toEqual({ success: false, reason: 'invalid' });
+  describe('resendVerificationCode', () => {
+    it('should resend verification code for unverified accounts', async () => {
+      const account = { ...mockAccount, emailVerified: false };
+      mockPrismaService.account.findUnique.mockResolvedValue(account);
+      const codeSpy = jest
+        .spyOn<any, any>(service as any, 'generateVerificationCode')
+        .mockReturnValue('777777');
+
+      await service.resendVerificationCode(account.email);
+
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: account.id },
+        data: expect.objectContaining({
+          verificationCode: '777777',
+        }),
+      });
+      expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
+        account.email,
+        '777777',
+      );
+      codeSpy.mockRestore();
     });
   });
 
