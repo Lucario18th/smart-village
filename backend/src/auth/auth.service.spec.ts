@@ -4,6 +4,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { EmailService } from './email.service';
 
 jest.mock('bcrypt');
 
@@ -11,11 +12,13 @@ describe('AuthService', () => {
   let service: AuthService;
   let prismaService: PrismaService;
   let jwtService: JwtService;
+  let emailService: EmailService;
 
   const mockAccount = {
     id: 1,
     email: 'test@example.com',
     passwordHash: 'hashed_password',
+    emailVerified: true,
     createdAt: new Date(),
     lastLoginAt: null,
   };
@@ -24,11 +27,17 @@ describe('AuthService', () => {
     account: {
       findUnique: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
     },
   };
 
   const mockJwtService = {
     signAsync: jest.fn(),
+    verifyAsync: jest.fn(),
+  };
+
+  const mockEmailService = {
+    sendVerificationEmail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,12 +46,14 @@ describe('AuthService', () => {
         AuthService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: EmailService, useValue: mockEmailService },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     prismaService = module.get<PrismaService>(PrismaService);
     jwtService = module.get<JwtService>(JwtService);
+    emailService = module.get<EmailService>(EmailService);
   });
 
   afterEach(() => {
@@ -62,8 +73,10 @@ describe('AuthService', () => {
 
       mockPrismaService.account.findUnique.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
+      mockJwtService.signAsync.mockResolvedValue('verification_token');
       mockPrismaService.account.create.mockResolvedValue({
         ...mockAccount,
+        emailVerified: false,
         email: registerDto.email,
         villages: [{ id: 1, name: registerDto.villageName }],
       });
@@ -72,6 +85,17 @@ describe('AuthService', () => {
 
       expect(result).toBeDefined();
       expect(result.email).toBe(registerDto.email);
+      expect(prismaService.account.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: registerDto.email,
+          emailVerified: false,
+        }),
+        include: { villages: true },
+      });
+      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+        registerDto.email,
+        expect.stringContaining('auth/verify?token=verification_token'),
+      );
       expect(prismaService.account.create).toHaveBeenCalled();
     });
 
@@ -113,6 +137,25 @@ describe('AuthService', () => {
       });
     });
 
+    it('should block login when email is not verified', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      mockPrismaService.account.findUnique.mockResolvedValue({
+        ...mockAccount,
+        emailVerified: false,
+      });
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'EMAIL_NOT_VERIFIED',
+        }),
+      });
+    });
+
     it('should throw error if account not found', async () => {
       const loginDto = {
         email: 'nonexistent@example.com',
@@ -144,6 +187,48 @@ describe('AuthService', () => {
           message: 'Invalid password',
         }),
       });
+    });
+  });
+
+  describe('verifyEmailToken', () => {
+    it('should verify token and update account', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue({
+        sub: 1,
+        email: 'test@example.com',
+        purpose: 'email-verification',
+      });
+      mockPrismaService.account.findUnique.mockResolvedValue({
+        ...mockAccount,
+        emailVerified: false,
+      });
+      mockPrismaService.account.update.mockResolvedValue({
+        ...mockAccount,
+        emailVerified: true,
+      });
+
+      const result = await service.verifyEmailToken('token');
+
+      expect(result).toEqual({ success: true });
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: mockAccount.id },
+        data: { emailVerified: true },
+      });
+    });
+
+    it('should return expired reason for expired token', async () => {
+      mockJwtService.verifyAsync.mockRejectedValue({ name: 'TokenExpiredError' });
+
+      const result = await service.verifyEmailToken('token');
+
+      expect(result).toEqual({ success: false, reason: 'expired' });
+    });
+
+    it('should return invalid reason for invalid token', async () => {
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('invalid'));
+
+      const result = await service.verifyEmailToken('token');
+
+      expect(result).toEqual({ success: false, reason: 'invalid' });
     });
   });
 

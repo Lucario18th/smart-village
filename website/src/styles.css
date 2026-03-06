@@ -11,7 +11,11 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .auth-form input{padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
 .auth-form button{margin-top:6px;padding:11px 14px;border:none;border-radius:8px;background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);font-weight:600;cursor:pointer}
 .auth-error{margin:0;color:var(--md-sys-color-error)}
+.auth-info{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-secondary-container) 80%, transparent);color:var(--md-sys-color-on-secondary-container);border:1px solid color-mix(in srgb, var(--md-sys-color-secondary) 35%, transparent)}
 .auth-hint{margin-top:14px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.countdown{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--md-sys-color-surface);border:1px solid var(--md-sys-color-outline);margin-bottom:12px}
+.countdown-label{font-weight:600;color:var(--md-sys-color-on-surface-variant)}
+.countdown-value{font-weight:800;font-size:20px;color:var(--md-sys-color-primary)}
 
 .admin-page{width:100%;max-width:none;margin:0;padding:20px}
 .admin-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;padding:14px 18px;border-radius:14px;background:var(--md-sys-color-surface-container);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent)}

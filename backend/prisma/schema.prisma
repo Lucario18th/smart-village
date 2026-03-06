@@ -33,6 +33,7 @@ model Account {
   id           Int       @id @default(autoincrement())
   email        String    @unique
   passwordHash String
+  emailVerified Boolean   @default(false)
   createdAt    DateTime  @default(now())
   lastLoginAt  DateTime?
 

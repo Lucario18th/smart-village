@@ -10,6 +10,8 @@ describe('AuthController', () => {
     register: jest.fn(),
     login: jest.fn(),
     getMe: jest.fn(),
+    verifyEmailToken: jest.fn(),
+    buildVerificationRedirectUrl: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -83,6 +85,26 @@ describe('AuthController', () => {
 
       expect(result).toEqual(mockAccount);
       expect(authService.getMe).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('verify', () => {
+    it('should redirect with verification result', async () => {
+      const mockResponse = {
+        redirect: jest.fn(),
+      };
+
+      mockAuthService.verifyEmailToken.mockResolvedValue({ success: true });
+      mockAuthService.buildVerificationRedirectUrl.mockReturnValue(
+        'http://frontend.example.com/?verification=success',
+      );
+
+      await controller.verify('token', mockResponse as any);
+
+      expect(authService.verifyEmailToken).toHaveBeenCalledWith('token');
+      expect(mockResponse.redirect).toHaveBeenCalledWith(
+        'http://frontend.example.com/?verification=success',
+      );
     });
   });
 });
