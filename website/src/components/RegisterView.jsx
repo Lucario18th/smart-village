@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { AUTH_HINT } from '../auth/accounts'
+import LocationAutocomplete from './LocationAutocomplete'
 
 export default function RegisterView({ onRegister, onBack, initialEmail = '' }) {
   const [email, setEmail] = useState(initialEmail)
@@ -7,6 +8,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
   const [confirmPassword, setConfirmPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedLocation, setSelectedLocation] = useState(null)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -33,10 +35,19 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
       return
     }
 
+    if (!selectedLocation?.id) {
+      setErrorMessage('Bitte wähle ein gültiges Dorf (PLZ oder Ort) aus')
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      const result = await onRegister({ email, password })
+      const result = await onRegister({
+        email,
+        password,
+        postalCodeId: selectedLocation.id,
+      })
 
       if (!result.success) {
         setErrorMessage(result.error)
@@ -46,6 +57,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
       setPassword('')
       setConfirmPassword('')
       setErrorMessage('')
+      setSelectedLocation(null)
     } finally {
       setIsLoading(false)
     }
@@ -91,6 +103,14 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
             required
             disabled={isLoading}
             minLength="8"
+          />
+
+          <LocationAutocomplete
+            label="Dein Dorf (PLZ oder Ort)"
+            placeholder="12345 oder Musterstadt"
+            onSelect={setSelectedLocation}
+            selectedOption={selectedLocation}
+            disabled={isLoading}
           />
 
           {errorMessage ? <p className="auth-error">{errorMessage}</p> : null}

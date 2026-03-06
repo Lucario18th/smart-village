@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import LocationAutocomplete from '../../LocationAutocomplete'
 
 export default function GeneralSettingsForm({ values, onChange }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -23,6 +24,32 @@ export default function GeneralSettingsForm({ values, onChange }) {
       </div>
 
       <div className="admin-form-grid general-form-grid">
+        <LocationAutocomplete
+          label="PLZ oder Ort"
+          placeholder="z. B. 10115 oder Berlin"
+          disabled={!isEditing}
+          selectedOption={
+            values.postalCodeId
+              ? {
+                  id: values.postalCodeId,
+                  postalCode: values.postalCode,
+                  city: values.city,
+                }
+              : null
+          }
+          onSelect={(option) => {
+            if (!option) {
+              onChange('postalCodeId', null)
+              onChange('postalCode', '')
+              onChange('city', '')
+              return
+            }
+            onChange('postalCodeId', option.id)
+            onChange('postalCode', option.postalCode)
+            onChange('city', option.city)
+          }}
+        />
+
         <label>
           Ortsname
           <input

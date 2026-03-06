@@ -56,9 +56,9 @@ export default function App() {
     return result
   }
 
-  const handleRegister = async ({ email, password }) => {
+  const handleRegister = async ({ email, password, postalCodeId }) => {
     try {
-      await apiClient.auth.register(email, password)
+      await apiClient.auth.register({ email, password, postalCodeId })
       setPendingVerificationEmail(email)
       setVerificationResult(null)
       return { success: true }

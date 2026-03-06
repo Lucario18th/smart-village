@@ -26,11 +26,23 @@ describe('AuthService', () => {
     lastLoginAt: null,
   };
 
+  const mockPostalCode = {
+    id: 10,
+    postalCode: '10115',
+    city: 'Berlin',
+    state: 'Berlin',
+    lat: 52.532,
+    lng: 13.3849,
+  };
+
   const mockPrismaService = {
     account: {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+    },
+    postalCode: {
+      findUnique: jest.fn(),
     },
   };
 
@@ -68,6 +80,7 @@ describe('AuthService', () => {
       const registerDto = {
         email: 'newuser@example.com',
         password: 'password123',
+        postalCodeId: mockPostalCode.id,
         villageName: 'Test Village',
         locationName: 'Test Location',
         phone: '123456789',
@@ -79,6 +92,7 @@ describe('AuthService', () => {
         .mockReturnValue('999999');
 
       mockPrismaService.account.findUnique.mockResolvedValue(null);
+      mockPrismaService.postalCode.findUnique.mockResolvedValue(mockPostalCode);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
       mockPrismaService.account.create.mockResolvedValue({
         ...mockAccount,
@@ -99,6 +113,11 @@ describe('AuthService', () => {
           emailVerified: false,
           verificationCode: expect.any(String),
           verificationCodeExpiresAt: expect.any(Date),
+          villages: expect.objectContaining({
+            create: expect.objectContaining({
+              postalCodeId: mockPostalCode.id,
+            }),
+          }),
         }),
         include: { villages: true },
       });
@@ -114,6 +133,7 @@ describe('AuthService', () => {
       const registerDto = {
         email: 'existing@example.com',
         password: 'password123',
+        postalCodeId: mockPostalCode.id,
         villageName: 'Test Village',
         locationName: 'Test Location',
         phone: '123456789',
@@ -121,6 +141,21 @@ describe('AuthService', () => {
       };
 
       mockPrismaService.account.findUnique.mockResolvedValue(mockAccount);
+
+      await expect(service.register(registerDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw error if postal code is invalid', async () => {
+      const registerDto = {
+        email: 'newuser@example.com',
+        password: 'password123',
+        postalCodeId: 999,
+      };
+
+      mockPrismaService.account.findUnique.mockResolvedValue(null);
+      mockPrismaService.postalCode.findUnique.mockResolvedValue(null);
 
       await expect(service.register(registerDto)).rejects.toThrow(
         UnauthorizedException,
@@ -394,7 +429,7 @@ describe('AuthService', () => {
       expect(result).toEqual(mockAccountWithVillages);
       expect(prismaService.account.findUnique).toHaveBeenCalledWith({
         where: { id: accountId },
-        include: { villages: true },
+        include: { villages: { include: { postalCode: true } } },
       });
     });
   });

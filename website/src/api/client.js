@@ -48,8 +48,8 @@ export const apiClient = {
 
   // Auth Endpoints
   auth: {
-    register(email, password) {
-      return apiClient.request('POST', '/auth/register', { email, password });
+    register(payload) {
+      return apiClient.request('POST', '/auth/register', payload);
     },
     login(email, password) {
       return apiClient.request('POST', '/auth/login', { email, password });
@@ -95,6 +95,14 @@ export const apiClient = {
     },
     update(villageId, data) {
       return apiClient.request('PUT', `/villages/${villageId}`, data);
+    },
+  },
+
+  // Location search
+  locations: {
+    search(query) {
+      const params = new URLSearchParams({ query });
+      return apiClient.request('GET', `/locations/search?${params.toString()}`);
     },
   },
 

@@ -45,6 +45,7 @@ model Account {
 model Village {
   id           Int       @id @default(autoincrement())
   accountId    Int
+  postalCodeId Int?
   name         String
   locationName String
   phone        String?
@@ -52,6 +53,7 @@ model Village {
   contactEmail String?
   contactPhone String?
   municipalityCode String?
+  postalCode   PostalCode? @relation(fields: [postalCodeId], references: [id])
 
   account      Account   @relation(fields: [accountId], references: [id])
   users        User[]
@@ -60,6 +62,20 @@ model Village {
   rideshares   RideShare[]
 
   @@index([accountId])
+  @@index([postalCodeId])
+}
+
+model PostalCode {
+  id         Int      @id @default(autoincrement())
+  postalCode String
+  city       String
+  state      String?
+  lat        Float?
+  lng        Float?
+
+  villages   Village[]
+
+  @@unique([postalCode, city])
 }
 
 model User {

@@ -71,6 +71,14 @@ export class AuthService {
       throw new UnauthorizedException("Email already in use");
     }
 
+    const postalCode = await this.prisma.postalCode.findUnique({
+      where: { id: dto.postalCodeId },
+    });
+
+    if (!postalCode) {
+      throw new UnauthorizedException("Invalid postal code selection");
+    }
+
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const verificationCode = this.generateVerificationCode();
     const verificationCodeExpiresAt = this.getVerificationExpiry();
@@ -84,13 +92,16 @@ export class AuthService {
         verificationCodeExpiresAt,
         villages: {
           create: {
-            name: dto.villageName ?? "",
-            locationName: dto.locationName ?? "",
+            name: dto.villageName ?? postalCode.city,
+            locationName:
+              dto.locationName ??
+              `${postalCode.postalCode} ${postalCode.city}`,
             phone: dto.phone ?? "",
             infoText: dto.infoText ?? "",
             contactEmail: dto.contactEmail ?? dto.email, // Default to email if not provided
             contactPhone: dto.contactPhone ?? "",
             municipalityCode: dto.municipalityCode ?? "",
+            postalCodeId: postalCode.id,
           },
         },
       },
@@ -153,7 +164,11 @@ export class AuthService {
     return this.prisma.account.findUnique({
       where: { id: accountId },
       include: {
-        villages: true,
+        villages: {
+          include: {
+            postalCode: true,
+          },
+        },
       },
     });
   }

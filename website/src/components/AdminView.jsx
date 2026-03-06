@@ -40,13 +40,19 @@ export default function AdminView({ session, onLogout }) {
 
   const userEmail = session?.email || 'Unbekannt'
   const villageName = config.general.villageName || 'nicht gesetzt'
+  const villageLocation =
+    config.general.postalCode && config.general.city
+      ? `${config.general.postalCode} ${config.general.city}`
+      : 'nicht gesetzt'
 
   return (
     <main className="admin-page">
       <header className="admin-header">
         <div className="admin-header-content">
           <h1>Smart Village Admin</h1>
-          <p>Angemeldet als: {userEmail} · Gemeinde: {villageName}</p>
+          <p>
+            Angemeldet als: {userEmail} · Gemeinde: {villageName} · Ort: {villageLocation}
+          </p>
         </div>
         <button type="button" className="logout-button" onClick={onLogout} disabled={isLoading}>
           Abmelden
