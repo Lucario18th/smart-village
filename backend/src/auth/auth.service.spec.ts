@@ -121,9 +121,12 @@ describe('AuthService', () => {
 
       mockPrismaService.account.findUnique.mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'USER_NOT_FOUND',
+          message: 'User does not exist',
+        }),
+      });
     });
 
     it('should throw error if password is invalid', async () => {
@@ -135,9 +138,12 @@ describe('AuthService', () => {
       mockPrismaService.account.findUnique.mockResolvedValue(mockAccount);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'INVALID_PASSWORD',
+          message: 'Invalid password',
+        }),
+      });
     });
   });
 

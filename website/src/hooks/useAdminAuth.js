@@ -13,20 +13,20 @@ export function useAdminAuth() {
     try {
       const nextSession = await validateCredentials(email, password)
 
-      if (!nextSession) {
-        const err = 'Ungültiger Benutzername oder Passwort.'
-        setError(err)
-        return { success: false, error: err }
-      }
-
       persistSession(nextSession)
       setSession(nextSession)
 
       return { success: true }
     } catch (err) {
-      const errorMsg = err.message || 'Anmeldung fehlgeschlagen'
+      const friendlyMessageByCode = {
+        USER_NOT_FOUND: 'Kein Konto gefunden. Konto jetzt erstellen?',
+        INVALID_PASSWORD: 'Passwort ist ungültig.',
+      }
+
+      const errorMsg =
+        friendlyMessageByCode[err.code] || err.message || 'Anmeldung fehlgeschlagen'
       setError(errorMsg)
-      return { success: false, error: errorMsg }
+      return { success: false, error: errorMsg, code: err.code }
     } finally {
       setLoading(false)
     }
