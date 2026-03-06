@@ -48,7 +48,7 @@ export default function LoginView({ onLogin, onRegister }) {
   if (showRegister) {
     return onRegister({
       onBack: () => setShowRegister(false),
-      initialEmail: registerEmail || email,
+      initialEmail: registerEmail,
     })
   }
 
@@ -88,7 +88,6 @@ export default function LoginView({ onLogin, onRegister }) {
                 <button
                   type="button"
                   className="link-button"
-                  style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                   onClick={() => {
                     setRegisterEmail(email)
                     setShowRegister(true)
@@ -110,14 +109,16 @@ export default function LoginView({ onLogin, onRegister }) {
           {onRegister ? (
             <>
               Noch kein Konto?{' '}
-              <button
-                type="button"
-                onClick={() => setShowRegister(true)}
-                className="link-button"
-                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
-              >
-                Hier registrieren
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRegisterEmail(email)
+                    setShowRegister(true)
+                  }}
+                  className="link-button"
+                >
+                  Hier registrieren
+                </button>
               <br />
               <br />
             </>

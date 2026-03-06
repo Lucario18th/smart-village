@@ -8,10 +8,6 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  React.useEffect(() => {
-    setEmail(initialEmail)
-  }, [initialEmail])
-
   const handleSubmit = async (event) => {
     event.preventDefault()
     setErrorMessage('')
