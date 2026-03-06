@@ -1,10 +1,57 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { apiClient } from '../api/client'
 import {
   createDefaultVillageConfig,
   getSectionSummary,
 } from '../config/configModel'
 import { applyThemeToDOM, getThemeClass } from '../config/themeManager'
+
+const TOAST_MESSAGES = {
+  sensor: 'Neuer Sensor entdeckt: ',
+  device: 'Neues Gerät entdeckt: ',
+  deviceFallback: 'Neues Gerät',
+}
+const STATUS = {
+  PENDING: 'PENDING',
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+}
+const DEFAULT_DISCOVERY_POLL_INTERVAL_MS = 10000
+const DISCOVERY_POLL_INTERVAL_MS =
+  Number.parseInt(import.meta.env?.VITE_DISCOVERY_POLL_INTERVAL_MS ?? DEFAULT_DISCOVERY_POLL_INTERVAL_MS, 10) ||
+  DEFAULT_DISCOVERY_POLL_INTERVAL_MS
+const MAX_TOAST_LENGTH = 160
+const TOAST_DISMISS_MS = 4000
+const truncateToast = (text) =>
+  text.length > MAX_TOAST_LENGTH ? `${text.slice(0, MAX_TOAST_LENGTH - 3)}…` : text
+const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
+const getDeviceDisplayName = (device) =>
+  device.name ?? device.deviceId ?? TOAST_MESSAGES.deviceFallback
+const mapSensors = (sensorsFromApi) =>
+  (sensorsFromApi || []).map((sensor) => ({
+    id: sensor.id,
+    name: sensor.name,
+    type: sensor.sensorType?.name || 'Unknown',
+    sensorTypeId: sensor.sensorTypeId,
+    active: sensor.isActive,
+    infoText: sensor.infoText || '',
+    deviceId: sensor.device?.id ?? null,
+    deviceIdentifier: sensor.device?.deviceId || '',
+    latitude: sensor.latitude ?? '',
+    longitude: sensor.longitude ?? '',
+    discovered: !!sensor.discovered,
+    status: sensor.status || (sensor.isActive ? STATUS.ACTIVE : STATUS.INACTIVE),
+  }))
+const mapDevices = (devicesFromApi) =>
+  (devicesFromApi || []).map((device) => ({
+    id: device.id,
+    deviceId: device.deviceId,
+    name: device.name || '',
+    latitude: device.latitude ?? '',
+    longitude: device.longitude ?? '',
+    discovered: !!device.discovered,
+    status: device.status || STATUS.ACTIVE,
+  }))
 
 export function useVillageConfig(session) {
   const [config, setConfig] = useState(() => createDefaultVillageConfig('default'))
@@ -15,12 +62,39 @@ export function useVillageConfig(session) {
   const [sensorTypes, setSensorTypes] = useState([])
   const [nextSensorId, setNextSensorId] = useState(-1) // Für neue Sensoren
   const [nextDeviceId, setNextDeviceId] = useState(-1)
+  const [toast, setToast] = useState(null)
+  const configRef = useRef(config)
+  const toastTimeoutRef = useRef(null)
+  const sensorIdsRef = useRef(new Set())
+  const deviceIdsRef = useRef(new Set())
 
   const toNumberOrNull = (value) => {
     if (value === '' || value === null || value === undefined) return null
     const num = Number(value)
     return Number.isFinite(num) ? num : null
   }
+
+  const showToast = useCallback((message) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current)
+    }
+    setToast({ id: Date.now(), message })
+    toastTimeoutRef.current = setTimeout(() => setToast(null), TOAST_DISMISS_MS)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    configRef.current = config
+    sensorIdsRef.current = new Set((config.sensors || []).map((s) => s.id))
+    deviceIdsRef.current = new Set((config.devices || []).map((d) => d.id))
+  }, [config])
 
   // Load village data and sensor types from API
   useEffect(() => {
@@ -78,25 +152,8 @@ export function useVillageConfig(session) {
             contrast: 'normal',
             primaryColor: '#3498db',
           },
-          sensors: (village.sensors || []).map(sensor => ({
-            id: sensor.id,
-            name: sensor.name,
-            type: sensor.sensorType?.name || 'Unknown',
-            sensorTypeId: sensor.sensorTypeId,
-            active: sensor.isActive,
-            infoText: sensor.infoText || '',
-            deviceId: sensor.device?.id ?? null,
-            deviceIdentifier: sensor.device?.deviceId || '',
-            latitude: sensor.latitude ?? '',
-            longitude: sensor.longitude ?? '',
-          })),
-          devices: (village.devices || []).map(device => ({
-            id: device.id,
-            deviceId: device.deviceId,
-            name: device.name || '',
-            latitude: device.latitude ?? '',
-            longitude: device.longitude ?? '',
-          })),
+          sensors: mapSensors(village.sensors),
+          devices: mapDevices(village.devices),
         }
 
         setConfig(newConfig)
@@ -169,6 +226,8 @@ export function useVillageConfig(session) {
         deviceId: sensorData.deviceId ?? null,
         latitude: sensorData.latitude ?? '',
         longitude: sensorData.longitude ?? '',
+        discovered: false,
+        status: STATUS.PENDING,
       }
 
       const nextConfig = {
@@ -204,6 +263,8 @@ export function useVillageConfig(session) {
         name: deviceData.name || '',
         latitude: deviceData.latitude ?? '',
         longitude: deviceData.longitude ?? '',
+        discovered: false,
+        status: STATUS.PENDING,
       }
 
       const nextConfig = {
@@ -435,25 +496,8 @@ export function useVillageConfig(session) {
           lat: village.postalCode?.lat ?? null,
           lng: village.postalCode?.lng ?? null,
         },
-        sensors: (village.sensors || []).map(sensor => ({
-          id: sensor.id,
-          name: sensor.name,
-          type: sensor.sensorType?.name || 'Unknown',
-          sensorTypeId: sensor.sensorTypeId,
-          active: sensor.isActive,
-          infoText: sensor.infoText || '',
-          deviceId: sensor.device?.id ?? null,
-          deviceIdentifier: sensor.device?.deviceId || '',
-          latitude: sensor.latitude ?? '',
-          longitude: sensor.longitude ?? '',
-        })),
-        devices: (village.devices || []).map(device => ({
-          id: device.id,
-          deviceId: device.deviceId,
-          name: device.name || '',
-          latitude: device.latitude ?? '',
-          longitude: device.longitude ?? '',
-        })),
+        sensors: mapSensors(village.sensors),
+        devices: mapDevices(village.devices),
       }
 
       setConfig(newConfig)
@@ -479,6 +523,84 @@ export function useVillageConfig(session) {
     return getSectionSummary(config, sectionId)
   }, [config])
 
+  // Auto-refresh to pick up discovered devices/sensors
+  useEffect(() => {
+    if (!villageId || !session?.token) return undefined
+    const interval = setInterval(async () => {
+      // Avoid overwriting local edits while unsaved changes are pending
+      if (hasUnsavedChanges) return
+      try {
+        const village = await apiClient.villages.get(villageId)
+        const fetchedSensors = mapSensors(village.sensors)
+        const fetchedDevices = mapDevices(village.devices)
+        const sensorMap = new Map(fetchedSensors.map((s) => [s.id, s]))
+        const deviceMap = new Map(fetchedDevices.map((d) => [d.id, d]))
+
+        const newSensors = fetchedSensors.filter((s) => !sensorIdsRef.current.has(s.id))
+        const newDevices = fetchedDevices.filter((d) => !deviceIdsRef.current.has(d.id))
+
+        if (newSensors.length === 0 && newDevices.length === 0) {
+          return
+        }
+
+        setConfig((prev) => {
+          const existingSensorIdsPrev = new Set((prev.sensors || []).map((s) => s.id))
+          const existingDeviceIdsPrev = new Set((prev.devices || []).map((d) => d.id))
+
+          const updatedSensors = (prev.sensors || []).map((sensor) => {
+            const latest = sensorMap.get(sensor.id)
+            if (!latest) return sensor
+            if (latest.status !== sensor.status || latest.discovered !== sensor.discovered) {
+              return { ...sensor, status: latest.status, discovered: latest.discovered }
+            }
+            return sensor
+          })
+
+          const updatedDevices = (prev.devices || []).map((device) => {
+            const latest = deviceMap.get(device.id)
+            if (!latest) return device
+            if (latest.status !== device.status || latest.discovered !== device.discovered) {
+              return { ...device, status: latest.status, discovered: latest.discovered }
+            }
+            return device
+          })
+
+          return {
+            ...prev,
+            sensors: [
+              ...updatedSensors,
+              ...newSensors.filter((s) => !existingSensorIdsPrev.has(s.id)),
+            ],
+            devices: [
+              ...updatedDevices,
+              ...newDevices.filter((d) => !existingDeviceIdsPrev.has(d.id)),
+            ],
+          }
+        })
+
+        const toastParts = []
+        if (newSensors.length > 0) {
+          const names = newSensors.map((s) => getSensorDisplayName(s)).join(', ')
+          toastParts.push(`${TOAST_MESSAGES.sensor}${names}`)
+        }
+        if (newDevices.length > 0) {
+          const names = newDevices
+            .map((d) => getDeviceDisplayName(d))
+            .join(', ')
+          toastParts.push(`${TOAST_MESSAGES.device}${names}`)
+        }
+        if (toastParts.length > 0) {
+          const combined = toastParts.join(' · ')
+          showToast(truncateToast(combined))
+        }
+      } catch (err) {
+        console.error('Auto-refresh failed while syncing discovered items', err)
+      }
+    }, DISCOVERY_POLL_INTERVAL_MS)
+
+    return () => clearInterval(interval)
+  }, [villageId, hasUnsavedChanges, session?.token, showToast])
+
   return {
     config,
     getSummaryForSection,
@@ -497,5 +619,7 @@ export function useVillageConfig(session) {
     resetConfig,
     isLoading,
     sensorTypes,
+    toast,
+    dismissToast: () => setToast(null),
   }
 }

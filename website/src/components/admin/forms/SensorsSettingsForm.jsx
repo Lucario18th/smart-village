@@ -10,12 +10,31 @@ function formatCoords(lat, lng) {
   return `${numLat.toFixed(4)}, ${numLng.toFixed(4)}`
 }
 
+function formatStatusLabel(status) {
+  switch (status) {
+    case 'PENDING':
+      return 'Ausstehend'
+    case 'ACTIVE':
+      return 'Aktiv'
+    case 'INACTIVE':
+      return 'Inaktiv'
+    default:
+      return status
+  }
+}
+
 function DeviceRow({ device, onEdit }) {
   const coords = formatCoords(device.latitude, device.longitude)
   return (
     <div className="sensor-row">
       <div>
-        <h4>{device.name || 'Controller'}</h4>
+        <h4>
+          {device.name || 'Controller'}
+          {device.discovered ? <span className="badge-new">Neu</span> : null}
+          {device.status && device.status !== 'ACTIVE' ? (
+            <span className="badge-pending">{formatStatusLabel(device.status)}</span>
+          ) : null}
+        </h4>
         <p className="sensor-info">
           Geräte-ID: <strong>{device.deviceId}</strong>
         </p>
@@ -127,7 +146,13 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onDelete }) {
   return (
     <div className="sensor-row">
       <div>
-        <h4>{sensor.name}</h4>
+        <h4>
+          {sensor.name}
+          {sensor.discovered ? <span className="badge-new">Neu</span> : null}
+          {sensor.status && sensor.status !== 'ACTIVE' ? (
+            <span className="badge-pending">{formatStatusLabel(sensor.status)}</span>
+          ) : null}
+        </h4>
         <p className="sensor-info">
           Typ: <strong>{sensorType?.name || 'Unbekannt'}</strong> ({sensorType?.unit || '?'})
         </p>

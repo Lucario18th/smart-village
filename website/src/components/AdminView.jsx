@@ -27,6 +27,8 @@ export default function AdminView({ session, onLogout }) {
     resetConfig,
     isLoading,
     sensorTypes,
+    toast,
+    dismissToast,
   } = useVillageConfig(session)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleteError, setDeleteError] = useState('')
@@ -94,6 +96,14 @@ export default function AdminView({ session, onLogout }) {
       </header>
 
       <div className="admin-layout">
+        {toast && (
+          <div className="toast-notification" role="alert">
+            <span>{toast.message}</span>
+            <button type="button" aria-label="Toast schließen" onClick={dismissToast}>
+              ×
+            </button>
+          </div>
+        )}
         <aside className="admin-sidebar">
           <AdminNavigation
             sections={ADMIN_SECTIONS}
