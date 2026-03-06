@@ -6,10 +6,13 @@ import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { EmailService } from "./email.service";
 import { Account } from "@prisma/client";
+import { randomInt } from "crypto";
 
 @Injectable()
 export class AuthService {
   private static readonly VERIFICATION_CODE_TTL_MS = 5 * 60 * 1000;
+  private static readonly VERIFICATION_CODE_MIN = 100_000;
+  private static readonly VERIFICATION_CODE_MAX = 1_000_000;
 
   constructor(
     private prisma: PrismaService,
@@ -18,9 +21,11 @@ export class AuthService {
   ) {}
 
   private generateVerificationCode() {
-    return Math.floor(Math.random() * 1_000_000)
-      .toString()
-      .padStart(6, "0");
+    // randomInt upper bound is exclusive, yielding 100000-999999 as 6-digit codes
+    return randomInt(
+      AuthService.VERIFICATION_CODE_MIN,
+      AuthService.VERIFICATION_CODE_MAX,
+    ).toString();
   }
 
   private getVerificationExpiry() {

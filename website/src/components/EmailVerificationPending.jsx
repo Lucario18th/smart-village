@@ -1,6 +1,7 @@
 import React from 'react'
 
 const COUNTDOWN_SECONDS = 5 * 60
+const extractDigits = (value) => value.replace(/\D/g, '')
 
 export default function EmailVerificationPending({
   email,
@@ -102,19 +103,20 @@ export default function EmailVerificationPending({
           <label htmlFor="verificationCode">Bestätigungscode</label>
           <input
             id="verificationCode"
-          type="text"
+          type="tel"
           inputMode="numeric"
           pattern="[0-9]{6}"
           maxLength={6}
           value={code}
-          onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+          onChange={(event) => setCode(extractDigits(event.target.value))}
           placeholder="123456"
-            autoComplete="one-time-code"
-            required
-            disabled={isSubmitting}
-          />
+          aria-label="6-stelliger Bestätigungscode"
+          autoComplete="one-time-code"
+          required
+          disabled={isSubmitting}
+        />
 
-          <button type="submit" disabled={isSubmitting || code.trim().length !== 6}>
+          <button type="submit" disabled={isSubmitting || code.length !== 6}>
             {isSubmitting ? 'Prüfe Code…' : 'Code bestätigen'}
           </button>
         </form>

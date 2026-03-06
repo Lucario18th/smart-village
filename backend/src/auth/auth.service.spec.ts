@@ -171,6 +171,94 @@ describe('AuthService', () => {
       );
     });
 
+    it('should generate and send a fresh code when missing during login', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const accountWithoutCode = {
+        ...mockAccount,
+        emailVerified: false,
+        verificationCode: null,
+        verificationCodeExpiresAt: null,
+      };
+
+      const codeSpy = jest
+        .spyOn<any, any>(service as any, 'generateVerificationCode')
+        .mockReturnValue('222222');
+
+      mockPrismaService.account.findUnique.mockResolvedValue(accountWithoutCode);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      mockPrismaService.account.update.mockResolvedValue({
+        ...accountWithoutCode,
+        verificationCode: '222222',
+        verificationCodeExpiresAt: new Date(),
+      });
+
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'EMAIL_NOT_VERIFIED',
+        }),
+      });
+
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: accountWithoutCode.id },
+        data: expect.objectContaining({
+          verificationCode: '222222',
+        }),
+      });
+      expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
+        loginDto.email,
+        '222222',
+      );
+      codeSpy.mockRestore();
+    });
+
+    it('should refresh expired code during login and send it', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const expiredAccount = {
+        ...mockAccount,
+        emailVerified: false,
+        verificationCode: '111111',
+        verificationCodeExpiresAt: new Date(Date.now() - 1000),
+      };
+
+      const codeSpy = jest
+        .spyOn<any, any>(service as any, 'generateVerificationCode')
+        .mockReturnValue('333333');
+
+      mockPrismaService.account.findUnique.mockResolvedValue(expiredAccount);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      mockPrismaService.account.update.mockResolvedValue({
+        ...expiredAccount,
+        verificationCode: '333333',
+        verificationCodeExpiresAt: new Date(),
+      });
+
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'EMAIL_NOT_VERIFIED',
+        }),
+      });
+
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: expiredAccount.id },
+        data: expect.objectContaining({
+          verificationCode: '333333',
+        }),
+      });
+      expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
+        loginDto.email,
+        '333333',
+      );
+      codeSpy.mockRestore();
+    });
+
     it('should throw error if account not found', async () => {
       const loginDto = {
         email: 'nonexistent@example.com',

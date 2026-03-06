@@ -10,7 +10,7 @@ import { apiClient } from './api/client'
 export default function App() {
   const { session, login, logout } = useAdminAuth()
   const [pendingVerificationEmail, setPendingVerificationEmail] = React.useState(() =>
-    localStorage.getItem('pending_verification_email') || ''
+    sessionStorage.getItem('pending_verification_email') || ''
   )
   const [verificationResult, setVerificationResult] = React.useState(() => {
     const params = new URLSearchParams(window.location.search)
@@ -35,9 +35,9 @@ export default function App() {
 
   React.useEffect(() => {
     if (pendingVerificationEmail) {
-      localStorage.setItem('pending_verification_email', pendingVerificationEmail)
+      sessionStorage.setItem('pending_verification_email', pendingVerificationEmail)
     } else {
-      localStorage.removeItem('pending_verification_email')
+      sessionStorage.removeItem('pending_verification_email')
     }
   }, [pendingVerificationEmail])
 
