@@ -20,8 +20,8 @@ const authHandlers = [
     const body = await request.json()
     const { email, password } = body
 
-    // Debug: verify handler is hit and credentials match
-    console.log('MSW login handler hit', { email, password })
+    // Debug: verify handler is hit (do not log plaintext password)
+    console.log('MSW login handler hit', { email, password: '[REDACTED]' })
 
     // Validate test user credentials
     if (email === TEST_USER.email && password === TEST_PASSWORD) {
