@@ -12,7 +12,7 @@ services:
         condition: service_healthy
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - /opt/smartvillage/certs:/etc/nginx/certs:ro
+      - ./certs:/etc/nginx/certs:ro
     networks:
       - smartvillage-net
     healthcheck:
@@ -31,7 +31,7 @@ services:
       postgres:
         condition: service_healthy
     env_file:
-      - /opt/smartvillage/smartvillage.env
+      - ./smartvillage.env
     ports:
       - "8000:8000"
     networks:
@@ -47,7 +47,7 @@ services:
     image: timescale/timescaledb:latest-pg15
     container_name: smartvillage-postgres
     env_file:
-      - /opt/smartvillage/smartvillage.env
+      - ./smartvillage.env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
