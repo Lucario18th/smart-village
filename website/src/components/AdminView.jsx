@@ -44,58 +44,66 @@ export default function AdminView({ session, onLogout }) {
   return (
     <main className="admin-page">
       <header className="admin-header">
-        <div>
+        <div className="admin-header-content">
           <h1>Smart Village Admin</h1>
-          <p>
-            Angemeldet als: {userEmail} · Gemeinde: {villageName}
-          </p>
+          <p>Angemeldet als: {userEmail} · Gemeinde: {villageName}</p>
         </div>
-        <button type="button" onClick={onLogout} disabled={isLoading}>
-          Logout
+        <button type="button" className="logout-button" onClick={onLogout} disabled={isLoading}>
+          Abmelden
         </button>
       </header>
 
-      <AdminNavigation
-        sections={ADMIN_SECTIONS}
-        activeSectionId={activeSection.id}
-        onChange={setActiveSectionId}
-      />
+      <div className="admin-layout">
+        <aside className="admin-sidebar">
+          <AdminNavigation
+            sections={ADMIN_SECTIONS}
+            activeSectionId={activeSection.id}
+            onChange={setActiveSectionId}
+          />
+        </aside>
 
-      <AdminSectionPanel
-        section={activeSection}
-        entries={sectionEntries}
-        config={config}
-        selectedModule={selectedModule}
-        sensorTypes={sensorTypes}
-        onGeneralFieldChange={updateGeneralField}
-        onModuleEnabledChange={updateModuleEnabled}
-        onNavigateToSensors={handleNavigateToSensors}
-        onAddSensor={addSensor}
-        onUpdateSensor={updateSensor}
-        onRemoveSensor={removeSensor}
-        onDesignFieldChange={updateDesignField}
-      />
+        <section className="admin-main-content">
+          <AdminSectionPanel
+            section={activeSection}
+            entries={sectionEntries}
+            config={config}
+            selectedModule={selectedModule}
+            sensorTypes={sensorTypes}
+            onGeneralFieldChange={updateGeneralField}
+            onModuleEnabledChange={updateModuleEnabled}
+            onNavigateToSensors={handleNavigateToSensors}
+            onAddSensor={addSensor}
+            onUpdateSensor={updateSensor}
+            onRemoveSensor={removeSensor}
+            onDesignFieldChange={updateDesignField}
+          />
 
-      <section className="config-actions" aria-label="Konfiguration">
-        <button type="button" onClick={loadConfig} disabled={isLoading}>
-          {isLoading ? 'Wird geladen...' : 'Von Server laden'}
-        </button>
-        <button type="button" className="primary" onClick={saveConfig} disabled={isLoading || !hasUnsavedChanges}>
-          {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
-        </button>
-        <button type="button" onClick={resetConfig} disabled={isLoading}>
-          Zurücksetzen
-        </button>
-      </section>
+          <section className="config-actions" aria-label="Konfiguration">
+            <button type="button" onClick={loadConfig} disabled={isLoading}>
+              {isLoading ? 'Wird geladen...' : 'Von Server laden'}
+            </button>
+            <button
+              type="button"
+              onClick={saveConfig}
+              disabled={isLoading || !hasUnsavedChanges}
+            >
+              {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
+            </button>
+            <button type="button" onClick={resetConfig} disabled={isLoading}>
+              Zurücksetzen
+            </button>
+          </section>
 
-      <p className="storage-status">
-        Status: {storageMessage || '—'} {hasUnsavedChanges ? '• Ungespeicherte Änderungen vorhanden' : ''}
-      </p>
+          <p className="storage-status">
+            Status: {storageMessage || '—'} {hasUnsavedChanges ? '· Ungespeicherte Änderungen vorhanden' : ''}
+          </p>
 
-      <footer className="app-footer">
-        Smart Village Admin · Letzte Änderung:{' '}
-        {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
-      </footer>
+          <footer className="app-footer">
+            Smart Village Admin · Letzte Änderung:{' '}
+            {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
+          </footer>
+        </section>
+      </div>
     </main>
   )
 }
