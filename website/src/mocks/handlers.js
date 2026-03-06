@@ -8,7 +8,7 @@ const TEST_USER = {
   roles: ['user'],
 }
 
-const TEST_PASSWORD = 'test123'
+const TEST_PASSWORD = 'TestPassword123!'
 const FAKE_TOKEN = 'fake-jwt-token-dev-only'
 
 /**
