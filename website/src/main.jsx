@@ -15,7 +15,7 @@ import './styles.css'
  * In production, this code is never imported or executed.
  */
 async function initializeMocks() {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const { worker } = await import('./mocks/browser');
     await worker.start({
       onUnhandledRequest: 'warn',
