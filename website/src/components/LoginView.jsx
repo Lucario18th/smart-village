@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { AUTH_HINT } from '../auth/accounts'
 
-export default function LoginView({ onLogin, onRegister }) {
+export default function LoginView({ onLogin, onRegister, noticeMessage = null }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
@@ -57,6 +57,7 @@ export default function LoginView({ onLogin, onRegister }) {
       <section className="auth-card">
         <h1>Smart Village Admin</h1>
         <p>Bitte melde dich an, um die Gemeindekonfiguration zu bearbeiten.</p>
+        {noticeMessage ? <div className="auth-info">{noticeMessage}</div> : null}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label htmlFor="email">E-Mail</label>
