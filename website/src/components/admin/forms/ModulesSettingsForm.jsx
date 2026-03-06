@@ -1,26 +1,40 @@
 import React from 'react'
 
-function ModuleRow({ title, description, moduleId, isEnabled, onEnabledChange, onManageSensors }) {
+const formatSensorCount = (count) => `${count} Sensor${count === 1 ? '' : 'en'}`
+
+function ServiceCard({ title, description, moduleId, isEnabled, sensorCount, onEnabledChange, onManageSensors }) {
   return (
-    <article className="module-row">
+    <article className="service-card">
       <div>
         <h3>{title}</h3>
         <p>{description}</p>
+        <p className="service-meta">
+          Status: {isEnabled ? 'Aktiv' : 'Inaktiv'}
+          {typeof sensorCount === 'number' ? ` · ${formatSensorCount(sensorCount)}` : ''}
+        </p>
       </div>
 
-      <div className="module-controls">
-        <label className="checkbox-label">
+      <div className="service-card-controls">
+        <label className="switch-control">
           <input
             type="checkbox"
             checked={isEnabled}
             onChange={(event) => onEnabledChange(event.target.checked)}
+            aria-label={`${title} aktivieren`}
           />
-          Aktiv
+          <span className="switch-slider" aria-hidden="true" />
         </label>
 
-        <button type="button" className="sensor-button" onClick={onManageSensors} disabled={!isEnabled}>
-          Sensoren verwalten →
-        </button>
+        {onManageSensors ? (
+          <button
+            type="button"
+            className="sensor-button"
+            onClick={() => onManageSensors(moduleId)}
+            disabled={!isEnabled}
+          >
+            Sensoren verwalten →
+          </button>
+        ) : null}
       </div>
     </article>
   )
@@ -50,26 +64,31 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onN
     },
   ]
 
-  return (
-    <div className="module-list">
-      {modules.map((module) => (
-        <ModuleRow
-          key={module.id}
-          title={module.title}
-          description={module.description}
-          moduleId={module.id}
-          isEnabled={values[module.id]?.enabled ?? false}
-          onEnabledChange={(enabled) => onModuleEnabledChange(module.id, enabled)}
-          onManageSensors={() => onNavigateToSensors(module.id)}
-        />
-      ))}
+  const getSensorCount = (moduleId) => {
+    const sensors = values[moduleId]?.sensors
+    return Array.isArray(sensors) ? sensors.length : 0
+  }
 
-      <div className="module-info-box">
-        <p>
-          <strong>Hinweis:</strong> Aktivierte Module können in den Sensor-Einstellungen konfiguriert werden.
-          Die verfügbaren Sensoren werden dann für die ausgewählten Module angezeigt.
-        </p>
+  return (
+    <section className="module-settings">
+      <p className="module-settings-hint">
+        Technische Datenquellen aktivieren. Sensoren und Messpunkte konfigurierst du im Navigationspunkt „Sensoren“.
+      </p>
+
+      <div className="service-grid">
+        {modules.map((module) => (
+          <ServiceCard
+            key={module.id}
+            title={module.title}
+            description={module.description}
+            moduleId={module.id}
+            isEnabled={values[module.id]?.enabled ?? false}
+            sensorCount={getSensorCount(module.id)}
+            onEnabledChange={(enabled) => onModuleEnabledChange(module.id, enabled)}
+            onManageSensors={onNavigateToSensors}
+          />
+        ))}
       </div>
-    </div>
+    </section>
   )
 }

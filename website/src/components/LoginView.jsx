@@ -7,6 +7,13 @@ export default function LoginView({ onLogin, onRegister }) {
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
+  // Safety: if the parent removes the registration flow after initial render,
+  // ensure we return to the login view.
+  React.useEffect(() => {
+    if (!onRegister) {
+      setShowRegister(false)
+    }
+  }, [onRegister])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -69,17 +76,21 @@ export default function LoginView({ onLogin, onRegister }) {
         </form>
 
         <p className="auth-hint">
-          Noch kein Konto?{' '}
-          <button
-            type="button"
-            onClick={() => setShowRegister(true)}
-            className="link-button"
-            style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Hier registrieren
-          </button>
-          <br />
-          <br />
+          {onRegister ? (
+            <>
+              Noch kein Konto?{' '}
+              <button
+                type="button"
+                onClick={() => setShowRegister(true)}
+                className="link-button"
+                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Hier registrieren
+              </button>
+              <br />
+              <br />
+            </>
+          ) : null}
           {AUTH_HINT}
         </p>
       </section>
