@@ -173,7 +173,28 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       if (data.sensors && !Array.isArray(data.sensors)) {
         return null;
       }
-      return data;
+      const sanitizedSensors = Array.isArray(data.sensors)
+        ? data.sensors
+            .filter(
+              (sensor: any) =>
+                sensor &&
+                typeof sensor.sensorTypeId === "number" &&
+                typeof sensor.name === "string",
+            )
+            .map((sensor: any) => ({
+              sensorId:
+                typeof sensor.sensorId === "number" ? sensor.sensorId : undefined,
+              sensorTypeId: sensor.sensorTypeId,
+              name: sensor.name,
+              infoText:
+                typeof sensor.infoText === "string" ? sensor.infoText : undefined,
+              latitude:
+                typeof sensor.latitude === "number" ? sensor.latitude : undefined,
+              longitude:
+                typeof sensor.longitude === "number" ? sensor.longitude : undefined,
+            }))
+        : undefined;
+      return { ...data, sensors: sanitizedSensors };
     } catch (err) {
       this.logger.warn("Failed to parse MQTT discovery payload as JSON");
       return null;
@@ -339,14 +360,29 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
     if (Array.isArray(sensors)) {
       const deviceInternalId = deviceRecord.id;
+      const sensorsWithId = sensors.filter(
+        (sensor) => sensor.sensorId !== null && sensor.sensorId !== undefined,
+      );
+      const sensorsWithoutId = sensors.filter(
+        (sensor) => sensor.sensorId === null || sensor.sensorId === undefined,
+      );
+      const existingByName: Record<string, { id: number }> = {};
 
-      for (const sensor of sensors) {
-        if (typeof sensor.sensorTypeId !== "number" || typeof sensor.name !== "string") {
-          this.logger.warn(
-            `MQTT discovery: Skipping sensor with invalid fields on device ${deviceId}`,
-          );
-          continue;
+      if (sensorsWithoutId.length > 0) {
+        const existing = await this.prisma.sensor.findMany({
+          where: {
+            villageId: village.id,
+            deviceId: deviceInternalId,
+            name: { in: sensorsWithoutId.map((sensor) => sensor.name) },
+          },
+          select: { id: true, name: true },
+        });
+        for (const sensor of existing) {
+          existingByName[sensor.name] = sensor;
         }
+      }
+
+      for (const sensor of [...sensorsWithId, ...sensorsWithoutId]) {
         const sensorId = sensor.sensorId ?? null;
         const baseData = {
           villageId: village.id,
@@ -365,9 +401,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
             update: baseData,
           });
         } else {
-          const existing = await this.prisma.sensor.findFirst({
-            where: { villageId: village.id, deviceId: deviceInternalId, name: sensor.name },
-          });
+          const existing = existingByName[sensor.name];
           if (existing) {
             await this.prisma.sensor.update({
               where: { id: existing.id },

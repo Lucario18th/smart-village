@@ -33,6 +33,7 @@ describe('MqttService', () => {
         create: jest.fn(),
         findFirst: jest.fn(),
         update: jest.fn(),
+        findMany: jest.fn(),
       },
       village: { findUnique: jest.fn() },
     } as any;
@@ -109,6 +110,7 @@ describe('MqttService', () => {
     prisma.device.create.mockResolvedValue({ id: 10, deviceId: 'ctrl-1', villageId: 1 });
     prisma.sensor.upsert.mockResolvedValue({});
     prisma.sensor.findFirst.mockResolvedValue(null);
+    prisma.sensor.findMany.mockResolvedValue([]);
     prisma.sensor.create.mockResolvedValue({});
 
     const discoveryPayload = {
