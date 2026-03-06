@@ -71,6 +71,19 @@ services:
     networks:
       - smartvillage-net
 
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smartvillage-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - smartvillage-net
+
 networks:
   smartvillage-net:
 

@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import mqtt, { MqttClient } from "mqtt";
 import { PrismaService } from "../prisma/prisma.service";
 import { SensorReadingService } from "../sensor/sensor-reading.service";
@@ -23,6 +24,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   private client: MqttClient | null = null;
 
   constructor(
+    private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly sensorReadingService: SensorReadingService,
   ) {}
@@ -35,11 +37,14 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
-    const host = process.env.MQTT_HOST;
-    const port = process.env.MQTT_PORT || "1883";
-    const username = process.env.MQTT_USERNAME;
-    const password = process.env.MQTT_PASSWORD;
-    const topicPattern = process.env.MQTT_TOPIC_PATTERN || "sv/+/+/sensors/+";
+    const host = this.config.get<string>("MQTT_HOST");
+    const port = this.config.get<string>("MQTT_PORT");
+    const username = this.config.get<string>("MQTT_USERNAME");
+    const password = this.config.get<string>("MQTT_PASSWORD");
+    const topicPattern = this.config.get<string>(
+      "MQTT_TOPIC_PATTERN",
+      "sv/+/+/sensors/+",
+    );
 
     if (!host) {
       this.logger.warn("MQTT_HOST not set - MQTT ingestion disabled");
@@ -56,7 +61,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on("connect", () => {
-      this.logger.log(`Connected to MQTT broker, subscribing to ${topicPattern}`);
+      this.logger.log(
+        `MQTT connected to ${host}:${port}, subscribing to ${topicPattern}`,
+      );
       this.client?.subscribe(topicPattern, (err) => {
         if (err) {
           this.logger.error(`Failed to subscribe to ${topicPattern}`, err);

@@ -13,6 +13,7 @@ describe('MqttService', () => {
   let service: MqttService;
   let prisma: any;
   let sensorReadingService: any;
+  let config: { get: jest.Mock };
   let fakeClient: EventEmitter & { subscribe: jest.Mock; end: jest.Mock };
 
   const buildPayload = (value: number) =>
@@ -33,7 +34,20 @@ describe('MqttService', () => {
       createReadings: jest.fn(),
     } as any;
 
-    service = new MqttService(prisma, sensorReadingService);
+    config = {
+      get: jest.fn((key: string, fallback?: any) => {
+        const map: Record<string, any> = {
+          MQTT_HOST: "localhost",
+          MQTT_PORT: "1883",
+          MQTT_TOPIC_PATTERN: "sv/+/+/sensors/+",
+          MQTT_USERNAME: "",
+          MQTT_PASSWORD: "",
+        };
+        return map[key] ?? fallback;
+      }),
+    };
+
+    service = new MqttService(config as any, prisma, sensorReadingService);
   });
 
   afterEach(() => {
@@ -41,8 +55,6 @@ describe('MqttService', () => {
   });
 
   it('subscribes and stores readings for known sensor/device', async () => {
-    process.env.MQTT_HOST = 'localhost';
-
     prisma.device.findUnique.mockResolvedValue({
       id: 10,
       deviceId: 'ctrl-1',
@@ -73,8 +85,6 @@ describe('MqttService', () => {
   });
 
   it('ignores messages for unknown device', async () => {
-    process.env.MQTT_HOST = 'localhost';
-
     prisma.device.findUnique.mockResolvedValue(null);
 
     service.onModuleInit();
