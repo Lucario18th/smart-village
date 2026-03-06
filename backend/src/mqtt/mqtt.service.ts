@@ -157,7 +157,6 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     villageId: number;
     device?: { name?: string; latitude?: number; longitude?: number };
     sensors?: Array<{
-      id?: number;
       sensorId?: number;
       sensorTypeId: number;
       name: string;
@@ -335,6 +334,15 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (Array.isArray(sensors)) {
+      if (!deviceRecord) {
+        this.logger.warn(
+          `MQTT discovery: Device ${deviceId} could not be created or loaded`,
+        );
+        return;
+      }
+
+      const deviceInternalId = deviceRecord.id;
+
       for (const sensor of sensors) {
         if (typeof sensor.sensorTypeId !== "number" || typeof sensor.name !== "string") {
           this.logger.warn(
@@ -342,13 +350,13 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
           );
           continue;
         }
-        const sensorId = sensor.sensorId ?? sensor.id ?? null;
+        const sensorId = sensor.sensorId ?? null;
         const baseData = {
           villageId: village.id,
           sensorTypeId: sensor.sensorTypeId,
           name: sensor.name,
           infoText: sensor.infoText ?? null,
-          deviceId: deviceRecord?.id ?? null,
+          deviceId: deviceInternalId,
           latitude: sensor.latitude ?? null,
           longitude: sensor.longitude ?? null,
         };
@@ -361,7 +369,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
           });
         } else {
           const existing = await this.prisma.sensor.findFirst({
-            where: { villageId: village.id, deviceId: deviceRecord?.id ?? null, name: sensor.name },
+            where: { villageId: village.id, deviceId: deviceInternalId, name: sensor.name },
           });
           if (existing) {
             await this.prisma.sensor.update({

@@ -115,7 +115,7 @@ describe('MqttService', () => {
       villageId: 1,
       device: { name: 'Controller', latitude: 50.1, longitude: 8.6 },
       sensors: [
-        { id: 20, sensorTypeId: 1, name: 'Temp', infoText: 'Indoor' },
+        { sensorId: 20, sensorTypeId: 1, name: 'Temp', infoText: 'Indoor' },
         { sensorTypeId: 2, name: 'Humidity' },
       ],
     };
