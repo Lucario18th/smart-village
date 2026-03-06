@@ -110,6 +110,7 @@ model Sensor {
   name         String
   infoText     String?
   isActive     Boolean       @default(true)
+  receiveData  Boolean       @default(true)
   latitude     Float?
   longitude    Float?
 

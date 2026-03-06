@@ -23,6 +23,25 @@ function formatStatusLabel(status) {
   }
 }
 
+function formatTimestamp(ts) {
+  if (!ts) return '–'
+  try {
+    return new Intl.DateTimeFormat('de-DE', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(ts))
+  } catch (e) {
+    return '–'
+  }
+}
+
+function getStatusColor(status) {
+  if (!status || status === 'OK') return '#2e7d32'
+  if (status === 'WARN') return '#f9a825'
+  if (status === 'ERROR' || status === 'CRITICAL') return '#c62828'
+  return '#546e7a'
+}
+
 function DeviceRow({ device, onEdit }) {
   const coords = formatCoords(device.latitude, device.longitude)
   return (
@@ -138,13 +157,15 @@ function DeviceForm({ device, onSave, onCancel }) {
   )
 }
 
-function SensorRow({ sensor, sensorTypes, devices, onEdit, onDelete }) {
+function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onToggleReceiveData }) {
   const sensorType = sensorTypes.find(t => t.id === sensor.sensorTypeId)
   const device = devices.find((d) => d.id === sensor.deviceId)
   const sensorCoords = formatCoords(sensor.latitude, sensor.longitude)
   const deviceCoords = device ? formatCoords(device.latitude, device.longitude) : null
+  const statusColor = getStatusColor(sensor.lastStatus || sensor.status)
+  const dimmed = sensor.active === false
   return (
-    <div className="sensor-row">
+    <div className={`sensor-row${dimmed ? ' sensor-row--inactive' : ''}`} style={dimmed ? { opacity: 0.65 } : undefined}>
       <div>
         <h4>
           {sensor.name}
@@ -157,9 +178,22 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onDelete }) {
           Typ: <strong>{sensorType?.name || 'Unbekannt'}</strong> ({sensorType?.unit || '?'})
         </p>
         {sensor.infoText && <p className="sensor-description">{sensor.infoText}</p>}
-        <p className="sensor-status">
-          Status: <strong>{sensor.active ? 'Aktiv' : 'Inaktiv'}</strong>
-        </p>
+        <div className="sensor-status">
+          <span
+            className="badge"
+            role="status"
+            aria-label={`Status ${sensor.lastStatus || 'OK'}`}
+            style={{ backgroundColor: statusColor, color: '#fff' }}
+          >
+            {sensor.lastStatus || 'OK'}
+          </span>
+          <span className="sensor-last-value">
+            {sensor.lastValue !== null && sensor.lastValue !== undefined
+              ? `${sensor.lastValue} ${sensor.unit || sensorType?.unit || ''}`
+              : 'Keine Messung'}
+          </span>
+          <span className="sensor-last-ts">· {formatTimestamp(sensor.lastTs)}</span>
+        </div>
         <p className="sensor-description">
           Position:{' '}
           <strong>
@@ -169,11 +203,26 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onDelete }) {
         </p>
       </div>
       <div className="sensor-actions">
-        <button type="button" className="sensor-action-btn edit" onClick={onEdit} title="Bearbeiten">
+        <label className="switch-control" title="Sensor aktivieren/deaktivieren">
+          <input
+            type="checkbox"
+            aria-label="Sensor aktivieren oder deaktivieren"
+            checked={sensor.active}
+            onChange={(e) => onToggleActive(e.target.checked)}
+          />
+          <span className="switch-slider" aria-hidden="true" />
+        </label>
+        <label className="switch-control" title="Werte empfangen">
+          <input
+            type="checkbox"
+            aria-label="Werte empfangen umschalten"
+            checked={sensor.receiveData !== false}
+            onChange={(e) => onToggleReceiveData(e.target.checked)}
+          />
+          <span className="switch-slider" aria-hidden="true" />
+        </label>
+        <button type="button" className="sensor-action-btn edit" onClick={onEdit} title="Metadaten bearbeiten">
           Bearbeiten
-        </button>
-        <button type="button" className="sensor-action-btn delete" onClick={onDelete} title="Löschen">
-          Löschen
         </button>
       </div>
     </div>
@@ -188,12 +237,14 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
           deviceId: sensor.deviceId ?? '',
           latitude: sensor.latitude ?? '',
           longitude: sensor.longitude ?? '',
+          receiveData: sensor.receiveData !== false,
         }
       : {
           name: '',
           sensorTypeId: sensorTypes[0]?.id || 1,
           infoText: '',
           active: true,
+          receiveData: true,
           dataSourceUrl: '',
           updateInterval: '300', // 5 minutes default
           deviceId: '',
@@ -248,6 +299,8 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
           name="sensorTypeId"
           value={formData.sensorTypeId}
           onChange={handleChange}
+          disabled
+          aria-describedby="sensor-type-helper"
         >
           {sensorTypes.map((type) => (
             <option key={type.id} value={type.id}>
@@ -255,6 +308,7 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
             </option>
           ))}
         </select>
+        <small id="sensor-type-helper">Sensortyp wird über MQTT discovery gesetzt.</small>
       </div>
 
       <div className="form-group">
@@ -276,6 +330,8 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
           name="deviceId"
           value={formData.deviceId ?? ''}
           onChange={handleChange}
+          disabled
+          aria-describedby="sensor-device-helper"
         >
           <option value="">Kein Controller</option>
           {devices.map((device) => (
@@ -284,7 +340,7 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
             </option>
           ))}
         </select>
-        <small>Wenn keine Sensor-Koordinaten gesetzt sind, werden die Controller-Koordinaten genutzt.</small>
+        <small id="sensor-device-helper">Geräte werden automatisch über MQTT discovery angelegt.</small>
       </div>
 
       <div className="form-group">
@@ -310,35 +366,6 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
         <small>Freilassen, wenn die Position des Controllers verwendet werden soll.</small>
       </div>
 
-      <div className="form-group config-section">
-        <h4>Datenquellen-Konfiguration</h4>
-        <label htmlFor="sensor-datasource">API-Endpunkt (optional)</label>
-        <input
-          id="sensor-datasource"
-          type="url"
-          name="dataSourceUrl"
-          value={formData.dataSourceUrl}
-          onChange={handleChange}
-          placeholder="https://api.example.com/sensor/data"
-        />
-        <small>Automatisch abzurufen von dieser Quelle</small>
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="sensor-interval">Aktualisierungsintervall (Sekunden)</label>
-        <input
-          id="sensor-interval"
-          type="number"
-          name="updateInterval"
-          value={formData.updateInterval}
-          onChange={handleChange}
-          min="60"
-          max="3600"
-          step="60"
-        />
-        <small>Wie oft die Daten aktualisiert werden sollen</small>
-      </div>
-
       <div className="form-group">
         <label htmlFor="sensor-active">
           <input
@@ -350,6 +377,41 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
           />
           Sensor aktiv
         </label>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="sensor-receive">
+          <input
+            id="sensor-receive"
+            type="checkbox"
+            name="receiveData"
+            checked={formData.receiveData}
+            onChange={handleChange}
+          />
+          Werte empfangen
+        </label>
+      </div>
+
+      <div className="form-group">
+        <h4>Aktueller Status</h4>
+        <p>
+          Letzter Wert:{' '}
+          <strong>
+            {sensor?.lastValue ?? '–'} {sensor?.unit || sensorTypes.find((t) => t.id === sensor?.sensorTypeId)?.unit || ''}
+          </strong>
+        </p>
+        <p>Letztes Update: {formatTimestamp(sensor?.lastTs)}</p>
+        <p>
+          Status:{' '}
+          <span
+            className="badge"
+            role="status"
+            aria-label={`Status ${sensor?.lastStatus || 'OK'}`}
+            style={{ backgroundColor: getStatusColor(sensor?.lastStatus), color: '#fff' }}
+          >
+            {sensor?.lastStatus || 'OK'}
+          </span>
+        </p>
       </div>
 
       <div className="form-actions">
@@ -367,34 +429,16 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
 export default function SensorsSettingsForm({
   config,
   sensorTypes,
-  onAddSensor,
   onUpdateSensor,
-  onRemoveSensor,
-  onAddDevice,
   onUpdateDevice,
 }) {
   const [editingSensorId, setEditingSensorId] = useState(null)
-  const [isAddingNew, setIsAddingNew] = useState(false)
   const [editingDeviceId, setEditingDeviceId] = useState(null)
-  const [isAddingDevice, setIsAddingDevice] = useState(false)
 
   const sensors = useMemo(() => {
     return config?.sensors || []
   }, [config?.sensors])
   const devices = useMemo(() => config?.devices || [], [config?.devices])
-
-  const handleAddSensor = (formData) => {
-    onAddSensor({
-      name: formData.name,
-      sensorTypeId: parseInt(formData.sensorTypeId),
-      infoText: formData.infoText,
-      active: formData.active,
-      deviceId: formData.deviceId === '' ? null : formData.deviceId,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-    })
-    setIsAddingNew(false)
-  }
 
   const handleUpdateSensor = (formData) => {
     onUpdateSensor(editingSensorId, {
@@ -402,6 +446,7 @@ export default function SensorsSettingsForm({
       sensorTypeId: parseInt(formData.sensorTypeId),
       infoText: formData.infoText,
       active: formData.active,
+      receiveData: formData.receiveData,
       deviceId: formData.deviceId === '' ? null : formData.deviceId,
       latitude: formData.latitude,
       longitude: formData.longitude,
@@ -428,45 +473,18 @@ export default function SensorsSettingsForm({
     setEditingDeviceId(null)
   }
 
-  const handleDeleteSensor = (sensorId) => {
-    if (window.confirm('Sensor wirklich löschen?')) {
-      onRemoveSensor(sensorId)
-    }
-  }
-
   return (
     <section className="sensors-settings">
       <div className="settings-header">
         <h2>Sensoren</h2>
-        <button
-          type="button"
-          className="btn-add-sensor"
-          onClick={() => setIsAddingNew(true)}
-          disabled={isAddingNew || editingSensorId !== null}
-        >
-          Neuer Sensor
-        </button>
+        <p className="helper-text">Sensoren werden automatisch über MQTT Discovery angelegt.</p>
       </div>
 
       <section className="devices-settings">
         <div className="settings-header">
           <h3>Controller / Geräte</h3>
-          <button
-            type="button"
-            className="btn-add-sensor"
-            onClick={() => setIsAddingDevice(true)}
-            disabled={isAddingDevice || editingDeviceId !== null}
-          >
-            Neues Gerät
-          </button>
+          <p className="helper-text">Geräte werden automatisch entdeckt; Position kann angepasst werden.</p>
         </div>
-
-        {isAddingDevice && (
-          <div className="sensor-form-container">
-            <h4>Gerät hinzufügen</h4>
-            <DeviceForm onSave={handleAddDevice} onCancel={() => setIsAddingDevice(false)} />
-          </div>
-        )}
 
         <div className="sensors-list">
           {devices.length === 0 ? (
@@ -492,18 +510,6 @@ export default function SensorsSettingsForm({
         </div>
       </section>
 
-      {isAddingNew && (
-        <div className="sensor-form-container">
-          <h3>Neuen Sensor hinzufügen</h3>
-          <SensorForm
-            sensorTypes={sensorTypes}
-            devices={devices}
-            onSave={handleAddSensor}
-            onCancel={() => setIsAddingNew(false)}
-          />
-        </div>
-      )}
-
       <div className="sensors-list">
         {sensors.length === 0 ? (
           <p className="empty-message">Noch keine Sensoren konfiguriert.</p>
@@ -527,7 +533,8 @@ export default function SensorsSettingsForm({
                   sensorTypes={sensorTypes}
                   devices={devices}
                   onEdit={() => setEditingSensorId(sensor.id)}
-                  onDelete={() => handleDeleteSensor(sensor.id)}
+                  onToggleActive={(active) => onUpdateSensor(sensor.id, { active })}
+                  onToggleReceiveData={(receiveData) => onUpdateSensor(sensor.id, { receiveData })}
                 />
               )}
             </div>

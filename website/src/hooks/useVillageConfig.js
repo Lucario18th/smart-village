@@ -28,20 +28,31 @@ const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
 const getDeviceDisplayName = (device) =>
   device.name ?? device.deviceId ?? TOAST_MESSAGES.deviceFallback
 const mapSensors = (sensorsFromApi) =>
-  (sensorsFromApi || []).map((sensor) => ({
-    id: sensor.id,
-    name: sensor.name,
-    type: sensor.sensorType?.name || 'Unknown',
-    sensorTypeId: sensor.sensorTypeId,
-    active: sensor.isActive,
-    infoText: sensor.infoText || '',
-    deviceId: sensor.device?.id ?? null,
-    deviceIdentifier: sensor.device?.deviceId || '',
-    latitude: sensor.latitude ?? '',
-    longitude: sensor.longitude ?? '',
-    discovered: !!sensor.discovered,
-    status: sensor.status || (sensor.isActive ? STATUS.ACTIVE : STATUS.INACTIVE),
-  }))
+  (sensorsFromApi || []).map((sensor) => {
+    const statusValue =
+      sensor.status?.status ||
+      sensor.status ||
+      (sensor.isActive ? STATUS.ACTIVE : STATUS.INACTIVE)
+    return {
+      id: sensor.id,
+      name: sensor.name,
+      type: sensor.sensorType?.name || 'Unknown',
+      sensorTypeId: sensor.sensorTypeId,
+      active: sensor.isActive,
+      receiveData: sensor.receiveData ?? true,
+      infoText: sensor.infoText || '',
+      deviceId: sensor.device?.id ?? null,
+      deviceIdentifier: sensor.device?.deviceId || '',
+      latitude: sensor.latitude ?? '',
+      longitude: sensor.longitude ?? '',
+      discovered: !!sensor.discovered,
+      status: statusValue,
+      lastValue: sensor.lastValue ?? null,
+      lastStatus: sensor.lastStatus ?? null,
+      lastTs: sensor.lastTs ?? null,
+      unit: sensor.sensorType?.unit || sensor.lastUnit || '',
+    }
+  })
 const mapDevices = (devicesFromApi) =>
   (devicesFromApi || []).map((device) => ({
     id: device.id,
@@ -430,6 +441,7 @@ export function useVillageConfig(session) {
             name: sensor.name,
             infoText: sensor.infoText,
             isActive: sensor.active,
+            receiveData: sensor.receiveData,
             deviceId: resolvedDeviceId,
             latitude,
             longitude,
@@ -441,6 +453,7 @@ export function useVillageConfig(session) {
                   name: sensor.name,
                   infoText: sensor.infoText,
                   active: sensor.active,
+                  receiveData: sensor.receiveData,
                   deviceId: resolvedDeviceId,
                   latitude: sensor.latitude ?? '',
                   longitude: sensor.longitude ?? '',

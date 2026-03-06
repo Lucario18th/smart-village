@@ -5,11 +5,24 @@ import { PrismaService } from "../prisma/prisma.service";
 export class SensorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  listByVillage(villageId: number) {
-    return this.prisma.sensor.findMany({
+  async listByVillage(villageId: number) {
+    const sensors = await this.prisma.sensor.findMany({
       where: { villageId },
       include: { sensorType: true, status: true, device: true },
       orderBy: { id: "asc" },
+    });
+
+    const sensorIds = sensors.map((s) => s.id);
+    const latestBySensor = await this.getLatestReadings(sensorIds);
+
+    return sensors.map((sensor) => {
+      const latest = latestBySensor.get(sensor.id);
+      return {
+        ...sensor,
+        lastTs: latest?.ts ?? null,
+        lastValue: latest?.value ?? null,
+        lastStatus: latest?.status ?? null,
+      };
     });
   }
 
@@ -58,11 +71,27 @@ export class SensorService {
     });
   }
 
-  getById(sensorId: number) {
-    return this.prisma.sensor.findUnique({
+  async getById(sensorId: number) {
+    const sensor = await this.prisma.sensor.findUnique({
       where: { id: sensorId },
       include: { sensorType: true, village: true, status: true, device: true },
     });
+
+    if (!sensor) {
+      return sensor;
+    }
+
+    const latest = await this.prisma.sensorReading.findFirst({
+      where: { sensorId },
+      orderBy: { ts: "desc" },
+    });
+
+    return {
+      ...sensor,
+      lastTs: latest?.ts ?? null,
+      lastValue: latest?.value ?? null,
+      lastStatus: latest?.status ?? null,
+    };
   }
 
   async update(
@@ -71,6 +100,7 @@ export class SensorService {
       name?: string;
       infoText?: string;
       isActive?: boolean;
+      receiveData?: boolean;
       deviceId?: number | null;
       latitude?: number | null;
       longitude?: number | null;
@@ -102,6 +132,7 @@ export class SensorService {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.infoText !== undefined && { infoText: data.infoText }),
         ...(data.isActive !== undefined && { isActive: data.isActive }),
+        ...(data.receiveData !== undefined && { receiveData: data.receiveData }),
         ...(data.deviceId !== undefined && { deviceId: data.deviceId }),
         ...(data.latitude !== undefined && { latitude: data.latitude }),
         ...(data.longitude !== undefined && { longitude: data.longitude }),
@@ -120,5 +151,28 @@ export class SensorService {
         where: { id: sensorId },
       }),
     ]);
+  }
+
+  private async getLatestReadings(sensorIds: number[]) {
+    const result = new Map<number, { ts: Date; value: number; status: string }>();
+    if (sensorIds.length === 0) {
+      return result;
+    }
+
+    const readings = await this.prisma.sensorReading.findMany({
+      where: { sensorId: { in: sensorIds } },
+      orderBy: [{ sensorId: "asc" }, { ts: "desc" }],
+      distinct: ["sensorId"],
+    });
+
+    for (const reading of readings) {
+      result.set(reading.sensorId, {
+        ts: reading.ts,
+        value: reading.value,
+        status: reading.status,
+      });
+    }
+
+    return result;
   }
 }

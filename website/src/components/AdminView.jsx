@@ -14,10 +14,7 @@ export default function AdminView({ session, onLogout }) {
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
-    addSensor,
     updateSensor,
-    removeSensor,
-    addDevice,
     updateDevice,
     updateDesignField,
     hasUnsavedChanges,
@@ -122,10 +119,7 @@ export default function AdminView({ session, onLogout }) {
             onGeneralFieldChange={updateGeneralField}
             onModuleEnabledChange={updateModuleEnabled}
             onNavigateToSensors={handleNavigateToSensors}
-            onAddSensor={addSensor}
             onUpdateSensor={updateSensor}
-            onRemoveSensor={removeSensor}
-            onAddDevice={addDevice}
             onUpdateDevice={updateDevice}
             onDesignFieldChange={updateDesignField}
           />

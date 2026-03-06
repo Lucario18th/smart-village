@@ -58,6 +58,8 @@ Neue Funktionalitaet:
 - Sensor Edit Dialog
 - Sensor Delete Confirmation
 
+**Hinweis (Auto-Discovery):** Sensoren und Controller werden über MQTT discovery erstellt. Admins pflegen primär Metadaten (Name, Beschreibung, Position) und schalten Sensoren bzw. den Empfang von Werten ein/aus.
+
 **Neu (Geo-Koordinaten):** Geräte (Controller) und Sensoren können jetzt optionale Latitude/Longitude Werte speichern. Die Eingabe erfolgt im Admin-Bereich über einfache Koordinatenfelder/“Position auf Karte”. Sensoren erben automatisch die Geräte-Position, wenn keine eigene Koordinate angegeben ist. Die Daten dienen als Grundlage für spätere Karten-Features in Admin- und Mobile-UIs.
 
 Key Components:

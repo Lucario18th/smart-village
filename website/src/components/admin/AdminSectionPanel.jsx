@@ -15,10 +15,7 @@ export default function AdminSectionPanel({
   onGeneralFieldChange,
   onModuleEnabledChange,
   onNavigateToSensors,
-  onAddSensor,
   onUpdateSensor,
-  onRemoveSensor,
-  onAddDevice,
   onUpdateDevice,
   onDesignFieldChange,
 }) {
@@ -46,10 +43,7 @@ export default function AdminSectionPanel({
         <SensorsSettingsForm
           config={config}
           sensorTypes={sensorTypes || []}
-          onAddSensor={onAddSensor}
           onUpdateSensor={onUpdateSensor}
-          onRemoveSensor={onRemoveSensor}
-          onAddDevice={onAddDevice}
           onUpdateDevice={onUpdateDevice}
         />
       )
