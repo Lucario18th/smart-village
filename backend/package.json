@@ -20,7 +20,8 @@
     "prisma:migrate:dev": "prisma migrate dev --name init",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:dbpush": "prisma db push",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "seed:postal-codes": "ts-node prisma/import-postal-codes.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

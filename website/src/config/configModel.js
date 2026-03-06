@@ -7,6 +7,9 @@ const BASE_CONFIG = {
     contactEmail: '',
     contactPhone: '',
     infoText: '',
+    postalCode: '',
+    city: '',
+    postalCodeId: null,
   },
   modules: {
     rideShareBench: {
@@ -162,6 +165,11 @@ export function getSectionSummary(config, sectionId) {
   if (sectionId === 'general') {
     return [
       `Ortsname: ${config.general.villageName || 'nicht gesetzt'}`,
+      `PLZ/Ort: ${
+        config.general.postalCode && config.general.city
+          ? `${config.general.postalCode} ${config.general.city}`
+          : 'nicht gesetzt'
+      }`,
       `Gemeinde-ID: ${config.general.municipalityCode || 'nicht gesetzt'}`,
       `Kontakt: ${config.general.contactEmail || 'nicht gesetzt'}`,
     ]

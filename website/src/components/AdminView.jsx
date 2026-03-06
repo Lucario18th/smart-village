@@ -3,6 +3,8 @@ import AdminNavigation from './admin/AdminNavigation'
 import AdminSectionPanel from './admin/AdminSectionPanel'
 import { ADMIN_SECTIONS } from '../config/adminSections'
 import { useVillageConfig } from '../hooks/useVillageConfig'
+import DeleteAccountDialog from './DeleteAccountDialog'
+import { apiClient } from '../api/client'
 
 export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
@@ -24,6 +26,9 @@ export default function AdminView({ session, onLogout }) {
     isLoading,
     sensorTypes,
   } = useVillageConfig(session)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const handleNavigateToSensors = (moduleId) => {
     setSelectedModule(moduleId)
@@ -40,17 +45,48 @@ export default function AdminView({ session, onLogout }) {
 
   const userEmail = session?.email || 'Unbekannt'
   const villageName = config.general.villageName || 'nicht gesetzt'
+  const villageLocation =
+    config.general.postalCode && config.general.city
+      ? `${config.general.postalCode} ${config.general.city}`
+      : 'nicht gesetzt'
+
+  const handleDeleteAccount = async () => {
+    if (!session?.sub) return
+    setDeleteLoading(true)
+    setDeleteError('')
+    try {
+      await apiClient.admin.deleteAccount(session.sub)
+      alert('Konto wurde vollständig gelöscht.')
+      onLogout()
+    } catch (error) {
+      setDeleteError(error.message || 'Löschen fehlgeschlagen')
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   return (
     <main className="admin-page">
       <header className="admin-header">
         <div className="admin-header-content">
           <h1>Smart Village Admin</h1>
-          <p>Angemeldet als: {userEmail} · Gemeinde: {villageName}</p>
+          <p>
+            Angemeldet als: {userEmail} · Gemeinde: {villageName} · Ort: {villageLocation}
+          </p>
         </div>
-        <button type="button" className="logout-button" onClick={onLogout} disabled={isLoading}>
-          Abmelden
-        </button>
+        <div className="header-actions">
+          <button
+            type="button"
+            className="danger ghost"
+            onClick={() => setShowDeleteDialog(true)}
+            disabled={isLoading}
+          >
+            Konto endgültig löschen
+          </button>
+          <button type="button" className="logout-button" onClick={onLogout} disabled={isLoading}>
+            Abmelden
+          </button>
+        </div>
       </header>
 
       <div className="admin-layout">
@@ -104,6 +140,18 @@ export default function AdminView({ session, onLogout }) {
           </footer>
         </section>
       </div>
+
+      <DeleteAccountDialog
+        accountEmail={userEmail}
+        isOpen={showDeleteDialog}
+        onCancel={() => {
+          setShowDeleteDialog(false)
+          setDeleteError('')
+        }}
+        onConfirm={handleDeleteAccount}
+        isLoading={deleteLoading}
+        error={deleteError}
+      />
     </main>
   )
 }

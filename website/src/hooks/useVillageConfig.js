@@ -54,6 +54,9 @@ export function useVillageConfig(session) {
             contactEmail: village.contactEmail || session.email,
             contactPhone: village.contactPhone || '',
             municipalityCode: village.municipalityCode || '',
+            postalCode: village.postalCode?.postalCode || '',
+            city: village.postalCode?.city || '',
+            postalCodeId: village.postalCodeId || village.postalCode?.id || null,
           },
           modules: {
             sensors: { enabled: true },
@@ -220,6 +223,7 @@ export function useVillageConfig(session) {
         contactEmail: config.general.contactEmail,
         contactPhone: config.general.contactPhone,
         municipalityCode: config.general.municipalityCode,
+        postalCodeId: config.general.postalCodeId,
       })
 
       // Handle sensors
@@ -284,6 +288,9 @@ export function useVillageConfig(session) {
           contactEmail: village.contactEmail || config.meta.email,
           contactPhone: village.contactPhone || '',
           municipalityCode: village.municipalityCode || '',
+          postalCode: village.postalCode?.postalCode || '',
+          city: village.postalCode?.city || '',
+          postalCodeId: village.postalCodeId || village.postalCode?.id || null,
         },
         sensors: (village.sensors || []).map(sensor => ({
           id: sensor.id,

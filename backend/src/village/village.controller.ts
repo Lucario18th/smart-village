@@ -21,6 +21,7 @@ export class VillageController {
     const village = await this.prisma.village.findUnique({
       where: { id: villageId },
       include: {
+        postalCode: true,
         sensors: {
           include: {
             sensorType: true,
@@ -49,8 +50,18 @@ export class VillageController {
       contactEmail?: string
       contactPhone?: string
       municipalityCode?: string
+      postalCodeId?: number
     },
   ) {
+    if (body.postalCodeId) {
+      const exists = await this.prisma.postalCode.findUnique({
+        where: { id: body.postalCodeId },
+      })
+      if (!exists) {
+        throw new BadRequestException('Ungültige Postleitzahl')
+      }
+    }
+
     const updatedVillage = await this.prisma.village.update({
       where: { id: villageId },
       data: {
@@ -63,8 +74,10 @@ export class VillageController {
         ...(body.contactEmail !== undefined && { contactEmail: body.contactEmail }),
         ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone }),
         ...(body.municipalityCode !== undefined && { municipalityCode: body.municipalityCode }),
+        ...(body.postalCodeId !== undefined && { postalCodeId: body.postalCodeId }),
       },
       include: {
+        postalCode: true,
         sensors: {
           include: {
             sensorType: true,

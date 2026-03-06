@@ -21,7 +21,8 @@ export function useAdminAuth() {
       const friendlyMessageByCode = {
         USER_NOT_FOUND: 'Kein Konto gefunden. Konto jetzt erstellen?',
         INVALID_PASSWORD: 'Passwort ist ungültig.',
-        EMAIL_NOT_VERIFIED: 'Bitte bestätige zuerst deine E-Mail.',
+        EMAIL_NOT_VERIFIED:
+          'Bitte bestätige zuerst deine E-Mail mit dem 6-stelligen Code, den wir dir geschickt haben.',
       }
 
       const errorMsg =

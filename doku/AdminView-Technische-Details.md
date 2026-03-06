@@ -258,6 +258,13 @@ useCallback für Handler
 - updateGeneralField verwendet useCallback
 - updateSensor verwendet useCallback
 - updateModuleEnabled verwendet useCallback
+
+## Konto-Löschung (Admin)
+
+- **UI**: Im Admin-Header gibt es die Aktion „Konto endgültig löschen“. Beim Klick erscheint ein Dialog mit Warnhinweis und Texteingabe. Erst nach Eingabe der Account-E-Mail wird die Schaltfläche aktiv. Nach erfolgreichem Löschen wird abgemeldet.
+- **Endpoint**: `DELETE /api/admin/accounts/:accountId` (204 No Content).
+- **Berechtigung**: Nur mit gültigem JWT und Admin-Rolle (`isAdmin` am Account).
+- **Wird entfernt**: Account, alle zugehörigen Villages, deren Benutzer, Sensoren, Sensor-Status, Sensor-Readings, Messages und RideShares. Die Löschung ist endgültig und kann nicht rückgängig gemacht werden.
 - Verhindert unnoetige Re-renders
 
 useMemo für berechnete Werte

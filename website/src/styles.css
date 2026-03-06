@@ -17,6 +17,23 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .countdown-label{font-weight:600;color:var(--md-sys-color-on-surface-variant)}
 .countdown-value{font-weight:800;font-size:20px;color:var(--md-sys-color-primary)}
 
+.header-actions{display:flex;gap:10px;align-items:center}
+.ghost{background:transparent;border:1px solid var(--md-sys-color-outline);color:var(--md-sys-color-on-surface)}
+.danger{background:#b00020;color:white;border:1px solid #b00020}
+.danger.ghost{color:#b00020;background:transparent;border-color:#b00020}
+
+.autocomplete{position:relative;display:grid;gap:6px}
+.autocomplete-list{position:absolute;z-index:10;left:0;right:0;list-style:none;margin:2px 0 0;padding:6px;border-radius:10px;background:var(--md-sys-color-surface);border:1px solid var(--md-sys-color-outline);box-shadow:0 6px 16px color-mix(in srgb, var(--md-sys-color-shadow) 26%, transparent);max-height:240px;overflow:auto}
+.autocomplete-list li{margin:0}
+.autocomplete-list button{width:100%;text-align:left;padding:8px 10px;border:none;background:transparent;color:var(--md-sys-color-on-surface);cursor:pointer;border-radius:8px}
+.autocomplete-list button:hover{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+
+.modal-backdrop{position:fixed;inset:0;background:color-mix(in srgb, #000 40%, transparent);display:flex;justify-content:center;align-items:center;z-index:50;padding:16px}
+.modal-card{background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);border-radius:12px;box-shadow:0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 32%, transparent);padding:20px;max-width:560px;width:100%;display:grid;gap:12px}
+.modal-card input{width:100%}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px}
+.mono{font-family:monospace}
+
 .admin-page{width:100%;max-width:none;margin:0;padding:20px}
 .admin-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;padding:14px 18px;border-radius:14px;background:var(--md-sys-color-surface-container);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent)}
 .admin-header-content h1{margin:0 0 4px;color:var(--md-sys-color-primary);font-size:clamp(24px,2.6vw,34px);line-height:1.1}
