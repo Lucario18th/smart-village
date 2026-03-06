@@ -77,9 +77,9 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onN
         Technische Datenquellen aktivieren. Sensoren und Messpunkte konfigurierst du im Navigationspunkt „Sensoren“.
       </p>
 
-      {!values ? (
+      {!values && (
         <p className="auth-hint">Moduldaten konnten nicht geladen werden. Standardwerte werden angezeigt.</p>
-      ) : null}
+      )}
 
       <div className="service-grid">
         {modules.map((module) => (

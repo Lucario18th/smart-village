@@ -35,7 +35,7 @@ export default function MapPanel({ general }) {
 
   return (
     <section className="map-panel">
-      <p className="map-panel-hint">
+      <p className="map-panel-hint" id="map-panel-hint">
         OpenStreetMap-Karte der Gemeinde. Mittelpunkt:{' '}
         <strong>{mapLabel}</strong>{' '}
         <span aria-label="Koordinaten">
@@ -48,6 +48,7 @@ export default function MapPanel({ general }) {
         <iframe
           title="Gemeindekarte"
           src={embedUrl}
+          aria-describedby="map-panel-hint"
           style={{ border: 0 }}
           loading="lazy"
           width="100%"
