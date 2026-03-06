@@ -28,8 +28,15 @@ const root = createRoot(container)
 
 document.documentElement.classList.add('light')
 
-// Start mocks before rendering the app (dev mode only)
-initializeMocks().then(() => {
-  root.render(<App />)
-})
+// Start mocks before rendering the app (dev mode only).
+// Ensure the app still renders even if MSW initialization fails.
+initializeMocks()
+  .catch((error) => {
+    // Log MSW initialization errors but do not block app startup.
+    // This is especially important in environments where Service Workers are unsupported.
+    console.error('Failed to initialize mock service worker:', error)
+  })
+  .finally(() => {
+    root.render(<App />)
+  })
 
