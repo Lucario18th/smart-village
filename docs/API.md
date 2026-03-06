@@ -67,6 +67,7 @@ Neuen User registrieren.
 {
   "email": "user@example.de",
   "password": "SecurePassword123!",
+  "postalCodeId": 1234,
   "villageName": "My Village",
   "locationName": "Main Street"
 }
@@ -77,7 +78,20 @@ Neuen User registrieren.
 {
   "id": 1,
   "email": "user@example.de",
-  "createdAt": "2026-03-03T14:50:00.000Z"
+  "createdAt": "2026-03-03T14:50:00.000Z",
+  "villages": [
+    {
+      "id": 42,
+      "name": "My Village",
+      "postalCode": {
+        "id": 1234,
+        "postalCode": "10115",
+        "city": "Berlin",
+        "lat": 52.532,
+        "lng": 13.3849
+      }
+    }
+  ]
 }
 ```
 

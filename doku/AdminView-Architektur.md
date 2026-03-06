@@ -6,6 +6,8 @@ Das AdminView ist die Hauptbenutzeroberflaeche fuer die Verwaltung von Gemeinded
 
 Neu: Es gibt jetzt einen ersten Tab „Karte“, der eine OpenStreetMap-Karte anzeigt. Die Karte zentriert auf die Koordinaten der hinterlegten Postleitzahl (sofern vorhanden) und faellt sonst auf Lörrach zurück. Der „Module“-Tab ist zusätzlich robust gegen fehlende oder fehlerhafte Backend-Daten und zeigt freundliche Hinweise statt abzustürzen.
 
+Registration nutzt die PLZ/Orts-Autocomplete: Das Frontend sendet nur `postalCodeId` (kein freier Text). Das Backend legt daraufhin das Village an und verknüpft es mit der Postleitzahl; die `villageId` ist eine interne technische ID und wird nur read-only angezeigt. Die Karte im Admin-Tab bestimmt ihr Zentrum aus den Koordinaten der verknüpften Postleitzahl und nutzt Lörrach als Fallback, falls keine Koordinaten vorliegen.
+
 Architektur Diagramm
 
 Frontend Layer (React Components)

@@ -105,7 +105,13 @@ export class AuthService {
           },
         },
       },
-      include: { villages: true },
+      include: {
+        villages: {
+          include: {
+            postalCode: true,
+          },
+        },
+      },
     });
 
     await this.emailService.sendVerificationCodeEmail(

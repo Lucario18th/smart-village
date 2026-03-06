@@ -49,6 +49,7 @@ export default function AdminView({ session, onLogout }) {
     config.general.postalCode && config.general.city
       ? `${config.general.postalCode} ${config.general.city}`
       : 'nicht gesetzt'
+  const villageIdLabel = config.meta?.id ?? '—'
 
   const handleDeleteAccount = async () => {
     if (!session?.sub) return
@@ -71,7 +72,8 @@ export default function AdminView({ session, onLogout }) {
         <div className="admin-header-content">
           <h1>Smart Village Admin</h1>
           <p>
-            Angemeldet als: {userEmail} · Gemeinde: {villageName} · Ort: {villageLocation}
+            Angemeldet als: {userEmail} · Gemeinde: {villageName} · Ort: {villageLocation} ·
+            Village-ID (intern, read-only): {villageIdLabel}
           </p>
         </div>
         <div className="header-actions">
