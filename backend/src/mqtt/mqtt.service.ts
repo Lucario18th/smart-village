@@ -361,7 +361,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     if (Array.isArray(sensors)) {
       const deviceInternalId = deviceRecord.id;
       const sensorsWithId = sensors.filter(
-        (sensor) => sensor.sensorId !== null && sensor.sensorId !== undefined,
+        (sensor) =>
+          typeof sensor.sensorId === "number" && Number.isFinite(sensor.sensorId),
       );
       const sensorsWithoutId = sensors.filter(
         (sensor) => sensor.sensorId === null || sensor.sensorId === undefined,
@@ -383,7 +384,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       }
 
       for (const sensor of sensorsWithId) {
-        const sensorId = sensor.sensorId ?? null;
+        const sensorId = sensor.sensorId as number;
         const baseData = {
           villageId: village.id,
           sensorTypeId: sensor.sensorTypeId,
@@ -394,13 +395,11 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
           longitude: sensor.longitude ?? null,
         };
 
-        if (sensorId !== null && Number.isFinite(sensorId)) {
-          await this.prisma.sensor.upsert({
-            where: { id: sensorId as number },
-            create: { id: sensorId as number, ...baseData },
-            update: baseData,
-          });
-        }
+        await this.prisma.sensor.upsert({
+          where: { id: sensorId },
+          create: { id: sensorId, ...baseData },
+          update: baseData,
+        });
       }
 
       for (const sensor of sensorsWithoutId) {
