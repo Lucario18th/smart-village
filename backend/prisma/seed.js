@@ -13,6 +13,7 @@ async function seedSensorTypes() {
     { name: "Solar Radiation", unit: "W/m²", description: "Solarstrahlung" },
     { name: "Soil Moisture", unit: "%", description: "Bodenfeuchte" },
     { name: "CO2", unit: "ppm", description: "Kohlendioxid-Konzentration" },
+    { name: "Mitfahrbank", unit: "Personen", description: "Anzahl wartender Personen an der Mitfahrbank" },
   ];
 
   await prisma.sensorType.deleteMany();
