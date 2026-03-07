@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AdminNavigation from './admin/AdminNavigation'
 import AdminSectionPanel from './admin/AdminSectionPanel'
 import { ADMIN_SECTIONS } from '../config/adminSections'
@@ -10,6 +10,9 @@ export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
   const [selectedModule, setSelectedModule] = useState(null)
   const [isGeneralEditing, setIsGeneralEditing] = useState(false)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const headerRef = useRef(null)
+  const [mobileHeaderHeight, setMobileHeaderHeight] = useState(0)
   const {
     config,
     getSummaryForSection,
@@ -33,7 +36,13 @@ export default function AdminView({ session, onLogout }) {
   const handleNavigateToSensors = (moduleId) => {
     setSelectedModule(moduleId)
     setActiveSectionId('sensors')
+    setIsMobileSidebarOpen(false)
   }
+
+  const handleSectionChange = useCallback((sectionId) => {
+    setActiveSectionId(sectionId)
+    setIsMobileSidebarOpen(false)
+  }, [])
 
   const handleGeneralEditingChange = useCallback((isEditing) => {
     setIsGeneralEditing(isEditing)
@@ -44,6 +53,19 @@ export default function AdminView({ session, onLogout }) {
       setIsGeneralEditing(false)
     }
   }, [activeSectionId])
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const nextHeight = Math.round(headerRef.current?.getBoundingClientRect().height || 0)
+      setMobileHeaderHeight(nextHeight)
+    }
+
+    updateHeaderHeight()
+    window.addEventListener('resize', updateHeaderHeight)
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight)
+    }
+  }, [])
 
   const activeSection = useMemo(() => {
     return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
@@ -73,16 +95,50 @@ export default function AdminView({ session, onLogout }) {
 
   return (
     <main className="admin-page">
-      <header className="admin-header">
+      <header ref={headerRef} className="admin-header">
         <div className="admin-header-content">
-          <h1>Smart Village Admin</h1>
+          <div className="admin-header-title-row">
+            <h1>
+              <button
+                type="button"
+                className="admin-home-button"
+                onClick={() => {
+                  setActiveSectionId('map')
+                  setIsMobileSidebarOpen(false)
+                }}
+                aria-label="Zum Start-Tab wechseln"
+              >
+                Smart Village Admin
+              </button>
+            </h1>
+            <button
+              type="button"
+              className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}
+              aria-label={isMobileSidebarOpen ? 'Navigation schließen' : 'Navigation öffnen'}
+              aria-expanded={isMobileSidebarOpen}
+              aria-controls="admin-sidebar"
+              onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
+            >
+              <span className="admin-sidebar-toggle-line" />
+              <span className="admin-sidebar-toggle-line" />
+              <span className="admin-sidebar-toggle-line" />
+            </button>
+          </div>
           <p className="admin-header-user">
             Angemeldet als <strong>{userEmail}</strong>
           </p>
         </div>
       </header>
 
-      <div className="admin-layout">
+      <div className="admin-layout" style={{ '--mobile-header-height': `${mobileHeaderHeight}px` }}>
+        {isMobileSidebarOpen ? (
+          <button
+            type="button"
+            className="admin-sidebar-backdrop"
+            aria-label="Navigation schließen"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        ) : null}
         {toast && (
           <div className="toast-notification" role="alert">
             <span>{toast.message}</span>
@@ -91,11 +147,11 @@ export default function AdminView({ session, onLogout }) {
             </button>
           </div>
         )}
-        <aside className="admin-sidebar">
+        <aside id="admin-sidebar" className={`admin-sidebar${isMobileSidebarOpen ? ' is-open' : ''}`}>
           <AdminNavigation
             sections={ADMIN_SECTIONS}
             activeSectionId={activeSection.id}
-            onChange={setActiveSectionId}
+            onChange={handleSectionChange}
           />
           <div className="admin-sidebar-actions">
             <button

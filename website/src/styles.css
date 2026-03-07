@@ -23,29 +23,63 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .danger.ghost{color:#b00020;background:transparent;border-color:#b00020}
 
 .autocomplete{position:relative;display:grid;gap:6px}
+.autocomplete-input-wrap{position:relative}
 .autocomplete-list{position:absolute;z-index:10;left:0;right:0;list-style:none;margin:2px 0 0;padding:6px;border-radius:10px;background:var(--md-sys-color-surface);border:1px solid var(--md-sys-color-outline);box-shadow:0 6px 16px color-mix(in srgb, var(--md-sys-color-shadow) 26%, transparent);max-height:240px;overflow:auto}
 .autocomplete-list li{margin:0}
 .autocomplete-list button{width:100%;text-align:left;padding:8px 10px;border:none;background:transparent;color:var(--md-sys-color-on-surface);cursor:pointer;border-radius:8px}
 .autocomplete-list button:hover{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.autocomplete-status{padding:8px 10px;color:var(--md-sys-color-on-surface-variant);font-size:13px;font-weight:600}
+.autocomplete-input-error{border-color:var(--md-sys-color-error)!important;box-shadow:0 0 0 1px color-mix(in srgb, var(--md-sys-color-error) 35%, transparent)}
+.autocomplete-error-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);pointer-events:auto;cursor:help}
 
 .modal-backdrop{position:fixed;inset:0;background:color-mix(in srgb, #000 40%, transparent);display:flex;justify-content:center;align-items:center;z-index:50;padding:16px}
 .modal-card{background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);border-radius:12px;box-shadow:0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 32%, transparent);padding:20px;max-width:560px;width:100%;display:grid;gap:12px}
 .modal-card input{width:100%}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px}
 .mono{font-family:monospace}
+.delete-account-dialog{max-width:580px;gap:14px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent)}
+.delete-account-dialog h2{margin:0;font-size:24px;line-height:1.15;color:var(--md-sys-color-error)}
+.delete-account-lead{margin:0;color:var(--md-sys-color-on-surface)}
+.delete-account-warning{padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-error) 40%, transparent);background:color-mix(in srgb, var(--md-sys-color-error-container) 62%, transparent);color:var(--md-sys-color-on-error-container);font-size:14px;line-height:1.4}
+.delete-account-help{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.delete-account-input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 58%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);color:var(--md-sys-color-on-surface);font:inherit;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.delete-account-input::placeholder{color:color-mix(in srgb, var(--md-sys-color-on-surface-variant) 78%, transparent)}
+.delete-account-input:focus{outline:none;border-color:var(--md-sys-color-primary);box-shadow:0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);background:var(--md-sys-color-surface)}
+.delete-account-input:disabled{opacity:.75;cursor:not-allowed}
+.delete-account-actions{margin-top:6px}
+.delete-account-cancel-button,.delete-account-confirm-button{padding:10px 14px;border-radius:9px;font-weight:700;cursor:pointer;transition:background .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+.delete-account-cancel-button{border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 62%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 80%, transparent);color:var(--md-sys-color-on-surface)}
+.delete-account-cancel-button:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
+.delete-account-confirm-button{border:1px solid color-mix(in srgb, var(--md-sys-color-error) 72%, #000);background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);box-shadow:0 2px 8px color-mix(in srgb, var(--md-sys-color-error) 24%, transparent)}
+.delete-account-confirm-button:hover{transform:translateY(-1px);background:color-mix(in srgb, var(--md-sys-color-error) 88%, #000);border-color:color-mix(in srgb, var(--md-sys-color-error) 88%, #000);box-shadow:0 6px 14px color-mix(in srgb, var(--md-sys-color-error) 30%, transparent)}
+.delete-account-cancel-button:disabled,.delete-account-confirm-button:disabled{opacity:.68;cursor:not-allowed;transform:none;box-shadow:none}
 
 .admin-page{width:100%;max-width:none;margin:0;padding:20px}
-.admin-header{margin-bottom:22px;padding:0 2px 14px;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent)}
+.admin-header{margin-bottom:22px;padding:0 2px 14px;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent);position:relative;z-index:90}
 .admin-header-content{display:grid;grid-template-columns:minmax(0,1fr);row-gap:8px;min-width:0}
+.admin-header-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px}
 .admin-header-content h1{margin:0;color:var(--md-sys-color-primary);font-size:clamp(28px,2.9vw,40px);line-height:1.04;letter-spacing:-0.02em}
+.admin-home-button{border:none;background:transparent;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;line-height:inherit;letter-spacing:inherit}
+.admin-home-button:focus-visible{outline:2px solid color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent);outline-offset:4px;border-radius:4px}
+.admin-sidebar-toggle{display:none;border:none;background:transparent;width:46px;height:46px;align-items:center;justify-content:center;cursor:pointer;padding:0;align-self:center;position:relative}
+.admin-sidebar-toggle-line{position:absolute;display:block;width:22px;height:2.5px;border-radius:3px;background:var(--md-sys-color-on-surface);transition:transform .24s ease,opacity .2s ease,top .24s ease}
+.admin-sidebar-toggle-line:nth-child(1){top:15px}
+.admin-sidebar-toggle-line:nth-child(2){top:22px}
+.admin-sidebar-toggle-line:nth-child(3){top:29px}
+.admin-sidebar-toggle.is-open .admin-sidebar-toggle-line:nth-child(1){top:22px;transform:rotate(45deg)}
+.admin-sidebar-toggle.is-open .admin-sidebar-toggle-line:nth-child(2){opacity:0}
+.admin-sidebar-toggle.is-open .admin-sidebar-toggle-line:nth-child(3){top:22px;transform:rotate(-45deg)}
 .admin-header-user{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:15px;line-height:1.4}
 .admin-header-user strong{color:var(--md-sys-color-on-surface)}
 .logout-button{padding:10px 16px;border-radius:10px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer;transition:background .18s ease,border-color .18s ease}
 .logout-button:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
 
 .admin-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:0;align-items:stretch}
-.admin-sidebar{padding:8px 0 0;display:flex;flex-direction:column;min-height:0}
-.admin-sidebar-actions{margin-top:auto;padding:14px 14px 0 0}
+.admin-sidebar-backdrop{display:none}
+.admin-sidebar{padding:8px 12px 0 0;display:flex;flex-direction:column;min-height:0;position:relative}
+.admin-sidebar::before{display:none}
+.admin-sidebar > *{position:relative;z-index:1}
+.admin-sidebar-actions{margin-top:auto;padding:14px 14px 12px}
 .sidebar-logout-button{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--md-sys-color-primary);background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);font-weight:700;cursor:pointer;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
 .sidebar-logout-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);border-color:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);box-shadow:0 3px 10px color-mix(in srgb, var(--md-sys-color-primary) 32%, transparent)}
 .sidebar-logout-button:disabled{opacity:.7;cursor:not-allowed}
@@ -55,10 +89,14 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-main-content.is-map-home .admin-panel{height:100%;min-height:0;display:grid;grid-template-rows:minmax(0,1fr)}
 .admin-main-content.is-map-home .map-panel{min-height:0}
 
-.admin-nav{display:flex;flex-direction:column;gap:8px;position:sticky;top:20px;padding-right:14px}
-.admin-nav-button{position:relative;text-align:left;width:calc(100% + var(--nav-button-angle-offset));margin-right:calc(-1 * var(--nav-button-angle-offset));padding:12px 40px 12px 14px;border:none;border-radius:0;background:transparent;color:var(--md-sys-color-on-surface-variant);font-weight:700;cursor:pointer;clip-path:polygon(0 0,calc(100% - var(--nav-button-angle-offset)) 0,100% 0,calc(100% - var(--nav-button-angle-offset)) 100%,0 100%);transition:transform .24s ease,color .24s ease,background .24s ease,box-shadow .24s ease}
-.admin-nav-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 55%, transparent);color:var(--md-sys-color-on-surface);transform:translateX(2px)}
-.admin-nav-button.active{color:var(--md-sys-color-on-primary);background:var(--md-sys-color-primary);transform:translateX(0);box-shadow:0 4px 14px color-mix(in srgb, var(--md-sys-color-primary) 35%, transparent)}
+.admin-nav{display:flex;flex-direction:column;gap:8px;position:sticky;top:16px;padding:12px}
+.admin-nav-button{position:relative;text-align:left;width:100%;padding:11px 14px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--md-sys-color-on-surface-variant);font-weight:700;cursor:pointer;transition:transform .2s ease,color .2s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease}
+.admin-nav-button::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:3px;background:transparent;transition:background .2s ease}
+.admin-nav-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 40%, transparent);color:var(--md-sys-color-on-surface);border-color:color-mix(in srgb, var(--md-sys-color-primary) 26%, transparent);transform:translateX(1px)}
+.admin-nav-button.active{color:var(--md-sys-color-on-primary-container);background:color-mix(in srgb, var(--md-sys-color-primary-container) 78%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-primary) 42%, transparent);box-shadow:0 6px 16px color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent)}
+.admin-nav-button.active::before{background:var(--md-sys-color-primary)}
+.admin-nav-button-content{display:flex;align-items:center;gap:9px;justify-content:flex-start}
+.admin-nav-icon{width:16px;height:16px;opacity:.9;flex:0 0 16px}
 
 .admin-panel{color:var(--md-sys-color-on-surface);padding:0}
 .admin-section-header{margin:0 0 18px;padding:0 0 12px;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 38%, transparent)}
@@ -131,10 +169,16 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 
 @media (max-width: 900px){
 	.admin-layout{grid-template-columns:1fr;gap:14px}
-	.admin-sidebar{padding-top:0}
-	.admin-nav{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-right:0}
-	.admin-nav-button{width:100%;margin-right:0;padding:12px 14px;clip-path:none;border-radius:10px;text-align:center}
+	.admin-sidebar-toggle{display:inline-flex}
+	.admin-sidebar{display:none}
+	.admin-sidebar.is-open{display:flex;position:fixed;left:0;right:0;top:var(--mobile-header-height, 0px);width:100vw;height:calc(100dvh - var(--mobile-header-height, 0px));max-width:none;padding:14px 16px 12px;z-index:80;background:var(--md-sys-color-surface);box-shadow:0 14px 32px color-mix(in srgb, var(--md-sys-color-shadow) 36%, transparent)}
+	.admin-sidebar::before{display:none}
+	.admin-sidebar.is-open .admin-nav{position:static;display:flex;flex-direction:column;gap:8px;padding:0}
+	.admin-sidebar.is-open .admin-nav-button{text-align:left}
+	.admin-sidebar.is-open .admin-nav-button::before{display:block}
+	.admin-sidebar.is-open .admin-nav-button-content{justify-content:flex-start}
 	.admin-sidebar-actions{padding:10px 0 0}
+	.admin-sidebar-backdrop{display:block;position:fixed;left:0;right:0;top:var(--mobile-header-height, 0px);bottom:0;z-index:70;border:none;background:color-mix(in srgb, #000 42%, transparent)}
 }
 
 @media (max-width: 640px){

@@ -60,20 +60,35 @@ export default function LocationAutocomplete({
     onSelect?.(null)
   }
 
+  const hasError = !!error && query.length >= 2 && !isLoading
+
   return (
     <div className="autocomplete">
       <label htmlFor="villageSearch">{label}</label>
-      <input
-        id="villageSearch"
-        type="text"
-        value={query}
-        onChange={handleInputChange}
-        placeholder={placeholder}
-        autoComplete="off"
-        disabled={disabled}
-      />
-      {isLoading ? <small className="auth-hint">Lade Vorschläge…</small> : null}
-      {error ? <small className="auth-error">{error}</small> : null}
+      <div className="autocomplete-input-wrap">
+        <input
+          id="villageSearch"
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          placeholder={placeholder}
+          autoComplete="off"
+          disabled={disabled}
+          className={hasError ? 'autocomplete-input-error' : ''}
+          aria-invalid={hasError}
+        />
+        {hasError ? (
+          <span
+            className="autocomplete-error-icon"
+            role="img"
+            aria-label={error}
+            title={error}
+            tabIndex={0}
+          >
+            !
+          </span>
+        ) : null}
+      </div>
 
       {showDropdown && options.length > 0 ? (
         <ul className="autocomplete-list">
@@ -87,8 +102,10 @@ export default function LocationAutocomplete({
         </ul>
       ) : null}
 
-      {showDropdown && !isLoading && options.length === 0 && query.length >= 2 ? (
-        <small className="auth-hint">Keine Ergebnisse</small>
+      {showDropdown && query.length >= 2 && options.length === 0 && !isLoading && !hasError ? (
+        <ul className="autocomplete-list">
+          <li className="autocomplete-status">Keine Ergebnisse</li>
+        </ul>
       ) : null}
     </div>
   )

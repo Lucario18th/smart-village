@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import LocationAutocomplete from '../../LocationAutocomplete'
 
 export default function GeneralSettingsForm({
@@ -11,13 +11,30 @@ export default function GeneralSettingsForm({
   canSave = false,
 }) {
   const [isEditing, setIsEditing] = useState(false)
+  const [locationResetKey, setLocationResetKey] = useState(0)
+  const editSnapshotRef = useRef(null)
 
   const toggleEditing = () => {
-    setIsEditing((current) => {
-      const next = !current
-      onEditingChange?.(next)
-      return next
-    })
+    if (!isEditing) {
+      // Enter edit mode: keep a snapshot so cancel can restore prior values.
+      editSnapshotRef.current = { ...values }
+      setIsEditing(true)
+      onEditingChange?.(true)
+      return
+    }
+
+    // Leave edit mode via cancel: restore snapshot values.
+    if (editSnapshotRef.current) {
+      Object.entries(editSnapshotRef.current).forEach(([field, snapshotValue]) => {
+        onChange(field, snapshotValue)
+      })
+    }
+
+    editSnapshotRef.current = null
+    setIsEditing(false)
+    // Force-reset local autocomplete query state on cancel.
+    setLocationResetKey((current) => current + 1)
+    onEditingChange?.(false)
   }
 
   const isValidPhone = (phone) => {
@@ -88,6 +105,7 @@ export default function GeneralSettingsForm({
         </label>
 
         <LocationAutocomplete
+          key={locationResetKey}
           label="PLZ oder Ort"
           placeholder="z. B. 10115 oder Berlin"
           disabled={!isEditing}

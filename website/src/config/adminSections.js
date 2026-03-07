@@ -1,7 +1,7 @@
 export const ADMIN_SECTIONS = [
   {
     id: 'map',
-    label: 'Start',
+    label: 'Home',
     title: 'Startseite',
     description: 'Gemeindekarte auf Basis von OpenStreetMap.',
   },

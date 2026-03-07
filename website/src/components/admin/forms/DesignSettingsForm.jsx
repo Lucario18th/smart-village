@@ -48,7 +48,7 @@ export default function DesignSettingsForm({
           onClick={onDeleteAccount}
           disabled={isDeleteLoading}
         >
-          Konto endgültig löschen
+          Konto löschen
         </button>
       </section>
     </>
