@@ -22,21 +22,19 @@ export class LocationController {
     const results = await this.prisma.postalCode.findMany({
       where: {
         OR: [
-          { postalCode: { contains: normalized, mode: "insensitive" } },
+          { zipCode: { contains: normalized, mode: "insensitive" } },
           { city: { contains: normalized, mode: "insensitive" } },
         ],
       },
-      orderBy: [{ postalCode: "asc" }, { city: "asc" }],
+      orderBy: [{ zipCode: "asc" }, { city: "asc" }],
       take,
     });
 
     return results.map((entry) => ({
       id: entry.id,
-      postalCode: entry.postalCode,
+      zipCode: entry.zipCode,
       city: entry.city,
       state: entry.state,
-      lat: entry.lat,
-      lng: entry.lng,
     }));
   }
 }

@@ -32,7 +32,7 @@ export default function GeneralSettingsForm({ values, onChange }) {
             values.postalCodeId
               ? {
                   id: values.postalCodeId,
-                  postalCode: values.postalCode,
+                  zipCode: values.zipCode,
                   city: values.city,
                 }
               : null
@@ -40,17 +40,13 @@ export default function GeneralSettingsForm({ values, onChange }) {
           onSelect={(option) => {
             if (!option) {
               onChange('postalCodeId', null)
-              onChange('postalCode', '')
+              onChange('zipCode', '')
               onChange('city', '')
-              onChange('lat', null)
-              onChange('lng', null)
               return
             }
             onChange('postalCodeId', option.id)
-            onChange('postalCode', option.postalCode)
+            onChange('zipCode', option.zipCode)
             onChange('city', option.city)
-            onChange('lat', option.lat ?? null)
-            onChange('lng', option.lng ?? null)
           }}
         />
 

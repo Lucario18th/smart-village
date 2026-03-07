@@ -36,6 +36,8 @@ services:
       - ./smartvillage.env
     ports:
       - "8000:8000"
+    volumes:
+      - ./csv:/app/infra/csv:ro
     networks:
       - smartvillage-net
     healthcheck:
@@ -51,7 +53,7 @@ services:
     env_file:
       - ./smartvillage.env
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - /srv/smartvillage/postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -87,5 +89,4 @@ services:
 networks:
   smartvillage-net:
 
-volumes:
-  postgres-data:
+volumes: {}

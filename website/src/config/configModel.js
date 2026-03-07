@@ -8,11 +8,9 @@ const BASE_CONFIG = {
     contactEmail: '',
     contactPhone: '',
     infoText: '',
-    postalCode: '',
+    zipCode: '',
     city: '',
     postalCodeId: null,
-    lat: null,
-    lng: null,
   },
   devices: [],
   modules: {
@@ -141,8 +139,8 @@ export function getSectionSummary(config, sectionId) {
     return [
       `Ortsname: ${config.general.villageName || 'nicht gesetzt'}`,
       `PLZ/Ort: ${
-        config.general.postalCode && config.general.city
-          ? `${config.general.postalCode} ${config.general.city}`
+        config.general.zipCode && config.general.city
+          ? `${config.general.zipCode} ${config.general.city}`
           : 'nicht gesetzt'
       }`,
       `Gemeinde-ID: ${config.general.municipalityCode || 'nicht gesetzt'}`,
@@ -151,23 +149,14 @@ export function getSectionSummary(config, sectionId) {
   }
 
   if (sectionId === 'map') {
-    const lat =
-      typeof config.general.lat === 'number'
-        ? config.general.lat
-        : Number.parseFloat(config.general.lat)
-    const lng =
-      typeof config.general.lng === 'number'
-        ? config.general.lng
-        : Number.parseFloat(config.general.lng)
-    const hasCoords = Number.isFinite(lat) && Number.isFinite(lng)
     const locationLabel =
-      config.general.postalCode && config.general.city
-        ? `${config.general.postalCode} ${config.general.city}`
+      config.general.zipCode && config.general.city
+        ? `${config.general.zipCode} ${config.general.city}`
         : 'Lörrach (Fallback)'
 
-    const coordsLabel = hasCoords
-      ? `Koordinaten: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
-      : `Koordinaten: ${FALLBACK_LOCATION.lat.toFixed(4)}, ${FALLBACK_LOCATION.lng.toFixed(4)}`
+    const coordsLabel = `Koordinaten: dynamisch über Geokodierung (Fallback: ${FALLBACK_LOCATION.lat.toFixed(
+      4,
+    )}, ${FALLBACK_LOCATION.lng.toFixed(4)})`
 
     return [`Zentrum: ${locationLabel}`, coordsLabel]
   }

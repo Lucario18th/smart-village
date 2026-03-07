@@ -29,24 +29,22 @@ describe('LocationController', () => {
   });
 
   it('should return mapped results', async () => {
-    mockPrisma.postalCode.findMany.mockResolvedValue([
-      { id: 1, postalCode: '10115', city: 'Berlin', state: 'Berlin', lat: 52.5, lng: 13.3 },
-    ]);
+    mockPrisma.postalCode.findMany.mockResolvedValue([{ id: 1, zipCode: '10115', city: 'Berlin', state: 'Berlin' }]);
 
     const result = await controller.search('10115');
 
     expect(mockPrisma.postalCode.findMany).toHaveBeenCalledWith({
       where: {
         OR: [
-          { postalCode: { contains: '10115', mode: 'insensitive' } },
+          { zipCode: { contains: '10115', mode: 'insensitive' } },
           { city: { contains: '10115', mode: 'insensitive' } },
         ],
       },
-      orderBy: [{ postalCode: 'asc' }, { city: 'asc' }],
+      orderBy: [{ zipCode: 'asc' }, { city: 'asc' }],
       take: 15,
     });
     expect(result).toEqual([
-      { id: 1, postalCode: '10115', city: 'Berlin', state: 'Berlin', lat: 52.5, lng: 13.3 },
+      { id: 1, zipCode: '10115', city: 'Berlin', state: 'Berlin' },
     ]);
   });
 });
