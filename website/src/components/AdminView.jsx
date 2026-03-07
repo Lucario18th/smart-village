@@ -47,8 +47,8 @@ export default function AdminView({ session, onLogout }) {
   const userEmail = session?.email || 'Unbekannt'
   const villageName = config.general.villageName || 'nicht gesetzt'
   const villageLocation =
-    config.general.postalCode && config.general.city
-      ? `${config.general.postalCode} ${config.general.city}`
+    config.general.zipCode && config.general.city
+      ? `${config.general.zipCode} ${config.general.city}`
       : 'nicht gesetzt'
   const internalVillageId = config.meta?.id ?? '—'
 

@@ -29,11 +29,9 @@ describe('AuthService', () => {
 
   const mockPostalCode = {
     id: 10,
-    postalCode: '10115',
+    zipCode: '10115',
     city: 'Berlin',
     state: 'Berlin',
-    lat: 52.532,
-    lng: 13.3849,
   };
 
   const mockPrismaService = {
@@ -101,7 +99,7 @@ describe('AuthService', () => {
         email: registerDto.email,
         verificationCode: '999999',
         verificationCodeExpiresAt: new Date(),
-        villages: [{ id: 1, name: registerDto.villageName, postalCode: mockPostalCode }],
+         villages: [{ id: 1, name: registerDto.villageName, postalCode: mockPostalCode }],
       });
 
       const result = await service.register(registerDto);
@@ -122,8 +120,7 @@ describe('AuthService', () => {
         }),
         include: { villages: { include: { postalCode: true } } },
       });
-      expect(result.villages?.[0]?.postalCode?.lat).toBe(mockPostalCode.lat);
-      expect(result.villages?.[0]?.postalCode?.lng).toBe(mockPostalCode.lng);
+      expect(result.villages?.[0]?.postalCode?.zipCode).toBe(mockPostalCode.zipCode);
       expect(emailService.sendVerificationCodeEmail).toHaveBeenCalledWith(
         registerDto.email,
         '999999',

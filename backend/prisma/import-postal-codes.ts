@@ -5,11 +5,9 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 type Row = {
-  postalCode: string;
+  zipCode: string;
   city: string;
   state?: string;
-  lat?: number;
-  lng?: number;
 };
 
 function parseCsv(filePath: string): Row[] {
@@ -20,19 +18,24 @@ function parseCsv(filePath: string): Row[] {
     .filter((line) => line.length > 0);
 
   const rows: Row[] = [];
+  const headerTokens = ["plz", "zipCode", "postalCode"].map((h) => h.toLowerCase());
 
   for (const line of lines) {
-    const [postalCode, city, state, lat, lng] = line.split(";").map((field) => field?.trim() ?? "");
-    if (!postalCode || !city) {
+    const [zipCode, city, state] = line.split(";").map((field) => field?.trim() ?? "");
+
+    // Skip header row like "plz;ort;bundesland"
+    if (headerTokens.includes(zipCode.toLowerCase())) {
+      continue;
+    }
+
+    if (!zipCode || !city) {
       continue;
     }
 
     rows.push({
-      postalCode,
+      zipCode,
       city,
-      state: state || undefined,
-      lat: lat ? Number(lat) : undefined,
-      lng: lng ? Number(lng) : undefined,
+      state: state || "Unbekannt",
     });
   }
 
@@ -50,15 +53,10 @@ async function importPostalCodes(filePath: string) {
   for (const row of rows) {
     await prisma.postalCode.upsert({
       where: {
-        postalCode_city: {
-          postalCode: row.postalCode,
-          city: row.city,
-        },
+        zipCode: row.zipCode,
       },
       update: {
         state: row.state,
-        lat: row.lat,
-        lng: row.lng,
       },
       create: row,
     });
