@@ -44,7 +44,7 @@ model Account {
 }
 
 model Village {
-  id               Int        @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   accountId        Int
   postalCodeId     Int?
   name             String
@@ -68,13 +68,17 @@ model Village {
 }
 
 model PostalCode {
-  id       Int       @id @default(autoincrement())
-  zipCode  String    @unique
-  city     String
-  state    String
+  id      Int    @id @default(autoincrement())
+  zipCode String @unique
+  city    String
+  state   String
+  lat     Float?
+  lng     Float?
 
   villages Village[]
 }
+
+
 
 model User {
   id           Int       @id @default(autoincrement())

@@ -1,34 +1,7 @@
-const { PrismaClient, UserRole } = require("@prisma/client");
-const { existsSync, readFileSync } = require("fs");
-const path = require("path");
+const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
-
-function parseCsv(filePath) {
-  const absolutePath = path.resolve(filePath);
-  if (!existsSync(absolutePath)) {
-    throw new Error(`CSV file not found at ${absolutePath}`);
-  }
-  const raw = readFileSync(absolutePath, "utf-8");
-  const lines = raw
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-  if (lines.length === 0) return [];
-
-  const [headerLine, ...rows] = lines;
-  const headers = headerLine.split(";").map((h) => h.trim());
-
-  return rows.map((line) => {
-    const values = line.split(";").map((value) => value.trim());
-    const record = {};
-    headers.forEach((key, index) => {
-      record[key] = values[index] ?? "";
-    });
-    return record;
-  });
-}
 
 async function seedSensorTypes() {
   const sensorTypes = [
@@ -42,142 +15,116 @@ async function seedSensorTypes() {
     { name: "CO2", unit: "ppm", description: "Kohlendioxid-Konzentration" },
   ];
 
-  for (const sensorType of sensorTypes) {
-    await prisma.sensorType.upsert({
-      where: { name: sensorType.name },
-      update: {},
-      create: sensorType,
-    });
-  }
+  await prisma.sensorType.deleteMany();
+  await prisma.sensorType.createMany({ data: sensorTypes });
 
   console.log("✅ Seeded sensor types");
 }
 
 async function seedPostalCodes() {
-  const csvPath = path.join(__dirname, "filtered_data.csv");
-  const records = parseCsv(csvPath);
-  let count = 0;
+  const postalCodes = [
+    // Freiburg
+    { zipCode: "79098", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 47.9959, lng: 7.8522 },
+    { zipCode: "79100", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 47.9640, lng: 7.8570 },
+    { zipCode: "79102", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 47.9910, lng: 7.8670 },
+    { zipCode: "79104", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 48.0060, lng: 7.8780 },
+    { zipCode: "79106", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 48.0070, lng: 7.8370 },
+    { zipCode: "79108", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 48.0330, lng: 7.8570 },
+    { zipCode: "79110", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 48.0190, lng: 7.8120 },
+    { zipCode: "79111", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 47.9800, lng: 7.8120 },
+    { zipCode: "79112", city: "Freiburg im Breisgau", state: "Baden-Württemberg", lat: 47.9570, lng: 7.7440 },
 
-  for (const record of records) {
-    const zipCode = record.zipCode || record.plz;
-    const city = record.city || record.ort;
-    const state = record.state || record.bundesland || "Unbekannt";
+    // Neuenburg / Markgräflerland
+    { zipCode: "79379", city: "Müllheim",             state: "Baden-Württemberg", lat: 47.8080, lng: 7.6340 },
+    { zipCode: "79395", city: "Neuenburg am Rhein",   state: "Baden-Württemberg", lat: 47.8150, lng: 7.5650 },
+    { zipCode: "79415", city: "Bad Bellingen",        state: "Baden-Württemberg", lat: 47.7350, lng: 7.5620 },
+    { zipCode: "79423", city: "Heitersheim",          state: "Baden-Württemberg", lat: 47.8750, lng: 7.6530 },
+    { zipCode: "79424", city: "Auggen",               state: "Baden-Württemberg", lat: 47.7850, lng: 7.5820 },
+    { zipCode: "79426", city: "Buggingen",            state: "Baden-Württemberg", lat: 47.8640, lng: 7.6400 },
+    { zipCode: "79427", city: "Eschbach",             state: "Baden-Württemberg", lat: 47.9180, lng: 7.6400 },
 
-    if (!zipCode || !city) continue;
+    // Weil / Rheinfelden / Grenzregion
+    { zipCode: "79539", city: "Lörrach",              state: "Baden-Württemberg", lat: 47.6090, lng: 7.6646 },
+    { zipCode: "79540", city: "Lörrach",              state: "Baden-Württemberg", lat: 47.6110, lng: 7.6820 },
+    { zipCode: "79541", city: "Lörrach",              state: "Baden-Württemberg", lat: 47.5880, lng: 7.6870 },
+    { zipCode: "79576", city: "Weil am Rhein",        state: "Baden-Württemberg", lat: 47.5900, lng: 7.6100 },
+    { zipCode: "79585", city: "Steinen",              state: "Baden-Württemberg", lat: 47.6460, lng: 7.7400 },
+    { zipCode: "79618", city: "Rheinfelden (Baden)",  state: "Baden-Württemberg", lat: 47.5580, lng: 7.7860 },
 
-    await prisma.postalCode.upsert({
-      where: { zipCode },
-      create: { zipCode, city, state },
-      update: { city, state },
-    });
+    // Schwarzwaldnähe / Umgebung
+    { zipCode: "79219", city: "Staufen im Breisgau",  state: "Baden-Württemberg", lat: 47.8750, lng: 7.7320 },
+    { zipCode: "79224", city: "Umkirch",              state: "Baden-Württemberg", lat: 48.0220, lng: 7.7630 },
+    { zipCode: "79227", city: "Schallstadt",          state: "Baden-Württemberg", lat: 47.9580, lng: 7.7490 },
+    { zipCode: "79232", city: "March",                state: "Baden-Württemberg", lat: 48.0500, lng: 7.8000 },
+    { zipCode: "79241", city: "Ihringen",             state: "Baden-Württemberg", lat: 48.0470, lng: 7.6400 },
+  ];
 
-    count += 1;
-  }
+  await prisma.village.deleteMany(); // FK auf PostalCode
+  await prisma.postalCode.deleteMany();
+  await prisma.postalCode.createMany({ data: postalCodes });
 
-  console.log(`✅ Seeded/updated ${count} postal codes`);
+  console.log("✅ Seeded postal codes with geo coords:", postalCodes.length);
 }
 
-async function ensureSeedVillage(zipCode, city, state) {
-  const postal = await prisma.postalCode.findUnique({ where: { zipCode } });
-  if (!postal) {
-    throw new Error(`Postal code ${zipCode} not found for city ${city}`);
-  }
+async function seedTestAccounts() {
+  const freiburg = await prisma.postalCode.findUnique({
+    where: { zipCode: "79098" },
+  });
+  const loerrach = await prisma.postalCode.findUnique({
+    where: { zipCode: "79539" },
+  });
 
-  const seedEmail = `${zipCode}-${city}@smart-village.local`.toLowerCase();
   const passwordHash = await bcrypt.hash("test1234", 10);
 
-  const account = await prisma.account.upsert({
-    where: { email: seedEmail },
-    update: {},
-    create: {
-      email: seedEmail,
+  await prisma.village.deleteMany();
+  await prisma.account.deleteMany();
+
+  const freiburgAccount = await prisma.account.create({
+    data: {
+      email: "freiburg@smart-village.local",
       passwordHash,
-      emailVerified: true,
       isAdmin: true,
-      verificationCode: null,
-      verificationCodeExpiresAt: null,
+      emailVerified: true,
       villages: {
         create: {
-          name: city,
-          locationName: `${zipCode} ${city}`,
-          postalCodeId: postal.id,
-          phone: "",
-          infoText: "",
-          contactEmail: seedEmail,
-          contactPhone: "",
-          municipalityCode: `${zipCode}-${city}`,
+          name: "Freiburg im Breisgau",
+          locationName: "79098 Freiburg im Breisgau",
+          municipalityCode: "79098-Freiburg im Breisgau",
+          postalCodeId: freiburg?.id ?? null,
         },
       },
     },
-    include: { villages: true },
   });
 
-  return account.villages[0];
-}
-
-async function seedTestUsers() {
-  const csvPath = path.join(__dirname, "test_users.csv");
-  const records = parseCsv(csvPath);
-  let count = 0;
-
-  for (const record of records) {
-    const email = record.email;
-    const password = record.password || "test1234";
-
-    const roleValue = (record.role || "VIEWER").toUpperCase();
-    const isValidRole = roleValue in UserRole;
-    const safeRole = isValidRole ? UserRole[roleValue] : UserRole.VIEWER;
-
-    if (!isValidRole) {
-      console.warn(
-        `Unknown role '${roleValue}' for user ${email}, defaulting to VIEWER`
-      );
-    }
-
-    const zipCode = record.zipCode || record.postalCode || record.plz;
-    const city = record.city || record.ort || "";
-    const state = record.state || record.bundesland || "Unbekannt";
-    const displayName = record.displayName || city || email;
-
-    if (!email || !zipCode || !city) continue;
-
-    const village = await ensureSeedVillage(zipCode, city, state);
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    await prisma.user.upsert({
-      where: { email },
-      create: {
-        email,
-        passwordHash,
-        displayName,
-        role: safeRole,
-        villageId: village.id,
+  const loerrachAccount = await prisma.account.create({
+    data: {
+      email: "loerrach@smart-village.local",
+      passwordHash,
+      isAdmin: false,
+      emailVerified: true,
+      villages: {
+        create: {
+          name: "Lörrach",
+          locationName: "79539 Lörrach",
+          municipalityCode: "79539-Lörrach",
+          postalCodeId: loerrach?.id ?? null,
+        },
       },
-      update: {
-        displayName,
-        role: safeRole,
-        villageId: village.id,
-        passwordHash,
-      },
-    });
+    },
+  });
 
-    count += 1;
-  }
-
-  console.log(`✅ Seeded/updated ${count} test users`);
+  console.log("✅ Seeded accounts:", freiburgAccount.email, loerrachAccount.email);
 }
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("🌱 Seeding database (with geo postal codes)...");
   await seedSensorTypes();
   await seedPostalCodes();
-  await seedTestUsers();
+  await seedTestAccounts();
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
+  .then(async () => prisma.$disconnect())
   .catch(async (e) => {
     console.error("❌ Seeding failed:", e);
     await prisma.$disconnect();
