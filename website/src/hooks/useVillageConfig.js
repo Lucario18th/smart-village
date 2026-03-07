@@ -16,6 +16,7 @@ const STATUS = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
 }
+// Default set to 5s to satisfy auto-refresh requirement while remaining configurable via env
 const DEFAULT_DISCOVERY_POLL_INTERVAL_MS = 5000
 const DISCOVERY_POLL_INTERVAL_MS =
   Number.parseInt(import.meta.env?.VITE_DISCOVERY_POLL_INTERVAL_MS ?? DEFAULT_DISCOVERY_POLL_INTERVAL_MS, 10) ||
@@ -30,7 +31,7 @@ const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
 const getDeviceDisplayName = (device) =>
   device.name ?? device.deviceId ?? TOAST_MESSAGES.deviceFallback
 const isMitfahrbankSensor = (sensorTypeName) =>
-  typeof sensorTypeName === 'string' && sensorTypeName.toLowerCase().includes('mitfahrbank')
+  typeof sensorTypeName === 'string' && sensorTypeName.trim().toLowerCase() === 'mitfahrbank'
 const mapSensors = (sensorsFromApi) =>
   (sensorsFromApi || []).map((sensor) => {
     const statusValue =
@@ -674,4 +675,7 @@ export const __TESTING__ = {
   mapDevices,
   mergeFetchedVillageData,
   buildDiscoveryToastMessage,
+  isMitfahrbankSensor,
 }
+
+export { isMitfahrbankSensor }

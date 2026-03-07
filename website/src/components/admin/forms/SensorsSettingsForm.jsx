@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { isMitfahrbankSensor } from '../../hooks/useVillageConfig'
 
 function formatCoords(lat, lng) {
   if (lat === '' || lng === '' || lat === null || lng === null || lat === undefined || lng === undefined) {
@@ -157,6 +158,8 @@ function DeviceForm({ device, onSave, onCancel }) {
   )
 }
 
+const WAITING_LABEL = 'Wartende:'
+
 function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onToggleReceiveData }) {
   const sensorType = sensorTypes.find(t => t.id === sensor.sensorTypeId)
   const device = devices.find((d) => d.id === sensor.deviceId)
@@ -164,7 +167,8 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onTog
   const deviceCoords = device ? formatCoords(device.latitude, device.longitude) : null
   const statusColor = getStatusColor(sensor.lastStatus || sensor.status)
   const dimmed = sensor.active === false
-  const isMitfahrbank = sensor.kind === 'mitfahrbank' || (sensorType?.name || '').toLowerCase().includes('mitfahrbank')
+  const isMitfahrbank =
+    sensor.kind === 'mitfahrbank' || isMitfahrbankSensor(sensorType?.name || '')
   const valueToShow = sensor.waitingCount ?? sensor.lastValue
   const valueLabel =
     valueToShow !== null && valueToShow !== undefined
@@ -194,7 +198,7 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onTog
             {sensor.lastStatus || 'OK'}
           </span>
           <span className="sensor-last-value">
-            {isMitfahrbank ? 'Wartende:' : 'Letzter Wert:'} {valueLabel}
+            {isMitfahrbank ? WAITING_LABEL : 'Letzter Wert:'} {valueLabel}
           </span>
           <span className="sensor-last-ts">· {formatTimestamp(sensor.lastTs)}</span>
         </div>
