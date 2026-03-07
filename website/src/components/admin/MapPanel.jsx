@@ -61,7 +61,7 @@ export default function MapPanel({ general }) {
         <span aria-label="Koordinaten">
           ({center.lat.toFixed(4)}, {center.lng.toFixed(4)})
         </span>
-        {isFallback ? ' – Fallback wird genutzt, da Koordinaten dynamisch geokodiert werden.' : ''}
+        {isFallback ? ' – Fallback wird genutzt, weil keine Geodaten gefunden wurden.' : ''}
       </p>
       {error ? <p className="map-panel-error">{error}</p> : null}
 

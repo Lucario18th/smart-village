@@ -150,9 +150,11 @@ async function seedTestUsers() {
     const email = record.email;
     const password = record.password || "test1234";
     const roleValue = (record.role || "VIEWER").toUpperCase() as keyof typeof UserRole;
-    const role = UserRole[roleValue] ?? UserRole.VIEWER;
-    if (!UserRole[roleValue]) {
+    const role = UserRole[roleValue];
+    if (!role) {
       console.warn(`Unknown role '${record.role}' for user ${email}, defaulting to VIEWER`);
+    }
+    const safeRole = role ?? UserRole.VIEWER;
     }
     const zipCode = record.zipCode || record.postalCode || record.plz;
     const city = record.city || record.ort || "";
@@ -172,12 +174,12 @@ async function seedTestUsers() {
         email,
         passwordHash,
         displayName,
-        role,
+        role: safeRole,
         villageId: village.id,
       },
       update: {
         displayName,
-        role,
+        role: safeRole,
         villageId: village.id,
         passwordHash,
       },
