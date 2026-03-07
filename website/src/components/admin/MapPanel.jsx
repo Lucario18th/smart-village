@@ -14,13 +14,11 @@ export default function MapPanel({ general }) {
   const [error, setError] = useState('')
 
   const locationLabel =
-    (general?.zipCode || general?.postalCode) && general?.city
-      ? `${general.zipCode || general.postalCode} ${general.city}`
-      : 'Lörrach (Fallback)'
+    general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : 'Lörrach (Fallback)'
 
   useEffect(() => {
     let cancelled = false
-    const zip = general?.zipCode || general?.postalCode || ''
+    const zip = general?.zipCode || ''
     const city = general?.city || ''
 
     if (!zip && !city) {
@@ -47,7 +45,7 @@ export default function MapPanel({ general }) {
     return () => {
       cancelled = true
     }
-  }, [general?.zipCode, general?.postalCode, general?.city])
+  }, [general?.zipCode, general?.city])
 
   const embedUrl = useMemo(
     () => buildEmbedUrl(center.lat, center.lng),

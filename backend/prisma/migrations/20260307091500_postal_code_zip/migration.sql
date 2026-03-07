@@ -5,7 +5,7 @@ DROP INDEX IF EXISTS "PostalCode_postalCode_city_key";
 ALTER TABLE "PostalCode" RENAME COLUMN "postalCode" TO "zipCode";
 
 -- Ensure state is not null
-UPDATE "PostalCode" SET "state" = COALESCE("state", '');
+UPDATE "PostalCode" SET "state" = COALESCE("state", 'Unbekannt');
 ALTER TABLE "PostalCode" ALTER COLUMN "state" SET NOT NULL;
 
 -- Drop obsolete coordinate columns

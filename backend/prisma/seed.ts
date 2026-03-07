@@ -2,7 +2,6 @@ import { PrismaClient, UserRole } from "@prisma/client";
 import { existsSync, readFileSync } from "fs";
 import path from "path";
 import * as bcrypt from "bcrypt";
-import { existsSync } from "fs";
 
 const prisma = new PrismaClient();
 
