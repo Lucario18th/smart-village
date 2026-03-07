@@ -21,7 +21,13 @@ export default function AdminSectionPanel({
 }) {
   const renderForm = () => {
     if (section.id === 'map') {
-      return <MapPanel general={config.general} />
+      return (
+        <MapPanel
+          general={config.general}
+          sensors={config.sensors || []}
+          devices={config.devices || []}
+        />
+      )
     }
 
     if (section.id === 'general') {
