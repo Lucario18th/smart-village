@@ -10,6 +10,8 @@ export default function LocationAutocomplete({
   onSelect,
   selectedOption = null,
   disabled = false,
+  className = '',
+  labelClassName = '',
 }) {
   const [query, setQuery] = React.useState(selectedOption ? formatOption(selectedOption) : '')
   const [options, setOptions] = React.useState([])
@@ -62,9 +64,12 @@ export default function LocationAutocomplete({
 
   const hasError = !!error && query.length >= 2 && !isLoading
 
+  const rootClassName = className ? `autocomplete ${className}` : 'autocomplete'
+  const resolvedLabelClassName = labelClassName ? labelClassName : undefined
+
   return (
-    <div className="autocomplete">
-      <label htmlFor="villageSearch">{label}</label>
+    <div className={rootClassName}>
+      <label htmlFor="villageSearch" className={resolvedLabelClassName}>{label}</label>
       <div className="autocomplete-input-wrap">
         <input
           id="villageSearch"
@@ -102,11 +107,6 @@ export default function LocationAutocomplete({
         </ul>
       ) : null}
 
-      {showDropdown && query.length >= 2 && options.length === 0 && !isLoading && !hasError ? (
-        <ul className="autocomplete-list">
-          <li className="autocomplete-status">Keine Ergebnisse</li>
-        </ul>
-      ) : null}
     </div>
   )
 }

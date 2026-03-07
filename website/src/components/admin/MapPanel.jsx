@@ -275,17 +275,6 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
 
   return (
     <section className="map-panel">
-      <div className="map-panel-header" id="map-panel-hint">
-        {locationLabel ? (
-          <p>
-            <strong>{locationLabel}</strong>
-          </p>
-        ) : (
-          <span aria-hidden="true" />
-        )}
-      </div>
-      {error ? <p className="map-panel-error">{error}</p> : null}
-
       <div className={`map-layout ${isPanelOpen ? 'map-layout--split' : 'map-layout--single'}`}>
         {isPanelOpen ? (
           <SelectionTree

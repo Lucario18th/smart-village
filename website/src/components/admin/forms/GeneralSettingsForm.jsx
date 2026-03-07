@@ -99,13 +99,15 @@ export default function GeneralSettingsForm({
       </div>
 
       <div className="admin-form-grid general-form-grid">
-        <label>
-          Interne ID
+        <label className="general-outlined-field">
+          <span className="general-field-label">Interne ID</span>
           <input type="text" value={internalVillageId} disabled readOnly />
         </label>
 
         <LocationAutocomplete
           key={locationResetKey}
+          className="general-outlined-field"
+          labelClassName="general-field-label"
           label="PLZ oder Ort"
           placeholder="z. B. 10115 oder Berlin"
           disabled={!isEditing}
@@ -131,8 +133,8 @@ export default function GeneralSettingsForm({
           }}
         />
 
-        <label>
-          Ortsname
+        <label className="general-outlined-field">
+          <span className="general-field-label">Ortsname</span>
           <input
             type="text"
             value={values.villageName}
@@ -142,8 +144,8 @@ export default function GeneralSettingsForm({
           />
         </label>
 
-        <label>
-          Gemeinde-ID
+        <label className="general-outlined-field">
+          <span className="general-field-label">Gemeinde-ID</span>
           <input
             type="text"
             value={values.municipalityCode}
@@ -153,8 +155,8 @@ export default function GeneralSettingsForm({
           />
         </label>
 
-        <label>
-          Kontakt E-Mail
+        <label className="general-outlined-field">
+          <span className="general-field-label">E-Mail</span>
           <input
             type="email"
             value={values.contactEmail}
@@ -164,8 +166,8 @@ export default function GeneralSettingsForm({
           />
         </label>
 
-        <label>
-          Kontakt Telefon
+        <label className="general-outlined-field">
+          <span className="general-field-label">Telefon</span>
           <input
             type="tel"
             value={values.contactPhone}
@@ -182,8 +184,8 @@ export default function GeneralSettingsForm({
           ) : null}
         </label>
 
-        <label className="full-width">
-          Status-Text
+        <label className="full-width general-outlined-field">
+          <span className="general-field-label">Status-Text</span>
           <textarea
             value={values.statusText || ''}
             onChange={(event) => onChange('statusText', event.target.value)}
@@ -193,8 +195,8 @@ export default function GeneralSettingsForm({
           />
         </label>
 
-        <label className="full-width">
-          Info-Text
+        <label className="full-width general-outlined-field">
+          <span className="general-field-label">Info-Text</span>
           <textarea
             value={values.infoText}
             onChange={(event) => onChange('infoText', event.target.value)}

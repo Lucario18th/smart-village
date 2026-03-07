@@ -108,8 +108,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-form-grid input,.admin-form-grid textarea,.admin-form-grid select,.module-controls select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
 .design-hint{margin:0 0 12px;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
 .design-subtitle{margin:0 0 6px;font-size:16px;line-height:1.3;color:var(--md-sys-color-primary);letter-spacing:.01em}
-.general-settings{display:grid;gap:14px}
-.general-form-header{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:6px 0}
+.general-settings{position:relative;display:grid;gap:0}
+.general-form-header{position:absolute;top:0;right:0;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:0;z-index:2}
 .general-form-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .edit-toggle-button,.general-save-button{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s ease}
 .edit-toggle-button svg,.general-save-button svg{width:16px;height:16px;display:block}
@@ -118,12 +118,23 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .general-save-button{border:1px solid var(--md-sys-color-primary);background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary)}
 .general-save-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);border-color:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);box-shadow:0 4px 12px color-mix(in srgb, var(--md-sys-color-primary) 28%, transparent);transform:translateY(-1px)}
 .general-save-button:disabled{opacity:.7;cursor:not-allowed;transform:none;box-shadow:none}
-.general-form-grid{margin:0;gap:14px 16px}
-.general-form-grid label{padding:12px;border-radius:10px;background:var(--md-sys-color-surface-container-low)}
-.general-form-grid .autocomplete{padding:12px;border-radius:10px;background:var(--md-sys-color-surface-container-low);align-content:start}
-.general-form-grid .autocomplete label{padding:0;border-radius:0;background:transparent}
+.general-form-grid{margin:0;gap:14px 16px;padding-top:0}
+.general-form-grid .general-outlined-field{position:relative;display:grid;gap:5px;padding:10px 12px;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 66%, transparent);transition:border-color .2s ease,box-shadow .2s ease}
+.general-form-grid .general-outlined-field:focus-within{border-color:var(--md-sys-color-primary);box-shadow:0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary) 22%, transparent)}
+.general-form-grid .general-field-label{position:absolute;top:-9px;left:10px;padding:0 6px;font-size:12px;line-height:1.2;font-weight:700;color:var(--md-sys-color-primary);background:var(--md-sys-color-surface-container-low);pointer-events:none}
+.general-form-grid .general-outlined-field input,.general-form-grid .general-outlined-field textarea{border:none;background:transparent;padding:4px 2px;border-radius:0;box-shadow:none}
+.general-form-grid .general-outlined-field input:focus,.general-form-grid .general-outlined-field textarea:focus{outline:none}
+.general-form-grid .general-outlined-field textarea{resize:vertical;min-height:90px}
+.general-form-grid .general-outlined-field .field-error{margin-top:2px}
+.general-form-grid .general-outlined-field.autocomplete{align-content:start}
+.general-form-grid .general-outlined-field.autocomplete .autocomplete-input-wrap input{padding-right:30px}
 .input-invalid{border-color:var(--md-sys-color-error)!important}
 .field-error{font-size:12px;color:var(--md-sys-color-error)}
+
+@media (max-width: 1200px){
+	.general-settings{gap:8px}
+	.general-form-header{position:static}
+}
 .module-settings{display:grid;gap:14px;margin-top:6px}
 .module-settings-hint{margin:0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
 .settings-danger-zone{margin-top:12px;padding:12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-error) 35%, transparent);background:color-mix(in srgb, var(--md-sys-color-error-container) 45%, transparent);display:grid;gap:8px;justify-items:start}
@@ -200,27 +211,58 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .sensors-content{display:grid;gap:12px}
 .sensors-content h3{margin:0 0 4px;color:var(--md-sys-color-primary)}
 .sensors-description{margin:0 0 12px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
-.sensors-list{display:grid;gap:10px;margin:12px 0}
-.sensor-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--md-sys-color-surface);border-left:4px solid var(--md-sys-color-tertiary)}
-.sensor-row h4{margin:0 0 4px;color:var(--md-sys-color-primary);font-size:15px}
+.sensors-settings{display:grid;gap:16px;max-width:1120px}
+.settings-header{display:grid;gap:4px}
+.settings-header h2,.settings-header h3{margin:0;color:var(--md-sys-color-primary)}
+.helper-text{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.devices-settings{display:grid;gap:10px}
+.sensors-list{display:grid;gap:12px;margin:0}
+.sensor-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 34%, transparent);border-left:4px solid var(--md-sys-color-tertiary)}
+.sensor-row--inactive{filter:saturate(.82)}
+.sensor-row h4{margin:0 0 6px;color:var(--md-sys-color-primary);font-size:16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sensor-info{margin:0;color:var(--md-sys-color-on-surface);font-size:14px;line-height:1.35}
+.sensor-description{margin:6px 0 0;color:var(--md-sys-color-on-surface-variant);font-size:14px;line-height:1.35}
 .sensor-source{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
-.sensor-actions{display:flex;gap:6px}
-.sensor-action-btn{padding:6px 10px;border:none;border-radius:6px;background:transparent;color:var(--md-sys-color-on-surface-variant);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s}
+.sensor-status{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-height:20px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;line-height:1}
+.sensor-last-value,.sensor-last-ts{font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.sensor-toggle{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 78%, transparent)}
+.sensor-toggle-label{font-size:12px;font-weight:700;color:var(--md-sys-color-on-surface-variant)}
+.sensor-action-btn{padding:7px 12px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--md-sys-color-on-surface-variant);cursor:pointer;font-size:13px;font-weight:700;transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease}
 .sensor-action-btn.edit{color:var(--md-sys-color-primary)}
-.sensor-action-btn.edit:hover{background:var(--md-sys-color-primary-container)}
+.sensor-action-btn.edit:hover{background:var(--md-sys-color-primary-container);border-color:color-mix(in srgb, var(--md-sys-color-primary) 26%, transparent);transform:translateY(-1px)}
+.sensor-edit-button{min-width:108px}
 .sensor-action-btn.delete{color:var(--md-sys-color-error)}
 .sensor-action-btn.delete:hover{background:var(--md-sys-color-error-container)}
-.sensor-form{display:grid;gap:12px;padding:14px;border-radius:10px;background:var(--md-sys-color-surface);border-left:4px solid var(--md-sys-color-secondary)}
+.sensor-form-container{display:grid;gap:10px;padding:14px 16px;border-radius:12px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent)}
+.sensor-form-container h3,.sensor-form-container h4{margin:0;color:var(--md-sys-color-primary)}
+.sensor-form{display:grid;gap:12px;padding:0;border:none;background:transparent}
 .sensor-form .form-group{display:grid;gap:6px}
 .sensor-form .form-group label{font-size:14px;font-weight:600;color:var(--md-sys-color-on-surface)}
-.sensor-form .form-group input,.sensor-form .form-group select{padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;width:100%}
-.sensor-form-actions{display:flex;gap:8px;margin-top:4px}
-.sensor-form-actions button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:600;cursor:pointer;font-size:14px}
-.sensor-form-actions button.primary{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.sensor-form .form-group input,.sensor-form .form-group select,.sensor-form .form-group textarea{padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;width:100%}
+.sensor-form .form-group small{color:var(--md-sys-color-on-surface-variant);font-size:12px;line-height:1.35}
+.coordinate-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:6px}
+.btn-save,.btn-cancel{padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.btn-save{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.btn-save:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);border-color:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);transform:translateY(-1px)}
+.btn-cancel{background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);border-color:var(--md-sys-color-outline)}
+.btn-cancel:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
+.empty-message{margin:0;padding:12px 14px;border-radius:10px;background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface-variant);font-size:14px}
 .add-sensor-btn{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-primary);font-weight:600;cursor:pointer;font-size:14px;margin-top:6px}
 .add-sensor-btn:hover{background:var(--md-sys-color-primary-container)}
 .no-sensors{margin:12px 0;padding:12px;text-align:center;background:var(--md-sys-color-surface);border-radius:8px;color:var(--md-sys-color-on-surface-variant);font-size:14px}
 .sensor-button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer;font-size:13px}
+
+@media (max-width: 900px){
+	.sensors-settings{max-width:none}
+	.sensor-row{grid-template-columns:1fr;align-items:flex-start}
+	.sensor-actions{justify-content:flex-start}
+	.coordinate-inputs{grid-template-columns:1fr}
+	.form-actions{justify-content:stretch}
+	.btn-save,.btn-cancel{flex:1}
+}
 
 .toast-notification{position:fixed;right:18px;bottom:18px;z-index:90;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);box-shadow:0 6px 18px color-mix(in srgb, var(--md-sys-color-shadow) 26%, transparent)}
 .toast-notification button{border:none;background:transparent;color:inherit;font-size:18px;cursor:pointer;font-weight:700}

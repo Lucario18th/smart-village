@@ -65,8 +65,8 @@ function DeviceRow({ device, onEdit }) {
         </p>
       </div>
       <div className="sensor-actions">
-        <button type="button" className="sensor-action-btn edit" onClick={onEdit} title="Bearbeiten">
-          Position bearbeiten
+        <button type="button" className="sensor-action-btn sensor-edit-button" onClick={onEdit} title="Bearbeiten">
+          Position
         </button>
       </div>
     </div>
@@ -213,25 +213,31 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onTog
         </p>
       </div>
       <div className="sensor-actions">
-        <label className="switch-control" title="Sensor aktivieren/deaktivieren">
-          <input
-            type="checkbox"
-            aria-label="Sensor aktivieren oder deaktivieren"
-            checked={sensor.active}
-            onChange={(e) => onToggleActive(e.target.checked)}
-          />
-          <span className="switch-slider" aria-hidden="true" />
-        </label>
-        <label className="switch-control" title="Werte empfangen">
-          <input
-            type="checkbox"
-            aria-label="Werte empfangen umschalten"
-            checked={sensor.receiveData !== false}
-            onChange={(e) => onToggleReceiveData(e.target.checked)}
-          />
-          <span className="switch-slider" aria-hidden="true" />
-        </label>
-        <button type="button" className="sensor-action-btn edit" onClick={onEdit} title="Metadaten bearbeiten">
+        <div className="sensor-toggle" title="Sensor aktivieren/deaktivieren">
+          <span className="sensor-toggle-label">Aktiv</span>
+          <label className="switch-control">
+            <input
+              type="checkbox"
+              aria-label="Sensor aktivieren oder deaktivieren"
+              checked={sensor.active}
+              onChange={(e) => onToggleActive(e.target.checked)}
+            />
+            <span className="switch-slider" aria-hidden="true" />
+          </label>
+        </div>
+        <div className="sensor-toggle" title="Werte empfangen">
+          <span className="sensor-toggle-label">Empfang</span>
+          <label className="switch-control">
+            <input
+              type="checkbox"
+              aria-label="Werte empfangen umschalten"
+              checked={sensor.receiveData !== false}
+              onChange={(e) => onToggleReceiveData(e.target.checked)}
+            />
+            <span className="switch-slider" aria-hidden="true" />
+          </label>
+        </div>
+        <button type="button" className="sensor-action-btn sensor-edit-button" onClick={onEdit} title="Metadaten bearbeiten">
           Bearbeiten
         </button>
       </div>

@@ -243,7 +243,7 @@ export function useVillageConfig(session) {
           },
           design: {
             themeMode: 'light',
-            contrast: 'normal',
+            contrast: 'standard',
             primaryColor: '#3498db',
           },
           sensors: mapSensors(village.sensors),
@@ -253,7 +253,7 @@ export function useVillageConfig(session) {
         setConfig(newConfig)
         setHasUnsavedChanges(false)
         setStorageMessage('Konfiguration vom Server geladen')
-        applyThemeToDOM('light')
+        applyThemeToDOM(getThemeClass(newConfig.design.themeMode, newConfig.design.contrast))
       } catch (error) {
         console.error('Failed to load config from API:', error)
         setStorageMessage(`Fehler beim Laden: ${error.message}`)
@@ -597,6 +597,7 @@ export function useVillageConfig(session) {
       setConfig(newConfig)
       setHasUnsavedChanges(false)
       setStorageMessage('Von Server neu geladen')
+      applyThemeToDOM(getThemeClass(newConfig.design.themeMode, newConfig.design.contrast))
     } catch (error) {
       console.error('Load failed:', error)
       setStorageMessage(`Laden fehlgeschlagen: ${error.message}`)
@@ -611,6 +612,7 @@ export function useVillageConfig(session) {
     setConfig(defaultConfig)
     setHasUnsavedChanges(false)
     setStorageMessage('Auf Standardwerte zurückgesetzt')
+    applyThemeToDOM(getThemeClass(defaultConfig.design.themeMode, defaultConfig.design.contrast))
   }, [session.email])
 
   const getSummaryForSection = useCallback((sectionId) => {

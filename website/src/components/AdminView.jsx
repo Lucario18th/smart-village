@@ -189,7 +189,9 @@ export default function AdminView({ session, onLogout }) {
 
           {activeSection.id !== 'map' &&
           activeSection.id !== 'design' &&
-          activeSection.id !== 'general' ? (
+          activeSection.id !== 'general' &&
+          activeSection.id !== 'statistics' &&
+          activeSection.id !== 'sensors' ? (
             <section className="config-actions" aria-label="Konfiguration">
               <button
                 type="button"

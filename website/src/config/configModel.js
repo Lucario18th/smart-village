@@ -149,20 +149,7 @@ export function getSectionSummary(config, sectionId) {
   }
 
   if (sectionId === 'modules') {
-    const moduleSummaries = [
-      { id: 'sensors', label: 'Sensoren' },
-      { id: 'weather', label: 'Wetter' },
-      { id: 'news', label: 'News' },
-      { id: 'events', label: 'Events' },
-    ]
-
-    return moduleSummaries.map(({ id, label }) => {
-      const moduleState = config.modules?.[id] || {}
-      const enabled = moduleState.enabled ? 'aktiv' : 'inaktiv'
-      const count = Array.isArray(moduleState.sensors) ? moduleState.sensors.length : 0
-      const sensorLabel = count === 1 ? 'Sensor' : 'Sensoren'
-      return `${label}: ${enabled} (${count} ${sensorLabel})`
-    })
+    return []
   }
 
   if (sectionId === 'design') {
