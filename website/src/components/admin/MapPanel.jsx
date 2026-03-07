@@ -35,8 +35,9 @@ export default function MapPanel({ general }) {
         setIsFallback(false)
         setError('')
       })
-      .catch(() => {
+      .catch((err) => {
         if (cancelled) return
+        console.error('Geocoding failed', err)
         setCenter(FALLBACK_LOCATION)
         setIsFallback(true)
         setError('Geokodierung fehlgeschlagen, Fallback wird genutzt.')

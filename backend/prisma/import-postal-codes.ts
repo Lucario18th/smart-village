@@ -23,7 +23,8 @@ function parseCsv(filePath: string): Row[] {
     const [zipCode, city, state] = line.split(";").map((field) => field?.trim() ?? "");
 
     // Skip header row like "plz;ort;bundesland"
-    if (zipCode.toLowerCase() === "plz") {
+    const headerValues = ["plz", "zipcode", "postalcode"];
+    if (headerValues.includes(zipCode.toLowerCase())) {
       continue;
     }
 

@@ -151,6 +151,9 @@ async function seedTestUsers() {
     const password = record.password || "test1234";
     const roleValue = (record.role || "VIEWER").toUpperCase() as keyof typeof UserRole;
     const role = UserRole[roleValue] ?? UserRole.VIEWER;
+    if (!UserRole[roleValue]) {
+      console.warn(`Unknown role '${record.role}' for user ${email}, defaulting to VIEWER`);
+    }
     const zipCode = record.zipCode || record.postalCode || record.plz;
     const city = record.city || record.ort || "";
     const state = record.state || record.bundesland || "Unbekannt";
