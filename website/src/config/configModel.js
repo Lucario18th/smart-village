@@ -7,6 +7,7 @@ const BASE_CONFIG = {
     municipalityCode: '',
     contactEmail: '',
     contactPhone: '',
+    statusText: '',
     infoText: '',
     zipCode: '',
     city: '',
@@ -136,16 +137,7 @@ export function toApiPayload(config) {
 
 export function getSectionSummary(config, sectionId) {
   if (sectionId === 'general') {
-    return [
-      `Ortsname: ${config.general.villageName || 'nicht gesetzt'}`,
-      `PLZ/Ort: ${
-        config.general.zipCode && config.general.city
-          ? `${config.general.zipCode} ${config.general.city}`
-          : 'nicht gesetzt'
-      }`,
-      `Gemeinde-ID: ${config.general.municipalityCode || 'nicht gesetzt'}`,
-      `Kontakt: ${config.general.contactEmail || 'nicht gesetzt'}`,
-    ]
+    return []
   }
 
   if (sectionId === 'map') {

@@ -226,6 +226,7 @@ export function useVillageConfig(session) {
             villageName: village.name || '',
             locationName: village.locationName || '',
             phone: village.phone || '',
+            statusText: village.statusText || '',
             infoText: village.infoText || '',
             contactEmail: village.contactEmail || session.email,
             contactPhone: village.contactPhone || '',

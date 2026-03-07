@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import AdminNavigation from './admin/AdminNavigation'
 import AdminSectionPanel from './admin/AdminSectionPanel'
 import { ADMIN_SECTIONS } from '../config/adminSections'
@@ -9,6 +9,7 @@ import { apiClient } from '../api/client'
 export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
   const [selectedModule, setSelectedModule] = useState(null)
+  const [isGeneralEditing, setIsGeneralEditing] = useState(false)
   const {
     config,
     getSummaryForSection,
@@ -34,6 +35,16 @@ export default function AdminView({ session, onLogout }) {
     setActiveSectionId('sensors')
   }
 
+  const handleGeneralEditingChange = useCallback((isEditing) => {
+    setIsGeneralEditing(isEditing)
+  }, [])
+
+  useEffect(() => {
+    if (activeSectionId !== 'general') {
+      setIsGeneralEditing(false)
+    }
+  }, [activeSectionId])
+
   const activeSection = useMemo(() => {
     return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
   }, [activeSectionId])
@@ -43,11 +54,6 @@ export default function AdminView({ session, onLogout }) {
   }, [activeSection.id, getSummaryForSection])
 
   const userEmail = session?.email || 'Unbekannt'
-  const villageName = config.general.villageName || 'nicht gesetzt'
-  const villageLocation =
-    config.general.zipCode && config.general.city
-      ? `${config.general.zipCode} ${config.general.city}`
-      : 'nicht gesetzt'
   const internalVillageId = config.meta?.id ?? '—'
 
   const handleDeleteAccount = async () => {
@@ -73,11 +79,6 @@ export default function AdminView({ session, onLogout }) {
           <p className="admin-header-user">
             Angemeldet als <strong>{userEmail}</strong>
           </p>
-          <div className="admin-header-meta" aria-label="Gemeindeinformationen">
-            <span className="admin-header-meta-item">Gemeinde: {villageName}</span>
-            <span className="admin-header-meta-item">Ort: {villageLocation}</span>
-            <span className="admin-header-meta-item">ID: {internalVillageId}</span>
-          </div>
         </div>
       </header>
 
@@ -121,18 +122,25 @@ export default function AdminView({ session, onLogout }) {
             onUpdateSensor={updateSensor}
             onUpdateDevice={updateDevice}
             onDesignFieldChange={updateDesignField}
+            internalVillageId={internalVillageId}
+            onGeneralEditingChange={handleGeneralEditingChange}
+            onGeneralSave={saveConfig}
+            isGeneralSaving={isLoading}
+            canGeneralSave={hasUnsavedChanges}
             onDeleteAccount={() => setShowDeleteDialog(true)}
             isDeleteLoading={deleteLoading || isLoading}
           />
 
-          {activeSection.id !== 'map' && activeSection.id !== 'design' ? (
+          {activeSection.id !== 'map' &&
+          activeSection.id !== 'design' &&
+          activeSection.id !== 'general' ? (
             <section className="config-actions" aria-label="Konfiguration">
               <button
                 type="button"
                 onClick={saveConfig}
                 disabled={isLoading || !hasUnsavedChanges}
               >
-                {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
+                {isLoading ? 'Speichern...' : 'Speichern'}
               </button>
             </section>
           ) : null}

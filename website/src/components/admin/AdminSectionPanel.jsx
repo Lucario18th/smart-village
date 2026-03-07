@@ -13,11 +13,16 @@ export default function AdminSectionPanel({
   selectedModule,
   sensorTypes,
   onGeneralFieldChange,
+  onGeneralEditingChange,
+  onGeneralSave,
+  isGeneralSaving,
+  canGeneralSave,
   onModuleEnabledChange,
   onNavigateToSensors,
   onUpdateSensor,
   onUpdateDevice,
   onDesignFieldChange,
+  internalVillageId,
   onDeleteAccount,
   isDeleteLoading,
 }) {
@@ -33,7 +38,17 @@ export default function AdminSectionPanel({
     }
 
     if (section.id === 'general') {
-      return <GeneralSettingsForm values={config.general} onChange={onGeneralFieldChange} />
+      return (
+        <GeneralSettingsForm
+          values={config.general}
+          onChange={onGeneralFieldChange}
+          internalVillageId={internalVillageId}
+          onEditingChange={onGeneralEditingChange}
+          onSave={onGeneralSave}
+          isSaving={isGeneralSaving}
+          canSave={canGeneralSave}
+        />
+      )
     }
 
     if (section.id === 'modules') {
