@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react'
-import { isMitfahrbankSensor } from '../../hooks/useVillageConfig'
+// import { isMitfahrbankSensor } from '../../hooks/useVillageConfig'
+import { isMitfahrbankSensor } from '../../../hooks/useVillageConfig'
+
 
 function formatCoords(lat, lng) {
   if (lat === '' || lng === '' || lat === null || lng === null || lat === undefined || lng === undefined) {

@@ -29,6 +29,12 @@ enum ReadingStatus {
   ERROR
 }
 
+// Herkunft eines Sensors (klassisch vs. AI-Service)
+enum SensorOrigin {
+  HARDWARE    // klassischer physischer Sensor
+  AI_SERVICE  // z.B. Kamera + AI-Personenerkennung
+}
+
 model Account {
   id                        Int       @id @default(autoincrement())
   email                     String    @unique
@@ -78,8 +84,6 @@ model PostalCode {
   villages Village[]
 }
 
-
-
 model User {
   id           Int       @id @default(autoincrement())
   villageId    Int
@@ -113,6 +117,12 @@ model Sensor {
   receiveData  Boolean       @default(true)
   latitude     Float?
   longitude    Float?
+
+  // Herkunft / AI-Metadaten
+  origin       SensorOrigin  @default(HARDWARE)
+  aiProvider   String?
+  aiModelName  String?
+  aiConfigJson Json?
 
   village      Village       @relation(fields: [villageId], references: [id])
   device       Device?       @relation(fields: [deviceId], references: [id])
