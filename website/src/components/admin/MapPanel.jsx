@@ -17,10 +17,14 @@ const buildEmbedUrl = (lat, lng) => {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`
 }
 
-const buildStaticMapUrl = (center, size) =>
-  `https://staticmap.openstreetmap.de/staticmap.php?center=${center.lat},${center.lng}&zoom=${DEFAULT_ZOOM}&size=${Math.round(
-    size.width,
-  )}x${Math.round(size.height)}&maptype=mapnik`
+const STATIC_MAP_MAX_SIZE = 1280
+const clampSize = (value) => Math.min(STATIC_MAP_MAX_SIZE, Math.max(320, Math.round(value)))
+
+const buildStaticMapUrl = (center, size) => {
+  const width = clampSize(size.width)
+  const height = clampSize(size.height)
+  return `https://staticmap.openstreetmap.de/staticmap.php?center=${center.lat},${center.lng}&zoom=${DEFAULT_ZOOM}&size=${width}x${height}&maptype=mapnik`
+}
 
 function Legend() {
   return (
@@ -188,6 +192,8 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   const [mapSize, setMapSize] = useState({ width: 900, height: 520 })
   const mapRef = useRef(null)
   const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const [useEmbedFallback, setUseEmbedFallback] = useState(false)
+  const [embedFailed, setEmbedFailed] = useState(false)
 
   const locationLabel =
     general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : 'Lörrach (Fallback)'
@@ -260,6 +266,18 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   )
   const staticMapUrl = useMemo(() => buildStaticMapUrl(center, mapSize), [center, mapSize])
 
+  useEffect(() => {
+    // If the static map URL changes (new size or center), retry loading the image
+    setUseEmbedFallback(false)
+    setEmbedFailed(false)
+  }, [staticMapUrl])
+
+  useEffect(() => {
+    if (useEmbedFallback) {
+      setEmbedFailed(true)
+    }
+  }, [useEmbedFallback])
+
   const markers = useMemo(
     () => buildMarkers({ sensors, devices, selection, includeControllers: true }),
     [sensors, devices, selection]
@@ -317,31 +335,59 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
           />
         ) : null}
         <div className="map-frame" role="region" aria-label="Gemeindekarte" ref={mapRef}>
-          <img
-            src={staticMapUrl}
-            alt={`OpenStreetMap für ${locationLabel}`}
-            width="100%"
-            height={mapSize.height}
-            style={{ display: 'block', borderRadius: 12 }}
-            loading="lazy"
-          />
-          <div className="map-overlay" style={{ width: mapSize.width, height: mapSize.height }}>
-            {markers.map((marker) => (
-              <Marker
-                key={marker.id}
-                marker={marker}
-                position={positions[marker.id]}
-                onClick={setActivePopupId}
+          {useEmbedFallback ? (
+            <div className="map-embed-wrapper" style={{ height: mapSize.height }}>
+              <iframe
+                title="Gemeindekarte"
+                src={embedUrl}
+                aria-describedby="map-panel-hint"
+                style={{ border: 0, width: '100%', height: '100%' }}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                allowFullScreen
+                onLoad={() => setEmbedFailed(false)}
+                onError={() => setEmbedFailed(true)}
               />
-            ))}
-            {activeMarker && activePosition ? (
-              <MarkerPopup
-                marker={activeMarker}
-                position={activePosition}
-                onClose={() => setActivePopupId(null)}
+              {embedFailed ? (
+                <div className="map-placeholder" aria-live="polite">
+                  <p>Karte konnte nicht geladen werden.</p>
+                  <p>Bitte Verbindung prüfen oder später erneut versuchen.</p>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <>
+              <img
+                src={staticMapUrl}
+                alt={`OpenStreetMap für ${locationLabel}`}
+                width="100%"
+                height={mapSize.height}
+                style={{ display: 'block', borderRadius: 12 }}
+                loading="lazy"
+                onError={() => {
+                  setUseEmbedFallback(true)
+                  setEmbedFailed(true)
+                }}
               />
-            ) : null}
-          </div>
+              <div className="map-overlay" style={{ width: mapSize.width, height: mapSize.height }}>
+                {markers.map((marker) => (
+                  <Marker
+                    key={marker.id}
+                    marker={marker}
+                    position={positions[marker.id]}
+                    onClick={setActivePopupId}
+                  />
+                ))}
+                {activeMarker && activePosition ? (
+                  <MarkerPopup
+                    marker={activeMarker}
+                    position={activePosition}
+                    onClose={() => setActivePopupId(null)}
+                  />
+                ) : null}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

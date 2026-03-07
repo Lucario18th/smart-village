@@ -167,6 +167,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .map-tree-group-label{margin:6px 0 4px;font-weight:700;color:var(--md-sys-color-on-surface-variant);font-size:13px}
 
 .map-frame{position:relative;overflow:hidden;border-radius:12px;background:color-mix(in srgb, var(--md-sys-color-surface) 80%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 45%, transparent)}
+.map-embed-wrapper{position:relative;height:100%;border-radius:12px;overflow:hidden}
+.map-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;gap:6px;background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--md-sys-color-surface) 85%, transparent) 0 12px, color-mix(in srgb, var(--md-sys-color-surface-variant) 18%, transparent) 12px 24px);color:var(--md-sys-color-on-surface-variant);font-weight:700}
 .map-overlay{position:absolute;inset:0}
 .map-marker{position:absolute;width:22px;height:22px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);cursor:pointer;pointer-events:auto;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;box-shadow:0 4px 12px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent);transition:transform .12s ease}
 .map-marker:hover{transform:translate(-50%,-50%) scale(1.06)}
