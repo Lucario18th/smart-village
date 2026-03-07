@@ -148,7 +148,12 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .badge-pending{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);font-size:12px;font-weight:700;letter-spacing:0.3px}
 
 /* Map panel */
-.map-layout{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:16px;align-items:start;margin:12px 0}
+.map-panel-actions{margin:10px 0}
+.map-toggle-button{padding:8px 12px;border-radius:10px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
+.map-toggle-button:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
+.map-layout{display:grid;gap:16px;align-items:start;margin:12px 0}
+.map-layout--split{grid-template-columns:minmax(280px,340px) minmax(520px,1fr)}
+.map-layout--single{grid-template-columns:1fr}
 .map-tree{padding:12px;border-radius:12px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent);display:grid;gap:8px}
 .map-tree h3{margin:0;color:var(--md-sys-color-primary)}
 .map-tree-hint{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:13px}
@@ -180,5 +185,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .legend-dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid color-mix(in srgb, #000 15%, transparent)}
 
 @media (max-width: 900px){
-  .map-layout{grid-template-columns:1fr}
+  .map-panel-actions{display:flex;justify-content:flex-end}
+  .map-layout--split{grid-template-columns:1fr}
+  .map-tree{order:2}
+  .map-frame{order:1}
 }

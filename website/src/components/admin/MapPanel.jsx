@@ -176,6 +176,9 @@ function MarkerPopup({ marker, position, onClose }) {
   )
 }
 
+const isSmallScreen = () =>
+  typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+
 export default function MapPanel({ general, sensors = [], devices = [] }) {
   const [center, setCenter] = useState(FALLBACK_LOCATION)
   const [isFallback, setIsFallback] = useState(true)
@@ -184,6 +187,7 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   const [activePopupId, setActivePopupId] = useState(null)
   const [mapSize, setMapSize] = useState({ width: 900, height: 520 })
   const mapRef = useRef(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
 
   const locationLabel =
     general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : 'Lörrach (Fallback)'
@@ -225,6 +229,17 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   }, [devices, sensors])
 
   useEffect(() => {
+    // Default: show panel on desktop, collapse on small screens
+    if (isSmallScreen()) {
+      setIsPanelOpen(false)
+    }
+
+    const media = typeof window !== 'undefined' ? window.matchMedia('(max-width: 900px)') : null
+    const handleMediaChange = (event) => {
+      setIsPanelOpen(!event.matches)
+    }
+    media?.addEventListener('change', handleMediaChange)
+
     const el = mapRef.current
     if (!el || typeof ResizeObserver === 'undefined') return undefined
     const observer = new ResizeObserver((entries) => {
@@ -233,7 +248,10 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
       setMapSize({ width: nextWidth, height: nextHeight })
     })
     observer.observe(el)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      media?.removeEventListener('change', handleMediaChange)
+    }
   }, [])
 
   const embedUrl = useMemo(
@@ -277,14 +295,27 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
       </p>
       {error ? <p className="map-panel-error">{error}</p> : null}
 
-      <div className="map-layout">
-        <SelectionTree
-          devices={devices}
-          sensors={sensors}
-          selection={selection}
-          onToggleController={handleToggleController}
-          onToggleSensor={handleToggleSensor}
-        />
+      <div className="map-panel-actions">
+        <button
+          type="button"
+          className="map-toggle-button"
+          aria-pressed={isPanelOpen}
+          onClick={() => setIsPanelOpen((prev) => !prev)}
+        >
+          {isPanelOpen ? 'Auswahl ausblenden' : 'Auswahl einblenden'}
+        </button>
+      </div>
+
+      <div className={`map-layout ${isPanelOpen ? 'map-layout--split' : 'map-layout--single'}`}>
+        {isPanelOpen ? (
+          <SelectionTree
+            devices={devices}
+            sensors={sensors}
+            selection={selection}
+            onToggleController={handleToggleController}
+            onToggleSensor={handleToggleSensor}
+          />
+        ) : null}
         <div className="map-frame" role="region" aria-label="Gemeindekarte" ref={mapRef}>
           <img
             src={staticMapUrl}
