@@ -1,34 +1,11 @@
-import { PrismaClient, UserRole } from "@prisma/client";
-import { existsSync, readFileSync } from "fs";
-import path from "path";
-import * as bcrypt from "bcrypt";
+const { PrismaClient, UserRole } = require("@prisma/client");
+const { existsSync, readFileSync } = require("fs");
+const path = require("path");
+const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
-type PostalCodeRow = {
-  zipCode: string;
-  city: string;
-  state: string;
-  plz?: string;
-  ort?: string;
-  bundesland?: string;
-};
-
-type TestUserRow = {
-  email: string;
-  password: string;
-  role?: string;
-  zipCode?: string;
-  postalCode?: string;
-  plz?: string;
-  city?: string;
-  ort?: string;
-  state?: string;
-  bundesland?: string;
-  displayName?: string;
-};
-
-function parseCsv(filePath: string): Record<string, string>[] {
+function parseCsv(filePath) {
   const absolutePath = path.resolve(filePath);
   if (!existsSync(absolutePath)) {
     throw new Error(`CSV file not found at ${absolutePath}`);
@@ -38,17 +15,14 @@ function parseCsv(filePath: string): Record<string, string>[] {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
-
-  if (lines.length === 0) {
-    return [];
-  }
+  if (lines.length === 0) return [];
 
   const [headerLine, ...rows] = lines;
   const headers = headerLine.split(";").map((h) => h.trim());
 
   return rows.map((line) => {
     const values = line.split(";").map((value) => value.trim());
-    const record: Record<string, string> = {};
+    const record = {};
     headers.forEach((key, index) => {
       record[key] = values[index] ?? "";
     });
@@ -80,8 +54,8 @@ async function seedSensorTypes() {
 }
 
 async function seedPostalCodes() {
-  const csvPath = path.join(__dirname, "../../infra/csv/filtered_data.csv");
-  const records = parseCsv(csvPath) as unknown as PostalCodeRow[];
+  const csvPath = path.join(__dirname, "filtered_data.csv");
+  const records = parseCsv(csvPath);
   let count = 0;
 
   for (const record of records) {
@@ -89,35 +63,35 @@ async function seedPostalCodes() {
     const city = record.city || record.ort;
     const state = record.state || record.bundesland || "Unbekannt";
 
-    if (!zipCode || !city) {
-      continue;
-    }
+    if (!zipCode || !city) continue;
 
     await prisma.postalCode.upsert({
       where: { zipCode },
       create: { zipCode, city, state },
       update: { city, state },
     });
+
     count += 1;
   }
 
   console.log(`✅ Seeded/updated ${count} postal codes`);
 }
 
-async function ensureSeedVillage(zipCode: string, city: string, state: string) {
+async function ensureSeedVillage(zipCode, city, state) {
   const postal = await prisma.postalCode.findUnique({ where: { zipCode } });
   if (!postal) {
     throw new Error(`Postal code ${zipCode} not found for city ${city}`);
   }
 
   const seedEmail = `${zipCode}-${city}@smart-village.local`.toLowerCase();
+  const passwordHash = await bcrypt.hash("test1234", 10);
 
   const account = await prisma.account.upsert({
     where: { email: seedEmail },
     update: {},
     create: {
       email: seedEmail,
-      passwordHash: await bcrypt.hash("test1234", 10),
+      passwordHash,
       emailVerified: true,
       isAdmin: true,
       verificationCode: null,
@@ -142,28 +116,30 @@ async function ensureSeedVillage(zipCode: string, city: string, state: string) {
 }
 
 async function seedTestUsers() {
-  const csvPath = path.join(__dirname, "../../infra/csv/test_users.csv");
-  const records = parseCsv(csvPath) as unknown as TestUserRow[];
+  const csvPath = path.join(__dirname, "test_users.csv");
+  const records = parseCsv(csvPath);
   let count = 0;
 
   for (const record of records) {
     const email = record.email;
     const password = record.password || "test1234";
+
     const roleValue = (record.role || "VIEWER").toUpperCase();
     const isValidRole = roleValue in UserRole;
-    const safeRole = isValidRole ? UserRole[roleValue as keyof typeof UserRole] : UserRole.VIEWER;
+    const safeRole = isValidRole ? UserRole[roleValue] : UserRole.VIEWER;
+
     if (!isValidRole) {
-      console.warn(`Unknown role '${roleValue}' for user ${email}, defaulting to VIEWER`);
+      console.warn(
+        `Unknown role '${roleValue}' for user ${email}, defaulting to VIEWER`
+      );
     }
-    }
+
     const zipCode = record.zipCode || record.postalCode || record.plz;
     const city = record.city || record.ort || "";
     const state = record.state || record.bundesland || "Unbekannt";
     const displayName = record.displayName || city || email;
 
-    if (!email || !zipCode || !city) {
-      continue;
-    }
+    if (!email || !zipCode || !city) continue;
 
     const village = await ensureSeedVillage(zipCode, city, state);
     const passwordHash = await bcrypt.hash(password, 10);
@@ -184,6 +160,7 @@ async function seedTestUsers() {
         passwordHash,
       },
     });
+
     count += 1;
   }
 

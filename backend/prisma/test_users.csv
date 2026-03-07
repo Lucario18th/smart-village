@@ -1,0 +1,3 @@
+email;password;role;zipCode;city;state;displayName
+freiburg@smart-village.local;test1234;ADMIN;79098;Freiburg im Breisgau;Baden-Württemberg;Freiburg Admin
+loerrach@smart-village.local;test1234;TECH;79539;Lörrach;Baden-Württemberg;Lörrach Tech
