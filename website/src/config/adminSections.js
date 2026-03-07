@@ -1,8 +1,8 @@
 export const ADMIN_SECTIONS = [
   {
     id: 'map',
-    label: 'Karte',
-    title: 'Karte',
+    label: 'Start',
+    title: 'Startseite',
     description: 'Gemeindekarte auf Basis von OpenStreetMap.',
   },
   {
@@ -31,8 +31,8 @@ export const ADMIN_SECTIONS = [
   },
   {
     id: 'design',
-    label: 'Design',
-    title: 'Design und Theme',
-    description: 'Darstellung der App pro Gemeinde festlegen.',
+    label: 'Einstellungen',
+    title: 'Einstellungen',
+    description: 'Design, Darstellung und Kontoverwaltung der App konfigurieren.',
   },
 ]

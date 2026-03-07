@@ -1,8 +1,14 @@
 import React from 'react'
 
-export default function DesignSettingsForm({ values, onChange }) {
+export default function DesignSettingsForm({
+  values,
+  onChange,
+  onDeleteAccount,
+  isDeleteLoading = false,
+}) {
   return (
     <>
+      <h3 className="design-subtitle">Farbshema</h3>
       <p className="design-hint">Die Änderungen werden sofort angewendet und sind in dieser Ansicht sichtbar.</p>
 
       <div className="admin-form-grid">
@@ -32,6 +38,19 @@ export default function DesignSettingsForm({ values, onChange }) {
           </select>
         </label>
       </div>
+
+      <section className="settings-danger-zone" aria-label="Kontoverwaltung">
+        <h3 className="settings-danger-title">Kontoverwaltung</h3>
+        <p className="settings-danger-hint">Dieser Schritt ist endgültig und kann nicht rückgängig gemacht werden.</p>
+        <button
+          type="button"
+          className="settings-danger-button"
+          onClick={onDeleteAccount}
+          disabled={isDeleteLoading}
+        >
+          Konto endgültig löschen
+        </button>
+      </section>
     </>
   )
 }

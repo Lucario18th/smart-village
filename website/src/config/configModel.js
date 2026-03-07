@@ -149,16 +149,11 @@ export function getSectionSummary(config, sectionId) {
   }
 
   if (sectionId === 'map') {
-    const locationLabel =
-      config.general.zipCode && config.general.city
-        ? `${config.general.zipCode} ${config.general.city}`
-        : 'Lörrach (Fallback)'
+    if (config.general.zipCode && config.general.city) {
+      return [`Zentrum: ${config.general.zipCode} ${config.general.city}`]
+    }
 
-    const coordsLabel = `Koordinaten: dynamisch über Geokodierung (Fallback: ${FALLBACK_LOCATION.lat.toFixed(
-      4,
-    )}, ${FALLBACK_LOCATION.lng.toFixed(4)})`
-
-    return [`Zentrum: ${locationLabel}`, coordsLabel]
+    return []
   }
 
   if (sectionId === 'modules') {
@@ -179,11 +174,7 @@ export function getSectionSummary(config, sectionId) {
   }
 
   if (sectionId === 'design') {
-    return [
-      `Theme: ${config.design.themeMode}`,
-      `Kontrast: ${config.design.contrast}`,
-      `Icon-Set: ${config.design.iconSet}`,
-    ]
+    return []
   }
 
   return []

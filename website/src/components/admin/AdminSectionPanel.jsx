@@ -18,6 +18,8 @@ export default function AdminSectionPanel({
   onUpdateSensor,
   onUpdateDevice,
   onDesignFieldChange,
+  onDeleteAccount,
+  isDeleteLoading,
 }) {
   const renderForm = () => {
     if (section.id === 'map') {
@@ -60,7 +62,14 @@ export default function AdminSectionPanel({
     }
 
     if (section.id === 'design') {
-      return <DesignSettingsForm values={config.design} onChange={onDesignFieldChange} />
+      return (
+        <DesignSettingsForm
+          values={config.design}
+          onChange={onDesignFieldChange}
+          onDeleteAccount={onDeleteAccount}
+          isDeleteLoading={isDeleteLoading}
+        />
+      )
     }
 
     return null
@@ -68,18 +77,22 @@ export default function AdminSectionPanel({
 
   return (
     <section className="admin-panel" aria-live="polite">
-      <header className="admin-section-header">
-        <h2>{section.title}</h2>
-        <p>{section.description}</p>
-      </header>
+      {section.id !== 'map' ? (
+        <header className="admin-section-header">
+          <h2>{section.title}</h2>
+          <p>{section.description}</p>
+        </header>
+      ) : null}
 
       {renderForm()}
 
-      <ul className="summary-list">
-        {entries.map((entry) => (
-          <li key={entry}>{entry}</li>
-        ))}
-      </ul>
+      {section.id !== 'map' && entries.length > 0 ? (
+        <ul className="summary-list">
+          {entries.map((entry) => (
+            <li key={entry}>{entry}</li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   )
 }

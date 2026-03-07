@@ -20,8 +20,6 @@ export default function AdminView({ session, onLogout }) {
     hasUnsavedChanges,
     storageMessage,
     saveConfig,
-    loadConfig,
-    resetConfig,
     isLoading,
     sensorTypes,
     toast,
@@ -72,23 +70,14 @@ export default function AdminView({ session, onLogout }) {
       <header className="admin-header">
         <div className="admin-header-content">
           <h1>Smart Village Admin</h1>
-          <p>
-            Angemeldet als: {userEmail} · Gemeinde: {villageName} · Ort: {villageLocation} ·
-            Village-ID (intern, read-only): {internalVillageId}
+          <p className="admin-header-user">
+            Angemeldet als <strong>{userEmail}</strong>
           </p>
-        </div>
-        <div className="header-actions">
-          <button
-            type="button"
-            className="danger ghost"
-            onClick={() => setShowDeleteDialog(true)}
-            disabled={isLoading}
-          >
-            Konto endgültig löschen
-          </button>
-          <button type="button" className="logout-button" onClick={onLogout} disabled={isLoading}>
-            Abmelden
-          </button>
+          <div className="admin-header-meta" aria-label="Gemeindeinformationen">
+            <span className="admin-header-meta-item">Gemeinde: {villageName}</span>
+            <span className="admin-header-meta-item">Ort: {villageLocation}</span>
+            <span className="admin-header-meta-item">ID: {internalVillageId}</span>
+          </div>
         </div>
       </header>
 
@@ -107,9 +96,19 @@ export default function AdminView({ session, onLogout }) {
             activeSectionId={activeSection.id}
             onChange={setActiveSectionId}
           />
+          <div className="admin-sidebar-actions">
+            <button
+              type="button"
+              className="sidebar-logout-button"
+              onClick={onLogout}
+              disabled={isLoading}
+            >
+              Abmelden
+            </button>
+          </div>
         </aside>
 
-        <section className="admin-main-content">
+        <section className={`admin-main-content${activeSection.id === 'map' ? ' is-map-home' : ''}`}>
           <AdminSectionPanel
             section={activeSection}
             entries={sectionEntries}
@@ -122,32 +121,34 @@ export default function AdminView({ session, onLogout }) {
             onUpdateSensor={updateSensor}
             onUpdateDevice={updateDevice}
             onDesignFieldChange={updateDesignField}
+            onDeleteAccount={() => setShowDeleteDialog(true)}
+            isDeleteLoading={deleteLoading || isLoading}
           />
 
-          <section className="config-actions" aria-label="Konfiguration">
-            <button type="button" onClick={loadConfig} disabled={isLoading}>
-              {isLoading ? 'Wird geladen...' : 'Von Server laden'}
-            </button>
-            <button
-              type="button"
-              onClick={saveConfig}
-              disabled={isLoading || !hasUnsavedChanges}
-            >
-              {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
-            </button>
-            <button type="button" onClick={resetConfig} disabled={isLoading}>
-              Zurücksetzen
-            </button>
-          </section>
+          {activeSection.id !== 'map' && activeSection.id !== 'design' ? (
+            <section className="config-actions" aria-label="Konfiguration">
+              <button
+                type="button"
+                onClick={saveConfig}
+                disabled={isLoading || !hasUnsavedChanges}
+              >
+                {isLoading ? 'Wird gespeichert...' : 'Auf Server speichern'}
+              </button>
+            </section>
+          ) : null}
 
-          <p className="storage-status">
-            Status: {storageMessage || '—'} {hasUnsavedChanges ? '· Ungespeicherte Änderungen vorhanden' : ''}
-          </p>
+          {activeSection.id !== 'map' ? (
+            <>
+              <p className="storage-status">
+                Status: {storageMessage || '—'} {hasUnsavedChanges ? '· Ungespeicherte Änderungen vorhanden' : ''}
+              </p>
 
-          <footer className="app-footer">
-            Smart Village Admin · Letzte Änderung:{' '}
-            {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
-          </footer>
+              <footer className="app-footer">
+                Smart Village Admin · Letzte Änderung:{' '}
+                {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
+              </footer>
+            </>
+          ) : null}
         </section>
       </div>
 

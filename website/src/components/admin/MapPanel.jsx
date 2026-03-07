@@ -26,40 +26,12 @@ const buildStaticMapUrl = (center, size) => {
   return `https://staticmap.openstreetmap.de/staticmap.php?center=${center.lat},${center.lng}&zoom=${DEFAULT_ZOOM}&size=${width}x${height}&maptype=mapnik`
 }
 
-function Legend() {
-  return (
-    <div className="map-legend">
-      <h4>Legende</h4>
-      <ul>
-        <li>
-          <span className="legend-dot" style={{ background: '#2e7d32' }} /> Mitfahrbank: 0 Wartende
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#f9a825' }} /> Mitfahrbank: 1–2 Wartende
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#c62828' }} /> Mitfahrbank: 3+
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#42a5f5' }} /> Sensor: niedriger Wert
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#ffb300' }} /> Sensor: mittlerer Wert
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#ef5350' }} /> Sensor: hoher Wert
-        </li>
-      </ul>
-    </div>
-  )
-}
-
 function SelectionTree({ devices, sensors, selection, onToggleController, onToggleSensor }) {
   const orphanSensors = sensors.filter((sensor) => !sensor.deviceId)
 
   return (
     <div className="map-tree" aria-label="Sensor- und Controller-Auswahl">
-      <h3>Sichtbare Elemente</h3>
+      <h3>Sichtbare Sensoren</h3>
       <p className="map-tree-hint">Controller schalten alle untergeordneten Sensoren ein/aus.</p>
       <ul className="map-tree-list">
         {devices.map((device) => {
@@ -180,23 +152,37 @@ function MarkerPopup({ marker, position, onClose }) {
   )
 }
 
-const isSmallScreen = () =>
-  typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+function VisibilityIcon({ visible }) {
+  return visible ? (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M12 5C6.5 5 2 9.5 1 12c1 2.5 5.5 7 11 7s10-4.5 11-7c-1-2.5-5.5-7-11-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"
+      />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M2.7 1.3 1.3 2.7 5 6.4C3.2 7.8 1.8 9.6 1 12c1 2.5 5.5 7 11 7 2.4 0 4.6-.8 6.4-2.1l3 3 1.4-1.4L2.7 1.3ZM12 17c-3.8 0-7-2.8-8.7-5 1-1.6 2.4-3.2 4.2-4.2l1.8 1.8A4 4 0 0 0 14.4 15l2.5 2.5c-1.4.9-3.1 1.5-4.9 1.5Zm10.7-5c-.8 2-2.6 4.3-5.2 5.7l-1.5-1.5A4 4 0 0 0 10 10.3L8.1 8.4A10.8 10.8 0 0 1 12 7c3.8 0 7 2.8 8.7 5Z"
+      />
+    </svg>
+  )
+}
 
 export default function MapPanel({ general, sensors = [], devices = [] }) {
   const [center, setCenter] = useState(FALLBACK_LOCATION)
-  const [isFallback, setIsFallback] = useState(true)
   const [error, setError] = useState('')
   const [selection, setSelection] = useState(() => buildSelectionState(devices, sensors))
   const [activePopupId, setActivePopupId] = useState(null)
-  const [mapSize, setMapSize] = useState({ width: 900, height: 520 })
+  const [mapSize, setMapSize] = useState({ width: 900, height: 420 })
   const mapRef = useRef(null)
-  const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
   const [useEmbedFallback, setUseEmbedFallback] = useState(false)
   const [embedFailed, setEmbedFailed] = useState(false)
 
   const locationLabel =
-    general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : 'Lörrach (Fallback)'
+    general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : ''
 
   useEffect(() => {
     let cancelled = false
@@ -205,7 +191,6 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
 
     if (!zip && !city) {
       setCenter(FALLBACK_LOCATION)
-      setIsFallback(true)
       setError('')
       return
     }
@@ -214,15 +199,13 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
       .then((coords) => {
         if (cancelled) return
         setCenter(coords)
-        setIsFallback(false)
         setError('')
       })
       .catch((err) => {
         if (cancelled) return
         console.error('Geocoding failed', err)
         setCenter(FALLBACK_LOCATION)
-        setIsFallback(true)
-        setError('Geokodierung fehlgeschlagen, Fallback wird genutzt.')
+        setError('Geokodierung fehlgeschlagen, Standardposition wird genutzt.')
       })
 
     return () => {
@@ -235,28 +218,17 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   }, [devices, sensors])
 
   useEffect(() => {
-    // Default: show panel on desktop, collapse on small screens
-    if (isSmallScreen()) {
-      setIsPanelOpen(false)
-    }
-
-    const media = typeof window !== 'undefined' ? window.matchMedia('(max-width: 900px)') : null
-    const handleMediaChange = (event) => {
-      setIsPanelOpen(!event.matches)
-    }
-    media?.addEventListener('change', handleMediaChange)
-
     const el = mapRef.current
     if (!el || typeof ResizeObserver === 'undefined') return undefined
     const observer = new ResizeObserver((entries) => {
       const nextWidth = Math.max(320, Math.round(entries[0].contentRect.width))
-      const nextHeight = Math.max(320, Math.round(nextWidth * 0.62))
+      const availableHeight = Math.max(220, Math.round(entries[0].contentRect.height))
+      const nextHeight = availableHeight
       setMapSize({ width: nextWidth, height: nextHeight })
     })
     observer.observe(el)
     return () => {
       observer.disconnect()
-      media?.removeEventListener('change', handleMediaChange)
     }
   }, [])
 
@@ -303,26 +275,16 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
 
   return (
     <section className="map-panel">
-      <p className="map-panel-hint" id="map-panel-hint">
-        OpenStreetMap-Karte der Gemeinde. Mittelpunkt{' '}
-        <strong>{locationLabel}</strong>{' '}
-        <span aria-label="Koordinaten">
-          ({center.lat.toFixed(4)}, {center.lng.toFixed(4)})
-        </span>
-        {isFallback ? ' – Fallback wird genutzt, weil keine Geodaten gefunden wurden.' : ''}
-      </p>
-      {error ? <p className="map-panel-error">{error}</p> : null}
-
-      <div className="map-panel-actions">
-        <button
-          type="button"
-          className="map-toggle-button"
-          aria-pressed={isPanelOpen}
-          onClick={() => setIsPanelOpen((prev) => !prev)}
-        >
-          {isPanelOpen ? 'Auswahl ausblenden' : 'Auswahl einblenden'}
-        </button>
+      <div className="map-panel-header" id="map-panel-hint">
+        {locationLabel ? (
+          <p>
+            <strong>{locationLabel}</strong>
+          </p>
+        ) : (
+          <span aria-hidden="true" />
+        )}
       </div>
+      {error ? <p className="map-panel-error">{error}</p> : null}
 
       <div className={`map-layout ${isPanelOpen ? 'map-layout--split' : 'map-layout--single'}`}>
         {isPanelOpen ? (
@@ -388,10 +350,45 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
               </div>
             </>
           )}
+          <button
+            type="button"
+            className="map-toggle-button map-toggle-button--in-map"
+            aria-pressed={isPanelOpen}
+            aria-label={isPanelOpen ? 'Sensor Filter ausblenden' : 'Sensor Filter einblenden'}
+            onClick={() => setIsPanelOpen((prev) => !prev)}
+          >
+            <span className="map-toggle-icon">
+              <VisibilityIcon visible={isPanelOpen} />
+            </span>
+            <span>Sensor Filter</span>
+          </button>
+          <div className="map-ui-layer" aria-hidden="true">
+            <div className="map-legend-overlay" aria-label="Legende">
+              <h4>Legende</h4>
+              <ul>
+                <li>
+                  <span className="legend-dot" style={{ background: '#2e7d32' }} /> Bank 0
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#f9a825' }} /> Bank 1-2
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#c62828' }} /> Bank 3+
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#42a5f5' }} /> Sensor niedrig
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#ffb300' }} /> Sensor mittel
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#ef5350' }} /> Sensor hoch
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
-
-      <Legend />
 
       <p className="map-panel-meta">
         <a
