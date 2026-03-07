@@ -1,10 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { FALLBACK_LOCATION } from '../../config/configModel'
-
-const clampCoordinate = (value) => {
-  const numeric = typeof value === 'number' ? value : Number.parseFloat(value)
-  return Number.isFinite(numeric) ? numeric : null
-}
+import { geocodeCity } from '../../utils/geocoding'
 
 const buildEmbedUrl = (lat, lng) => {
   const delta = 0.03
@@ -13,36 +9,62 @@ const buildEmbedUrl = (lat, lng) => {
 }
 
 export default function MapPanel({ general }) {
-  const { center, isFallback, embedUrl } = useMemo(() => {
-    const lat = clampCoordinate(general?.lat)
-    const lng = clampCoordinate(general?.lng)
+  const [center, setCenter] = useState(FALLBACK_LOCATION)
+  const [isFallback, setIsFallback] = useState(true)
+  const [error, setError] = useState('')
 
-    if (lat !== null && lng !== null) {
-      return { center: { lat, lng }, isFallback: false, embedUrl: buildEmbedUrl(lat, lng) }
-    }
-
-    return {
-      center: FALLBACK_LOCATION,
-      isFallback: true,
-      embedUrl: buildEmbedUrl(FALLBACK_LOCATION.lat, FALLBACK_LOCATION.lng),
-    }
-  }, [general?.lat, general?.lng])
-
-  const mapLabel =
-    general?.postalCode && general?.city
-      ? `${general.postalCode} ${general.city}`
+  const locationLabel =
+    (general?.zipCode || general?.postalCode) && general?.city
+      ? `${general.zipCode || general.postalCode} ${general.city}`
       : 'Lörrach (Fallback)'
+
+  useEffect(() => {
+    let cancelled = false
+    const zip = general?.zipCode || general?.postalCode || ''
+    const city = general?.city || ''
+
+    if (!zip && !city) {
+      setCenter(FALLBACK_LOCATION)
+      setIsFallback(true)
+      setError('')
+      return
+    }
+
+    geocodeCity(zip, city)
+      .then((coords) => {
+        if (cancelled) return
+        setCenter(coords)
+        setIsFallback(false)
+        setError('')
+      })
+      .catch(() => {
+        if (cancelled) return
+        setCenter(FALLBACK_LOCATION)
+        setIsFallback(true)
+        setError('Geokodierung fehlgeschlagen, Fallback wird genutzt.')
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [general?.zipCode, general?.postalCode, general?.city])
+
+  const embedUrl = useMemo(
+    () => buildEmbedUrl(center.lat, center.lng),
+    [center.lat, center.lng]
+  )
 
   return (
     <section className="map-panel">
       <p className="map-panel-hint" id="map-panel-hint">
         OpenStreetMap-Karte der Gemeinde. Mittelpunkt:{' '}
-        <strong>{mapLabel}</strong>{' '}
+        <strong>{locationLabel}</strong>{' '}
         <span aria-label="Koordinaten">
           ({center.lat.toFixed(4)}, {center.lng.toFixed(4)})
         </span>
-        {isFallback ? ' – Fallback wird genutzt, da keine Koordinaten vorliegen.' : ''}
+        {isFallback ? ' – Fallback wird genutzt, da Koordinaten dynamisch geokodiert werden.' : ''}
       </p>
+      {error ? <p className="map-panel-error">{error}</p> : null}
 
       <div className="map-frame" role="region" aria-label="Gemeindekarte">
         <iframe

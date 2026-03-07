@@ -68,16 +68,12 @@ model Village {
 }
 
 model PostalCode {
-  id         Int      @id @default(autoincrement())
-  postalCode String
-  city       String
-  state      String?
-  lat        Float?
-  lng        Float?
+  id       Int      @id @default(autoincrement())
+  zipCode  String   @unique
+  city     String
+  state    String
 
-  villages   Village[]
-
-  @@unique([postalCode, city])
+  villages Village[]
 }
 
 model User {

@@ -9,5 +9,8 @@ done
 echo "Running Prisma migrations (deploy)..."
 npx prisma migrate deploy
 
+echo "Running Prisma seed..."
+npx prisma db seed
+
 echo "Starting NestJS..."
 node dist/main.js

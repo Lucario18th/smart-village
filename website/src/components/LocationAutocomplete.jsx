@@ -2,7 +2,7 @@ import React from 'react'
 import { apiClient } from '../api/client'
 
 const formatOption = (option) =>
-  `${option.postalCode} ${option.city}${option.state ? ` (${option.state})` : ''}`
+  `${option.zipCode} ${option.city}${option.state ? ` (${option.state})` : ''}`
 
 export default function LocationAutocomplete({
   label = 'PLZ oder Ort',

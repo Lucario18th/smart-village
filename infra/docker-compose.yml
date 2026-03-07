@@ -36,6 +36,8 @@ services:
       - ./smartvillage.env
     ports:
       - "8000:8000"
+    volumes:
+      - ./csv:/app/infra/csv:ro
     networks:
       - smartvillage-net
     healthcheck:

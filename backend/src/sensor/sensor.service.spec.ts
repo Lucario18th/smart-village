@@ -26,6 +26,10 @@ describe('SensorService', () => {
     device: {
       findUnique: jest.fn(),
     },
+    sensorReading: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -90,12 +94,20 @@ describe('SensorService', () => {
     it('should return sensors for a village', async () => {
       const villageId = 1;
       const mockSensors = [mockSensor];
+      mockPrismaService.sensorReading.findMany.mockResolvedValue([]);
 
       mockPrismaService.sensor.findMany.mockResolvedValue(mockSensors);
 
       const result = await service.listByVillage(villageId);
 
-      expect(result).toEqual(mockSensors);
+      expect(result).toEqual([
+        expect.objectContaining({
+          ...mockSensor,
+          lastValue: null,
+          lastStatus: null,
+          lastTs: null,
+        }),
+      ]);
       expect(prismaService.sensor.findMany).toHaveBeenCalledWith({
         where: { villageId },
         include: { sensorType: true, status: true, device: true },
@@ -117,10 +129,18 @@ describe('SensorService', () => {
   describe('getById', () => {
     it('should return a sensor by id', async () => {
       mockPrismaService.sensor.findUnique.mockResolvedValue(mockSensor);
+      mockPrismaService.sensorReading.findFirst.mockResolvedValue(null);
 
       const result = await service.getById(1);
 
-      expect(result).toEqual(mockSensor);
+      expect(result).toEqual(
+        expect.objectContaining({
+          ...mockSensor,
+          lastValue: null,
+          lastStatus: null,
+          lastTs: null,
+        }),
+      );
       expect(prismaService.sensor.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
         include: { sensorType: true, village: true, status: true, device: true },

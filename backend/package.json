@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "build": "nest build",
     "start": "nest start",
@@ -40,7 +43,9 @@
     "passport-jwt": "^4.0.1",
     "prisma": "^5.10.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -64,8 +69,6 @@
     "supertest": "^6.3.0",
     "ts-jest": "^29.0.0",
     "ts-loader": "^9.4.0",
-    "ts-node": "^10.9.0",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.0.0"
+    "tsconfig-paths": "^4.2.0"
   }
 }

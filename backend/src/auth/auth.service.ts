@@ -94,8 +94,7 @@ export class AuthService {
           create: {
             name: dto.villageName ?? postalCode.city,
             locationName:
-              dto.locationName ??
-              `${postalCode.postalCode} ${postalCode.city}`,
+              dto.locationName ?? `${postalCode.zipCode} ${postalCode.city}`,
             phone: dto.phone ?? "",
             infoText: dto.infoText ?? "",
             contactEmail: dto.contactEmail ?? dto.email, // Default to email if not provided
