@@ -16,10 +16,13 @@ const STATUS = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
 }
-const DEFAULT_DISCOVERY_POLL_INTERVAL_MS = 10000
+// Default set to 5s to satisfy auto-refresh requirement while remaining configurable via env
+const DEFAULT_DISCOVERY_POLL_INTERVAL_MS = 5000
 const DISCOVERY_POLL_INTERVAL_MS =
   Number.parseInt(import.meta.env?.VITE_DISCOVERY_POLL_INTERVAL_MS ?? DEFAULT_DISCOVERY_POLL_INTERVAL_MS, 10) ||
   DEFAULT_DISCOVERY_POLL_INTERVAL_MS
+const AUTO_REFRESH_ENABLED = (import.meta.env?.VITE_AUTO_REFRESH_ENABLED ?? 'true') !== 'false'
+const TOAST_BUFFER_MS = 1200
 const MAX_TOAST_LENGTH = 160
 const TOAST_DISMISS_MS = 4000
 const truncateToast = (text) =>
@@ -27,12 +30,15 @@ const truncateToast = (text) =>
 const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
 const getDeviceDisplayName = (device) =>
   device.name ?? device.deviceId ?? TOAST_MESSAGES.deviceFallback
+const isMitfahrbankSensor = (sensorTypeName) =>
+  typeof sensorTypeName === 'string' && sensorTypeName.trim().toLowerCase() === 'mitfahrbank'
 const mapSensors = (sensorsFromApi) =>
   (sensorsFromApi || []).map((sensor) => {
     const statusValue =
       sensor.status?.status ||
       sensor.status ||
       (sensor.isActive ? STATUS.ACTIVE : STATUS.INACTIVE)
+    const isMitfahrbank = isMitfahrbankSensor(sensor.sensorType?.name)
     return {
       id: sensor.id,
       name: sensor.name,
@@ -51,6 +57,8 @@ const mapSensors = (sensorsFromApi) =>
       lastStatus: sensor.lastStatus ?? null,
       lastTs: sensor.lastTs ?? null,
       unit: sensor.sensorType?.unit || sensor.lastUnit || '',
+      kind: isMitfahrbank ? 'mitfahrbank' : 'sensor',
+      waitingCount: isMitfahrbank ? sensor.lastValue ?? null : null,
     }
   })
 const mapDevices = (devicesFromApi) =>
@@ -63,6 +71,38 @@ const mapDevices = (devicesFromApi) =>
     discovered: !!device.discovered,
     status: device.status || STATUS.ACTIVE,
   }))
+
+export const buildDiscoveryToastMessage = (newSensors, newDevices) => {
+  const parts = []
+  if (newSensors.length > 0) {
+    const names = newSensors.map((s) => getSensorDisplayName(s)).join(', ')
+    parts.push(`${TOAST_MESSAGES.sensor}${names}`)
+  }
+  if (newDevices.length > 0) {
+    const names = newDevices.map((d) => getDeviceDisplayName(d)).join(', ')
+    parts.push(`${TOAST_MESSAGES.device}${names}`)
+  }
+  if (parts.length === 0) return ''
+  return truncateToast(parts.join(' · '))
+}
+
+export const mergeFetchedVillageData = (prevConfig, fetchedSensors, fetchedDevices) => {
+  const prevSensorIds = new Set((prevConfig.sensors || []).map((s) => s.id))
+  const prevDeviceIds = new Set((prevConfig.devices || []).map((d) => d.id))
+
+  const newSensors = fetchedSensors.filter((s) => !prevSensorIds.has(s.id))
+  const newDevices = fetchedDevices.filter((d) => !prevDeviceIds.has(d.id))
+
+  return {
+    nextConfig: {
+      ...prevConfig,
+      sensors: fetchedSensors,
+      devices: fetchedDevices,
+    },
+    newSensors,
+    newDevices,
+  }
+}
 
 export function useVillageConfig(session) {
   const [config, setConfig] = useState(() => createDefaultVillageConfig('default'))
@@ -78,6 +118,8 @@ export function useVillageConfig(session) {
   const toastTimeoutRef = useRef(null)
   const sensorIdsRef = useRef(new Set())
   const deviceIdsRef = useRef(new Set())
+  const discoveryBufferRef = useRef({ sensors: [], devices: [] })
+  const discoveryToastTimeoutRef = useRef(null)
 
   const toNumberOrNull = (value) => {
     if (value === '' || value === null || value === undefined) return null
@@ -93,10 +135,52 @@ export function useVillageConfig(session) {
     toastTimeoutRef.current = setTimeout(() => setToast(null), TOAST_DISMISS_MS)
   }, [])
 
+  const scheduleDiscoveryToast = useCallback(
+    (newSensors, newDevices) => {
+      if (newSensors.length === 0 && newDevices.length === 0) return
+
+      const current = discoveryBufferRef.current
+      const mergedSensors = [...current.sensors]
+      const mergedDevices = [...current.devices]
+
+      newSensors.forEach((sensor) => {
+        if (!mergedSensors.some((s) => s.id === sensor.id)) {
+          mergedSensors.push(sensor)
+        }
+      })
+      newDevices.forEach((device) => {
+        if (!mergedDevices.some((d) => d.id === device.id)) {
+          mergedDevices.push(device)
+        }
+      })
+
+      discoveryBufferRef.current = { sensors: mergedSensors, devices: mergedDevices }
+
+      if (discoveryToastTimeoutRef.current) {
+        clearTimeout(discoveryToastTimeoutRef.current)
+      }
+      discoveryToastTimeoutRef.current = setTimeout(() => {
+        const message = buildDiscoveryToastMessage(
+          discoveryBufferRef.current.sensors,
+          discoveryBufferRef.current.devices
+        )
+        if (message) {
+          showToast(message)
+        }
+        discoveryBufferRef.current = { sensors: [], devices: [] }
+        discoveryToastTimeoutRef.current = null
+      }, TOAST_BUFFER_MS)
+    },
+    [showToast]
+  )
+
   useEffect(() => {
     return () => {
       if (toastTimeoutRef.current) {
         clearTimeout(toastTimeoutRef.current)
+      }
+      if (discoveryToastTimeoutRef.current) {
+        clearTimeout(discoveryToastTimeoutRef.current)
       }
     }
   }, [])
@@ -534,81 +618,34 @@ export function useVillageConfig(session) {
 
   // Auto-refresh to pick up discovered devices/sensors
   useEffect(() => {
-    if (!villageId || !session?.token) return undefined
-    const interval = setInterval(async () => {
-      // Avoid overwriting local edits while unsaved changes are pending
+    if (!villageId || !session?.token || !AUTO_REFRESH_ENABLED) return undefined
+    const refresh = async () => {
       if (hasUnsavedChanges) return
       try {
         const village = await apiClient.villages.get(villageId)
         const fetchedSensors = mapSensors(village.sensors)
         const fetchedDevices = mapDevices(village.devices)
-        const sensorMap = new Map(fetchedSensors.map((s) => [s.id, s]))
-        const deviceMap = new Map(fetchedDevices.map((d) => [d.id, d]))
-
-        const newSensors = fetchedSensors.filter((s) => !sensorIdsRef.current.has(s.id))
-        const newDevices = fetchedDevices.filter((d) => !deviceIdsRef.current.has(d.id))
-
-        if (newSensors.length === 0 && newDevices.length === 0) {
-          return
-        }
 
         setConfig((prev) => {
-          const existingSensorIdsPrev = new Set((prev.sensors || []).map((s) => s.id))
-          const existingDeviceIdsPrev = new Set((prev.devices || []).map((d) => d.id))
-
-          const updatedSensors = (prev.sensors || []).map((sensor) => {
-            const latest = sensorMap.get(sensor.id)
-            if (!latest) return sensor
-            if (latest.status !== sensor.status || latest.discovered !== sensor.discovered) {
-              return { ...sensor, status: latest.status, discovered: latest.discovered }
-            }
-            return sensor
-          })
-
-          const updatedDevices = (prev.devices || []).map((device) => {
-            const latest = deviceMap.get(device.id)
-            if (!latest) return device
-            if (latest.status !== device.status || latest.discovered !== device.discovered) {
-              return { ...device, status: latest.status, discovered: latest.discovered }
-            }
-            return device
-          })
-
-          return {
-            ...prev,
-            sensors: [
-              ...updatedSensors,
-              ...newSensors.filter((s) => !existingSensorIdsPrev.has(s.id)),
-            ],
-            devices: [
-              ...updatedDevices,
-              ...newDevices.filter((d) => !existingDeviceIdsPrev.has(d.id)),
-            ],
+          const { nextConfig, newSensors, newDevices } = mergeFetchedVillageData(
+            prev,
+            fetchedSensors,
+            fetchedDevices
+          )
+          if (newSensors.length > 0 || newDevices.length > 0) {
+            scheduleDiscoveryToast(newSensors, newDevices)
           }
+          return nextConfig
         })
-
-        const toastParts = []
-        if (newSensors.length > 0) {
-          const names = newSensors.map((s) => getSensorDisplayName(s)).join(', ')
-          toastParts.push(`${TOAST_MESSAGES.sensor}${names}`)
-        }
-        if (newDevices.length > 0) {
-          const names = newDevices
-            .map((d) => getDeviceDisplayName(d))
-            .join(', ')
-          toastParts.push(`${TOAST_MESSAGES.device}${names}`)
-        }
-        if (toastParts.length > 0) {
-          const combined = toastParts.join(' · ')
-          showToast(truncateToast(combined))
-        }
       } catch (err) {
         console.error('Auto-refresh failed while syncing discovered items', err)
       }
-    }, DISCOVERY_POLL_INTERVAL_MS)
+    }
 
+    refresh()
+    const interval = setInterval(refresh, DISCOVERY_POLL_INTERVAL_MS)
     return () => clearInterval(interval)
-  }, [villageId, hasUnsavedChanges, session?.token, showToast])
+  }, [villageId, hasUnsavedChanges, session?.token, scheduleDiscoveryToast])
 
   return {
     config,
@@ -632,3 +669,13 @@ export function useVillageConfig(session) {
     dismissToast: () => setToast(null),
   }
 }
+
+export const __TESTING__ = {
+  mapSensors,
+  mapDevices,
+  mergeFetchedVillageData,
+  buildDiscoveryToastMessage,
+  isMitfahrbankSensor,
+}
+
+export { isMitfahrbankSensor }

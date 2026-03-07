@@ -24,7 +24,10 @@ const MQTT_URL = process.env.MQTT_URL || "mqtt://localhost:1883";
 const ACCOUNT_ID = process.env.ACCOUNT_ID || "1";
 const VILLAGE_ID = Number.parseInt(process.env.VILLAGE_ID || "1", 10);
 
-// optional: mehrere Devices pro Prozess
+// Szenario-Steuerung: 1 = nur Gateways, 2 = Gateways + Mitfahrbänke
+const SCENARIO = Number.parseInt(process.env.SCENARIO || "1", 10);
+
+// optional: mehrere Gateways pro Prozess
 const DEVICE_COUNT = Number.parseInt(process.env.DEVICE_COUNT || "1", 10);
 
 const DISCOVERY_INTERVAL_MS =
@@ -33,8 +36,17 @@ const DISCOVERY_INTERVAL_MS =
 const PUBLISH_INTERVAL_MS =
   Number.parseInt(process.env.PUBLISH_INTERVAL_MS || "5000", 10) || 5_000;
 
-// Hilfsfunktion: baut ein Device mit allen Sensorarten
-function buildDevice(index: number): DeviceDefinition {
+// Mitfahrbank-Konfiguration
+// ACHTUNG: Diese ID muss zum SensorType "Mitfahrbank" in deiner Datenbank passen.
+const MITFAHRBANK_SENSOR_TYPE_ID = 9;
+// Basis-Koordinaten (z.B. Buggingen, kannst du je Dorf anpassen)
+const MITFAHRBANK_BASE_LAT = 47.8640;
+const MITFAHRBANK_BASE_LNG = 7.6400;
+// Anzahl Mitfahrbänke im Szenario 2
+const MITFAHRBANK_COUNT = Number.parseInt(process.env.MITFAHRBANK_COUNT || "3", 10);
+
+// Hilfsfunktion: baut ein Gateway-Device mit allen Standard-Sensorarten
+function buildGatewayDevice(index: number): DeviceDefinition {
   // leichte Offsets pro Device, damit die Marker nicht exakt übereinander liegen
   const baseLat = 47.9959;
   const baseLng = 7.8522;
@@ -47,7 +59,6 @@ function buildDevice(index: number): DeviceDefinition {
     latitude: baseLat + latOffset,
     longitude: baseLng + lngOffset,
     sensors: [
-      // 1: Temperature
       {
         sensorId: index * 1000 + 1,
         sensorTypeId: 1,
@@ -57,7 +68,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 35,
         infoText: "Außentemperatur",
       },
-      // 2: Humidity
       {
         sensorId: index * 1000 + 2,
         sensorTypeId: 2,
@@ -67,7 +77,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 100,
         infoText: "Relative Luftfeuchtigkeit",
       },
-      // 3: Pressure
       {
         sensorId: index * 1000 + 3,
         sensorTypeId: 3,
@@ -77,7 +86,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 1050,
         infoText: "Barometrischer Luftdruck",
       },
-      // 4: Rainfall
       {
         sensorId: index * 1000 + 4,
         sensorTypeId: 4,
@@ -87,7 +95,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 30,
         infoText: "Niederschlagsintensität",
       },
-      // 5: Wind Speed
       {
         sensorId: index * 1000 + 5,
         sensorTypeId: 5,
@@ -97,7 +104,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 20,
         infoText: "Windgeschwindigkeit in Bodennähe",
       },
-      // 6: Solar Radiation
       {
         sensorId: index * 1000 + 6,
         sensorTypeId: 6,
@@ -107,7 +113,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 1200,
         infoText: "Einstrahlung auf horizontaler Fläche",
       },
-      // 7: Soil Moisture
       {
         sensorId: index * 1000 + 7,
         sensorTypeId: 7,
@@ -117,7 +122,6 @@ function buildDevice(index: number): DeviceDefinition {
         max: 80,
         infoText: "Bodenfeuchtigkeit im Grünbereich",
       },
-      // 8: CO2
       {
         sensorId: index * 1000 + 8,
         sensorTypeId: 8,
@@ -131,11 +135,54 @@ function buildDevice(index: number): DeviceDefinition {
   };
 }
 
-// alle Devices für diesen Prozess
-const devices: DeviceDefinition[] = Array.from(
-  { length: DEVICE_COUNT },
-  (_, i) => buildDevice(i + 1),
-);
+// Device für eine Mitfahrbank
+function buildMitfahrbankDevice(index: number): DeviceDefinition {
+  // Device-Index leicht versetzt, damit sich IDs nicht mit Gateways beißen
+  const deviceIndex = index + 100;
+
+  return {
+    deviceId: `gw-v${VILLAGE_ID}-mitfahrbank-${deviceIndex}`,
+    name: `Mitfahrbank ${VILLAGE_ID} #${index}`,
+    latitude: MITFAHRBANK_BASE_LAT + (index - 1) * 0.0015,
+    longitude: MITFAHRBANK_BASE_LNG + (index - 1) * 0.0015,
+    sensors: [
+      {
+        sensorId: deviceIndex * 1000 + 1,
+        sensorTypeId: MITFAHRBANK_SENSOR_TYPE_ID,
+        name: "Mitfahrbank",
+        unit: "Personen",
+        min: 0,
+        max: 5,
+        infoText: "Anzahl wartender Personen an der Mitfahrbank (AI-Erkennung)",
+      },
+    ],
+  };
+}
+
+// Devices je nach Szenario
+let devices: DeviceDefinition[];
+
+if (SCENARIO === 1) {
+  // nur Gateways
+  devices = Array.from({ length: DEVICE_COUNT }, (_, i) =>
+    buildGatewayDevice(i + 1),
+  );
+} else if (SCENARIO === 2) {
+  // Gateways + mehrere Mitfahrbänke
+  const gateways = Array.from({ length: DEVICE_COUNT }, (_, i) =>
+    buildGatewayDevice(i + 1),
+  );
+  const mitfahrbankDevices = Array.from(
+    { length: MITFAHRBANK_COUNT },
+    (_, i) => buildMitfahrbankDevice(i + 1),
+  );
+  devices = [...gateways, ...mitfahrbankDevices];
+} else {
+  // Fallback: wie Szenario 1
+  devices = Array.from({ length: DEVICE_COUNT }, (_, i) =>
+    buildGatewayDevice(i + 1),
+  );
+}
 
 const client = mqtt.connect(MQTT_URL);
 let discoveryInterval: NodeJS.Timeout | null = null;
@@ -143,7 +190,7 @@ let publishInterval: NodeJS.Timeout | null = null;
 
 client.on("connect", () => {
   console.log(
-    `✅ Connected to MQTT broker at ${MQTT_URL} (ACCOUNT_ID=${ACCOUNT_ID}, VILLAGE_ID=${VILLAGE_ID}, DEVICE_COUNT=${DEVICE_COUNT})`,
+    `✅ Connected to MQTT broker at ${MQTT_URL} (ACCOUNT_ID=${ACCOUNT_ID}, VILLAGE_ID=${VILLAGE_ID}, SCENARIO=${SCENARIO}, DEVICE_COUNT=${DEVICE_COUNT}, MITFAHRBANK_COUNT=${SCENARIO === 2 ? MITFAHRBANK_COUNT : 0})`,
   );
   publishDiscovery();
   discoveryInterval = setInterval(publishDiscovery, DISCOVERY_INTERVAL_MS);
@@ -189,6 +236,13 @@ function publishDiscovery() {
 }
 
 function randomValue(sensor: SensorDefinition) {
+  // Für Mitfahrbank: ganze Personen im Bereich [min, max]
+  if (sensor.unit === "Personen") {
+    const min = Math.max(0, Math.round(sensor.min));
+    const max = Math.round(sensor.max);
+    return faker.number.int({ min, max });
+  }
+
   const base = faker.number.float({
     min: sensor.min,
     max: sensor.max,
