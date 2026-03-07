@@ -21,7 +21,7 @@ export function buildSelectionState(devices = [], sensors = [], previous = defau
   const nextControllers = new Set([...prevControllers].filter((id) => deviceIds.has(id)))
   const nextSensors = new Set([...prevSensors].filter((id) => sensorIds.has(id)))
 
-  const defaultSelectControllers = false
+  const defaultSelectControllers = prevControllers.size === 0
   const defaultSelectSensors = prevSensors.size === 0
 
   devices.forEach((device) => {
@@ -33,8 +33,11 @@ export function buildSelectionState(devices = [], sensors = [], previous = defau
 
   sensors.forEach((sensor) => {
     const isKnown = prevSensors.has(sensor.id)
-    const isNew = !isKnown
-    if (isKnown || isNew || defaultSelectSensors || prevControllers.has(sensor.deviceId) || defaultSelectControllers) {
+    if (!isKnown) {
+      nextSensors.add(sensor.id)
+      return
+    }
+    if (defaultSelectSensors || prevControllers.has(sensor.deviceId) || defaultSelectControllers) {
       nextSensors.add(sensor.id)
     }
   })
