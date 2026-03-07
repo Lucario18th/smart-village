@@ -1,5 +1,30 @@
 const cache = new Map()
 const MAX_CACHE_ENTRIES = 100
+const STORAGE_KEY = 'sv_geocode_cache'
+
+function loadCacheFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return
+    const parsed = JSON.parse(raw)
+    Object.entries(parsed).forEach(([key, value]) => {
+      cache.set(key, value)
+    })
+  } catch {
+    // ignore storage issues
+  }
+}
+
+function persistCache() {
+  try {
+    const obj = Object.fromEntries(cache)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj))
+  } catch {
+    // ignore storage issues
+  }
+}
+
+loadCacheFromStorage()
 
 export async function geocodeCity(zipCode, city) {
   const normalizedZip = (zipCode || '').trim()
@@ -19,7 +44,7 @@ export async function geocodeCity(zipCode, city) {
   const response = await fetch(url, {
     headers: {
       'Accept-Language': 'de',
-      'User-Agent': 'smart-village-admin/1.0 (contact: support@smart-village.local)',
+      'User-Agent': 'smart-village-admin/1.0 (contact: contact@smart-village.dev)',
     },
   })
 
@@ -36,6 +61,7 @@ export async function geocodeCity(zipCode, city) {
       const oldestKey = cache.keys().next().value
       cache.delete(oldestKey)
     }
+    persistCache()
     return result
   }
 
