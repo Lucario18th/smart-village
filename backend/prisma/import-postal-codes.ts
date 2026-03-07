@@ -18,13 +18,13 @@ function parseCsv(filePath: string): Row[] {
     .filter((line) => line.length > 0);
 
   const rows: Row[] = [];
+  const headerTokens = ["plz", "zipCode", "postalCode"].map((h) => h.toLowerCase());
 
   for (const line of lines) {
     const [zipCode, city, state] = line.split(";").map((field) => field?.trim() ?? "");
 
     // Skip header row like "plz;ort;bundesland"
-    const headerValues = ["plz", "zipCode", "postalCode"].map((h) => h.toLowerCase());
-    if (headerValues.includes(zipCode.toLowerCase())) {
+    if (headerTokens.includes(zipCode.toLowerCase())) {
       continue;
     }
 

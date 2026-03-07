@@ -152,7 +152,7 @@ async function seedTestUsers() {
     const roleValue = (record.role || "VIEWER").toUpperCase() as keyof typeof UserRole;
     const role = UserRole[roleValue];
     if (!role) {
-      console.warn(`Unknown role '${record.role}' for user ${email}, defaulting to VIEWER`);
+      console.warn(`Unknown role '${roleValue}' for user ${email}, defaulting to VIEWER`);
     }
     const safeRole = role ?? UserRole.VIEWER;
     }

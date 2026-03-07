@@ -1,4 +1,5 @@
 const cache = new Map()
+const MAX_CACHE_ENTRIES = 100
 
 export async function geocodeCity(zipCode, city) {
   const normalizedZip = (zipCode || '').trim()
@@ -18,7 +19,7 @@ export async function geocodeCity(zipCode, city) {
   const response = await fetch(url, {
     headers: {
       'Accept-Language': 'de',
-      'User-Agent': 'smart-village-admin/1.0',
+      'User-Agent': 'smart-village-admin/1.0 (contact: support@smart-village.local)',
     },
   })
 
@@ -31,6 +32,10 @@ export async function geocodeCity(zipCode, city) {
   if (first && first.lat && first.lon) {
     const result = { lat: Number.parseFloat(first.lat), lng: Number.parseFloat(first.lon) }
     cache.set(cacheKey, result)
+    if (cache.size > MAX_CACHE_ENTRIES) {
+      const oldestKey = cache.keys().next().value
+      cache.delete(oldestKey)
+    }
     return result
   }
 

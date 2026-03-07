@@ -36,10 +36,10 @@ describe('LocationController', () => {
     expect(mockPrisma.postalCode.findMany).toHaveBeenCalledWith({
       where: {
         OR: [
-           { zipCode: { contains: '10115', mode: 'insensitive' } },
-           { city: { contains: '10115', mode: 'insensitive' } },
-         ],
-       },
+          { zipCode: { contains: '10115', mode: 'insensitive' } },
+          { city: { contains: '10115', mode: 'insensitive' } },
+        ],
+      },
       orderBy: [{ zipCode: 'asc' }, { city: 'asc' }],
       take: 15,
     });
