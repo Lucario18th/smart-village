@@ -51,6 +51,17 @@ export default function GeneralSettingsForm({
     return `${startsWithPlus ? '+' : ''}${withoutExtraPlus}`
   }
 
+  const handleSave = async () => {
+    try {
+      await onSave?.()
+      editSnapshotRef.current = null
+      setIsEditing(false)
+      onEditingChange?.(false)
+    } catch (error) {
+      // Keep edit mode active when save fails.
+    }
+  }
+
   return (
     <section className="general-settings">
       <div className="general-form-header">
@@ -59,7 +70,7 @@ export default function GeneralSettingsForm({
             <button
               type="button"
               className="general-save-button"
-              onClick={onSave}
+              onClick={handleSave}
               disabled={isSaving || !canSave}
             >
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
