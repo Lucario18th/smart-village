@@ -44,6 +44,12 @@ private fun readZipEntryLines(zip: ZipFile, entryName: String): Sequence<String>
     return zip.getInputStream(entry).bufferedReader(Charsets.UTF_8).lineSequence()
 }
 
+private fun stopMatchesPrefix(stopId: String, prefix: String): Boolean {
+    return stopId == prefix ||
+        stopId.startsWith("$prefix:") ||
+        stopId.startsWith("${prefix}_")
+}
+
 val extractGtfsResources by tasks.registering {
     description = "Generate filtered GTFS resources from bwgesamt.zip for commonMain"
     group = "build"
@@ -57,7 +63,11 @@ val extractGtfsResources by tasks.registering {
         outputDir.mkdirs()
         outputDir.listFiles()?.forEach { if (it.isFile) it.delete() }
 
-        val wantedStationStopIdPrefixes = setOf("de:08336:6600", "de:08336:3603")
+        val wantedStationStopIdPrefixes = setOf(
+            "de:08336:6600",
+            "de:08336:6630",
+            "ch:23005:6"
+        )
 
         ZipFile(gtfsZipFile.asFile).use { zip ->
             val stopsLines = readZipEntryLines(zip, "stops.txt").toList()
@@ -84,7 +94,7 @@ val extractGtfsResources by tasks.registering {
                 .toList()
 
             val selectedStops = parsedStops.filter { stop ->
-                wantedStationStopIdPrefixes.any { prefix -> stop.stopId.startsWith(prefix) }
+                wantedStationStopIdPrefixes.any { prefix -> stopMatchesPrefix(stop.stopId, prefix) }
             }
 
             val selectedStopIds = selectedStops.map { it.stopId }.toMutableSet()

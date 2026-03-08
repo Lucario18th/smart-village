@@ -94,14 +94,26 @@ class TimeTableRepository private constructor(
     fun resolveStopIdsForStation(stationIdOrPrefix: String): List<String> {
         if (stationIdOrPrefix.isBlank()) return emptyList()
 
-        val fromDepartures = departuresByStop.keys.filter { key ->
-            key == stationIdOrPrefix || key.startsWith(stationIdOrPrefix)
-        }
-        val fromStops = stopsById.keys.filter { key ->
-            key == stationIdOrPrefix || key.startsWith(stationIdOrPrefix)
+        val directMatches = (departuresByStop.keys + stopsById.keys)
+            .asSequence()
+            .filter { key -> stopIdMatchesStationKey(key, stationIdOrPrefix) }
+            .toList()
+
+        val parentFallbackMatches = if (directMatches.isEmpty() && stationIdOrPrefix.endsWith("_Parent")) {
+            val parentBasePrefix = stationIdOrPrefix.removeSuffix("_Parent")
+            (departuresByStop.keys + stopsById.keys)
+                .asSequence()
+                .filter { key ->
+                    key == stationIdOrPrefix ||
+                        key.startsWith("$parentBasePrefix:") ||
+                        key.startsWith("${parentBasePrefix}_")
+                }
+                .toList()
+        } else {
+            emptyList()
         }
 
-        return (fromDepartures + fromStops)
+        return (directMatches + parentFallbackMatches)
             .distinct()
             .sorted()
     }
@@ -379,6 +391,12 @@ class TimeTableRepository private constructor(
                 .replace('ü', 'u')
                 .replace('ß', 's')
                 .trim()
+        }
+
+        private fun stopIdMatchesStationKey(stopId: String, stationIdOrPrefix: String): Boolean {
+            return stopId == stationIdOrPrefix ||
+                stopId.startsWith("$stationIdOrPrefix:") ||
+                stopId.startsWith("${stationIdOrPrefix}_")
         }
 
         private fun Map<String, String>.requireFile(name: String): String {

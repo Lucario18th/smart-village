@@ -37,7 +37,7 @@ import de.tif23.studienarbeit.model.usecase.StationDepartureItem
 import de.tif23.studienarbeit.viewmodel.StationDeparturesViewModel
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
-import smartvillageapp.composeapp.generated.resources.settings
+import smartvillageapp.composeapp.generated.resources.train
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +75,7 @@ fun StationDeparturesScreen(
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painter = painterResource(Res.drawable.settings),
+                        painter = painterResource(Res.drawable.train),
                         contentDescription = "Bahnhof",
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -137,7 +137,7 @@ private fun StationDepartureCard(item: StationDepartureItem) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painter = painterResource(Res.drawable.settings),
+                    painter = painterResource(Res.drawable.train),
                     contentDescription = "Abfahrt",
                     tint = MaterialTheme.colorScheme.primary
                 )

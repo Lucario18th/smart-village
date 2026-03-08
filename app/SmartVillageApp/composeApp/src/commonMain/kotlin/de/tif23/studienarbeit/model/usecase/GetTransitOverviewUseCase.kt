@@ -17,9 +17,14 @@ class GetTransitOverviewUseCase(
             distanceLabel = "~0.8km"
         ),
         StationConfig(
-            stopId = "de:08336:3603",
-            displayName = "Lörrach Museum/Burghof",
+            stopId = "de:08336:6630",
+            displayName = "Brombach/Hauingen",
             distanceLabel = "~1.1km"
+        ),
+        StationConfig(
+            stopId = "ch:23005:6",
+            displayName = "Basel Badischer Bahnhof",
+            distanceLabel = "~2.5km"
         )
     )
 
@@ -153,6 +158,6 @@ private fun DepartureResult.toUiDeparture(): TransitDepartureItem {
         line = routeName,
         destination = destination,
         time = departureTime,
-        status = "Planmaessig"
+        status = "planmäßig"
     )
 }
