@@ -60,6 +60,7 @@ Sie enthält Metadaten wie Name, Kontaktdaten und Standort.
 - Hat mehrere Messages (1:n).
 - Hat mehrere RideShares (1:n).
 - Hat optional eine PostalCode-Zuordnung (n:1).
+- Hat optional einen VillageFeatures-Eintrag (1:1).
 
 **Verwendung:** Wird bei der Registrierung automatisch zusammen mit dem Account angelegt. Über das Dashboard können die Metadaten der Gemeinde bearbeitet werden.
 
@@ -78,6 +79,7 @@ Er kann einem Gerät zugeordnet sein oder eigenständig existieren.
 | infoText | String (optional) | Beschreibungstext |
 | isActive | Boolean | Ob der Sensor aktiv ist (Standard: true) |
 | receiveData | Boolean | Ob der Sensor Daten empfangen soll (Standard: true) |
+| exposeToApp | Boolean | Ob Messwerte an die mobile App gesendet werden duerfen (Standard: false) |
 | latitude | Float (optional) | Breitengrad des Standorts |
 | longitude | Float (optional) | Längengrad des Standorts |
 | origin | SensorOrigin | Herkunft des Sensors: HARDWARE oder AI_SERVICE |
@@ -235,6 +237,27 @@ Informationen zu Mitfahrgelegenheiten in einer Gemeinde.
 
 **Anmerkung:** Dieses Modell wird primär von der Mobile API verwendet, die in dieser Dokumentation nicht behandelt wird.
 
+### VillageFeatures (Feature-Flags fuer die App)
+
+Steuert, welche Module in der mobilen App fuer eine Gemeinde aktiviert sind.
+Jede Gemeinde hat hoechstens einen VillageFeatures-Eintrag (1:1-Beziehung).
+
+| Feld | Typ | Beschreibung |
+|------|-----|-------------|
+| id | Int (Auto-Increment) | Primaerschluessel |
+| villageId | Int (unique) | Fremdschluessel auf Village |
+| enableSensorData | Boolean | Sensordaten in der App anzeigen (Standard: true) |
+| enableWeather | Boolean | Wetterdaten in der App anzeigen (Standard: true) |
+| enableMessages | Boolean | Nachrichten in der App anzeigen (Standard: true) |
+| enableEvents | Boolean | Veranstaltungen in der App anzeigen (Standard: false) |
+| enableMap | Boolean | Kartenansicht in der App aktivieren (Standard: true) |
+| enableRideShare | Boolean | Mitfahrbank-Daten in der App anzeigen (Standard: true) |
+| enableTextileContainers | Boolean | Altkleider-Container in der App anzeigen (Standard: false) |
+
+**Beziehungen:** Gehoert zu genau einer Village (1:1).
+
+**Verwendung:** Wird von der App-API ausgelesen, um zu steuern, welche Module in der App sichtbar sind. Siehe [App-API-Dokumentation](../backend/app-api.md).
+
 ## Enums
 
 ### ReadingStatus
@@ -274,6 +297,8 @@ Account (Konto)
                     |              └── 1:n ── Sensor (optional)
                     |
                     ├── n:1 ── PostalCode (optional)
+                    |
+                    ├── 1:1 ── VillageFeatures (optional)
                     |
                     ├── 1:n ── User
                     ├── 1:n ── Message

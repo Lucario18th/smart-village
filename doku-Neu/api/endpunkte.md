@@ -6,6 +6,9 @@ Diese Referenz listet alle REST-API-Endpunkte des Smart-Village-Backends auf.
 Alle Endpunkte sind unter dem Prefix `/api` erreichbar.
 Die Base-URL ist `https://localhost:8000` (direkt) oder `https://localhost/api` (über Nginx).
 
+Die neue App-API fuer die mobile App ist unter dem Prefix `/app` erreichbar (ohne `/api`).
+Eine ausfuehrliche Beschreibung der App-API befindet sich in der [App-API-Dokumentation](../backend/app-api.md).
+
 Die Mobile API (`/mobile-api/`) ist in dieser Referenz nicht enthalten, da sie außerhalb des Geltungsbereichs liegt.
 
 ## Authentifizierung
@@ -255,6 +258,19 @@ Der Token wird über den Login-Endpunkt erhalten.
 | DELETE | `/api/admin/accounts/:accountId` | Ja (Admin) | Konto mit allen Daten löschen |
 
 Dieser Endpunkt erfordert ein Konto mit `isAdmin: true`.
+
+### App-API (fuer die mobile App)
+
+Diese Endpunkte sind unter dem Prefix `/app` erreichbar (ohne `/api`).
+Sie erfordern keine Authentifizierung.
+
+| Methode | Route | Auth | Beschreibung |
+|---------|-------|------|-------------|
+| GET | `/app/villages` | Nein | Liste aller Gemeinden mit Feature-Flags und PLZ |
+| GET | `/app/villages/:villageId/config` | Nein | Konfiguration einer Gemeinde (Features + freigegebene Sensoren) |
+| GET | `/app/villages/:villageId/initial-data` | Nein | Initiale Daten fuer den ersten Ladevorgang |
+
+Ausfuehrliche Dokumentation: [App-API](../backend/app-api.md)
 
 ## HTTP-Statuscodes
 

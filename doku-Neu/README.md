@@ -28,6 +28,7 @@ docs/
 │   ├── sensoren.md                        ← Sensorverwaltung und Messwerte
 │   ├── geraete.md                         ← Geräteverwaltung (Devices)
 │   ├── mqtt-integration.md                ← MQTT-Anbindung und Discovery
+│   ├── app-api.md                         ← App-API (REST + MQTT für die mobile App)
 │   ├── admin-verwaltung.md                ← Admin-Modul (Kontolöschung)
 │   └── standortsuche.md                   ← PLZ-Suche (Locations)
 ├── frontend/
@@ -58,6 +59,7 @@ docs/
 | [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte. |
 | [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller). |
 | [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung. |
+| [App-API](backend/app-api.md) | REST-Endpunkte und MQTT-Topics für die mobile App. |
 | [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen. |
 | [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche. |
 | [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
