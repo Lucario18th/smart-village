@@ -3,24 +3,24 @@
 ## Zweck dieses Dokuments
 
 Dieses Dokument beschreibt die neue App-API-Schicht des Smart-Village-Backends.
-Die App-API stellt REST-Endpunkte und MQTT-Topics bereit, ueber die eine mobile App Daten empfaengt.
-Sie ist unabhaengig von der bestehenden Mobile API (`/mobile-api/`) und ersetzt diese nicht.
+Die App-API stellt REST-Endpunkte und MQTT-Topics bereit, über die eine mobile App Daten empfängt.
+Sie ist unabhängig von der bestehenden Mobile API (`/mobile-api/`) und ersetzt diese nicht.
 
-## Architekturuebersicht
+## Architekturübersicht
 
-Die mobile App kommuniziert mit dem Backend ueber zwei Kanaele:
+Die mobile App kommuniziert mit dem Backend über zwei Kanäle:
 
-1. **REST-API** (`/app/...`) – Die App ruft Konfigurationsdaten und initiale Datensaetze ueber HTTP ab.
-2. **MQTT** (`app/village/{villageId}/...`) – Die App abonniert Topics fuer Live-Updates.
+1. **REST-API** (`/app/...`) – Die App ruft Konfigurationsdaten und initiale Datensätze über HTTP ab.
+2. **MQTT** (`app/village/{villageId}/...`) – Die App abonniert Topics für Live-Updates.
 
 Der typische Ablauf ist:
 
-1. Die App startet und ruft `GET /app/villages` auf, um die Liste der verfuegbaren Gemeinden zu laden.
-2. Der Nutzer waehlt eine Gemeinde.
+1. Die App startet und ruft `GET /app/villages` auf, um die Liste der verfügbaren Gemeinden zu laden.
+2. Der Nutzer wählt eine Gemeinde.
 3. Die App ruft `GET /app/villages/:villageId/config` auf, um die Feature-Flags und die Liste der freigegebenen Sensoren zu erhalten.
 4. Die App ruft optional `GET /app/villages/:villageId/initial-data` auf, um sofort Daten anzuzeigen.
-5. Die App abonniert die passenden MQTT-Topics fuer die aktivierten Module.
-6. Live-Updates werden ueber MQTT empfangen und in der App angezeigt.
+5. Die App abonniert die passenden MQTT-Topics für die aktivierten Module.
+6. Live-Updates werden über MQTT empfangen und in der App angezeigt.
 
 ```
 ┌────────────┐       REST (HTTP)        ┌─────────────┐
@@ -43,14 +43,14 @@ Der typische Ablauf ist:
 
 Das Smart-Village-System wird von mehreren Gemeinden genutzt (Multi-Tenancy).
 Nicht jede Gemeinde nutzt die gleichen Funktionen.
-Zum Beispiel hat eine Gemeinde moeglicherweise keine Mitfahrbaenke oder keine Altkleider-Container.
+Zum Beispiel hat eine Gemeinde möglicherweise keine Mitfahrbänke oder keine Altkleider-Container.
 
 Durch Feature-Flags pro Gemeinde kann individuell gesteuert werden, welche Module in der App sichtbar sind.
 Die App muss keine hartkodierten Annahmen treffen, sondern liest die Konfiguration dynamisch vom Backend.
 
 Vorteile:
-- Neue Module koennen zentral aktiviert werden, ohne die App zu aktualisieren.
-- Gemeinden koennen Module unabhaengig voneinander ein- und ausschalten.
+- Neue Module können zentral aktiviert werden, ohne die App zu aktualisieren.
+- Gemeinden können Module unabhängig voneinander ein- und ausschalten.
 - Die App zeigt nur relevante Inhalte an.
 
 ## Datenmodell-Erweiterungen
@@ -58,12 +58,12 @@ Vorteile:
 ### VillageFeatures
 
 Neue Tabelle mit 1:1-Beziehung zu `Village`.
-Speichert boolesche Flags fuer jedes App-Modul.
+Speichert boolesche Flags für jedes App-Modul.
 
 | Feld | Typ | Standard | Beschreibung |
 |------|-----|----------|-------------|
-| id | Int | Auto-Increment | Primaerschluessel |
-| villageId | Int (unique) | – | Fremdschluessel auf Village |
+| id | Int | Auto-Increment | Primärschlüssel |
+| villageId | Int (unique) | – | Fremdschlüssel auf Village |
 | enableSensorData | Boolean | true | Sensordaten in der App anzeigen |
 | enableWeather | Boolean | true | Wetterdaten in der App anzeigen |
 | enableMessages | Boolean | true | Nachrichten der Gemeinde in der App anzeigen |
@@ -72,9 +72,9 @@ Speichert boolesche Flags fuer jedes App-Modul.
 | enableRideShare | Boolean | true | Mitfahrbank-Daten in der App anzeigen |
 | enableTextileContainers | Boolean | false | Altkleider-Container in der App anzeigen |
 
-Die Beziehung zu `Village` ist ueber `villageId` mit `@unique`-Constraint gesichert.
-Dadurch kann jede Gemeinde hoechstens einen Feature-Eintrag haben.
-Beim Loeschen einer Gemeinde wird der zugehoerige Feature-Eintrag automatisch geloescht (`onDelete: Cascade`).
+Die Beziehung zu `Village` ist über `villageId` mit `@unique`-Constraint gesichert.
+Dadurch kann jede Gemeinde höchstens einen Feature-Eintrag haben.
+Beim Löschen einer Gemeinde wird der zugehörige Feature-Eintrag automatisch gelöscht (`onDelete: Cascade`).
 
 ### Sensor – neues Feld `exposeToApp`
 
@@ -82,7 +82,7 @@ Das bestehende `Sensor`-Modell wurde um ein Boolean-Feld erweitert:
 
 | Feld | Typ | Standard | Beschreibung |
 |------|-----|----------|-------------|
-| exposeToApp | Boolean | false | Messwerte duerfen an die mobile App gesendet werden |
+| exposeToApp | Boolean | false | Messwerte dürfen an die mobile App gesendet werden |
 
 **Abgrenzung der drei Sensor-Flags:**
 
@@ -90,34 +90,34 @@ Das bestehende `Sensor`-Modell wurde um ein Boolean-Feld erweitert:
 |------|-----------|
 | `isActive` | Der Sensor existiert und ist auf Hardware-Seite aktiv. Wenn `false`, wird der Sensor im System als inaktiv betrachtet. |
 | `receiveData` | Das Backend nimmt Messwerte dieses Sensors entgegen. Wenn `false`, werden eingehende Daten ignoriert. |
-| `exposeToApp` | Messwerte dieses Sensors duerfen an die mobile App weitergeleitet werden. Voraussetzung: `isActive = true` und `receiveData = true` und das Village-Feature `enableSensorData = true`. |
+| `exposeToApp` | Messwerte dieses Sensors dürfen an die mobile App weitergeleitet werden. Voraussetzung: `isActive = true` und `receiveData = true` und das Village-Feature `enableSensorData = true`. |
 
 Der Standardwert von `exposeToApp` ist `false`.
-Bestehende Sensoren sind somit nicht automatisch fuer die App sichtbar.
+Bestehende Sensoren sind somit nicht automatisch für die App sichtbar.
 Ein Administrator muss die Freigabe explizit aktivieren.
 
 ### Migrationshinweise
 
-Die Aenderungen sind rueckwaertskompatibel:
+Die Änderungen sind rückwärtskompatibel:
 
-- Die neue Tabelle `VillageFeatures` wird zusaetzlich erstellt. Bestehende Tabellen bleiben unveraendert.
+- Die neue Tabelle `VillageFeatures` wird zusätzlich erstellt. Bestehende Tabellen bleiben unverändert.
 - Das neue Feld `exposeToApp` auf `Sensor` hat den Standardwert `false`. Bestehende Sensoren werden also nicht automatisch in der App angezeigt.
 - Das bestehende Backend nutzt die neuen Felder nicht. Nur die neue App-API liest diese Daten.
-- Die Seed-Datei (`prisma/seed.js`) erstellt automatisch `VillageFeatures`-Eintraege fuer alle vorhandenen Gemeinden mit sinnvollen Standardwerten.
+- Die Seed-Datei (`prisma/seed.js`) erstellt automatisch `VillageFeatures`-Einträge für alle vorhandenen Gemeinden mit sinnvollen Standardwerten.
 
 Migrationsschritte:
 1. `npx prisma migrate dev --name add_village_features_and_expose_to_app` – Erstellt die Migration.
 2. `npx prisma generate` – Generiert den aktualisierten Prisma-Client.
-3. `node prisma/seed.js` – Erstellt Feature-Eintraege fuer bestehende Gemeinden.
+3. `node prisma/seed.js` – Erstellt Feature-Einträge für bestehende Gemeinden.
 
-## REST-API fuer die App
+## REST-API für die App
 
 Alle App-Endpunkte sind unter dem Prefix `/app` erreichbar.
-Sie erfordern keine Authentifizierung, da sie oeffentliche Informationen bereitstellen.
+Sie erfordern keine Authentifizierung, da sie öffentliche Informationen bereitstellen.
 
 ### GET /app/villages
 
-Gibt eine Liste aller verfuegbaren Gemeinden zurueck.
+Gibt eine Liste aller verfügbaren Gemeinden zurück.
 
 **Antwort:**
 ```json
@@ -147,10 +147,10 @@ Gibt eine Liste aller verfuegbaren Gemeinden zurueck.
 
 ### GET /app/villages/:villageId/config
 
-Gibt die vollstaendige Konfiguration einer Gemeinde zurueck.
-Enthaelt die Feature-Flags und eine Liste aller fuer die App freigegebenen Sensoren.
+Gibt die vollständige Konfiguration einer Gemeinde zurück.
+Enthält die Feature-Flags und eine Liste aller für die App freigegebenen Sensoren.
 
-Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfuellt sind:
+Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfüllt sind:
 - `isActive = true`
 - `receiveData = true`
 - `exposeToApp = true`
@@ -190,14 +190,14 @@ Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfuellt si
 
 ### GET /app/villages/:villageId/initial-data
 
-Gibt einen initialen Datensatz zurueck, damit die App sofort Inhalte anzeigen kann.
-Dieser Endpunkt ist eine Optimierung fuer den ersten Ladevorgang.
-Live-Updates werden anschliessend ueber MQTT empfangen.
+Gibt einen initialen Datensatz zurück, damit die App sofort Inhalte anzeigen kann.
+Dieser Endpunkt ist eine Optimierung für den ersten Ladevorgang.
+Live-Updates werden anschließend über MQTT empfangen.
 
-Es werden nur Daten fuer aktivierte Module zurueckgegeben:
-- `sensors` – Nur wenn `enableSensorData = true`. Enthaelt den letzten Messwert pro Sensor.
-- `messages` – Nur wenn `enableMessages = true`. Enthaelt die letzten 50 Nachrichten.
-- `rideshares` – Nur wenn `enableRideShare = true`. Enthaelt aktive Mitfahrbaenke.
+Es werden nur Daten für aktivierte Module zurückgegeben:
+- `sensors` – Nur wenn `enableSensorData = true`. Enthält den letzten Messwert pro Sensor.
+- `messages` – Nur wenn `enableMessages = true`. Enthält die letzten 50 Nachrichten.
+- `rideshares` – Nur wenn `enableRideShare = true`. Enthält aktive Mitfahrbänke.
 
 **Antwort (Beispiel mit allen Modulen aktiv):**
 ```json
@@ -247,16 +247,16 @@ Es werden nur Daten fuer aktivierte Module zurueckgegeben:
 ### Typische Aufrufreihenfolge in der App
 
 1. `GET /app/villages` – Gemeindeliste laden und dem Nutzer anzeigen.
-2. Nutzer waehlt eine Gemeinde.
+2. Nutzer wählt eine Gemeinde.
 3. `GET /app/villages/:villageId/config` – Feature-Flags und Sensorliste laden.
 4. `GET /app/villages/:villageId/initial-data` – Initiale Daten laden.
-5. MQTT-Topics abonnieren (siehe naechster Abschnitt).
+5. MQTT-Topics abonnieren (siehe nächster Abschnitt).
 
 ## MQTT-Topics und Regeln
 
 ### Topic-Struktur
 
-Fuer die App werden folgende Topics verwendet:
+Für die App werden folgende Topics verwendet:
 
 | Topic | Beschreibung |
 |-------|-------------|
@@ -268,7 +268,7 @@ Fuer die App werden folgende Topics verwendet:
 | `app/village/{villageId}/rideshare` | Mitfahrbank-Daten |
 | `app/village/{villageId}/textile-containers` | Altkleider-Container |
 
-Die App abonniert nur Topics fuer Module, die in der Konfiguration als aktiviert markiert sind.
+Die App abonniert nur Topics für Module, die in der Konfiguration als aktiviert markiert sind.
 Beispiel: Wenn `enableWeather = false`, abonniert die App das Topic `app/village/{villageId}/weather` nicht.
 
 ### Publishing-Regeln
@@ -294,12 +294,12 @@ Payload:
 **Wetter (`app/village/{villageId}/weather`):**
 - Wird bei neuen Wetterdaten publiziert (Annahme: periodisch, z.B. alle 15 Minuten).
 - Bedingung: `VillageFeatures.enableWeather = true`.
-- Hinweis: Derzeit nicht implementiert. Topic ist reserviert fuer zukuenftige Wetter-Integration.
+- Hinweis: Derzeit nicht implementiert. Topic ist reserviert für zukünftige Wetter-Integration.
 
 **Nachrichten (`app/village/{villageId}/messages`):**
 - Wird bei Erstellung einer neuen Nachricht publiziert.
 - Bedingung: `VillageFeatures.enableMessages = true`.
-- Hinweis: Derzeit nicht implementiert. Nachrichten werden ueber den REST-Endpunkt abgerufen.
+- Hinweis: Derzeit nicht implementiert. Nachrichten werden über den REST-Endpunkt abgerufen.
 
 **Events (`app/village/{villageId}/events`):**
 - Wird bei neuen Veranstaltungen publiziert.
@@ -307,59 +307,59 @@ Payload:
 - Hinweis: Derzeit nicht implementiert. Topic ist reserviert.
 
 **Karte (`app/village/{villageId}/map`):**
-- Wird bei Aenderungen an Kartendaten publiziert.
+- Wird bei Änderungen an Kartendaten publiziert.
 - Bedingung: `VillageFeatures.enableMap = true`.
 - Hinweis: Derzeit nicht implementiert. Topic ist reserviert.
 
 **Mitfahrbank (`app/village/{villageId}/rideshare`):**
-- Wird bei Aenderungen an Mitfahrbank-Daten publiziert.
+- Wird bei Änderungen an Mitfahrbank-Daten publiziert.
 - Bedingung: `VillageFeatures.enableRideShare = true`.
 - Hinweis: Derzeit nicht implementiert. Topic ist reserviert.
 
 **Altkleider-Container (`app/village/{villageId}/textile-containers`):**
-- Wird bei Aenderungen publiziert.
+- Wird bei Änderungen publiziert.
 - Bedingung: `VillageFeatures.enableTextileContainers = true`.
 - Hinweis: Derzeit nicht implementiert. Topic ist reserviert.
 
 ### Aktuell implementiert
 
-In der aktuellen Version ist die MQTT-Weiterleitung fuer **Sensordaten** implementiert.
-Wenn ein Messwert ueber das bestehende MQTT-Topic (`sv/{accountId}/{deviceId}/sensors/{sensorId}`) empfangen wird, prueft das Backend automatisch die Feature- und Sensor-Flags und publiziert den Wert bei Bedarf auf `app/village/{villageId}/sensors`.
+In der aktuellen Version ist die MQTT-Weiterleitung für **Sensordaten** implementiert.
+Wenn ein Messwert über das bestehende MQTT-Topic (`sv/{accountId}/{deviceId}/sensors/{sensorId}`) empfangen wird, prüft das Backend automatisch die Feature- und Sensor-Flags und publiziert den Wert bei Bedarf auf `app/village/{villageId}/sensors`.
 
-Die anderen Topics sind als Platzhalter definiert und koennen in zukuenftigen Versionen implementiert werden.
+Die anderen Topics sind als Platzhalter definiert und können in zukünftigen Versionen implementiert werden.
 
 ## Beispiel-Flow
 
-### Schritt 1: App startet und laedt Gemeindeliste
+### Schritt 1: App startet und lädt Gemeindeliste
 
 ```
 GET /app/villages
 ```
 
-Die App erhaelt eine Liste mit zwei Gemeinden: Freiburg und Loerrach.
+Die App erhält eine Liste mit zwei Gemeinden: Freiburg und Lörrach.
 Freiburg hat `sensorData: true`, `messages: true`, `rideShare: true`.
-Loerrach hat `sensorData: true`, `messages: true`, `rideShare: false`.
+Lörrach hat `sensorData: true`, `messages: true`, `rideShare: false`.
 
-### Schritt 2: Nutzer waehlt Freiburg
+### Schritt 2: Nutzer wählt Freiburg
 
 Die App merkt sich `villageId = 1`.
 
-### Schritt 3: App laedt Konfiguration
+### Schritt 3: App lädt Konfiguration
 
 ```
 GET /app/villages/1/config
 ```
 
-Die App erhaelt die Feature-Flags und sieht, dass Sensordaten, Nachrichten und Mitfahrbaenke aktiviert sind.
-Die Sensorliste enthaelt zwei Sensoren: Temperatur Rathaus (ID 1) und Luftfeuchtigkeit Rathaus (ID 2).
+Die App erhält die Feature-Flags und sieht, dass Sensordaten, Nachrichten und Mitfahrbänke aktiviert sind.
+Die Sensorliste enthält zwei Sensoren: Temperatur Rathaus (ID 1) und Luftfeuchtigkeit Rathaus (ID 2).
 
-### Schritt 4: App laedt initiale Daten
+### Schritt 4: App lädt initiale Daten
 
 ```
 GET /app/villages/1/initial-data
 ```
 
-Die App erhaelt die letzten Messwerte beider Sensoren, die aktuellen Nachrichten und die aktiven Mitfahrbaenke.
+Die App erhält die letzten Messwerte beider Sensoren, die aktuellen Nachrichten und die aktiven Mitfahrbänke.
 Die App zeigt diese Daten sofort an.
 
 ### Schritt 5: App abonniert MQTT-Topics
@@ -376,10 +376,10 @@ Die App abonniert nicht:
 ### Schritt 6: Live-Updates
 
 Ein neuer Messwert wird vom Temperatursensor gesendet.
-Das Backend empfaengt ihn ueber `sv/1/weather-01/sensors/1`.
-Das Backend prueft: Sensor hat `exposeToApp = true`, Village hat `enableSensorData = true`.
+Das Backend empfängt ihn über `sv/1/weather-01/sensors/1`.
+Das Backend prüft: Sensor hat `exposeToApp = true`, Village hat `enableSensorData = true`.
 Das Backend publiziert den Wert auf `app/village/1/sensors`.
-Die App empfaengt den Wert und aktualisiert die Anzeige.
+Die App empfängt den Wert und aktualisiert die Anzeige.
 
 ## Implementierungsdetails
 
@@ -388,17 +388,17 @@ Die App empfaengt den Wert und aktualisiert die Anzeige.
 | Datei | Beschreibung |
 |-------|-------------|
 | `backend/prisma/schema.prisma` | Prisma-Schema mit VillageFeatures und exposeToApp |
-| `backend/prisma/seed.js` | Seed-Skript erstellt VillageFeatures fuer bestehende Gemeinden |
-| `backend/src/app-api/app-api.module.ts` | NestJS-Modul fuer die App-API |
+| `backend/prisma/seed.js` | Seed-Skript erstellt VillageFeatures für bestehende Gemeinden |
+| `backend/src/app-api/app-api.module.ts` | NestJS-Modul für die App-API |
 | `backend/src/app-api/app-api.controller.ts` | REST-Controller mit den drei Endpunkten |
-| `backend/src/app-api/app-api.service.ts` | Service-Logik fuer Datenbankabfragen |
+| `backend/src/app-api/app-api.service.ts` | Service-Logik für Datenbankabfragen |
 | `backend/src/mqtt/mqtt.service.ts` | Erweitert um App-seitige MQTT-Weiterleitung |
 
-### Abhaengigkeiten
+### Abhängigkeiten
 
 Das AppApiModule importiert:
-- `PrismaModule` – Datenbankzugriff ueber Prisma.
+- `PrismaModule` – Datenbankzugriff über Prisma.
 
 Das MqttModule nutzt:
-- `PrismaService` – Zum Pruefen der Feature-Flags und Sensor-Flags.
+- `PrismaService` – Zum Prüfen der Feature-Flags und Sensor-Flags.
 - `mqtt`-Bibliothek – Zum Publizieren auf App-Topics.
