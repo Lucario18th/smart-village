@@ -56,7 +56,16 @@ function MapViewportSync({ center, panelOpen }) {
   return null
 }
 
-function SelectionTree({ devices, sensors, selection, onToggleController, onToggleSensor }) {
+function SelectionTree({
+  devices,
+  sensors,
+  selection,
+  onToggleController,
+  onToggleSensor,
+  allSelected,
+  partiallySelected,
+  onToggleAll,
+}) {
   const [expandedGateways, setExpandedGateways] = useState(() => new Set(devices.map((d) => d.id)))
 
   useEffect(() => {
@@ -92,6 +101,18 @@ function SelectionTree({ devices, sensors, selection, onToggleController, onTogg
     <div className="map-tree" aria-label="Sensor- und Controller-Auswahl">
       <h3>Sichtbare Sensoren</h3>
       <p className="map-tree-hint">Gateway- und Sensor-Toggles können unabhängig voneinander gesteuert werden.</p>
+      <label className="map-tree-item map-tree-item--master">
+        <span className="map-tree-name map-tree-name--gateway">Alle Sensoren und Gateways</span>
+        <input
+          type="checkbox"
+          checked={allSelected}
+          ref={(el) => {
+            if (el) el.indeterminate = partiallySelected
+          }}
+          onChange={onToggleAll}
+          aria-label="Alle Sensoren und Gateways ein- oder ausschalten"
+        />
+      </label>
       <ul className="map-tree-list">
         {devices.map((device) => {
           const state = getControllerSelectionState(device.id, sensors, selection)
@@ -271,6 +292,23 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
     setSelection((prev) => toggleSensorSelection(sensorId, sensors, prev))
   }
 
+  const totalSelectableCount = devices.length + sensors.length
+  const selectedCount = selection.controllers.size + selection.sensors.size
+  const allSelected = totalSelectableCount > 0 && selectedCount === totalSelectableCount
+  const partiallySelected = selectedCount > 0 && selectedCount < totalSelectableCount
+
+  const handleToggleAll = () => {
+    if (allSelected) {
+      setSelection({ controllers: new Set(), sensors: new Set() })
+      return
+    }
+
+    setSelection({
+      controllers: new Set(devices.map((device) => device.id)),
+      sensors: new Set(sensors.map((sensor) => sensor.id)),
+    })
+  }
+
   return (
     <section className="map-panel">
       <div className={`map-layout ${isPanelOpen ? 'map-layout--split' : 'map-layout--single'}`}>
@@ -281,6 +319,9 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
             selection={selection}
             onToggleController={handleToggleController}
             onToggleSensor={handleToggleSensor}
+            allSelected={allSelected}
+            partiallySelected={partiallySelected}
+            onToggleAll={handleToggleAll}
           />
         ) : null}
         <div className="map-frame" role="region" aria-label="Gemeindekarte">

@@ -369,6 +369,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .map-tree h3{margin:0;color:var(--md-sys-color-primary);font-size:34px;line-height:1.06;letter-spacing:-.02em}
 .map-tree-hint{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:13px;line-height:1.35}
 .map-tree-list{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:10px}
+.map-tree-item--master{padding:9px 10px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 84%, transparent);font-weight:800}
 .map-tree-group{padding:11px 12px;border-radius:12px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 20%, transparent);background:linear-gradient(150deg, color-mix(in srgb, var(--md-sys-color-surface-container-low) 92%, transparent) 0%, color-mix(in srgb, var(--md-sys-color-surface) 88%, transparent) 100%);box-shadow:0 3px 10px color-mix(in srgb, var(--md-sys-color-shadow) 10%, transparent)}
 .map-tree-group-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
 .map-tree-group-main{display:flex;align-items:center;gap:10px;min-width:0}
@@ -414,7 +415,10 @@ html.dark-medium-contrast .map-frame > img,
 html.dark-high-contrast .map-frame > img,
 html.dark .map-embed-wrapper iframe,
 html.dark-medium-contrast .map-embed-wrapper iframe,
-html.dark-high-contrast .map-embed-wrapper iframe{
+html.dark-high-contrast .map-embed-wrapper iframe,
+html.dark .map-frame .leaflet-tile,
+html.dark-medium-contrast .map-frame .leaflet-tile,
+html.dark-high-contrast .map-frame .leaflet-tile{
 	filter:invert(92%) hue-rotate(180deg) saturate(.82) brightness(.86) contrast(.96);
 }
 .map-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;gap:6px;background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--md-sys-color-surface) 85%, transparent) 0 12px, color-mix(in srgb, var(--md-sys-color-surface-variant) 18%, transparent) 12px 24px);color:var(--md-sys-color-on-surface-variant);font-weight:700}
