@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "simulate": "SCENARIO=1 tsx src/index.ts",
-    "simulate:mitfahrbank": "SCENARIO=2 tsx src/index.ts"
+    "simulate:mitfahrbank": "SCENARIO=2 tsx src/index.ts",
+    "simulate:errors": "SCENARIO=2 DISCOVERY_ON_START=1 tsx src/index.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",

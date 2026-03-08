@@ -90,8 +90,8 @@ function buildGatewayDevice(index: number): DeviceDefinition {
   const lngOffset = (index - 1) * 0.002;
 
   return {
-    deviceId: gw-v${VILLAGE_ID}-dev-${index},
-    name: Village ${VILLAGE_ID} Gateway ${index},
+    deviceId: `gw-v${VILLAGE_ID}-dev-${index}`,
+    name: `Village ${VILLAGE_ID} Gateway ${index}`,
     latitude: baseLat + latOffset,
     longitude: baseLng + lngOffset,
     sensors: [
@@ -175,8 +175,8 @@ function buildMitfahrbankDevice(index: number): DeviceDefinition {
   const deviceIndex = index + 100;
 
   return {
-    deviceId: gw-v${VILLAGE_ID}-mitfahrbank-${deviceIndex},
-    name: Mitfahrbank ${VILLAGE_ID} #${index},
+    deviceId: `gw-v${VILLAGE_ID}-mitfahrbank-${deviceIndex}`,
+    name: `Mitfahrbank ${VILLAGE_ID} #${index}`,
     latitude: MITFAHRBANK_BASE_LAT + (index - 1) * 0.0015,
     longitude: MITFAHRBANK_BASE_LNG + (index - 1) * 0.0015,
     sensors: [
@@ -245,7 +245,7 @@ let publishInterval: NodeJS.Timeout | null = null;
 
 client.on("connect", () => {
   console.log(
-    ✅ Connected to MQTT broker at ${MQTT_URL} (ACCOUNT_ID=${ACCOUNT_ID}, VILLAGE_ID=${VILLAGE_ID}, SCENARIO=${SCENARIO}, DEVICE_COUNT=${DEVICE_COUNT}, MITFAHRBANK_COUNT=${SCENARIO === 2 ? MITFAHRBANK_COUNT : 0}),
+    `✅ Connected to MQTT broker at ${MQTT_URL} (ACCOUNT_ID=${ACCOUNT_ID}, VILLAGE_ID=${VILLAGE_ID}, SCENARIO=${SCENARIO}, DEVICE_COUNT=${DEVICE_COUNT}, MITFAHRBANK_COUNT=${SCENARIO === 2 ? MITFAHRBANK_COUNT : 0})`,
   );
 
   if (DISCOVERY_ON_CONNECT) {
@@ -275,7 +275,7 @@ client.on("close", () => {
 function publishDiscovery() {
   for (const state of deviceStates) {
     const { device } = state;
-    const topic = sv/${ACCOUNT_ID}/${device.deviceId}/config;
+    const topic = `sv/${ACCOUNT_ID}/${device.deviceId}/config`;
 
     const payload = {
       villageId: VILLAGE_ID,
@@ -298,7 +298,7 @@ function publishDiscovery() {
       if (err) {
         console.error("Failed to publish discovery payload", err);
       } else {
-        console.log(📣 Discovery published to ${topic});
+        console.log(`📣 Discovery published to ${topic}`);
       }
     });
   }
@@ -312,7 +312,7 @@ function maybeFailDevice(state: DeviceRuntimeState) {
     if (Math.random() < DEVICE_REVIVE_PROBABILITY) {
       state.isOnline = true;
       state.offlineSince = null;
-      console.log(✅ Device back online: ${state.device.deviceId});
+      console.log(`✅ Device back online: ${state.device.deviceId}`);
 
       // Beim "Reboot" nochmal Discovery schicken, falls gewünscht
       if (DISCOVERY_ON_CONNECT) {
@@ -326,14 +326,14 @@ function maybeFailDevice(state: DeviceRuntimeState) {
   if (Math.random() < DEVICE_FAILURE_PROBABILITY) {
     state.isOnline = false;
     state.offlineSince = dayjs().toISOString();
-    console.log(⚠️ Device went OFFLINE: ${state.device.deviceId});
+    console.log(`⚠️ Device went OFFLINE: ${state.device.deviceId}`);
   }
 }
 
 function publishDiscoveryFor(states: DeviceRuntimeState[]) {
   for (const state of states) {
     const { device } = state;
-    const topic = sv/${ACCOUNT_ID}/${device.deviceId}/config;
+    const topic = `sv/${ACCOUNT_ID}/${device.deviceId}/config`;
 
     const payload = {
       villageId: VILLAGE_ID,
@@ -360,7 +360,7 @@ function publishDiscoveryFor(states: DeviceRuntimeState[]) {
           err,
         );
       } else {
-        console.log(📣 Discovery (re)published to ${topic});
+        console.log(`📣 Discovery (re)published to ${topic}`);
       }
     });
   }
@@ -380,7 +380,7 @@ function maybeFailSensor(state: DeviceRuntimeState, sensorId: number) {
   if (!sensorState.stuck && Math.random() < SENSOR_STUCK_PROBABILITY) {
     sensorState.stuck = true;
     console.log(
-      ⚠️ Sensor stuck: device=${state.device.deviceId} sensor=${sensorId},
+      `⚠️ Sensor stuck: device=${state.device.deviceId} sensor=${sensorId}`,
     );
   }
 
@@ -388,7 +388,7 @@ function maybeFailSensor(state: DeviceRuntimeState, sensorId: number) {
   if (Math.random() < SENSOR_FAILURE_PROBABILITY) {
     sensorState.isFailed = true;
     console.log(
-      ❌ Sensor failed: device=${state.device.deviceId} sensor=${sensorId},
+      `❌ Sensor failed: device=${state.device.deviceId} sensor=${sensorId}`,
     );
   }
 }
@@ -445,7 +445,7 @@ function publishMeasurements() {
         value = randomValue(sensor);
       }
 
-      const topic = sv/${ACCOUNT_ID}/${device.deviceId}/sensors/${sensor.sensorId};
+      const topic = `sv/${ACCOUNT_ID}/${device.deviceId}/sensors/${sensor.sensorId}`;
       const payload: any = {
         value,
         ts,
@@ -465,12 +465,12 @@ function publishMeasurements() {
       client.publish(topic, JSON.stringify(payload), { qos: 0 }, (err) => {
         if (err) {
           console.error(
-            Failed to publish reading for ${sensor.name} (${device.deviceId}),
+            `Failed to publish reading for ${sensor.name} (${device.deviceId})`,
             err,
           );
         } else {
           console.log(
-            → ${topic} ${value ?? "null"} ${sensor.unit} [${status}],
+            `→ ${topic} ${value ?? "null"} ${sensor.unit} [${status}]`,
           );
         }
       });
@@ -495,27 +495,3 @@ function shutdown() {
 
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
-
-
-und die package.json dazu auch die dort dabei ist:
-
-{
-  "name": "mqtt-freiburg-simulator",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "simulate": "SCENARIO=1 tsx src/index.ts",
-    "simulate:mitfahrbank": "SCENARIO=2 tsx src/index.ts",
-    "simulate:errors": "SCENARIO=2 DISCOVERY_ON_START=1 tsx src/index.ts"
-  },
-  "dependencies": {
-    "@faker-js/faker": "^8.4.1",
-    "dayjs": "^1.11.19",
-    "mqtt": "^5.3.5"
-  },
-  "devDependencies": {
-    "tsx": "^4.7.0",
-    "typescript": "^5.9.0"
-  }
-}
