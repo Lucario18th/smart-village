@@ -45,7 +45,7 @@ function getStatusColor(status) {
   return '#546e7a'
 }
 
-function DeviceRow({ device, onEdit }) {
+function DeviceRow({ device, onEdit, sensorCount, isExpanded, onToggleSensors }) {
   const coords = formatCoords(device.latitude, device.longitude)
   return (
     <div className="sensor-row">
@@ -66,7 +66,28 @@ function DeviceRow({ device, onEdit }) {
       </div>
       <div className="sensor-actions">
         <button type="button" className="sensor-action-btn sensor-edit-button" onClick={onEdit} title="Bearbeiten">
-          Position
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="m3 17.25 9.06-9.06 3.75 3.75L6.75 21H3v-3.75ZM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.33a1 1 0 0 0-1.41 0l-1.78 1.77 3.75 3.75 1.78-1.77Z"
+            />
+          </svg>
+          <span>Bearbeiten</span>
+        </button>
+        <button
+          type="button"
+          className="sensor-action-btn sensor-expand-button"
+          onClick={onToggleSensors}
+          title={isExpanded ? 'Sensoren ausblenden' : 'Sensoren anzeigen'}
+          aria-expanded={isExpanded}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d={isExpanded ? 'M7 14l5-5 5 5z' : 'M7 10l5 5 5-5z'}
+            />
+          </svg>
+          <span>{isExpanded ? 'Sensoren ausblenden' : `Sensoren anzeigen (${sensorCount})`}</span>
         </button>
       </div>
     </div>
@@ -150,10 +171,22 @@ function DeviceForm({ device, onSave, onCancel }) {
       </div>
       <div className="form-actions">
         <button type="submit" className="btn-save">
-          Speichern
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-5 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm3-10H5V5h10v4Z"
+            />
+          </svg>
+          <span>Speichern</span>
         </button>
         <button type="button" className="btn-cancel" onClick={onCancel}>
-          Abbrechen
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M18.3 5.71 12 12l6.3 6.29-1.41 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.3 6.29-6.3 1.42 1.41Z"
+            />
+          </svg>
+          <span>Abbrechen</span>
         </button>
       </div>
     </form>
@@ -162,7 +195,7 @@ function DeviceForm({ device, onSave, onCancel }) {
 
 const WAITING_LABEL = 'Wartende:'
 
-function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onToggleReceiveData }) {
+function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive }) {
   const sensorType = sensorTypes.find(t => t.id === sensor.sensorTypeId)
   const device = devices.find((d) => d.id === sensor.deviceId)
   const sensorCoords = formatCoords(sensor.latitude, sensor.longitude)
@@ -225,20 +258,14 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive, onTog
             <span className="switch-slider" aria-hidden="true" />
           </label>
         </div>
-        <div className="sensor-toggle" title="Werte empfangen">
-          <span className="sensor-toggle-label">Empfang</span>
-          <label className="switch-control">
-            <input
-              type="checkbox"
-              aria-label="Werte empfangen umschalten"
-              checked={sensor.receiveData !== false}
-              onChange={(e) => onToggleReceiveData(e.target.checked)}
-            />
-            <span className="switch-slider" aria-hidden="true" />
-          </label>
-        </div>
         <button type="button" className="sensor-action-btn sensor-edit-button" onClick={onEdit} title="Metadaten bearbeiten">
-          Bearbeiten
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="m3 17.25 9.06-9.06 3.75 3.75L6.75 21H3v-3.75ZM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.33a1 1 0 0 0-1.41 0l-1.78 1.77 3.75 3.75 1.78-1.77Z"
+            />
+          </svg>
+          <span>Bearbeiten</span>
         </button>
       </div>
     </div>
@@ -295,6 +322,24 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
 
   return (
     <form className="sensor-form" onSubmit={handleSubmit}>
+      <div className="sensor-form-header">
+        <h4>Sensor bearbeiten</h4>
+        <div className="sensor-form-switch" title="Sensor aktivieren/deaktivieren">
+          <span className="sensor-form-switch-label">Aktiv</span>
+          <label className="switch-control" htmlFor="sensor-active">
+            <input
+              id="sensor-active"
+              type="checkbox"
+              name="active"
+              checked={formData.active}
+              onChange={handleChange}
+              aria-label="Sensor aktivieren oder deaktivieren"
+            />
+            <span className="switch-slider" aria-hidden="true" />
+          </label>
+        </div>
+      </div>
+
       <div className="form-group">
         <label htmlFor="sensor-name">Sensorname</label>
         <input
@@ -382,33 +427,24 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
         <small>Freilassen, wenn die Position des Controllers verwendet werden soll.</small>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="sensor-active">
-          <input
-            id="sensor-active"
-            type="checkbox"
-            name="active"
-            checked={formData.active}
-            onChange={handleChange}
-          />
-          Sensor aktiv
-        </label>
+      <div className="form-group form-group-switches">
+        <div className="sensor-form-switch" title="Werte empfangen umschalten">
+          <span className="sensor-form-switch-label">Werte empfangen</span>
+          <label className="switch-control" htmlFor="sensor-receive">
+            <input
+              id="sensor-receive"
+              type="checkbox"
+              name="receiveData"
+              checked={formData.receiveData}
+              onChange={handleChange}
+              aria-label="Werte empfangen umschalten"
+            />
+            <span className="switch-slider" aria-hidden="true" />
+          </label>
+        </div>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="sensor-receive">
-          <input
-            id="sensor-receive"
-            type="checkbox"
-            name="receiveData"
-            checked={formData.receiveData}
-            onChange={handleChange}
-          />
-          Werte empfangen
-        </label>
-      </div>
-
-      <div className="form-group">
+      <div className="form-group sensor-status-group">
         <h4>Aktueller Status</h4>
         <p>
           Letzter Wert:{' '}
@@ -432,10 +468,22 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
 
       <div className="form-actions">
         <button type="submit" className="btn-save">
-          Speichern
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-5 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm3-10H5V5h10v4Z"
+            />
+          </svg>
+          <span>Speichern</span>
         </button>
         <button type="button" className="btn-cancel" onClick={onCancel}>
-          Abbrechen
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M18.3 5.71 12 12l6.3 6.29-1.41 1.41L10.59 13.4 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.3 6.29-6.3 1.42 1.41Z"
+            />
+          </svg>
+          <span>Abbrechen</span>
         </button>
       </div>
     </form>
@@ -450,11 +498,28 @@ export default function SensorsSettingsForm({
 }) {
   const [editingSensorId, setEditingSensorId] = useState(null)
   const [editingDeviceId, setEditingDeviceId] = useState(null)
+  const [expandedDeviceIds, setExpandedDeviceIds] = useState(() => new Set())
 
   const sensors = useMemo(() => {
     return config?.sensors || []
   }, [config?.sensors])
   const devices = useMemo(() => config?.devices || [], [config?.devices])
+
+  const sensorsByDevice = useMemo(() => {
+    return sensors.reduce((acc, sensor) => {
+      if (!sensor.deviceId) return acc
+      if (!acc.has(sensor.deviceId)) {
+        acc.set(sensor.deviceId, [])
+      }
+      acc.get(sensor.deviceId).push(sensor)
+      return acc
+    }, new Map())
+  }, [sensors])
+
+  const unassignedSensors = useMemo(() => {
+    const knownDeviceIds = new Set(devices.map((device) => device.id))
+    return sensors.filter((sensor) => !sensor.deviceId || !knownDeviceIds.has(sensor.deviceId))
+  }, [devices, sensors])
 
   const handleUpdateSensor = (formData) => {
     onUpdateSensor(editingSensorId, {
@@ -489,74 +554,131 @@ export default function SensorsSettingsForm({
     setEditingDeviceId(null)
   }
 
+  const toggleDeviceSensors = (deviceId) => {
+    setExpandedDeviceIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(deviceId)) {
+        next.delete(deviceId)
+      } else {
+        next.add(deviceId)
+      }
+      return next
+    })
+  }
+
   return (
     <section className="sensors-settings">
       <div className="settings-header">
-        <h2>Sensoren</h2>
-        <p className="helper-text">Sensoren werden automatisch über MQTT Discovery angelegt.</p>
+        <h2>Sensoren und Controller / Geräte</h2>
+        <p className="helper-text">
+          Sensoren und Controller werden automatisch über MQTT Discovery erkannt und angelegt. Controller und Sensoren können hier angepasst werden.
+        </p>
       </div>
 
       <section className="devices-settings">
-        <div className="settings-header">
-          <h3>Controller / Geräte</h3>
-          <p className="helper-text">Geräte werden automatisch entdeckt; Position kann angepasst werden.</p>
-        </div>
-
         <div className="sensors-list">
           {devices.length === 0 ? (
             <p className="empty-message">Noch keine Geräte hinterlegt.</p>
           ) : (
             devices.map((device) => (
-              <div key={device.id}>
-                {editingDeviceId === device.id ? (
-                  <div className="sensor-form-container">
-                    <h4>Geräteposition bearbeiten</h4>
-                    <DeviceForm
-                      device={device}
-                      onSave={handleUpdateDevice}
-                      onCancel={() => setEditingDeviceId(null)}
-                    />
-                  </div>
-                ) : (
-                  <DeviceRow device={device} onEdit={() => setEditingDeviceId(device.id)} />
-                )}
+              <div key={device.id} className="gateway-group">
+                {(() => {
+                  const deviceSensors = sensorsByDevice.get(device.id) || []
+                  const isExpanded = expandedDeviceIds.has(device.id)
+                  return (
+                    <>
+                      {editingDeviceId === device.id ? (
+                        <div className="sensor-form-container">
+                          <h4>Geräteposition bearbeiten</h4>
+                          <DeviceForm
+                            device={device}
+                            onSave={handleUpdateDevice}
+                            onCancel={() => setEditingDeviceId(null)}
+                          />
+                        </div>
+                      ) : (
+                        <DeviceRow
+                          device={device}
+                          sensorCount={deviceSensors.length}
+                          isExpanded={isExpanded}
+                          onToggleSensors={() => toggleDeviceSensors(device.id)}
+                          onEdit={() => setEditingDeviceId(device.id)}
+                        />
+                      )}
+
+                      {isExpanded ? (
+                        <div className="gateway-sensors-list">
+                          {deviceSensors.length === 0 ? (
+                            <p className="empty-message">Diesem Gateway sind aktuell keine Sensoren zugeordnet.</p>
+                          ) : (
+                            deviceSensors.map((sensor) => (
+                              <div key={sensor.id}>
+                                {editingSensorId === sensor.id ? (
+                                  <div className="sensor-form-container">
+                                    <SensorForm
+                                      sensor={sensor}
+                                      sensorTypes={sensorTypes}
+                                      devices={devices}
+                                      onSave={handleUpdateSensor}
+                                      onCancel={() => setEditingSensorId(null)}
+                                    />
+                                  </div>
+                                ) : (
+                                  <SensorRow
+                                    sensor={sensor}
+                                    sensorTypes={sensorTypes}
+                                    devices={devices}
+                                    onEdit={() => setEditingSensorId(sensor.id)}
+                                    onToggleActive={(active) => onUpdateSensor(sensor.id, { active })}
+                                  />
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      ) : null}
+                    </>
+                  )
+                })()}
               </div>
             ))
           )}
         </div>
       </section>
 
-      <div className="sensors-list">
-        {sensors.length === 0 ? (
-          <p className="empty-message">Noch keine Sensoren konfiguriert.</p>
-        ) : (
-          sensors.map((sensor) => (
-            <div key={sensor.id}>
-              {editingSensorId === sensor.id ? (
-                <div className="sensor-form-container">
-                  <h3>Sensor bearbeiten</h3>
-                  <SensorForm
+      {unassignedSensors.length > 0 ? (
+        <section className="devices-settings">
+          <div className="settings-header">
+            <h3>Nicht zugeordnete Sensoren</h3>
+            <p className="helper-text">Diese Sensoren sind aktuell keinem Gateway zugewiesen.</p>
+          </div>
+          <div className="sensors-list">
+            {unassignedSensors.map((sensor) => (
+              <div key={sensor.id}>
+                {editingSensorId === sensor.id ? (
+                  <div className="sensor-form-container">
+                    <SensorForm
+                      sensor={sensor}
+                      sensorTypes={sensorTypes}
+                      devices={devices}
+                      onSave={handleUpdateSensor}
+                      onCancel={() => setEditingSensorId(null)}
+                    />
+                  </div>
+                ) : (
+                  <SensorRow
                     sensor={sensor}
                     sensorTypes={sensorTypes}
                     devices={devices}
-                    onSave={handleUpdateSensor}
-                    onCancel={() => setEditingSensorId(null)}
+                    onEdit={() => setEditingSensorId(sensor.id)}
+                    onToggleActive={(active) => onUpdateSensor(sensor.id, { active })}
                   />
-                </div>
-              ) : (
-                <SensorRow
-                  sensor={sensor}
-                  sensorTypes={sensorTypes}
-                  devices={devices}
-                  onEdit={() => setEditingSensorId(sensor.id)}
-                  onToggleActive={(active) => onUpdateSensor(sensor.id, { active })}
-                  onToggleReceiveData={(receiveData) => onUpdateSensor(sensor.id, { receiveData })}
-                />
-              )}
-            </div>
-          ))
-        )}
-      </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </section>
   )
 }
