@@ -17,6 +17,7 @@ export default function AdminSectionPanel({
   isGeneralSaving,
   canGeneralSave,
   onModuleEnabledChange,
+  onModuleFieldEnabledChange,
   onUpdateSensor,
   onUpdateDevice,
   onDesignFieldChange,
@@ -54,6 +55,7 @@ export default function AdminSectionPanel({
         <ModulesSettingsForm
           values={config.modules}
           onModuleEnabledChange={onModuleEnabledChange}
+          onModuleFieldEnabledChange={onModuleFieldEnabledChange}
           onSave={onGeneralSave}
           isSaving={isGeneralSaving}
           canSave={canGeneralSave}

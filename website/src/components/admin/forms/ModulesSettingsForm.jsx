@@ -1,15 +1,47 @@
 import React, { useRef, useState } from 'react'
 
-function ServiceCard({ title, description, placement, category, isEnabled, onEnabledChange, isEditing }) {
+const SENSOR_FIELD_TOGGLES = [
+  { id: 'name', label: 'Name' },
+  { id: 'type', label: 'Typ' },
+  { id: 'description', label: 'Beschreibung' },
+  { id: 'gateway', label: 'Gateway' },
+  { id: 'coordinates', label: 'Koordinaten' },
+  { id: 'status', label: 'Aktueller Status' },
+]
+
+const DEFAULT_SENSOR_FIELDS = {
+  name: true,
+  type: true,
+  description: true,
+  gateway: true,
+  coordinates: true,
+  status: true,
+}
+
+function ServiceCard({
+  title,
+  description,
+  placement,
+  category,
+  isEnabled,
+  onEnabledChange,
+  isEditing,
+  secondaryControl,
+  isExpanded = false,
+  children,
+}) {
   return (
-    <article className="service-card">
-      <div>
+    <article className={`service-card${isExpanded ? ' service-card--expanded' : ''}`}>
+      <div className="service-card-content">
         <div className="service-card-head">
           <h3>{title}</h3>
           <span className="service-badge">{category}</span>
         </div>
         <p>{description}</p>
-        <p className="service-meta">Sichtbar in: {placement}</p>
+        <div className="service-meta-row">
+          <p className="service-meta">Sichtbar in: {placement}</p>
+        </div>
+        {children}
       </div>
 
       <div className="service-card-controls">
@@ -23,20 +55,33 @@ function ServiceCard({ title, description, placement, category, isEnabled, onEna
           />
           <span className="switch-slider" aria-hidden="true" />
         </label>
+        {secondaryControl}
       </div>
     </article>
   )
 }
 
-export default function ModulesSettingsForm({ values, onModuleEnabledChange, onSave, isSaving = false, canSave = false }) {
+export default function ModulesSettingsForm({
+  values,
+  onModuleEnabledChange,
+  onModuleFieldEnabledChange,
+  onSave,
+  isSaving = false,
+  canSave = false,
+}) {
   const safeValues = values && typeof values === 'object' ? values : {}
   const [isEditing, setIsEditing] = useState(false)
+  const [isSensorOptionsOpen, setIsSensorOptionsOpen] = useState(false)
   const editSnapshotRef = useRef(null)
+  const sensorFields = {
+    ...DEFAULT_SENSOR_FIELDS,
+    ...(safeValues.sensors?.fields || {}),
+  }
 
   const modules = [
     {
       id: 'sensors',
-      title: 'Sensoren',
+      title: 'Sensordaten',
       description: 'Sensor-basierte Datenerfassung und -visualisierung',
       placement: 'Startseite und Detailansichten',
       category: 'Daten',
@@ -87,16 +132,22 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onS
 
   const toggleEditing = () => {
     if (!isEditing) {
-      editSnapshotRef.current = Object.fromEntries(
-        modules.map((module) => [module.id, safeValues[module.id]?.enabled ?? false])
-      )
+      editSnapshotRef.current = {
+        modules: Object.fromEntries(
+          modules.map((module) => [module.id, safeValues[module.id]?.enabled ?? false])
+        ),
+        sensorFields: { ...sensorFields },
+      }
       setIsEditing(true)
       return
     }
 
     if (editSnapshotRef.current) {
-      Object.entries(editSnapshotRef.current).forEach(([moduleId, enabled]) => {
+      Object.entries(editSnapshotRef.current.modules || {}).forEach(([moduleId, enabled]) => {
         onModuleEnabledChange(moduleId, enabled)
+      })
+      Object.entries(editSnapshotRef.current.sensorFields || {}).forEach(([fieldId, enabled]) => {
+        onModuleFieldEnabledChange?.('sensors', fieldId, enabled)
       })
     }
 
@@ -109,6 +160,19 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onS
     editSnapshotRef.current = null
     setIsEditing(false)
   }
+
+  const handleModuleEnabledChange = (moduleId, enabled) => {
+    onModuleEnabledChange(moduleId, enabled)
+
+    if (moduleId === 'sensors' && !enabled) {
+      SENSOR_FIELD_TOGGLES.forEach((field) => {
+        onModuleFieldEnabledChange?.('sensors', field.id, false)
+      })
+      setIsSensorOptionsOpen(false)
+    }
+  }
+
+  const isSensorsModuleEnabled = safeValues.sensors?.enabled ?? false
 
   return (
     <section className="module-settings">
@@ -174,9 +238,55 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onS
             placement={module.placement}
             category={module.category}
             isEnabled={safeValues[module.id]?.enabled ?? false}
-            onEnabledChange={(enabled) => onModuleEnabledChange(module.id, enabled)}
+            onEnabledChange={(enabled) => handleModuleEnabledChange(module.id, enabled)}
             isEditing={isEditing}
-          />
+            isExpanded={module.id === 'sensors' && isSensorOptionsOpen}
+            secondaryControl={
+              module.id === 'sensors' ? (
+                <button
+                  type="button"
+                  className="service-module-expand service-module-expand--icon"
+                  onClick={() => setIsSensorOptionsOpen((prev) => !prev)}
+                  aria-expanded={isSensorOptionsOpen}
+                  aria-label={isSensorOptionsOpen ? 'Optionen einklappen' : 'Optionen ausklappen'}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    {isSensorOptionsOpen ? (
+                      <path fill="currentColor" d="m7.41 15.59 4.59-4.58 4.59 4.58L18 14.17l-6-6-6 6 1.41 1.42Z" />
+                    ) : (
+                      <path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41Z" />
+                    )}
+                  </svg>
+                </button>
+              ) : null
+            }
+          >
+            {module.id === 'sensors' ? (
+              <div className="service-module-details">
+                {isSensorOptionsOpen ? (
+                  <ul className="service-module-options" aria-label="Sensor-Anzeigeoptionen">
+                    {SENSOR_FIELD_TOGGLES.map((field) => (
+                      <li key={field.id}>
+                        <span>{field.label}</span>
+                        <label className="switch-control">
+                          <input
+                            type="checkbox"
+                            checked={sensorFields[field.id] ?? false}
+                            onChange={(event) =>
+                              onModuleFieldEnabledChange?.('sensors', field.id, event.target.checked)
+                            }
+                            disabled={!isEditing || !isSensorsModuleEnabled}
+                            aria-label={`${field.label} anzeigen`}
+                          />
+                          <span className="switch-slider" aria-hidden="true" />
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ) : null}
+          </ServiceCard>
         ))}
       </div>
     </section>

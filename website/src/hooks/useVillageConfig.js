@@ -307,6 +307,27 @@ export function useVillageConfig(session) {
     })
   }, [])
 
+  const updateModuleFieldEnabled = useCallback((moduleId, fieldId, enabled) => {
+    setConfig((currentConfig) => {
+      const moduleConfig = currentConfig.modules?.[moduleId] || {}
+      const nextConfig = {
+        ...currentConfig,
+        modules: {
+          ...currentConfig.modules,
+          [moduleId]: {
+            ...moduleConfig,
+            fields: {
+              ...(moduleConfig.fields || {}),
+              [fieldId]: enabled,
+            },
+          },
+        },
+      }
+      setHasUnsavedChanges(true)
+      return markUpdated(nextConfig)
+    })
+  }, [])
+
   // Add sensor mit temporärer ID
   const addSensor = useCallback((sensorData) => {
     setConfig((currentConfig) => {
@@ -655,6 +676,7 @@ export function useVillageConfig(session) {
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
+    updateModuleFieldEnabled,
     addSensor,
     updateSensor,
     removeSensor,

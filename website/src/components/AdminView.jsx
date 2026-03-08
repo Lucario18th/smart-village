@@ -17,6 +17,7 @@ export default function AdminView({ session, onLogout }) {
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
+    updateModuleFieldEnabled,
     updateSensor,
     updateDevice,
     updateDesignField,
@@ -178,6 +179,7 @@ export default function AdminView({ session, onLogout }) {
             sensorTypes={sensorTypes}
             onGeneralFieldChange={updateGeneralField}
             onModuleEnabledChange={updateModuleEnabled}
+            onModuleFieldEnabledChange={updateModuleFieldEnabled}
             onUpdateSensor={updateSensor}
             onUpdateDevice={updateDevice}
             onDesignFieldChange={updateDesignField}
