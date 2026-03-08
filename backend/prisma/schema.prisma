@@ -160,21 +160,15 @@ model Sensor {
   name         String
   infoText     String?
 
-  /// Sensor ist aktiv und wird vom System genutzt (Hardware-Seite).
   isActive     Boolean       @default(true)
-
-  /// Backend darf Messwerte dieses Sensors entgegennehmen.
   receiveData  Boolean       @default(true)
 
-  /// Messwerte dieses Sensors duerfen an die mobile App gesendet werden.
-  /// Voraussetzung: isActive=true, receiveData=true und das zugehoerige
-  /// Village-Feature (enableSensorData) muss ebenfalls aktiviert sein.
-  exposeToApp  Boolean       @default(false)
+  /// Standard: Sensorwerte sind für die App freigegeben.
+  exposeToApp  Boolean       @default(true)
 
   latitude     Float?
   longitude    Float?
 
-  // Herkunft / AI-Metadaten
   origin       SensorOrigin  @default(HARDWARE)
   aiProvider   String?
   aiModelName  String?
@@ -189,6 +183,7 @@ model Sensor {
   @@index([villageId])
   @@index([deviceId])
 }
+
 
 model SensorStatus {
   id        Int                @id @default(autoincrement())
