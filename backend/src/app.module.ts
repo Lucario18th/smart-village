@@ -10,6 +10,7 @@ import { LocationModule } from "./location/location.module";
 import { AdminModule } from "./admin/admin.module";
 import { DeviceModule } from "./device/device.module";
 import { MqttModule } from "./mqtt/mqtt.module";
+import { AppApiModule } from "./app-api/app-api.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { MqttModule } from "./mqtt/mqtt.module";
     AdminModule,
     DeviceModule,
     MqttModule,
+    AppApiModule,
   ],
   controllers: [AppController],
 })

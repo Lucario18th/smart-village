@@ -68,9 +68,43 @@ model Village {
   messages         Message[]
   rideshares       RideShare[]
   devices          Device[]
+  features         VillageFeatures?
 
   @@index([accountId])
   @@index([postalCodeId])
+}
+
+/// Feature-Flags fuer die mobile App pro Gemeinde.
+/// Steuert, welche Module in der App fuer diese Gemeinde sichtbar und aktiv sind.
+/// Jede Gemeinde hat hoechstens einen VillageFeatures-Eintrag (1:1-Beziehung).
+model VillageFeatures {
+  id                      Int     @id @default(autoincrement())
+
+  /// Fremdschluessel auf Village (unique = 1:1-Beziehung)
+  villageId               Int     @unique
+
+  /// Sensordaten in der App anzeigen (Temperatur, Luftfeuchtigkeit etc.)
+  enableSensorData        Boolean @default(true)
+
+  /// Wetterdaten in der App anzeigen
+  enableWeather           Boolean @default(true)
+
+  /// Nachrichten der Gemeinde in der App anzeigen
+  enableMessages          Boolean @default(true)
+
+  /// Veranstaltungen und Events in der App anzeigen
+  enableEvents            Boolean @default(false)
+
+  /// Kartenansicht in der App aktivieren
+  enableMap               Boolean @default(true)
+
+  /// Mitfahrbank-Daten in der App anzeigen
+  enableRideShare         Boolean @default(true)
+
+  /// Altkleider-Container-Standorte in der App anzeigen
+  enableTextileContainers Boolean @default(false)
+
+  village                 Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
 }
 
 model PostalCode {
@@ -113,8 +147,18 @@ model Sensor {
   sensorTypeId Int
   name         String
   infoText     String?
+
+  /// Sensor ist aktiv und wird vom System genutzt (Hardware-Seite).
   isActive     Boolean       @default(true)
+
+  /// Backend darf Messwerte dieses Sensors entgegennehmen.
   receiveData  Boolean       @default(true)
+
+  /// Messwerte dieses Sensors duerfen an die mobile App gesendet werden.
+  /// Voraussetzung: isActive=true, receiveData=true und das zugehoerige
+  /// Village-Feature (enableSensorData) muss ebenfalls aktiviert sein.
+  exposeToApp  Boolean       @default(false)
+
   latitude     Float?
   longitude    Float?
 
