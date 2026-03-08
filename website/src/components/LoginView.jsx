@@ -58,7 +58,7 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
         <header className="auth-card-header">
           <span className="auth-kicker">Smart Village</span>
           <h1>Admin Login</h1>
-          <p className="auth-subtitle">Bitte melde dich an, um die Gemeindekonfiguration zu bearbeiten.</p>
+          <p className="auth-subtitle">Bitte melden Sie sich an, um die Gemeindekonfiguration zu bearbeiten.</p>
         </header>
 
         {noticeMessage ? <div className="auth-info">{noticeMessage}</div> : null}

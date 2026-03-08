@@ -69,7 +69,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
         <header className="auth-card-header">
           <span className="auth-kicker">Smart Village</span>
           <h1>Konto erstellen</h1>
-          <p className="auth-subtitle">Registriere einen neuen Admin-Zugang fuer deine Gemeinde.</p>
+          <p className="auth-subtitle">Registrieren Sie einen neuen Admin-Zugang für Ihre Gemeinde.</p>
         </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -109,7 +109,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
           />
 
           <LocationAutocomplete
-            label="Dein Dorf (PLZ oder Ort)"
+            label="Ihr Dorf (PLZ oder Ort)"
             placeholder="12345 oder Musterstadt"
             onSelect={setSelectedLocation}
             selectedOption={selectedLocation}

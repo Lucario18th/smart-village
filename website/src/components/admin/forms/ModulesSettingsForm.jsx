@@ -114,7 +114,7 @@ export default function ModulesSettingsForm({ values, onModuleEnabledChange, onS
     <section className="module-settings">
       <div className="module-settings-head">
         <p className="module-settings-hint">
-          Hier steuerst du, welche Module und Dienste in der App sichtbar sind.
+          Hier steuern Sie, welche Module und Dienste in der App sichtbar sind.
         </p>
 
         <div className="general-form-actions">

@@ -240,7 +240,7 @@ const additionalHandlers = [
     const created = {
       id: db.nextDeviceId++,
       deviceId: body?.deviceId || `mock-device-${db.nextDeviceId}`,
-      name: body?.name || 'Neues Mock Geraet',
+      name: body?.name || 'Neues Mock Gerät',
       latitude: body?.latitude ?? null,
       longitude: body?.longitude ?? null,
       discovered: false,

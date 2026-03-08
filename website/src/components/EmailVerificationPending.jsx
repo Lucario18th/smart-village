@@ -1,6 +1,7 @@
 import React from 'react'
 
 const COUNTDOWN_SECONDS = 5 * 60
+const CODE_LENGTH = 6
 const extractDigits = (value) => value.replace(/\D/g, '')
 
 export default function EmailVerificationPending({
@@ -15,6 +16,11 @@ export default function EmailVerificationPending({
   const [isResending, setIsResending] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState('')
   const [infoMessage, setInfoMessage] = React.useState('')
+  const codeInputRefs = React.useRef([])
+  const codeDigits = React.useMemo(
+    () => Array.from({ length: CODE_LENGTH }, (_, index) => code[index] || ''),
+    [code]
+  )
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -80,14 +86,75 @@ export default function EmailVerificationPending({
     )
   }
 
+  const setCodeAt = (index, value) => {
+    const nextDigits = [...codeDigits]
+    nextDigits[index] = value
+    setCode(nextDigits.join('').slice(0, CODE_LENGTH))
+  }
+
+  const handleDigitChange = (index, rawValue) => {
+    const digits = extractDigits(rawValue)
+
+    if (!digits) {
+      setCodeAt(index, '')
+      return
+    }
+
+    const nextDigits = [...codeDigits]
+    let cursor = index
+
+    for (const digit of digits) {
+      if (cursor >= CODE_LENGTH) break
+      nextDigits[cursor] = digit
+      cursor += 1
+    }
+
+    setCode(nextDigits.join('').slice(0, CODE_LENGTH))
+
+    const nextFocusIndex = Math.min(cursor, CODE_LENGTH - 1)
+    codeInputRefs.current[nextFocusIndex]?.focus()
+  }
+
+  const handleDigitKeyDown = (index, event) => {
+    if (event.key === 'Backspace') {
+      if (codeDigits[index]) {
+        setCodeAt(index, '')
+        return
+      }
+
+      if (index > 0) {
+        setCodeAt(index - 1, '')
+        codeInputRefs.current[index - 1]?.focus()
+      }
+      return
+    }
+
+    if (event.key === 'ArrowLeft' && index > 0) {
+      codeInputRefs.current[index - 1]?.focus()
+      return
+    }
+
+    if (event.key === 'ArrowRight' && index < CODE_LENGTH - 1) {
+      codeInputRefs.current[index + 1]?.focus()
+    }
+  }
+
+  const handleDigitPaste = (index, event) => {
+    const pasted = extractDigits(event.clipboardData.getData('text'))
+    if (!pasted) return
+
+    event.preventDefault()
+    handleDigitChange(index, pasted)
+  }
+
   return (
     <main className="auth-page">
       <section className="auth-card">
         <header className="auth-card-header">
           <span className="auth-kicker">Smart Village</span>
-          <h1>E-Mail bestaetigen</h1>
+          <h1>E-Mail bestätigen</h1>
           <p className="auth-subtitle">
-            Wir haben einen 6-stelligen Bestaetigungscode an <strong>{email}</strong> geschickt.
+            Wir haben einen 6-stelligen Bestätigungscode an <strong>{email}</strong> geschickt.
             Gib ihn innerhalb von 5 Minuten unten ein.
           </p>
         </header>
@@ -103,21 +170,30 @@ export default function EmailVerificationPending({
         {errorMessage ? <p className="auth-error" role="alert">{errorMessage}</p> : null}
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label htmlFor="verificationCode">Bestätigungscode</label>
-          <input
-            id="verificationCode"
-          type="tel"
-          inputMode="numeric"
-          pattern="[0-9]{6}"
-          maxLength={6}
-          value={code}
-          onChange={(event) => setCode(extractDigits(event.target.value))}
-          placeholder="123456"
-          aria-label="6-stelliger Bestätigungscode"
-          autoComplete="one-time-code"
-          required
-          disabled={isSubmitting}
-        />
+          <label>Bestätigungscode</label>
+          <div className="auth-code-grid" role="group" aria-label="6-stelliger Bestätigungscode">
+            {codeDigits.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => {
+                  codeInputRefs.current[index] = el
+                }}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1}
+                value={digit}
+                onChange={(event) => handleDigitChange(index, event.target.value)}
+                onKeyDown={(event) => handleDigitKeyDown(index, event)}
+                onPaste={(event) => handleDigitPaste(index, event)}
+                aria-label={`Code-Ziffer ${index + 1}`}
+                autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                required
+                disabled={isSubmitting}
+                className="auth-code-input"
+              />
+            ))}
+          </div>
 
           <button
             type="submit"

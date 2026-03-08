@@ -61,7 +61,7 @@ function SelectionTree({ devices, sensors, selection, onToggleController, onTogg
   return (
     <div className="map-tree" aria-label="Sensor- und Controller-Auswahl">
       <h3>Sichtbare Sensoren</h3>
-      <p className="map-tree-hint">Gateway- und Sensor-Toggles koennen unabhaengig voneinander gesteuert werden.</p>
+      <p className="map-tree-hint">Gateway- und Sensor-Toggles können unabhängig voneinander gesteuert werden.</p>
       <ul className="map-tree-list">
         {devices.map((device) => {
           const state = getControllerSelectionState(device.id, sensors, selection)

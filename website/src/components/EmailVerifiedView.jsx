@@ -6,9 +6,9 @@ export default function EmailVerifiedView({ onGoToLogin }) {
       <section className="auth-card">
         <header className="auth-card-header">
           <span className="auth-kicker">Smart Village</span>
-          <h1>E-Mail bestaetigt</h1>
+          <h1>E-Mail bestätigt</h1>
           <p className="auth-subtitle">
-            Deine E-Mail wurde erfolgreich verifiziert. Du kannst dich jetzt anmelden und
+            Ihre E-Mail wurde erfolgreich verifiziert. Sie können sich jetzt anmelden und
             fortfahren.
           </p>
         </header>
