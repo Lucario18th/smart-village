@@ -76,6 +76,20 @@ Die Beziehung zu `Village` ist über `villageId` mit `@unique`-Constraint gesich
 Dadurch kann jede Gemeinde höchstens einen Feature-Eintrag haben.
 Beim Löschen einer Gemeinde wird der zugehörige Feature-Eintrag automatisch gelöscht (`onDelete: Cascade`).
 
+### Sensordetail-Sichtbarkeit
+
+Zusätzlich zu den Modul-Flags enthält `VillageFeatures` vier Felder, die steuern, welche Detailinformationen zu einem Sensor in der App angezeigt werden:
+
+| Feld | Typ | Standard | Beschreibung |
+|------|-----|----------|-------------|
+| showSensorName | Boolean | true | Sensorname in der App-Detailansicht anzeigen |
+| showSensorType | Boolean | true | Sensortyp in der App-Detailansicht anzeigen |
+| showSensorDescription | Boolean | true | Sensorbeschreibung in der App-Detailansicht anzeigen |
+| showSensorCoordinates | Boolean | true | Sensorkoordinaten in der App-Detailansicht anzeigen |
+
+Diese Flags werden im Endpunkt `GET /app/villages/:villageId/config` als `sensorDetailVisibility`-Objekt bereitgestellt.
+Die mobile App entscheidet basierend auf diesen Flags, welche Felder in der Sensordetailansicht angezeigt werden.
+
 ### Sensor – neues Feld `exposeToApp`
 
 Das bestehende `Sensor`-Modell wurde um ein Boolean-Feld erweitert:
@@ -173,6 +187,12 @@ Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfüllt si
       "rideShare": true,
       "textileContainers": false
     },
+    "sensorDetailVisibility": {
+      "name": true,
+      "type": true,
+      "description": true,
+      "coordinates": true
+    },
     "sensors": [
       {
         "id": 1,
@@ -187,6 +207,9 @@ Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfüllt si
   "timestamp": "2026-03-08T10:00:00.000Z"
 }
 ```
+
+Das Objekt `sensorDetailVisibility` teilt der App mit, welche Detailinformationen zu einem Sensor angezeigt werden sollen.
+Wenn `VillageFeatures` nicht gesetzt ist, ist `sensorDetailVisibility` `null`.
 
 ### GET /app/villages/:villageId/initial-data
 

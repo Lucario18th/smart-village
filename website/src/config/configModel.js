@@ -15,10 +15,13 @@ const BASE_CONFIG = {
   },
   devices: [],
   modules: {
-    sensors: { enabled: true, sensors: [] },
+    sensors: { enabled: true, fields: { name: true, type: true, description: true, gateway: true, coordinates: true, status: true }, sensors: [] },
     weather: { enabled: false, sensors: [] },
     news: { enabled: false, sensors: [] },
     events: { enabled: false, sensors: [] },
+    map: { enabled: true, sensors: [] },
+    rideSharingBench: { enabled: true, sensors: [] },
+    oldClothesContainer: { enabled: false, sensors: [] },
   },
   design: {
     themeMode: 'light',

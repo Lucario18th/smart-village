@@ -111,6 +111,12 @@ export const apiClient = {
     update(villageId, data) {
       return apiClient.request('PUT', `/villages/${villageId}`, data);
     },
+    getFeatures(villageId) {
+      return apiClient.request('GET', `/villages/${villageId}/features`);
+    },
+    updateFeatures(villageId, data) {
+      return apiClient.request('PATCH', `/villages/${villageId}/features`, data);
+    },
   },
 
   admin: {
