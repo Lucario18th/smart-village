@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import L from 'leaflet'
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
 import { geocodeCity } from '../../utils/geocoding'
 import {
   buildMarkers,
   buildSelectionState,
-  DEFAULT_ZOOM,
   getControllerSelectionState,
-  projectToPoint,
   toggleControllerSelection,
   toggleSensorSelection,
 } from '../../utils/mapViewUtils'
@@ -17,86 +17,151 @@ const buildEmbedUrl = (lat, lng) => {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`
 }
 
-const STATIC_MAP_MAX_SIZE = 1280
-const clampSize = (value) => Math.min(STATIC_MAP_MAX_SIZE, Math.max(320, Math.round(value)))
+const BASE_MAP_ZOOM = 13
+const APP_PIN_PATH =
+  'M430,560L530,560L530,360L505,360L505,300L455,300L455,360L430,360L430,560Z M480,774Q602,662 661,570.5Q720,479 720,408Q720,299 650.5,229.5Q581,160 480,160Q379,160 309.5,229.5Q240,299 240,408Q240,479 299,570.5Q358,662 480,774ZM480,880Q319,743 239.5,625.5Q160,508 160,408Q160,258 256.5,169Q353,80 480,80Q607,80 703.5,169Q800,258 800,408Q800,508 720.5,625.5Q641,743 480,880Z'
+const iconCache = new Map()
+const getPinIcon = (color, variant) => {
+  const key = `${variant}-${color}`
+  if (iconCache.has(key)) {
+    return iconCache.get(key)
+  }
 
-const buildStaticMapUrl = (center, size) => {
-  const width = clampSize(size.width)
-  const height = clampSize(size.height)
-  return `https://staticmap.openstreetmap.de/staticmap.php?center=${center.lat},${center.lng}&zoom=${DEFAULT_ZOOM}&size=${width}x${height}&maptype=mapnik`
+  const isCity = variant === 'city'
+  const size = isCity ? 42 : 30
+  const anchorX = Math.round(size / 2)
+  const anchorY = Math.round(size * 0.92)
+  const icon = L.divIcon({
+    className: `map-leaflet-pin map-leaflet-pin--${variant}`,
+    html: `<svg class="map-pin-svg" viewBox="0 0 960 960" width="${size}" height="${size}" aria-hidden="true" focusable="false"><path fill="${color}" d="${APP_PIN_PATH}"/></svg>`,
+    iconSize: [size, size],
+    iconAnchor: [anchorX, anchorY],
+    popupAnchor: [0, -Math.round(size * 0.8)],
+  })
+
+  iconCache.set(key, icon)
+  return icon
 }
 
-function Legend() {
-  return (
-    <div className="map-legend">
-      <h4>Legende</h4>
-      <ul>
-        <li>
-          <span className="legend-dot" style={{ background: '#2e7d32' }} /> Mitfahrbank: 0 Wartende
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#f9a825' }} /> Mitfahrbank: 1–2 Wartende
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#c62828' }} /> Mitfahrbank: 3+
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#42a5f5' }} /> Sensor: niedriger Wert
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#ffb300' }} /> Sensor: mittlerer Wert
-        </li>
-        <li>
-          <span className="legend-dot" style={{ background: '#ef5350' }} /> Sensor: hoher Wert
-        </li>
-      </ul>
-    </div>
-  )
+const CITY_PIN_ICON = getPinIcon('#ff2d55', 'city')
+const GATEWAY_PIN_ICON = getPinIcon('#1f2937', 'gateway')
+
+function MapViewportSync({ center, panelOpen }) {
+  const map = useMap()
+
+  useEffect(() => {
+    map.setView([center.lat, center.lng], map.getZoom(), { animate: true })
+  }, [map, center.lat, center.lng])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => map.invalidateSize(), 180)
+    return () => window.clearTimeout(timer)
+  }, [map, panelOpen])
+
+  return null
 }
 
-function SelectionTree({ devices, sensors, selection, onToggleController, onToggleSensor }) {
+function SelectionTree({
+  devices,
+  sensors,
+  selection,
+  onToggleController,
+  onToggleSensor,
+  allSelected,
+  partiallySelected,
+  onToggleAll,
+}) {
+  const [expandedGateways, setExpandedGateways] = useState(() => new Set(devices.map((d) => d.id)))
+
+  useEffect(() => {
+    setExpandedGateways((prev) => {
+      const next = new Set()
+      devices.forEach((device) => {
+        if (prev.has(device.id)) {
+          next.add(device.id)
+        }
+      })
+      if (next.size === 0 && devices[0]?.id) {
+        next.add(devices[0].id)
+      }
+      return next
+    })
+  }, [devices])
+
+  const toggleGateway = (deviceId) => {
+    setExpandedGateways((prev) => {
+      const next = new Set(prev)
+      if (next.has(deviceId)) {
+        next.delete(deviceId)
+      } else {
+        next.add(deviceId)
+      }
+      return next
+    })
+  }
+
   const orphanSensors = sensors.filter((sensor) => !sensor.deviceId)
 
   return (
     <div className="map-tree" aria-label="Sensor- und Controller-Auswahl">
-      <h3>Sichtbare Elemente</h3>
-      <p className="map-tree-hint">Controller schalten alle untergeordneten Sensoren ein/aus.</p>
+      <h3>Sichtbare Sensoren</h3>
+      <p className="map-tree-hint">Gateway- und Sensor-Toggles können unabhängig voneinander gesteuert werden.</p>
+      <label className="map-tree-item map-tree-item--master">
+        <span className="map-tree-name map-tree-name--gateway">Alle Sensoren und Gateways</span>
+        <input
+          type="checkbox"
+          checked={allSelected}
+          ref={(el) => {
+            if (el) el.indeterminate = partiallySelected
+          }}
+          onChange={onToggleAll}
+          aria-label="Alle Sensoren und Gateways ein- oder ausschalten"
+        />
+      </label>
       <ul className="map-tree-list">
         {devices.map((device) => {
           const state = getControllerSelectionState(device.id, sensors, selection)
           const childSensors = sensors.filter((sensor) => sensor.deviceId === device.id)
+          const isExpanded = expandedGateways.has(device.id)
           return (
-            <li key={device.id}>
-              <label className="map-tree-item">
-                <input
-                  type="checkbox"
-                  checked={state.checked}
-                  ref={(el) => {
-                    if (el) el.indeterminate = state.indeterminate
-                  }}
-                  onChange={() => onToggleController(device.id)}
-                />
-                <span className="map-tree-label">
-                  {device.name || device.deviceId || 'Controller'}{' '}
-                  <span className="map-tree-meta">
-                    {childSensors.length} {childSensors.length === 1 ? 'Sensor' : 'Sensoren'}
-                  </span>
-                </span>
-              </label>
-              {childSensors.length > 0 ? (
+            <li key={device.id} className="map-tree-group">
+              <div className="map-tree-group-head">
+                <div className="map-tree-group-main">
+                  <label className="map-tree-item map-tree-item--gateway">
+                    <span className="map-tree-name map-tree-name--gateway">{device.name || device.deviceId || 'Controller'}</span>
+                    <input
+                      type="checkbox"
+                      checked={state.checked}
+                      ref={(el) => {
+                        if (el) el.indeterminate = state.indeterminate
+                      }}
+                      onChange={() => onToggleController(device.id)}
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  className="map-tree-expand"
+                  aria-label={isExpanded ? 'Sensoren einklappen' : 'Sensoren ausklappen'}
+                  aria-expanded={isExpanded}
+                  onClick={() => toggleGateway(device.id)}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d={isExpanded ? 'M7 14l5-5 5 5z' : 'M7 10l5 5 5-5z'} />
+                  </svg>
+                </button>
+              </div>
+              {childSensors.length > 0 && isExpanded ? (
                 <ul className="map-tree-sensors">
                   {childSensors.map((sensor) => (
                     <li key={sensor.id}>
                       <label className="map-tree-item sensor">
+                        <span className="map-tree-name">{sensor.name}</span>
                         <input
                           type="checkbox"
                           checked={selection.sensors.has(sensor.id)}
                           onChange={() => onToggleSensor(sensor.id)}
                         />
-                        <span className="map-tree-label">
-                          {sensor.name}{' '}
-                          <span className="map-tree-meta">{sensor.type || 'Sensor'}</span>
-                        </span>
                       </label>
                     </li>
                   ))}
@@ -106,21 +171,18 @@ function SelectionTree({ devices, sensors, selection, onToggleController, onTogg
           )
         })}
         {orphanSensors.length > 0 ? (
-          <li>
+          <li className="map-tree-group map-tree-group--orphan">
             <p className="map-tree-group-label">Sensoren ohne Controller</p>
             <ul className="map-tree-sensors">
               {orphanSensors.map((sensor) => (
                 <li key={sensor.id}>
                   <label className="map-tree-item sensor">
+                    <span className="map-tree-name">{sensor.name}</span>
                     <input
                       type="checkbox"
                       checked={selection.sensors.has(sensor.id)}
                       onChange={() => onToggleSensor(sensor.id)}
                     />
-                    <span className="map-tree-label">
-                      {sensor.name}{' '}
-                      <span className="map-tree-meta">{sensor.type || 'Sensor'}</span>
-                    </span>
                   </label>
                 </li>
               ))}
@@ -132,23 +194,7 @@ function SelectionTree({ devices, sensors, selection, onToggleController, onTogg
   )
 }
 
-function Marker({ marker, position, onClick }) {
-  const isMitfahrbank = marker.kind === 'mitfahrbank'
-  const isController = marker.kind === 'controller'
-  return (
-    <button
-      type="button"
-      className={`map-marker${isController ? ' controller' : ''}${isMitfahrbank ? ' mitfahrbank' : ''}`}
-      style={{ left: position.left, top: position.top, background: marker.color }}
-      onClick={() => onClick(marker.id)}
-      aria-label={`${marker.label} auswählen`}
-    >
-      {isMitfahrbank ? '🪑' : isController ? '📡' : '•'}
-    </button>
-  )
-}
-
-function MarkerPopup({ marker, position, onClose }) {
+function MarkerPopupContent({ marker }) {
   const lastUpdate = marker.lastTs
     ? new Date(marker.lastTs).toLocaleString('de-DE')
     : 'Keine Zeitangabe'
@@ -160,19 +206,12 @@ function MarkerPopup({ marker, position, onClose }) {
         : 'Keine Messung'
 
   return (
-    <div className="map-popup" style={{ left: position.left, top: position.top }}>
-      <div className="map-popup-header">
-        <div>
-          <strong>{marker.label}</strong>
-          <p className="map-popup-sub">
-            {marker.type}
-            {marker.controllerName ? ` · ${marker.controllerName}` : ''}
-          </p>
-        </div>
-        <button type="button" className="map-popup-close" onClick={onClose} aria-label="Popup schließen">
-          ×
-        </button>
-      </div>
+    <div className="map-popup-content">
+      <strong>{marker.label}</strong>
+      <p className="map-popup-sub">
+        {marker.type}
+        {marker.controllerName ? ` · ${marker.controllerName}` : ''}
+      </p>
       <p className="map-popup-value">
         {valueLabel} · <span className="map-popup-ts">{lastUpdate}</span>
       </p>
@@ -180,23 +219,32 @@ function MarkerPopup({ marker, position, onClose }) {
   )
 }
 
-const isSmallScreen = () =>
-  typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+function VisibilityIcon({ visible }) {
+  return visible ? (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M12 5C6.5 5 2 9.5 1 12c1 2.5 5.5 7 11 7s10-4.5 11-7c-1-2.5-5.5-7-11-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"
+      />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M2.7 1.3 1.3 2.7 5 6.4C3.2 7.8 1.8 9.6 1 12c1 2.5 5.5 7 11 7 2.4 0 4.6-.8 6.4-2.1l3 3 1.4-1.4L2.7 1.3ZM12 17c-3.8 0-7-2.8-8.7-5 1-1.6 2.4-3.2 4.2-4.2l1.8 1.8A4 4 0 0 0 14.4 15l2.5 2.5c-1.4.9-3.1 1.5-4.9 1.5Zm10.7-5c-.8 2-2.6 4.3-5.2 5.7l-1.5-1.5A4 4 0 0 0 10 10.3L8.1 8.4A10.8 10.8 0 0 1 12 7c3.8 0 7 2.8 8.7 5Z"
+      />
+    </svg>
+  )
+}
 
 export default function MapPanel({ general, sensors = [], devices = [] }) {
   const [center, setCenter] = useState(FALLBACK_LOCATION)
-  const [isFallback, setIsFallback] = useState(true)
   const [error, setError] = useState('')
   const [selection, setSelection] = useState(() => buildSelectionState(devices, sensors))
-  const [activePopupId, setActivePopupId] = useState(null)
-  const [mapSize, setMapSize] = useState({ width: 900, height: 520 })
-  const mapRef = useRef(null)
-  const [isPanelOpen, setIsPanelOpen] = useState(true)
-  const [useEmbedFallback, setUseEmbedFallback] = useState(false)
-  const [embedFailed, setEmbedFailed] = useState(false)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
 
   const locationLabel =
-    general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : 'Lörrach (Fallback)'
+    general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : ''
 
   useEffect(() => {
     let cancelled = false
@@ -205,7 +253,6 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
 
     if (!zip && !city) {
       setCenter(FALLBACK_LOCATION)
-      setIsFallback(true)
       setError('')
       return
     }
@@ -214,15 +261,13 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
       .then((coords) => {
         if (cancelled) return
         setCenter(coords)
-        setIsFallback(false)
         setError('')
       })
       .catch((err) => {
         if (cancelled) return
         console.error('Geocoding failed', err)
         setCenter(FALLBACK_LOCATION)
-        setIsFallback(true)
-        setError('Geokodierung fehlgeschlagen, Fallback wird genutzt.')
+        setError('Geokodierung fehlgeschlagen, Standardposition wird genutzt.')
       })
 
     return () => {
@@ -234,61 +279,15 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
     setSelection((prev) => buildSelectionState(devices, sensors, prev))
   }, [devices, sensors])
 
-  useEffect(() => {
-    // Default: show panel on desktop, collapse on small screens
-    if (isSmallScreen()) {
-      setIsPanelOpen(false)
-    }
-
-    const media = typeof window !== 'undefined' ? window.matchMedia('(max-width: 900px)') : null
-    const handleMediaChange = (event) => {
-      setIsPanelOpen(!event.matches)
-    }
-    media?.addEventListener('change', handleMediaChange)
-
-    const el = mapRef.current
-    if (!el || typeof ResizeObserver === 'undefined') return undefined
-    const observer = new ResizeObserver((entries) => {
-      const nextWidth = Math.max(320, Math.round(entries[0].contentRect.width))
-      const nextHeight = Math.max(320, Math.round(nextWidth * 0.62))
-      setMapSize({ width: nextWidth, height: nextHeight })
-    })
-    observer.observe(el)
-    return () => {
-      observer.disconnect()
-      media?.removeEventListener('change', handleMediaChange)
-    }
-  }, [])
-
   const embedUrl = useMemo(
     () => buildEmbedUrl(center.lat, center.lng),
     [center.lat, center.lng]
   )
-  const staticMapUrl = useMemo(() => buildStaticMapUrl(center, mapSize), [center, mapSize])
-
-  useEffect(() => {
-    // If the static map URL changes (new size or center), retry loading the image
-    setUseEmbedFallback(false)
-    setEmbedFailed(false)
-  }, [staticMapUrl])
-
-  useEffect(() => {
-    if (useEmbedFallback) {
-      setEmbedFailed(true)
-    }
-  }, [useEmbedFallback])
 
   const markers = useMemo(
     () => buildMarkers({ sensors, devices, selection, includeControllers: true }),
     [sensors, devices, selection]
   )
-
-  const positions = useMemo(() => {
-    return markers.reduce((acc, marker) => {
-      acc[marker.id] = projectToPoint(marker.lat, marker.lng, center, mapSize)
-      return acc
-    }, {})
-  }, [markers, center, mapSize])
 
   const handleToggleController = (controllerId) => {
     setSelection((prev) => toggleControllerSelection(controllerId, sensors, prev))
@@ -298,32 +297,25 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
     setSelection((prev) => toggleSensorSelection(sensorId, sensors, prev))
   }
 
-  const activeMarker = markers.find((marker) => marker.id === activePopupId)
-  const activePosition = activeMarker ? positions[activeMarker.id] : null
+  const totalSelectableCount = devices.length + sensors.length
+  const selectedCount = selection.controllers.size + selection.sensors.size
+  const allSelected = totalSelectableCount > 0 && selectedCount === totalSelectableCount
+  const partiallySelected = selectedCount > 0 && selectedCount < totalSelectableCount
+
+  const handleToggleAll = () => {
+    if (allSelected) {
+      setSelection({ controllers: new Set(), sensors: new Set() })
+      return
+    }
+
+    setSelection({
+      controllers: new Set(devices.map((device) => device.id)),
+      sensors: new Set(sensors.map((sensor) => sensor.id)),
+    })
+  }
 
   return (
     <section className="map-panel">
-      <p className="map-panel-hint" id="map-panel-hint">
-        OpenStreetMap-Karte der Gemeinde. Mittelpunkt{' '}
-        <strong>{locationLabel}</strong>{' '}
-        <span aria-label="Koordinaten">
-          ({center.lat.toFixed(4)}, {center.lng.toFixed(4)})
-        </span>
-        {isFallback ? ' – Fallback wird genutzt, weil keine Geodaten gefunden wurden.' : ''}
-      </p>
-      {error ? <p className="map-panel-error">{error}</p> : null}
-
-      <div className="map-panel-actions">
-        <button
-          type="button"
-          className="map-toggle-button"
-          aria-pressed={isPanelOpen}
-          onClick={() => setIsPanelOpen((prev) => !prev)}
-        >
-          {isPanelOpen ? 'Auswahl ausblenden' : 'Auswahl einblenden'}
-        </button>
-      </div>
-
       <div className={`map-layout ${isPanelOpen ? 'map-layout--split' : 'map-layout--single'}`}>
         {isPanelOpen ? (
           <SelectionTree
@@ -332,66 +324,87 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
             selection={selection}
             onToggleController={handleToggleController}
             onToggleSensor={handleToggleSensor}
+            allSelected={allSelected}
+            partiallySelected={partiallySelected}
+            onToggleAll={handleToggleAll}
           />
         ) : null}
-        <div className="map-frame" role="region" aria-label="Gemeindekarte" ref={mapRef}>
-          {useEmbedFallback ? (
-            <div className="map-embed-wrapper" style={{ height: mapSize.height }}>
-              <iframe
-                title="Gemeindekarte"
-                src={embedUrl}
-                aria-describedby="map-panel-hint"
-                style={{ border: 0, width: '100%', height: '100%' }}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                allowFullScreen
-                onLoad={() => setEmbedFailed(false)}
-                onError={() => setEmbedFailed(true)}
-              />
-              {embedFailed ? (
-                <div className="map-placeholder" aria-live="polite">
-                  <p>Karte konnte nicht geladen werden.</p>
-                  <p>Bitte Verbindung prüfen oder später erneut versuchen.</p>
-                </div>
-              ) : null}
+        <div className="map-frame" role="region" aria-label="Gemeindekarte">
+          <MapContainer
+            center={[center.lat, center.lng]}
+            zoom={BASE_MAP_ZOOM}
+            minZoom={5}
+            maxZoom={19}
+            scrollWheelZoom
+            className="map-leaflet"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <MapViewportSync center={center} panelOpen={isPanelOpen} />
+
+            <Marker position={[center.lat, center.lng]} icon={CITY_PIN_ICON} zIndexOffset={1200}>
+              <Popup>
+                <strong>{locationLabel || 'Aktueller Ort'}</strong>
+              </Popup>
+            </Marker>
+
+            {markers.map((marker) => (
+              <Marker
+                key={marker.id}
+                position={[marker.lat, marker.lng]}
+                icon={
+                  marker.kind === 'controller'
+                    ? GATEWAY_PIN_ICON
+                    : getPinIcon(marker.color || '#7c3aed', marker.kind === 'mitfahrbank' ? 'mitfahrbank' : 'sensor')
+                }
+              >
+                <Popup>
+                  <MarkerPopupContent marker={marker} />
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+          <button
+            type="button"
+            className="map-toggle-button map-toggle-button--in-map"
+            aria-pressed={isPanelOpen}
+            aria-label={isPanelOpen ? 'Sensor Filter ausblenden' : 'Sensor Filter einblenden'}
+            onClick={() => setIsPanelOpen((prev) => !prev)}
+          >
+            <span className="map-toggle-icon">
+              <VisibilityIcon visible={isPanelOpen} />
+            </span>
+            <span>Sensor Filter</span>
+          </button>
+          <div className="map-ui-layer" aria-hidden="true">
+            <div className="map-legend-overlay" aria-label="Legende">
+              <h4>Legende</h4>
+              <ul>
+                <li>
+                  <span className="legend-dot" style={{ background: '#ff2d55' }} /> Aktuelle Stadt
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#1f2937' }} /> Gateway
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#0077ff' }} /> Sensor niedrig
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#ff9f1a' }} /> Sensor mittel
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#d90429' }} /> Sensor hoch
+                </li>
+                <li>
+                  <span className="legend-dot" style={{ background: '#7c3aed' }} /> Sensor ohne Messwert
+                </li>
+              </ul>
             </div>
-          ) : (
-            <>
-              <img
-                src={staticMapUrl}
-                alt={`OpenStreetMap für ${locationLabel}`}
-                width="100%"
-                height={mapSize.height}
-                style={{ display: 'block', borderRadius: 12 }}
-                loading="lazy"
-                onError={() => {
-                  setUseEmbedFallback(true)
-                  setEmbedFailed(true)
-                }}
-              />
-              <div className="map-overlay" style={{ width: mapSize.width, height: mapSize.height }}>
-                {markers.map((marker) => (
-                  <Marker
-                    key={marker.id}
-                    marker={marker}
-                    position={positions[marker.id]}
-                    onClick={setActivePopupId}
-                  />
-                ))}
-                {activeMarker && activePosition ? (
-                  <MarkerPopup
-                    marker={activeMarker}
-                    position={activePosition}
-                    onClose={() => setActivePopupId(null)}
-                  />
-                ) : null}
-              </div>
-            </>
-          )}
+          </div>
         </div>
       </div>
-
-      <Legend />
 
       <p className="map-panel-meta">
         <a

@@ -21,16 +21,26 @@ export default function DeleteAccountDialog({
   if (!isOpen) return null
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true">
-      <div className="modal-card">
-        <h2>Account endgültig löschen</h2>
-        <p>
-          Diese Aktion löscht das komplette Konto, alle Gemeinden, Benutzer, Sensoren und
-          Sensordaten dauerhaft. Der Vorgang kann <strong>nicht</strong> rückgängig gemacht werden.
+    <div
+      className="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-account-title"
+      aria-describedby="delete-account-description"
+    >
+      <div className="modal-card delete-account-dialog">
+        <h2 id="delete-account-title">Konto endgültig löschen</h2>
+
+        <p id="delete-account-description" className="delete-account-lead">
+          Diese Aktion entfernt Konto und zugehörige Daten dauerhaft.
         </p>
-        <p>
-          Zur Bestätigung gib bitte die E-Mail des Accounts ein:{' '}
-          <code className="mono">{confirmationPhrase}</code>
+
+        <div className="delete-account-warning" role="note" aria-label="Warnhinweis">
+          <strong>Achtung:</strong> Der Vorgang kann nicht rückgängig gemacht werden.
+        </div>
+
+        <p className="delete-account-help">
+          Zur Bestätigung gib bitte die E-Mail des Accounts exakt ein: <strong>{confirmationPhrase}</strong>
         </p>
 
         <input
@@ -39,17 +49,23 @@ export default function DeleteAccountDialog({
           onChange={(e) => setPhrase(e.target.value)}
           placeholder={confirmationPhrase}
           disabled={isLoading}
+          className={`delete-account-input${phrase && !isValid ? ' input-invalid' : ''}`}
         />
 
         {error ? <p className="auth-error">{error}</p> : null}
 
-        <div className="modal-actions">
-          <button type="button" onClick={onCancel} disabled={isLoading}>
+        <div className="modal-actions delete-account-actions">
+          <button
+            type="button"
+            className="delete-account-cancel-button"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             Abbrechen
           </button>
           <button
             type="button"
-            className="danger"
+            className="delete-account-confirm-button"
             onClick={onConfirm}
             disabled={!isValid || isLoading}
           >

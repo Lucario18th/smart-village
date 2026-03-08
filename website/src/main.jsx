@@ -7,6 +7,7 @@ import './css/light-hc.css'
 import './css/dark.css'
 import './css/dark-mc.css'
 import './css/dark-hc.css'
+import 'leaflet/dist/leaflet.css'
 import './styles.css'
 
 /**
@@ -18,7 +19,15 @@ async function initializeMocks() {
   if (import.meta.env.DEV) {
     const { worker } = await import('./mocks/browser');
     await worker.start({
-      onUnhandledRequest: 'warn',
+      onUnhandledRequest(request, print) {
+        const url = new URL(request.url)
+        const isLocalApi = url.origin === window.location.origin && url.pathname.startsWith('/api/')
+        if (isLocalApi) {
+          print.warning()
+          return
+        }
+        // Ignore non-API assets/external URLs to avoid repeated dev noise.
+      },
     });
   }
 }

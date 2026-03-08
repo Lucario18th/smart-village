@@ -7,6 +7,7 @@ const BASE_CONFIG = {
     municipalityCode: '',
     contactEmail: '',
     contactPhone: '',
+    statusText: '',
     infoText: '',
     zipCode: '',
     city: '',
@@ -136,54 +137,23 @@ export function toApiPayload(config) {
 
 export function getSectionSummary(config, sectionId) {
   if (sectionId === 'general') {
-    return [
-      `Ortsname: ${config.general.villageName || 'nicht gesetzt'}`,
-      `PLZ/Ort: ${
-        config.general.zipCode && config.general.city
-          ? `${config.general.zipCode} ${config.general.city}`
-          : 'nicht gesetzt'
-      }`,
-      `Gemeinde-ID: ${config.general.municipalityCode || 'nicht gesetzt'}`,
-      `Kontakt: ${config.general.contactEmail || 'nicht gesetzt'}`,
-    ]
+    return []
   }
 
   if (sectionId === 'map') {
-    const locationLabel =
-      config.general.zipCode && config.general.city
-        ? `${config.general.zipCode} ${config.general.city}`
-        : 'Lörrach (Fallback)'
+    if (config.general.zipCode && config.general.city) {
+      return [`Zentrum: ${config.general.zipCode} ${config.general.city}`]
+    }
 
-    const coordsLabel = `Koordinaten: dynamisch über Geokodierung (Fallback: ${FALLBACK_LOCATION.lat.toFixed(
-      4,
-    )}, ${FALLBACK_LOCATION.lng.toFixed(4)})`
-
-    return [`Zentrum: ${locationLabel}`, coordsLabel]
+    return []
   }
 
   if (sectionId === 'modules') {
-    const moduleSummaries = [
-      { id: 'sensors', label: 'Sensoren' },
-      { id: 'weather', label: 'Wetter' },
-      { id: 'news', label: 'News' },
-      { id: 'events', label: 'Events' },
-    ]
-
-    return moduleSummaries.map(({ id, label }) => {
-      const moduleState = config.modules?.[id] || {}
-      const enabled = moduleState.enabled ? 'aktiv' : 'inaktiv'
-      const count = Array.isArray(moduleState.sensors) ? moduleState.sensors.length : 0
-      const sensorLabel = count === 1 ? 'Sensor' : 'Sensoren'
-      return `${label}: ${enabled} (${count} ${sensorLabel})`
-    })
+    return []
   }
 
   if (sectionId === 'design') {
-    return [
-      `Theme: ${config.design.themeMode}`,
-      `Kontrast: ${config.design.contrast}`,
-      `Icon-Set: ${config.design.iconSet}`,
-    ]
+    return []
   }
 
   return []

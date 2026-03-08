@@ -24,7 +24,7 @@ const DISCOVERY_POLL_INTERVAL_MS =
 const AUTO_REFRESH_ENABLED = (import.meta.env?.VITE_AUTO_REFRESH_ENABLED ?? 'true') !== 'false'
 const TOAST_BUFFER_MS = 1200
 const MAX_TOAST_LENGTH = 160
-const TOAST_DISMISS_MS = 4000
+const TOAST_DISMISS_MS = 7000
 const truncateToast = (text) =>
   text.length > MAX_TOAST_LENGTH ? `${text.slice(0, MAX_TOAST_LENGTH - 3)}…` : text
 const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
@@ -226,6 +226,7 @@ export function useVillageConfig(session) {
             villageName: village.name || '',
             locationName: village.locationName || '',
             phone: village.phone || '',
+            statusText: village.statusText || '',
             infoText: village.infoText || '',
             contactEmail: village.contactEmail || session.email,
             contactPhone: village.contactPhone || '',
@@ -242,7 +243,7 @@ export function useVillageConfig(session) {
           },
           design: {
             themeMode: 'light',
-            contrast: 'normal',
+            contrast: 'standard',
             primaryColor: '#3498db',
           },
           sensors: mapSensors(village.sensors),
@@ -252,7 +253,7 @@ export function useVillageConfig(session) {
         setConfig(newConfig)
         setHasUnsavedChanges(false)
         setStorageMessage('Konfiguration vom Server geladen')
-        applyThemeToDOM('light')
+        applyThemeToDOM(getThemeClass(newConfig.design.themeMode, newConfig.design.contrast))
       } catch (error) {
         console.error('Failed to load config from API:', error)
         setStorageMessage(`Fehler beim Laden: ${error.message}`)
@@ -298,6 +299,27 @@ export function useVillageConfig(session) {
           [moduleId]: {
             ...currentConfig.modules[moduleId],
             enabled,
+          },
+        },
+      }
+      setHasUnsavedChanges(true)
+      return markUpdated(nextConfig)
+    })
+  }, [])
+
+  const updateModuleFieldEnabled = useCallback((moduleId, fieldId, enabled) => {
+    setConfig((currentConfig) => {
+      const moduleConfig = currentConfig.modules?.[moduleId] || {}
+      const nextConfig = {
+        ...currentConfig,
+        modules: {
+          ...currentConfig.modules,
+          [moduleId]: {
+            ...moduleConfig,
+            fields: {
+              ...(moduleConfig.fields || {}),
+              [fieldId]: enabled,
+            },
           },
         },
       }
@@ -596,6 +618,7 @@ export function useVillageConfig(session) {
       setConfig(newConfig)
       setHasUnsavedChanges(false)
       setStorageMessage('Von Server neu geladen')
+      applyThemeToDOM(getThemeClass(newConfig.design.themeMode, newConfig.design.contrast))
     } catch (error) {
       console.error('Load failed:', error)
       setStorageMessage(`Laden fehlgeschlagen: ${error.message}`)
@@ -610,6 +633,7 @@ export function useVillageConfig(session) {
     setConfig(defaultConfig)
     setHasUnsavedChanges(false)
     setStorageMessage('Auf Standardwerte zurückgesetzt')
+    applyThemeToDOM(getThemeClass(defaultConfig.design.themeMode, defaultConfig.design.contrast))
   }, [session.email])
 
   const getSummaryForSection = useCallback((sectionId) => {
@@ -652,6 +676,7 @@ export function useVillageConfig(session) {
     getSummaryForSection,
     updateGeneralField,
     updateModuleEnabled,
+    updateModuleFieldEnabled,
     addSensor,
     updateSensor,
     removeSensor,

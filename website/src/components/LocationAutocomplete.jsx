@@ -10,6 +10,8 @@ export default function LocationAutocomplete({
   onSelect,
   selectedOption = null,
   disabled = false,
+  className = '',
+  labelClassName = '',
 }) {
   const [query, setQuery] = React.useState(selectedOption ? formatOption(selectedOption) : '')
   const [options, setOptions] = React.useState([])
@@ -60,20 +62,38 @@ export default function LocationAutocomplete({
     onSelect?.(null)
   }
 
+  const hasError = !!error && query.length >= 2 && !isLoading
+
+  const rootClassName = className ? `autocomplete ${className}` : 'autocomplete'
+  const resolvedLabelClassName = labelClassName ? labelClassName : undefined
+
   return (
-    <div className="autocomplete">
-      <label htmlFor="villageSearch">{label}</label>
-      <input
-        id="villageSearch"
-        type="text"
-        value={query}
-        onChange={handleInputChange}
-        placeholder={placeholder}
-        autoComplete="off"
-        disabled={disabled}
-      />
-      {isLoading ? <small className="auth-hint">Lade Vorschläge…</small> : null}
-      {error ? <small className="auth-error">{error}</small> : null}
+    <div className={rootClassName}>
+      <label htmlFor="villageSearch" className={resolvedLabelClassName}>{label}</label>
+      <div className="autocomplete-input-wrap">
+        <input
+          id="villageSearch"
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          placeholder={placeholder}
+          autoComplete="off"
+          disabled={disabled}
+          className={hasError ? 'autocomplete-input-error' : ''}
+          aria-invalid={hasError}
+        />
+        {hasError ? (
+          <span
+            className="autocomplete-error-icon"
+            role="img"
+            aria-label={error}
+            title={error}
+            tabIndex={0}
+          >
+            !
+          </span>
+        ) : null}
+      </div>
 
       {showDropdown && options.length > 0 ? (
         <ul className="autocomplete-list">
@@ -87,9 +107,6 @@ export default function LocationAutocomplete({
         </ul>
       ) : null}
 
-      {showDropdown && !isLoading && options.length === 0 && query.length >= 2 ? (
-        <small className="auth-hint">Keine Ergebnisse</small>
-      ) : null}
     </div>
   )
 }
