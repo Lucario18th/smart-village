@@ -49,26 +49,15 @@ export function buildSelectionState(devices = [], sensors = [], previous = defau
 }
 
 export function toggleControllerSelection(controllerId, sensors = [], selection = defaultSelectionState) {
-  const childSensors = sensors.filter((sensor) => sensor.deviceId === controllerId).map((s) => s.id)
-  const allSelected = childSensors.every((id) => selection.sensors.has(id))
-
-  const nextSensors = new Set(selection.sensors)
-  childSensors.forEach((sensorId) => {
-    if (allSelected) {
-      nextSensors.delete(sensorId)
-    } else {
-      nextSensors.add(sensorId)
-    }
-  })
-
   const nextControllers = new Set(selection.controllers)
-  if (allSelected) {
+  if (nextControllers.has(controllerId)) {
     nextControllers.delete(controllerId)
   } else {
     nextControllers.add(controllerId)
   }
 
-  return { controllers: nextControllers, sensors: nextSensors }
+  // Gateway toggle is independent from sensor toggles.
+  return { controllers: nextControllers, sensors: new Set(selection.sensors) }
 }
 
 export function toggleSensorSelection(sensorId, sensors = [], selection = defaultSelectionState) {
@@ -79,33 +68,15 @@ export function toggleSensorSelection(sensorId, sensors = [], selection = defaul
     nextSensors.add(sensorId)
   }
 
-  const nextControllers = new Set(selection.controllers)
-  const sensor = sensors.find((s) => s.id === sensorId)
-  const controllerId = sensor?.deviceId
-  if (controllerId) {
-    const siblings = sensors.filter((s) => s.deviceId === controllerId).map((s) => s.id)
-    const selectedCount = siblings.filter((id) => nextSensors.has(id)).length
-    if (selectedCount === siblings.length) {
-      nextControllers.add(controllerId)
-    } else if (selectedCount === 0) {
-      nextControllers.delete(controllerId)
-    }
-  }
-
-  return { controllers: nextControllers, sensors: nextSensors }
+  // Sensor toggles are intentionally independent of gateway toggles.
+  return { controllers: new Set(selection.controllers), sensors: nextSensors }
 }
 
 export function getControllerSelectionState(controllerId, sensors = [], selection = defaultSelectionState) {
-  const relatedSensors = sensors.filter((sensor) => sensor.deviceId === controllerId)
-  if (relatedSensors.length === 0) {
-    const checked = selection.controllers.has(controllerId)
-    return { checked, indeterminate: false }
-  }
-
-  const selectedCount = relatedSensors.filter((sensor) => selection.sensors.has(sensor.id)).length
+  // Gateway state is no longer derived from child sensor selection.
   return {
-    checked: selectedCount === relatedSensors.length,
-    indeterminate: selectedCount > 0 && selectedCount < relatedSensors.length,
+    checked: selection.controllers.has(controllerId),
+    indeterminate: false,
   }
 }
 

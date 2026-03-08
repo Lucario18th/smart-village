@@ -21,26 +21,26 @@ const baseSensors = [
 ]
 
 describe('mapViewUtils selection logic', () => {
-  it('toggles controller and sensors together', () => {
+  it('toggles controller independently from sensors', () => {
     const initial = buildSelectionState(baseDevices, baseSensors, defaultSelectionState)
     expect(initial.sensors.has(10)).toBe(true)
     expect(initial.sensors.has(11)).toBe(true)
 
-    const deselected = toggleControllerSelection(1, baseSensors, initial)
-    expect(deselected.sensors.has(10)).toBe(false)
-    expect(deselected.sensors.has(11)).toBe(false)
+    const toggledOff = toggleControllerSelection(1, baseSensors, initial)
+    expect(toggledOff.controllers.has(1)).toBe(false)
+    expect(toggledOff.sensors.has(10)).toBe(true)
+    expect(toggledOff.sensors.has(11)).toBe(true)
 
-    const reselected = toggleControllerSelection(1, baseSensors, deselected)
-    expect(reselected.sensors.has(10)).toBe(true)
-    expect(reselected.sensors.has(11)).toBe(true)
+    const toggledOn = toggleControllerSelection(1, baseSensors, toggledOff)
+    expect(toggledOn.controllers.has(1)).toBe(true)
   })
 
-  it('marks controller indeterminate when partially selected', () => {
+  it('keeps controller state stable when sensor selection changes', () => {
     const initial = buildSelectionState(baseDevices, baseSensors, defaultSelectionState)
     const partial = toggleSensorSelection(10, baseSensors, initial)
     const state = getControllerSelectionState(1, baseSensors, partial)
-    expect(state.indeterminate).toBe(true)
-    expect(state.checked).toBe(false)
+    expect(state.indeterminate).toBe(false)
+    expect(state.checked).toBe(true)
   })
 })
 

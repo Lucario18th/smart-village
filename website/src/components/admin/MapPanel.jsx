@@ -27,48 +27,85 @@ const buildStaticMapUrl = (center, size) => {
 }
 
 function SelectionTree({ devices, sensors, selection, onToggleController, onToggleSensor }) {
+  const [expandedGateways, setExpandedGateways] = useState(() => new Set(devices.map((d) => d.id)))
+
+  useEffect(() => {
+    setExpandedGateways((prev) => {
+      const next = new Set()
+      devices.forEach((device) => {
+        if (prev.has(device.id)) {
+          next.add(device.id)
+        }
+      })
+      if (next.size === 0 && devices[0]?.id) {
+        next.add(devices[0].id)
+      }
+      return next
+    })
+  }, [devices])
+
+  const toggleGateway = (deviceId) => {
+    setExpandedGateways((prev) => {
+      const next = new Set(prev)
+      if (next.has(deviceId)) {
+        next.delete(deviceId)
+      } else {
+        next.add(deviceId)
+      }
+      return next
+    })
+  }
+
   const orphanSensors = sensors.filter((sensor) => !sensor.deviceId)
 
   return (
     <div className="map-tree" aria-label="Sensor- und Controller-Auswahl">
       <h3>Sichtbare Sensoren</h3>
-      <p className="map-tree-hint">Controller schalten alle untergeordneten Sensoren ein/aus.</p>
+      <p className="map-tree-hint">Gateway- und Sensor-Toggles koennen unabhaengig voneinander gesteuert werden.</p>
       <ul className="map-tree-list">
         {devices.map((device) => {
           const state = getControllerSelectionState(device.id, sensors, selection)
           const childSensors = sensors.filter((sensor) => sensor.deviceId === device.id)
+          const isExpanded = expandedGateways.has(device.id)
           return (
-            <li key={device.id}>
-              <label className="map-tree-item">
-                <input
-                  type="checkbox"
-                  checked={state.checked}
-                  ref={(el) => {
-                    if (el) el.indeterminate = state.indeterminate
-                  }}
-                  onChange={() => onToggleController(device.id)}
-                />
-                <span className="map-tree-label">
-                  {device.name || device.deviceId || 'Controller'}{' '}
-                  <span className="map-tree-meta">
-                    {childSensors.length} {childSensors.length === 1 ? 'Sensor' : 'Sensoren'}
-                  </span>
-                </span>
-              </label>
-              {childSensors.length > 0 ? (
+            <li key={device.id} className="map-tree-group">
+              <div className="map-tree-group-head">
+                <div className="map-tree-group-main">
+                  <label className="map-tree-item map-tree-item--gateway">
+                    <span className="map-tree-name map-tree-name--gateway">{device.name || device.deviceId || 'Controller'}</span>
+                    <input
+                      type="checkbox"
+                      checked={state.checked}
+                      ref={(el) => {
+                        if (el) el.indeterminate = state.indeterminate
+                      }}
+                      onChange={() => onToggleController(device.id)}
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  className="map-tree-expand"
+                  aria-label={isExpanded ? 'Sensoren einklappen' : 'Sensoren ausklappen'}
+                  aria-expanded={isExpanded}
+                  onClick={() => toggleGateway(device.id)}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d={isExpanded ? 'M7 14l5-5 5 5z' : 'M7 10l5 5 5-5z'} />
+                  </svg>
+                </button>
+              </div>
+              {childSensors.length > 0 && isExpanded ? (
                 <ul className="map-tree-sensors">
                   {childSensors.map((sensor) => (
                     <li key={sensor.id}>
                       <label className="map-tree-item sensor">
+                        <span className="map-tree-name">{sensor.name}</span>
                         <input
                           type="checkbox"
                           checked={selection.sensors.has(sensor.id)}
                           onChange={() => onToggleSensor(sensor.id)}
                         />
-                        <span className="map-tree-label">
-                          {sensor.name}{' '}
-                          <span className="map-tree-meta">{sensor.type || 'Sensor'}</span>
-                        </span>
                       </label>
                     </li>
                   ))}
@@ -78,21 +115,18 @@ function SelectionTree({ devices, sensors, selection, onToggleController, onTogg
           )
         })}
         {orphanSensors.length > 0 ? (
-          <li>
+          <li className="map-tree-group map-tree-group--orphan">
             <p className="map-tree-group-label">Sensoren ohne Controller</p>
             <ul className="map-tree-sensors">
               {orphanSensors.map((sensor) => (
                 <li key={sensor.id}>
                   <label className="map-tree-item sensor">
+                    <span className="map-tree-name">{sensor.name}</span>
                     <input
                       type="checkbox"
                       checked={selection.sensors.has(sensor.id)}
                       onChange={() => onToggleSensor(sensor.id)}
                     />
-                    <span className="map-tree-label">
-                      {sensor.name}{' '}
-                      <span className="map-tree-meta">{sensor.type || 'Sensor'}</span>
-                    </span>
                   </label>
                 </li>
               ))}
