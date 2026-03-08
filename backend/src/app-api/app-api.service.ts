@@ -115,6 +115,14 @@ export class AppApiService {
             textileContainers: village.features.enableTextileContainers,
           }
         : null,
+      sensorDetailVisibility: village.features
+        ? {
+            name: village.features.showSensorName,
+            type: village.features.showSensorType,
+            description: village.features.showSensorDescription,
+            coordinates: village.features.showSensorCoordinates,
+          }
+        : null,
       sensors: sensors.map((s) => ({
         id: s.id,
         name: s.name,

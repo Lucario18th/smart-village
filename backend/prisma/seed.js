@@ -350,6 +350,10 @@ async function seedVillageFeatures() {
         enableMap: true,
         enableRideShare: true,
         enableTextileContainers: false,
+        showSensorName: true,
+        showSensorType: true,
+        showSensorDescription: true,
+        showSensorCoordinates: true,
       },
     });
   }

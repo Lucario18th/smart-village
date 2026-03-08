@@ -253,10 +253,14 @@ Jede Gemeinde hat hoechstens einen VillageFeatures-Eintrag (1:1-Beziehung).
 | enableMap | Boolean | Kartenansicht in der App aktivieren (Standard: true) |
 | enableRideShare | Boolean | Mitfahrbank-Daten in der App anzeigen (Standard: true) |
 | enableTextileContainers | Boolean | Altkleider-Container in der App anzeigen (Standard: false) |
+| showSensorName | Boolean | Sensorname in der App-Detailansicht anzeigen (Standard: true) |
+| showSensorType | Boolean | Sensortyp in der App-Detailansicht anzeigen (Standard: true) |
+| showSensorDescription | Boolean | Sensorbeschreibung in der App-Detailansicht anzeigen (Standard: true) |
+| showSensorCoordinates | Boolean | Sensorkoordinaten in der App-Detailansicht anzeigen (Standard: true) |
 
 **Beziehungen:** Gehoert zu genau einer Village (1:1).
 
-**Verwendung:** Wird von der App-API ausgelesen, um zu steuern, welche Module in der App sichtbar sind. Siehe [App-API-Dokumentation](../backend/app-api.md).
+**Verwendung:** Wird von der App-API ausgelesen, um zu steuern, welche Module in der App sichtbar sind. Die vier `showSensor*`-Felder steuern zusaetzlich, welche Detailinformationen zu einem Sensor in der App angezeigt werden. Siehe [App-API-Dokumentation](../backend/app-api.md).
 
 ## Enums
 

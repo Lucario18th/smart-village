@@ -88,6 +88,12 @@ describe('AppApiController', () => {
           rideShare: true,
           textileContainers: false,
         },
+        sensorDetailVisibility: {
+          name: true,
+          type: true,
+          description: true,
+          coordinates: true,
+        },
         sensors: [
           {
             id: 1,
@@ -106,6 +112,12 @@ describe('AppApiController', () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockConfig);
       expect(result.data.sensors).toHaveLength(1);
+      expect(result.data.sensorDetailVisibility).toEqual({
+        name: true,
+        type: true,
+        description: true,
+        coordinates: true,
+      });
       expect(service.getVillageConfig).toHaveBeenCalledWith(1);
     });
 

@@ -120,6 +120,10 @@ describe('AppApiService', () => {
           enableMap: true,
           enableRideShare: true,
           enableTextileContainers: false,
+          showSensorName: true,
+          showSensorType: true,
+          showSensorDescription: false,
+          showSensorCoordinates: true,
         },
       };
       const mockSensors = [
@@ -140,6 +144,12 @@ describe('AppApiService', () => {
       expect(result.features?.weather).toBe(false);
       expect(result.sensors).toHaveLength(1);
       expect(result.sensors[0].type).toBe('Temperature');
+      expect(result.sensorDetailVisibility).toEqual({
+        name: true,
+        type: true,
+        description: false,
+        coordinates: true,
+      });
       expect(mockPrismaService.sensor.findMany).toHaveBeenCalledWith({
         where: {
           villageId: 1,
@@ -156,6 +166,23 @@ describe('AppApiService', () => {
       mockPrismaService.village.findUnique.mockResolvedValue(null);
 
       await expect(service.getVillageConfig(999)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should return null sensorDetailVisibility when features not set', async () => {
+      const mockVillage = {
+        id: 2,
+        name: 'Test Village',
+        locationName: 'Test',
+        postalCode: null,
+        features: null,
+      };
+      mockPrismaService.village.findUnique.mockResolvedValue(mockVillage);
+      mockPrismaService.sensor.findMany.mockResolvedValue([]);
+
+      const result = await service.getVillageConfig(2);
+
+      expect(result.features).toBeNull();
+      expect(result.sensorDetailVisibility).toBeNull();
     });
   });
 

@@ -236,10 +236,23 @@ export function useVillageConfig(session) {
             postalCodeId: village.postalCodeId || village.postalCode?.id || null,
           },
           modules: {
-            sensors: { enabled: true },
-            weather: { enabled: false },
-            news: { enabled: false },
-            events: { enabled: false },
+            sensors: {
+              enabled: village.features?.enableSensorData ?? true,
+              fields: {
+                name: village.features?.showSensorName ?? true,
+                type: village.features?.showSensorType ?? true,
+                description: village.features?.showSensorDescription ?? true,
+                gateway: true,
+                coordinates: village.features?.showSensorCoordinates ?? true,
+                status: true,
+              },
+            },
+            weather: { enabled: village.features?.enableWeather ?? false },
+            news: { enabled: village.features?.enableMessages ?? false },
+            events: { enabled: village.features?.enableEvents ?? false },
+            map: { enabled: village.features?.enableMap ?? true },
+            rideSharingBench: { enabled: village.features?.enableRideShare ?? true },
+            oldClothesContainer: { enabled: village.features?.enableTextileContainers ?? false },
           },
           design: {
             themeMode: 'light',
@@ -508,6 +521,22 @@ export function useVillageConfig(session) {
         contactPhone: config.general.contactPhone,
         municipalityCode: config.general.municipalityCode,
         postalCodeId: config.general.postalCodeId,
+      })
+
+      // Update village features (module flags and sensor detail visibility)
+      const modules = config.modules || {}
+      await apiClient.villages.updateFeatures(villageId, {
+        enableSensorData: modules.sensors?.enabled ?? true,
+        enableWeather: modules.weather?.enabled ?? false,
+        enableMessages: modules.news?.enabled ?? false,
+        enableEvents: modules.events?.enabled ?? false,
+        enableMap: modules.map?.enabled ?? true,
+        enableRideShare: modules.rideSharingBench?.enabled ?? true,
+        enableTextileContainers: modules.oldClothesContainer?.enabled ?? false,
+        showSensorName: modules.sensors?.fields?.name ?? true,
+        showSensorType: modules.sensors?.fields?.type ?? true,
+        showSensorDescription: modules.sensors?.fields?.description ?? true,
+        showSensorCoordinates: modules.sensors?.fields?.coordinates ?? true,
       })
 
       // Handle sensors
