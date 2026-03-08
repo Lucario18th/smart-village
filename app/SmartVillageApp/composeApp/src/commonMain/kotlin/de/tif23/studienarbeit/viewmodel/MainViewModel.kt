@@ -66,6 +66,7 @@ class MainViewModel : ViewModel() {
 
     init {
         loadMarkers()
+
     }
 
     private fun mapSizeAtLevel(wmtsLevel: Int, tileSize: Int): Int {

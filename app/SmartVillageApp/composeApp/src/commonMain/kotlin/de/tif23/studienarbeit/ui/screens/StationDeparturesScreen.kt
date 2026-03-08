@@ -23,33 +23,45 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import de.tif23.studienarbeit.model.usecase.StationDepartureItem
+import de.tif23.studienarbeit.viewmodel.StationDeparturesViewModel
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.settings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("UNUSED_PARAMETER")
-fun StationDeparturesScreen(backStack: NavBackStack<NavKey>) {
-    val departures = listOf(
-        StationDepartureRow("14:02", "ICE 72", "Freiburg", "Gleis 3 - Puenktlich"),
-        StationDepartureRow("14:15", "RE 2", "Karlsruhe", "Gleis 1 - Puenktlich"),
-        StationDepartureRow("14:31", "S1", "Strasbourg", "Gleis 4 - +5 Min"),
-        StationDepartureRow("14:45", "Bus 204", "Gengenbach", "Halteplatz C - Puenktlich"),
-        StationDepartureRow("15:02", "ICE 108", "Frankfurt", "Gleis 2 - +18 Min"),
-        StationDepartureRow("15:15", "RB 26", "Appenweier", "Gleis 5 - Puenktlich")
-    )
+fun StationDeparturesScreen(
+    backStack: NavBackStack<NavKey>,
+    stationId: String,
+    stationName: String,
+    distanceLabel: String,
+    stationDeparturesViewModel: StationDeparturesViewModel = viewModel()
+) {
+    val uiState by stationDeparturesViewModel.uiState.collectAsState()
+
+    LaunchedEffect(stationId, stationName, distanceLabel) {
+        stationDeparturesViewModel.load(
+            stationId = stationId,
+            stationName = stationName,
+            distanceLabel = distanceLabel
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Offenburg Hbf") }
+                title = { Text(uiState.stationName) }
             )
         }
     ) { paddingValues ->
@@ -69,7 +81,7 @@ fun StationDeparturesScreen(backStack: NavBackStack<NavKey>) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "~8km entfernt",
+                        uiState.distanceLabel,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -84,30 +96,31 @@ fun StationDeparturesScreen(backStack: NavBackStack<NavKey>) {
                     FilterChip(selected = false, onClick = { }, label = { Text("Bus") })
                 }
             }
-            items(departures) { item ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(Res.drawable.settings),
-                                contentDescription = "Abfahrt",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                "${item.time}  ${item.line}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text("-> ${item.destination}", fontWeight = FontWeight.SemiBold)
-                        Text(item.status, style = MaterialTheme.typography.bodySmall)
-                    }
+
+            if (uiState.isLoading) {
+                item {
+                    Text("Abfahrten werden geladen...")
                 }
+            }
+
+            uiState.errorMessage?.let { error ->
+                item {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            if (!uiState.isLoading && uiState.errorMessage == null && uiState.departures.isEmpty()) {
+                item {
+                    Text("Keine Abfahrten gefunden")
+                }
+            }
+
+            items(uiState.departures) { item ->
+                StationDepartureCard(item)
                 Spacer(modifier = Modifier.height(4.dp))
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             }
@@ -115,9 +128,29 @@ fun StationDeparturesScreen(backStack: NavBackStack<NavKey>) {
     }
 }
 
-private data class StationDepartureRow(
-    val time: String,
-    val line: String,
-    val destination: String,
-    val status: String
-)
+@Composable
+private fun StationDepartureCard(item: StationDepartureItem) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(Res.drawable.settings),
+                    contentDescription = "Abfahrt",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "${item.time}  ${item.line}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("-> ${item.destination}", fontWeight = FontWeight.SemiBold)
+            Text(item.status, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}

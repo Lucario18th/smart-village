@@ -30,6 +30,9 @@ object NavDestinations {
     data object RideOfferScreen : NavKey
 
     @Serializable
-    data object StationScreen : NavKey
+    data class StationScreen(
+        val stationId: String,
+        val stationName: String,
+        val distanceLabel: String
+    ) : NavKey
 }
-

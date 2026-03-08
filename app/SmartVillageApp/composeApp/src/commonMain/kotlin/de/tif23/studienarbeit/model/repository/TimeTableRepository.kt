@@ -53,10 +53,10 @@ class TimeTableRepository private constructor(
             .take(limit)
             .mapNotNull { seed ->
                 val route = routesById[seed.routeId] ?: return@mapNotNull null
-                val stop = stopsById[stopId] ?: return@mapNotNull null
+                val resolvedStop = stopsById[stopId]
                 DepartureResult(
-                    stopId = stop.id,
-                    stopName = stop.name,
+                    stopId = stopId,
+                    stopName = resolvedStop?.name ?: stopId,
                     routeName = route.shortName.ifBlank { route.longName.ifBlank { route.id } },
                     destination = seed.destination,
                     departureTime = secondsToClock(seed.departureSeconds),
@@ -64,6 +64,46 @@ class TimeTableRepository private constructor(
                 )
             }
             .toList()
+    }
+
+    fun getNextDeparturesForStation(
+        stationIdOrPrefix: String,
+        date: GtfsDate,
+        currentTimeSeconds: Int,
+        limit: Int = 20
+    ): List<DepartureResult> {
+        val stopIds = resolveStopIdsForStation(stationIdOrPrefix)
+        if (stopIds.isEmpty()) return emptyList()
+
+        return stopIds
+            .asSequence()
+            .flatMap { stopId ->
+                getNextDepartures(
+                    stopId = stopId,
+                    date = date,
+                    currentTimeSeconds = currentTimeSeconds,
+                    limit = limit
+                ).asSequence()
+            }
+            .sortedBy { it.departureSeconds }
+            .distinctBy { Triple(it.routeName, it.destination, it.departureSeconds) }
+            .take(limit)
+            .toList()
+    }
+
+    fun resolveStopIdsForStation(stationIdOrPrefix: String): List<String> {
+        if (stationIdOrPrefix.isBlank()) return emptyList()
+
+        val fromDepartures = departuresByStop.keys.filter { key ->
+            key == stationIdOrPrefix || key.startsWith(stationIdOrPrefix)
+        }
+        val fromStops = stopsById.keys.filter { key ->
+            key == stationIdOrPrefix || key.startsWith(stationIdOrPrefix)
+        }
+
+        return (fromDepartures + fromStops)
+            .distinct()
+            .sorted()
     }
 
     private fun isServiceActive(serviceId: String, date: GtfsDate): Boolean {
@@ -91,12 +131,12 @@ class TimeTableRepository private constructor(
         @OptIn(ExperimentalResourceApi::class)
         suspend fun fromComposeResources(): TimeTableRepository {
             val gtfsFiles = mapOf(
-                "stops.txt" to Res.readBytes("files/gtfs/stops.txt").decodeToString(),
-                "routes.txt" to Res.readBytes("files/gtfs/routes.txt").decodeToString(),
-                "trips.txt" to Res.readBytes("files/gtfs/trips.txt").decodeToString(),
-                "stop_times.txt" to Res.readBytes("files/gtfs/stop_times.txt").decodeToString(),
-                "calendar.txt" to Res.readBytes("files/gtfs/calendar.txt").decodeToString(),
-                "calendar_dates.txt" to Res.readBytes("files/gtfs/calendar_dates.txt").decodeToString()
+                "stops.txt" to readGtfsTextResource("stops.txt"),
+                "routes.txt" to readGtfsTextResource("routes.txt"),
+                "trips.txt" to readGtfsTextResource("trips.txt"),
+                "stop_times.txt" to readGtfsTextResource("stop_times.txt"),
+                "calendar.txt" to readGtfsTextResource("calendar.txt"),
+                "calendar_dates.txt" to readGtfsTextResource("calendar_dates.txt")
             )
             return fromGtfsTexts(gtfsFiles)
         }
@@ -343,6 +383,18 @@ class TimeTableRepository private constructor(
 
         private fun Map<String, String>.requireFile(name: String): String {
             return this[name] ?: error("GTFS file not found: $name")
+        }
+
+        @OptIn(ExperimentalResourceApi::class)
+        private suspend fun readGtfsTextResource(fileName: String): String {
+            val path = "files/gtfs_compact/$fileName"
+            val bytes = try {
+                Res.readBytes(path)
+            } catch (_: Throwable) {
+                null
+            } ?: error("GTFS compact file not found in resources: $path")
+
+            return bytes.decodeToString()
         }
     }
 }

@@ -27,6 +27,9 @@ private val config = SavedStateConfiguration {
             subclass(NavDestinations.PinboardScreen::class, NavDestinations.PinboardScreen.serializer())
             subclass(NavDestinations.SettingsScreen::class, NavDestinations.SettingsScreen.serializer())
             subclass(NavDestinations.NotificationsScreen::class, NavDestinations.NotificationsScreen.serializer())
+            subclass(NavDestinations.RideDetailsScreen::class, NavDestinations.RideDetailsScreen.serializer())
+            subclass(NavDestinations.RideOfferScreen::class, NavDestinations.RideOfferScreen.serializer())
+            subclass(NavDestinations.StationScreen::class, NavDestinations.StationScreen.serializer())
         }
     }
 }
@@ -76,8 +79,13 @@ fun App() {
                     RideOfferScreen(backStack)
                 }
 
-                entry<NavDestinations.StationScreen> {
-                    StationDeparturesScreen(backStack)
+                entry<NavDestinations.StationScreen> { stationScreen ->
+                    StationDeparturesScreen(
+                        backStack = backStack,
+                        stationId = stationScreen.stationId,
+                        stationName = stationScreen.stationName,
+                        distanceLabel = stationScreen.distanceLabel
+                    )
                 }
             }
         )

@@ -33,6 +33,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,15 +45,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import de.tif23.studienarbeit.model.usecase.TransitDepartureItem
+import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
+import de.tif23.studienarbeit.viewmodel.TransitStationCardState
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
 import smartvillageapp.composeapp.generated.resources.bus_railway
-import smartvillageapp.composeapp.generated.resources.departure_board
 import smartvillageapp.composeapp.generated.resources.settings
 import smartvillageapp.composeapp.generated.resources.train
 import smartvillageapp.composeapp.generated.resources.transportation
@@ -59,7 +64,10 @@ import smartvillageapp.composeapp.generated.resources.transportation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Suppress("UNUSED_PARAMETER")
-fun MobilityScreen(backStack: NavBackStack<NavKey>) {
+fun MobilityScreen(
+    backStack: NavBackStack<NavKey>,
+    mobilityViewModel: MobilityViewModel = viewModel()
+) {
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabs = listOf("Mitfahren", "ÖPNV", "Route")
     val backgroundPainter = painterResource(
@@ -103,7 +111,7 @@ fun MobilityScreen(backStack: NavBackStack<NavKey>) {
 
                 when (selectedTabIndex) {
                     0 -> CarpoolTabContent(backStack)
-                    1 -> TransitTabContent(backStack)
+                    1 -> TransitTabContent(backStack, mobilityViewModel)
                     else -> RoutingTabContent()
                 }
             }
@@ -160,46 +168,15 @@ private fun CarpoolTabContent(backStack: NavBackStack<NavKey>) {
 }
 
 @Composable
-private fun TransitTabContent(backStack: NavBackStack<NavKey>) {
-    val nearbyStops = listOf(
-        StopDepartures(
-            "Hauptstrasse",
-            "~250m",
-            listOf(
-                Departure("Bus 204", "Offenburg", "3 Min", "Pünktlich"),
-                Departure("Bus 204", "Gengenbach", "12 Min", "Pünktlich"),
-                Departure("Bus 7", "Kehl", "18 Min", "Pünktlich")
-            )
-        ),
-        StopDepartures(
-            "Rathaus",
-            "~400m",
-            listOf(
-                Departure("Bus 101", "Lahr", "7 Min", "Pünktlich"),
-                Departure("Bus 101", "Haslach", "22 Min", "+5 Min")
-            )
-        )
-    )
+private fun TransitTabContent(
+    backStack: NavBackStack<NavKey>,
+    mobilityViewModel: MobilityViewModel
+) {
+    LaunchedEffect(Unit) {
+        mobilityViewModel.refresh()
+    }
 
-    val stations = listOf(
-        StationDepartures(
-            "Offenburg Hbf",
-            "~8km",
-            listOf(
-                Departure("ICE 72", "Freiburg", "14:02", "Pünktlich"),
-                Departure("RE 2", "Karlsruhe", "14:15", "Pünktlich"),
-                Departure("S1", "Strasbourg", "14:31", "+5 Min")
-            )
-        ),
-        StationDepartures(
-            "Appenweier Bf",
-            "~5km",
-            listOf(
-                Departure("RE 2", "Offenburg", "14:22", "Pünktlich"),
-                Departure("RB 26", "Kehl", "14:45", "Pünktlich")
-            )
-        )
-    )
+    val uiState by mobilityViewModel.uiState.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -209,42 +186,51 @@ private fun TransitTabContent(backStack: NavBackStack<NavKey>) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painter = painterResource(Res.drawable.departure_board),
-                    contentDescription = "Haltestellen",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Nächste Haltestellen",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-        items(nearbyStops) { stop ->
-            StopCard(stop) {
-                backStack.add(NavDestinations.StationScreen)
-            }
-        }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
                     painter = painterResource(Res.drawable.train),
-                    contentDescription = "Bahnhöfe",
+                    contentDescription = "Bahnhoefe",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Bahnhöfe",
+                    text = "Bahnhoefe",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
         }
-        items(stations) { station ->
-            StationCard(station)
+
+        if (uiState.isLoading) {
+            item {
+                Text("Abfahrten werden geladen...")
+            }
+        }
+
+        uiState.errorMessage?.let { error ->
+            item {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        items(uiState.stations) { station ->
+            StationCard(
+                station = station,
+                onShowAllDepartures = {
+                    station.stationId?.let { stopId ->
+                        backStack.add(
+                            NavDestinations.StationScreen(
+                                stationId = stopId,
+                                stationName = station.name,
+                                distanceLabel = station.distance
+                            )
+                        )
+                    }
+                }
+            )
         }
     }
 }
@@ -369,7 +355,10 @@ private fun StopCard(
 }
 
 @Composable
-private fun StationCard(station: StationDepartures) {
+private fun StationCard(
+    station: TransitStationCardState,
+    onShowAllDepartures: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -396,14 +385,24 @@ private fun StationCard(station: StationDepartures) {
                 Text(text = station.distance, style = MaterialTheme.typography.bodySmall)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            station.departures.forEachIndexed { index, departure ->
-                DepartureRow(departure)
-                if (index < station.departures.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+
+            if (station.departures.isEmpty()) {
+                Text(
+                    text = "Keine Abfahrten verfuegbar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                station.departures.forEachIndexed { index, departure ->
+                    DepartureRow(departure)
+                    if (index < station.departures.lastIndex) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                    }
                 }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
-            TextButton(onClick = { }) {
+            TextButton(onClick = onShowAllDepartures, enabled = station.stationId != null) {
                 Text("Alle Abfahrten")
             }
         }
@@ -411,7 +410,7 @@ private fun StationCard(station: StationDepartures) {
 }
 
 @Composable
-private fun DepartureRow(departure: Departure) {
+private fun DepartureRow(departure: TransitDepartureItem) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -442,13 +441,13 @@ private data class RideOffer(
 private data class StopDepartures(
     val name: String,
     val distance: String,
-    val departures: List<Departure>
+    val departures: List<TransitDepartureItem>
 )
 
 private data class StationDepartures(
     val name: String,
     val distance: String,
-    val departures: List<Departure>
+    val departures: List<TransitDepartureItem>
 )
 
 private data class Departure(
