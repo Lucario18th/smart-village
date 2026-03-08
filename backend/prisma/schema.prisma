@@ -104,6 +104,18 @@ model VillageFeatures {
   /// Altkleider-Container-Standorte in der App anzeigen
   enableTextileContainers Boolean @default(false)
 
+  /// Sensordetail: Name in der App anzeigen
+  showSensorName          Boolean @default(true)
+
+  /// Sensordetail: Typ in der App anzeigen
+  showSensorType          Boolean @default(true)
+
+  /// Sensordetail: Beschreibung in der App anzeigen
+  showSensorDescription   Boolean @default(true)
+
+  /// Sensordetail: Koordinaten in der App anzeigen
+  showSensorCoordinates   Boolean @default(true)
+
   village                 Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
 }
 
