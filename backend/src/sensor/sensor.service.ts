@@ -101,6 +101,7 @@ export class SensorService {
       infoText?: string;
       isActive?: boolean;
       receiveData?: boolean;
+      exposeToApp?: boolean;
       deviceId?: number | null;
       latitude?: number | null;
       longitude?: number | null;
@@ -133,6 +134,7 @@ export class SensorService {
         ...(data.infoText !== undefined && { infoText: data.infoText }),
         ...(data.isActive !== undefined && { isActive: data.isActive }),
         ...(data.receiveData !== undefined && { receiveData: data.receiveData }),
+        ...(data.exposeToApp !== undefined && { exposeToApp: data.exposeToApp }),
         ...(data.deviceId !== undefined && { deviceId: data.deviceId }),
         ...(data.latitude !== undefined && { latitude: data.latitude }),
         ...(data.longitude !== undefined && { longitude: data.longitude }),

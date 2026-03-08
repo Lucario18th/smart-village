@@ -19,6 +19,7 @@ const location_module_1 = require("./location/location.module");
 const admin_module_1 = require("./admin/admin.module");
 const device_module_1 = require("./device/device.module");
 const mqtt_module_1 = require("./mqtt/mqtt.module");
+const app_api_module_1 = require("./app-api/app-api.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,6 +38,7 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             device_module_1.DeviceModule,
             mqtt_module_1.MqttModule,
+            app_api_module_1.AppApiModule,
         ],
         controllers: [app_controller_1.AppController],
     })

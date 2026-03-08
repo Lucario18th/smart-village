@@ -274,6 +274,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     this.logger.debug(
       `MQTT: Stored reading for sensor ${sensorId} (device ${deviceId}) value=${data.value}`,
     );
+
+    // App-seitige Weiterleitung: Pruefen ob der Sensor fuer die App freigegeben ist
+    await this.publishToApp(sensor.id, sensor.villageId, data, timestamp);
   }
 
   private async handleDiscovery(topic: string, payload: string) {
@@ -424,5 +427,66 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
         }
       }
     }
+  }
+
+  /**
+   * Publiziert Sensordaten auf dem App-Topic, sofern:
+   * - Der Sensor fuer die App freigegeben ist (exposeToApp = true)
+   * - Das Village-Feature enableSensorData aktiv ist
+   */
+  private async publishToApp(
+    sensorId: number,
+    villageId: number,
+    data: SensorPayload,
+    timestamp: string,
+  ) {
+    if (!this.client) {
+      return;
+    }
+
+    const sensor = await this.prisma.sensor.findUnique({
+      where: { id: sensorId },
+      select: { exposeToApp: true, isActive: true, receiveData: true, name: true },
+    });
+
+    if (!sensor || !sensor.exposeToApp || !sensor.isActive || !sensor.receiveData) {
+      return;
+    }
+
+    const features = await this.prisma.villageFeatures.findUnique({
+      where: { villageId },
+    });
+
+    if (!features || !features.enableSensorData) {
+      return;
+    }
+
+    const appPayload = JSON.stringify({
+      sensorId,
+      sensorName: sensor.name,
+      value: data.value,
+      ts: timestamp,
+      status: data.status ?? "OK",
+      unit: data.unit ?? null,
+    });
+
+    const topic = `app/village/${villageId}/sensors`;
+    this.publishAppMessage(topic, appPayload);
+  }
+
+  /**
+   * Hilfsmethode: Nachricht auf ein App-Topic publizieren.
+   */
+  private publishAppMessage(topic: string, payload: string) {
+    if (!this.client) {
+      return;
+    }
+    this.client.publish(topic, payload, { qos: 0 }, (err) => {
+      if (err) {
+        this.logger.error(`Failed to publish to app topic ${topic}`, err);
+      } else {
+        this.logger.debug(`Published to app topic ${topic}`);
+      }
+    });
   }
 }

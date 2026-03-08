@@ -333,12 +333,41 @@ async function markMitfahrbankSensorsAsAi() {
   console.log("✅ Marked Mitfahrbank sensors as AI_SERVICE");
 }
 
+// VillageFeatures fuer alle bestehenden Villages erstellen (mit Standardwerten)
+async function seedVillageFeatures() {
+  const villages = await prisma.village.findMany({ select: { id: true } });
+
+  for (const village of villages) {
+    await prisma.villageFeatures.upsert({
+      where: { villageId: village.id },
+      update: {},
+      create: {
+        villageId: village.id,
+        enableSensorData: true,
+        enableWeather: true,
+        enableMessages: true,
+        enableEvents: false,
+        enableMap: true,
+        enableRideShare: true,
+        enableTextileContainers: false,
+      },
+    });
+  }
+
+  console.log(
+    "✅ Seeded VillageFeatures for",
+    villages.length,
+    "villages (via upsert)"
+  );
+}
+
 async function main() {
   console.log("🌱 Seeding database (with geo postal codes)...");
   await seedSensorTypes();
   await seedPostalCodes();
   await seedTestAccounts();
   await markMitfahrbankSensorsAsAi();
+  await seedVillageFeatures();
 }
 
 main()
