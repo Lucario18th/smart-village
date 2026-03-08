@@ -329,8 +329,9 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 	.btn-save,.btn-cancel{flex:1}
 }
 
-.toast-notification{position:fixed;right:18px;bottom:18px;z-index:90;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);box-shadow:0 6px 18px color-mix(in srgb, var(--md-sys-color-shadow) 26%, transparent)}
-.toast-notification button{border:none;background:transparent;color:inherit;font-size:18px;cursor:pointer;font-weight:700}
+.admin-header-toast-slot{position:absolute;top:2px;right:18px;z-index:2;max-width:clamp(240px,42vw,760px);pointer-events:none}
+.toast-notification{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);border:1px solid color-mix(in srgb, var(--md-sys-color-secondary) 30%, transparent);box-shadow:0 3px 10px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);pointer-events:auto}
+.toast-notification button{border:none;background:transparent;color:inherit;font-size:18px;line-height:1;cursor:pointer;font-weight:700;padding:0}
 .badge-new{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font-size:12px;font-weight:700;letter-spacing:0.3px}
 .badge-pending{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);font-size:12px;font-weight:700;letter-spacing:0.3px}
 
@@ -421,6 +422,7 @@ html.dark-high-contrast .map-embed-wrapper iframe{
 	.map-panel{display:grid;grid-template-rows:auto auto auto auto;height:auto}
 	.map-layout{height:auto}
 	.map-panel-header{align-items:flex-start;flex-direction:column}
+	.admin-header-toast-slot{top:48px;right:0;left:0;max-width:none}
 	.map-toggle-button{align-self:flex-end}
 	.map-toggle-button--in-map{top:8px;right:8px;align-self:auto}
   .map-layout--split{grid-template-columns:1fr}

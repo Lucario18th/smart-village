@@ -54,8 +54,18 @@ export default function AdminView({ session, onLogout }) {
     }
 
     updateHeaderHeight()
+
+    let resizeObserver = null
+    if (typeof ResizeObserver !== 'undefined' && headerRef.current) {
+      resizeObserver = new ResizeObserver(updateHeaderHeight)
+      resizeObserver.observe(headerRef.current)
+    }
+
     window.addEventListener('resize', updateHeaderHeight)
     return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
       window.removeEventListener('resize', updateHeaderHeight)
     }
   }, [])
@@ -121,6 +131,16 @@ export default function AdminView({ session, onLogout }) {
             Angemeldet als <strong>{userEmail}</strong>
           </p>
         </div>
+        {toast && (
+          <div className="admin-header-toast-slot" role="status" aria-live="polite">
+            <div className="toast-notification">
+              <span>{toast.message}</span>
+              <button type="button" aria-label="Hinweis schließen" onClick={dismissToast}>
+                ×
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="admin-layout" style={{ '--mobile-header-height': `${mobileHeaderHeight}px` }}>
@@ -132,14 +152,6 @@ export default function AdminView({ session, onLogout }) {
             onClick={() => setIsMobileSidebarOpen(false)}
           />
         ) : null}
-        {toast && (
-          <div className="toast-notification" role="alert">
-            <span>{toast.message}</span>
-            <button type="button" aria-label="Toast schließen" onClick={dismissToast}>
-              ×
-            </button>
-          </div>
-        )}
         <aside id="admin-sidebar" className={`admin-sidebar${isMobileSidebarOpen ? ' is-open' : ''}`}>
           <AdminNavigation
             sections={ADMIN_SECTIONS}

@@ -24,7 +24,7 @@ const DISCOVERY_POLL_INTERVAL_MS =
 const AUTO_REFRESH_ENABLED = (import.meta.env?.VITE_AUTO_REFRESH_ENABLED ?? 'true') !== 'false'
 const TOAST_BUFFER_MS = 1200
 const MAX_TOAST_LENGTH = 160
-const TOAST_DISMISS_MS = 4000
+const TOAST_DISMISS_MS = 7000
 const truncateToast = (text) =>
   text.length > MAX_TOAST_LENGTH ? `${text.slice(0, MAX_TOAST_LENGTH - 3)}…` : text
 const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
