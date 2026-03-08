@@ -119,7 +119,18 @@ Verfügbare Module:
 
 Die Module werden als Karten (ServiceCards) dargestellt, die per Toggle umgeschaltet werden können.
 
-**Anmerkung:** Die Module werden aktuell nur im Frontend verwaltet und im LocalStorage gespeichert. Eine vollständige Backend-Unterstützung für die Modulkonfiguration scheint noch nicht implementiert zu sein.
+Die Modul-Schalter sind direkt mit den VillageFeatures-Flags im Backend verknuepft.
+Beim Laden werden die aktuellen Flags ueber `GET /api/villages/:id/features` abgerufen.
+Beim Speichern werden alle Flags ueber `PATCH /api/villages/:id/features` aktualisiert.
+
+Unter dem Sensordaten-Modul gibt es vier zusaetzliche Schalter fuer die Sensordetail-Sichtbarkeit:
+- Name (showSensorName)
+- Typ (showSensorType)
+- Beschreibung (showSensorDescription)
+- Koordinaten (showSensorCoordinates)
+
+Diese steuern, welche Detailinformationen zu einem Sensor in der mobilen App angezeigt werden.
+Die Standardwerte sind alle auf `true` gesetzt.
 
 ### SensorsSettingsForm
 

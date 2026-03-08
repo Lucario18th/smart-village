@@ -27,6 +27,8 @@ Er ist ein einzelnes Objekt (`apiClient`), das alle HTTP-Anfragen an das Backend
 | Auth | `auth.me()` | GET /api/auth/me |
 | Villages | `villages.get(villageId)` | GET /api/villages/:id |
 | Villages | `villages.update(villageId, data)` | PUT /api/villages/:id |
+| Villages | `villages.getFeatures(villageId)` | GET /api/villages/:id/features |
+| Villages | `villages.updateFeatures(villageId, data)` | PATCH /api/villages/:id/features |
 | Sensors | `sensors.list(villageId)` | GET /api/sensors/village/:id |
 | Sensors | `sensors.create(villageId, data)` | POST /api/sensors/village/:id |
 | Sensors | `sensors.get(sensorId)` | GET /api/sensors/:id |
@@ -117,6 +119,7 @@ Für jede Kategorie gibt es spezifische Update-Funktionen:
 |----------|-------|
 | `updateGeneralField(field, value)` | Allgemeine Einstellungen ändern |
 | `updateModuleEnabled(id, enabled)` | Modul aktivieren/deaktivieren |
+| `updateModuleFieldEnabled(id, fieldId, enabled)` | Sensor-Anzeigeoptionen aendern |
 | `addSensor(data)` | Neuen Sensor hinzufügen |
 | `updateSensor(id, updates)` | Sensor aktualisieren |
 | `removeSensor(id)` | Sensor entfernen |
@@ -137,6 +140,28 @@ Die Funktion `saveConfig()` führt einen komplexen Speichervorgang durch:
 4. Bestehende Sensoren werden über `PATCH /api/sensors/:id` aktualisiert.
 5. Gelöschte Sensoren werden über `DELETE /api/sensors/:id` entfernt.
 6. Die Gemeindedaten werden über `PUT /api/villages/:id` aktualisiert.
+7. Die Modul-Flags und Sensordetail-Sichtbarkeit werden über `PATCH /api/villages/:id/features` aktualisiert.
+
+Die Modul-Flags werden wie folgt auf die VillageFeatures-Felder abgebildet:
+
+| Frontend-Modul | Backend-Feld |
+|----------------|-------------|
+| sensors | enableSensorData |
+| weather | enableWeather |
+| news | enableMessages |
+| events | enableEvents |
+| map | enableMap |
+| rideSharingBench | enableRideShare |
+| oldClothesContainer | enableTextileContainers |
+
+Die Sensor-Anzeigeoptionen werden auf die showSensor*-Felder abgebildet:
+
+| Frontend-Feld | Backend-Feld |
+|---------------|-------------|
+| name | showSensorName |
+| type | showSensorType |
+| description | showSensorDescription |
+| coordinates | showSensorCoordinates |
 
 ### Auto-Refresh und Discovery
 
