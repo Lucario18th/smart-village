@@ -18,6 +18,8 @@ const buildEmbedUrl = (lat, lng) => {
 }
 
 const BASE_MAP_ZOOM = 13
+const APP_PIN_PATH =
+  'M430,560L530,560L530,360L505,360L505,300L455,300L455,360L430,360L430,560Z M480,774Q602,662 661,570.5Q720,479 720,408Q720,299 650.5,229.5Q581,160 480,160Q379,160 309.5,229.5Q240,299 240,408Q240,479 299,570.5Q358,662 480,774ZM480,880Q319,743 239.5,625.5Q160,508 160,408Q160,258 256.5,169Q353,80 480,80Q607,80 703.5,169Q800,258 800,408Q800,508 720.5,625.5Q641,743 480,880Z'
 const iconCache = new Map()
 const getPinIcon = (color, variant) => {
   const key = `${variant}-${color}`
@@ -26,12 +28,15 @@ const getPinIcon = (color, variant) => {
   }
 
   const isCity = variant === 'city'
+  const size = isCity ? 42 : 30
+  const anchorX = Math.round(size / 2)
+  const anchorY = Math.round(size * 0.92)
   const icon = L.divIcon({
     className: `map-leaflet-pin map-leaflet-pin--${variant}`,
-    html: `<span class="map-leaflet-pin-dot" style="background:${color}"></span>`,
-    iconSize: isCity ? [30, 44] : [22, 34],
-    iconAnchor: isCity ? [15, 44] : [11, 34],
-    popupAnchor: isCity ? [0, -36] : [0, -28],
+    html: `<svg class="map-pin-svg" viewBox="0 0 960 960" width="${size}" height="${size}" aria-hidden="true" focusable="false"><path fill="${color}" d="${APP_PIN_PATH}"/></svg>`,
+    iconSize: [size, size],
+    iconAnchor: [anchorX, anchorY],
+    popupAnchor: [0, -Math.round(size * 0.8)],
   })
 
   iconCache.set(key, icon)

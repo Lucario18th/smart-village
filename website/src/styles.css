@@ -401,13 +401,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .map-frame .leaflet-control-container{z-index:11}
 
 .map-leaflet-pin{background:transparent!important;border:none!important}
-.map-leaflet-pin-dot{position:relative;display:block;width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow) 36%, transparent)}
-.map-leaflet-pin-dot::after{content:"";position:absolute;left:50%;top:14px;width:8px;height:8px;background:inherit;transform:translateX(-50%) rotate(45deg);border-bottom:2px solid #fff;border-right:2px solid #fff}
-.map-leaflet-pin--city .map-leaflet-pin-dot{background:#d32f2f}
-.map-leaflet-pin--city .map-leaflet-pin-dot{width:24px;height:24px;border-width:3px}
-.map-leaflet-pin--city .map-leaflet-pin-dot::after{top:20px;width:10px;height:10px;border-bottom-width:3px;border-right-width:3px}
-.map-leaflet-pin--sensor .map-leaflet-pin-dot{background:#1976d2}
-.map-leaflet-pin--gateway .map-leaflet-pin-dot{background:#455a64}
+.map-pin-svg{display:block;filter:drop-shadow(0 3px 8px color-mix(in srgb, var(--md-sys-color-shadow) 36%, transparent))}
+.map-leaflet-pin--city .map-pin-svg{filter:drop-shadow(0 4px 10px color-mix(in srgb, var(--md-sys-color-shadow) 42%, transparent))}
 
 /* Dark-mode treatment for map tiles (only base map, not overlays/markers). */
 html.dark .map-frame > img,
