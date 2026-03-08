@@ -98,25 +98,25 @@ export function deriveCoords(sensor, deviceMap) {
 export function deriveMarkerColor(sensor, numericRange) {
   if (sensor.kind === 'mitfahrbank') {
     const waiting = Number(sensor.waitingCount)
-    if (!Number.isFinite(waiting)) return '#546e7a'
-    if (waiting <= 0) return '#2e7d32'
-    if (waiting <= 2) return '#f9a825'
-    return '#c62828'
+    if (!Number.isFinite(waiting)) return '#7c3aed'
+    if (waiting <= 0) return '#00a651'
+    if (waiting <= 2) return '#ff9f1a'
+    return '#d90429'
   }
 
   const numericValue = Number(sensor.lastValue)
   if (Number.isFinite(numericValue) && numericRange && Number.isFinite(numericRange.min) && Number.isFinite(numericRange.max)) {
     const { min, max } = numericRange
     if (max === min) {
-      return '#42a5f5'
+      return '#0077ff'
     }
     const ratio = (numericValue - min) / (max - min)
-    if (ratio <= 1 / 3) return '#42a5f5'
-    if (ratio <= 2 / 3) return '#ffb300'
-    return '#ef5350'
+    if (ratio <= 1 / 3) return '#0077ff'
+    if (ratio <= 2 / 3) return '#ff9f1a'
+    return '#d90429'
   }
 
-  return '#546e7a'
+  return '#7c3aed'
 }
 
 export function buildMarkers({ sensors = [], devices = [], selection = defaultSelectionState, includeControllers = false }) {
