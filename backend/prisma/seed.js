@@ -425,7 +425,6 @@ async function seedDevicesAndSensors() {
       latitude: opts.lat,
       longitude: opts.lng,
       origin: SensorOrigin.HARDWARE,
-      lastStatus: "OK",
     };
 
     const data = [];
@@ -435,8 +434,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: tempType.id,
         name: "Temperatur",
         infoText: "Lufttemperatur",
-        lastTs: nowMinusMinutes(1),
-        lastValue: 13.2,
         ...base,
       });
     }
@@ -445,8 +442,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: humidityType.id,
         name: "Luftfeuchte",
         infoText: "Relative Luftfeuchtigkeit",
-        lastTs: nowMinusMinutes(2),
-        lastValue: 64.5,
         ...base,
       });
     }
@@ -455,8 +450,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: pressureType.id,
         name: "Luftdruck",
         infoText: "Luftdruck auf Stationshöhe",
-        lastTs: nowMinusMinutes(3),
-        lastValue: 1012.3,
         ...base,
       });
     }
@@ -465,8 +458,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: rainType.id,
         name: "Niederschlag",
         infoText: "Niederschlag letzte Stunde",
-        lastTs: nowMinusMinutes(4),
-        lastValue: 0.4,
         ...base,
       });
     }
@@ -475,8 +466,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: windType.id,
         name: "Wind",
         infoText: "Windgeschwindigkeit",
-        lastTs: nowMinusMinutes(5),
-        lastValue: 3.2,
         ...base,
       });
     }
@@ -485,8 +474,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: solarType.id,
         name: "Solarstrahlung",
         infoText: "Einstrahlung auf horizontaler Fläche",
-        lastTs: nowMinusMinutes(1),
-        lastValue: 650.7,
         ...base,
       });
     }
@@ -495,8 +482,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: soilType.id,
         name: "Bodenfeuchte",
         infoText: "Bodenfeuchtigkeit im Grünbereich",
-        lastTs: nowMinusMinutes(1),
-        lastValue: 31.5,
         ...base,
       });
     }
@@ -505,8 +490,6 @@ async function seedDevicesAndSensors() {
         sensorTypeId: co2Type.id,
         name: "CO₂",
         infoText: "CO₂ Konzentration",
-        lastTs: nowMinusMinutes(1),
-        lastValue: 760.8,
         ...base,
       });
     }
@@ -556,9 +539,6 @@ async function seedDevicesAndSensors() {
         origin: SensorOrigin.AI_SERVICE,
         aiProvider: "Mitfahrbank Vision AI",
         aiModelName: "people-counting-v1",
-        lastTs: nowMinusMinutes(1 + i),
-        lastValue: (i % 5) + 1,
-        lastStatus: "OK",
       });
     }
 
