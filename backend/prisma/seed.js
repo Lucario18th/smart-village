@@ -1,4 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
+// prisma/seed.js oder prisma/seed.cjs
+const { PrismaClient, SensorOrigin } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
@@ -31,7 +32,7 @@ async function seedSensorTypes() {
     });
   }
 
-  console.log("✅ Seeded sensor types (via upsert)");
+  console.log("✅ Seeded sensor types");
 }
 
 async function seedPostalCodes() {
@@ -247,20 +248,20 @@ async function seedPostalCodes() {
     });
   }
 
-  console.log(
-    "✅ Seeded postal codes with geo coords (via upsert):",
-    postalCodes.length
-  );
+  console.log("✅ Seeded postal codes");
 }
 
-async function seedTestAccounts() {
+async function seedAccountsAndVillages() {
   const passwordHash = await bcrypt.hash("test1234", 10);
 
-  const freiburg = await prisma.postalCode.findUnique({
+  const freiburgPc = await prisma.postalCode.findUnique({
     where: { zipCode: "79098" },
   });
-  const loerrach = await prisma.postalCode.findUnique({
+  const loerrachPc = await prisma.postalCode.findUnique({
     where: { zipCode: "79539" },
+  });
+  const buggingenPc = await prisma.postalCode.findUnique({
+    where: { zipCode: "79426" },
   });
 
   const freiburgAccount = await prisma.account.upsert({
@@ -276,7 +277,7 @@ async function seedTestAccounts() {
           name: "Freiburg im Breisgau",
           locationName: "79098 Freiburg im Breisgau",
           municipalityCode: "79098-Freiburg im Breisgau",
-          postalCodeId: freiburg?.id ?? null,
+          postalCodeId: freiburgPc ? freiburgPc.id : null,
         },
       },
     },
@@ -295,45 +296,39 @@ async function seedTestAccounts() {
           name: "Lörrach",
           locationName: "79539 Lörrach",
           municipalityCode: "79539-Lörrach",
-          postalCodeId: loerrach?.id ?? null,
+          postalCodeId: loerrachPc ? loerrachPc.id : null,
+        },
+      },
+    },
+  });
+
+  const buggingenAccount = await prisma.account.upsert({
+    where: { email: "buggingen@smart-village.local" },
+    update: {},
+    create: {
+      email: "buggingen@smart-village.local",
+      passwordHash,
+      isAdmin: false,
+      emailVerified: true,
+      villages: {
+        create: {
+          name: "Buggingen",
+          locationName: "79426 Buggingen",
+          municipalityCode: "79426-Buggingen",
+          postalCodeId: buggingenPc ? buggingenPc.id : null,
         },
       },
     },
   });
 
   console.log(
-    "✅ Seeded accounts (via upsert):",
+    "✅ Seeded accounts:",
     freiburgAccount.email,
-    loerrachAccount.email
+    loerrachAccount.email,
+    buggingenAccount.email
   );
 }
 
-// Alle Mitfahrbank-Sensoren als AI-Service markieren
-async function markMitfahrbankSensorsAsAi() {
-  const mitfahrbankType = await prisma.sensorType.findUnique({
-    where: { name: "Mitfahrbank" },
-  });
-
-  if (!mitfahrbankType) {
-    console.warn(
-      "⚠️ SensorType 'Mitfahrbank' nicht gefunden – überspringe AI-Markierung"
-    );
-    return;
-  }
-
-  await prisma.sensor.updateMany({
-    where: { sensorTypeId: mitfahrbankType.id },
-    data: {
-      origin: "AI_SERVICE",
-      aiProvider: "Mitfahrbank Vision AI",
-      aiModelName: "people-counting-v1",
-    },
-  });
-
-  console.log("✅ Marked Mitfahrbank sensors as AI_SERVICE");
-}
-
-// VillageFeatures fuer alle bestehenden Villages erstellen (mit Standardwerten)
 async function seedVillageFeatures() {
   const villages = await prisma.village.findMany({ select: { id: true } });
 
@@ -346,10 +341,10 @@ async function seedVillageFeatures() {
         enableSensorData: true,
         enableWeather: true,
         enableMessages: true,
-        enableEvents: false,
+        enableEvents: true,
         enableMap: true,
         enableRideShare: true,
-        enableTextileContainers: false,
+        enableTextileContainers: true,
         showSensorName: true,
         showSensorType: true,
         showSensorDescription: true,
@@ -358,24 +353,300 @@ async function seedVillageFeatures() {
     });
   }
 
-  console.log(
-    "✅ Seeded VillageFeatures for",
-    villages.length,
-    "villages (via upsert)"
+  console.log("✅ Seeded VillageFeatures for", villages.length, "villages");
+}
+
+function nowMinusMinutes(min) {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - min);
+  return d;
+}
+
+async function seedDevicesAndSensors() {
+  const villages = await prisma.village.findMany();
+  const freiburg = villages.find((v) =>
+    v.name.includes("Freiburg im Breisgau")
   );
+  const loerrach = villages.find((v) => v.name.includes("Lörrach"));
+  const buggingen = villages.find((v) => v.name.includes("Buggingen"));
+
+  const tempType = await prisma.sensorType.findUnique({
+    where: { name: "Temperature" },
+  });
+  const humidityType = await prisma.sensorType.findUnique({
+    where: { name: "Humidity" },
+  });
+  const pressureType = await prisma.sensorType.findUnique({
+    where: { name: "Pressure" },
+  });
+  const rainType = await prisma.sensorType.findUnique({
+    where: { name: "Rainfall" },
+  });
+  const windType = await prisma.sensorType.findUnique({
+    where: { name: "Wind Speed" },
+  });
+  const solarType = await prisma.sensorType.findUnique({
+    where: { name: "Solar Radiation" },
+  });
+  const soilType = await prisma.sensorType.findUnique({
+    where: { name: "Soil Moisture" },
+  });
+  const co2Type = await prisma.sensorType.findUnique({
+    where: { name: "CO2" },
+  });
+  const mitfahrbankType = await prisma.sensorType.findUnique({
+    where: { name: "Mitfahrbank" },
+  });
+
+  async function createWeatherStationCluster(opts) {
+    const device = await prisma.device.upsert({
+      where: { deviceId: opts.deviceId },
+      update: {
+        name: opts.name,
+        villageId: opts.villageId,
+        latitude: opts.lat,
+        longitude: opts.lng,
+      },
+      create: {
+        deviceId: opts.deviceId,
+        name: opts.name,
+        villageId: opts.villageId,
+        latitude: opts.lat,
+        longitude: opts.lng,
+      },
+    });
+
+    const base = {
+      villageId: opts.villageId,
+      deviceId: device.id,
+      isActive: true,
+      receiveData: true,
+      exposeToApp: true,
+      latitude: opts.lat,
+      longitude: opts.lng,
+      origin: SensorOrigin.HARDWARE,
+      lastStatus: "OK",
+    };
+
+    const data = [];
+
+    if (tempType) {
+      data.push({
+        sensorTypeId: tempType.id,
+        name: "Temperatur",
+        infoText: "Lufttemperatur",
+        lastTs: nowMinusMinutes(1),
+        lastValue: 13.2,
+        ...base,
+      });
+    }
+    if (humidityType) {
+      data.push({
+        sensorTypeId: humidityType.id,
+        name: "Luftfeuchte",
+        infoText: "Relative Luftfeuchtigkeit",
+        lastTs: nowMinusMinutes(2),
+        lastValue: 64.5,
+        ...base,
+      });
+    }
+    if (pressureType) {
+      data.push({
+        sensorTypeId: pressureType.id,
+        name: "Luftdruck",
+        infoText: "Luftdruck auf Stationshöhe",
+        lastTs: nowMinusMinutes(3),
+        lastValue: 1012.3,
+        ...base,
+      });
+    }
+    if (rainType) {
+      data.push({
+        sensorTypeId: rainType.id,
+        name: "Niederschlag",
+        infoText: "Niederschlag letzte Stunde",
+        lastTs: nowMinusMinutes(4),
+        lastValue: 0.4,
+        ...base,
+      });
+    }
+    if (windType) {
+      data.push({
+        sensorTypeId: windType.id,
+        name: "Wind",
+        infoText: "Windgeschwindigkeit",
+        lastTs: nowMinusMinutes(5),
+        lastValue: 3.2,
+        ...base,
+      });
+    }
+    if (solarType) {
+      data.push({
+        sensorTypeId: solarType.id,
+        name: "Solarstrahlung",
+        infoText: "Einstrahlung auf horizontaler Fläche",
+        lastTs: nowMinusMinutes(1),
+        lastValue: 650.7,
+        ...base,
+      });
+    }
+    if (soilType) {
+      data.push({
+        sensorTypeId: soilType.id,
+        name: "Bodenfeuchte",
+        infoText: "Bodenfeuchtigkeit im Grünbereich",
+        lastTs: nowMinusMinutes(1),
+        lastValue: 31.5,
+        ...base,
+      });
+    }
+    if (co2Type) {
+      data.push({
+        sensorTypeId: co2Type.id,
+        name: "CO₂",
+        infoText: "CO₂ Konzentration",
+        lastTs: nowMinusMinutes(1),
+        lastValue: 760.8,
+        ...base,
+      });
+    }
+
+    if (data.length > 0) {
+      await prisma.sensor.createMany({
+        data,
+        skipDuplicates: true,
+      });
+    }
+  }
+
+  async function createMitfahrbankCluster(opts) {
+    if (!mitfahrbankType) return;
+
+    const sensors = [];
+    for (let i = 0; i < opts.count; i++) {
+      const device = await prisma.device.upsert({
+        where: { deviceId: `${opts.baseDeviceId}-${i + 1}` },
+        update: {
+          villageId: opts.villageId,
+          name: `${opts.baseName} #${i + 1}`,
+          latitude: opts.baseLat + i * 0.0015,
+          longitude: opts.baseLng + i * 0.0015,
+        },
+        create: {
+          deviceId: `${opts.baseDeviceId}-${i + 1}`,
+          villageId: opts.villageId,
+          name: `${opts.baseName} #${i + 1}`,
+          latitude: opts.baseLat + i * 0.0015,
+          longitude: opts.baseLng + i * 0.0015,
+        },
+      });
+
+      sensors.push({
+        villageId: opts.villageId,
+        deviceId: device.id,
+        sensorTypeId: mitfahrbankType.id,
+        name: "Mitfahrbank",
+        infoText:
+          "Anzahl wartender Personen an der Mitfahrbank (AI-Erkennung)",
+        isActive: true,
+        receiveData: true,
+        exposeToApp: true,
+        latitude: device.latitude,
+        longitude: device.longitude,
+        origin: SensorOrigin.AI_SERVICE,
+        aiProvider: "Mitfahrbank Vision AI",
+        aiModelName: "people-counting-v1",
+        lastTs: nowMinusMinutes(1 + i),
+        lastValue: (i % 5) + 1,
+        lastStatus: "OK",
+      });
+    }
+
+    if (sensors.length > 0) {
+      await prisma.sensor.createMany({
+        data: sensors,
+        skipDuplicates: true,
+      });
+    }
+  }
+
+  if (freiburg) {
+    await createWeatherStationCluster({
+      villageId: freiburg.id,
+      deviceId: "gw-fr-dev-1",
+      name: "Freiburg Innenstadt Wetterstation",
+      lat: 47.9959,
+      lng: 7.8522,
+    });
+    await createWeatherStationCluster({
+      villageId: freiburg.id,
+      deviceId: "gw-fr-dev-2",
+      name: "Freiburg Rieselfeld Wetterstation",
+      lat: 47.989,
+      lng: 7.805,
+    });
+    await createMitfahrbankCluster({
+      villageId: freiburg.id,
+      baseDeviceId: "gw-fr-mitfahrbank",
+      baseName: "Freiburg Mitfahrbank",
+      baseLat: 47.99,
+      baseLng: 7.85,
+      count: 4,
+    });
+  }
+
+  if (loerrach) {
+    await createWeatherStationCluster({
+      villageId: loerrach.id,
+      deviceId: "gw-loe-dev-1",
+      name: "Lörrach Stadtpark Wetterstation",
+      lat: 47.609,
+      lng: 7.6646,
+    });
+    await createMitfahrbankCluster({
+      villageId: loerrach.id,
+      baseDeviceId: "gw-loe-mitfahrbank",
+      baseName: "Lörrach Mitfahrbank",
+      baseLat: 47.61,
+      baseLng: 7.66,
+      count: 3,
+    });
+  }
+
+  if (buggingen) {
+    await createWeatherStationCluster({
+      villageId: buggingen.id,
+      deviceId: "gw-v3-dev-3",
+      name: "Buggingen Wetterstation",
+      lat: 47.9999,
+      lng: 7.8562,
+    });
+    await createMitfahrbankCluster({
+      villageId: buggingen.id,
+      baseDeviceId: "gw-v3-mitfahrbank",
+      baseName: "Mitfahrbank Buggingen",
+      baseLat: 47.864,
+      baseLng: 7.64,
+      count: 5,
+    });
+  }
+
+  console.log("✅ Seeded devices and sensors (JS)");
 }
 
 async function main() {
-  console.log("🌱 Seeding database (with geo postal codes)...");
+  console.log("🌱 Seeding database (JS)...");
   await seedSensorTypes();
   await seedPostalCodes();
-  await seedTestAccounts();
-  await markMitfahrbankSensorsAsAi();
+  await seedAccountsAndVillages();
   await seedVillageFeatures();
+  await seedDevicesAndSensors();
 }
 
 main()
-  .then(async () => prisma.$disconnect())
+  .then(async () => {
+    await prisma.$disconnect();
+  })
   .catch(async (e) => {
     console.error("❌ Seeding failed:", e);
     await prisma.$disconnect();

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-MQTT_URL="mqtt://127.0.0.1:22883" \
-ACCOUNT_ID=1 \
-VILLAGE_ID=1 \
+MQTT_URL="mqtt://localhost:1883" \
+ACCOUNT_ID=3 \
+VILLAGE_ID=3 \
 DEVICE_COUNT=3 \
 MITFAHRBANK_COUNT=5 \
 SCENARIO=2 \
