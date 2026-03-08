@@ -55,8 +55,12 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <h1>Smart Village Admin</h1>
-        <p>Bitte melde dich an, um die Gemeindekonfiguration zu bearbeiten.</p>
+        <header className="auth-card-header">
+          <span className="auth-kicker">Smart Village</span>
+          <h1>Admin Login</h1>
+          <p className="auth-subtitle">Bitte melde dich an, um die Gemeindekonfiguration zu bearbeiten.</p>
+        </header>
+
         {noticeMessage ? <div className="auth-info">{noticeMessage}</div> : null}
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -83,7 +87,7 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
           />
 
           {errorMessage ? (
-            <div className="auth-error">
+            <div className="auth-error" role="alert">
               <p>{errorMessage}</p>
               {errorCode === 'USER_NOT_FOUND' && onRegister ? (
                 <button
@@ -101,7 +105,7 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
             </div>
           ) : null}
 
-          <button type="submit" disabled={isLoading}>
+          <button type="submit" className="auth-submit-button" disabled={isLoading}>
             {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
           </button>
         </form>

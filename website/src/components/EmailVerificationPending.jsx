@@ -83,11 +83,14 @@ export default function EmailVerificationPending({
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <h1>Bitte bestätige deine E-Mail</h1>
-        <p>
-          Wir haben einen 6-stelligen Bestätigungscode an <strong>{email}</strong> geschickt.
-          Gib ihn innerhalb von 5 Minuten unten ein.
-        </p>
+        <header className="auth-card-header">
+          <span className="auth-kicker">Smart Village</span>
+          <h1>E-Mail bestaetigen</h1>
+          <p className="auth-subtitle">
+            Wir haben einen 6-stelligen Bestaetigungscode an <strong>{email}</strong> geschickt.
+            Gib ihn innerhalb von 5 Minuten unten ein.
+          </p>
+        </header>
 
         <div className="countdown">
           <span className="countdown-label">Verbleibende Zeit</span>
@@ -97,7 +100,7 @@ export default function EmailVerificationPending({
         </div>
 
         {infoMessage ? <p className="auth-info">{infoMessage}</p> : null}
-        {errorMessage ? <p className="auth-error">{errorMessage}</p> : null}
+        {errorMessage ? <p className="auth-error" role="alert">{errorMessage}</p> : null}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label htmlFor="verificationCode">Bestätigungscode</label>
@@ -116,25 +119,32 @@ export default function EmailVerificationPending({
           disabled={isSubmitting}
         />
 
-          <button type="submit" disabled={isSubmitting || code.length !== 6}>
+          <button
+            type="submit"
+            className="auth-submit-button"
+            disabled={isSubmitting || code.length !== 6}
+          >
             {isSubmitting ? 'Prüfe Code…' : 'Code bestätigen'}
           </button>
         </form>
 
-        <div className="auth-hint">
+        <div className="auth-actions">
           <button
             type="button"
-            className="logout-button"
+            className="auth-secondary-button"
             onClick={handleResend}
             disabled={isResending}
           >
             {isResending ? 'Sende erneut…' : 'Code erneut senden'}
           </button>
+          <button
+            type="button"
+            className="auth-secondary-button"
+            onClick={onBackToLogin}
+          >
+            Zur Anmeldung
+          </button>
         </div>
-
-        <button type="button" className="logout-button" onClick={onBackToLogin}>
-          Zur Anmeldung
-        </button>
       </section>
     </main>
   )

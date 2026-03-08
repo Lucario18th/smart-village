@@ -66,8 +66,11 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <h1>Smart Village Admin</h1>
-        <p>Erstellen Sie ein neues Benutzerkonto</p>
+        <header className="auth-card-header">
+          <span className="auth-kicker">Smart Village</span>
+          <h1>Konto erstellen</h1>
+          <p className="auth-subtitle">Registriere einen neuen Admin-Zugang fuer deine Gemeinde.</p>
+        </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label htmlFor="email">E-Mail</label>
@@ -113,9 +116,9 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
             disabled={isLoading}
           />
 
-          {errorMessage ? <p className="auth-error">{errorMessage}</p> : null}
+          {errorMessage ? <p className="auth-error" role="alert">{errorMessage}</p> : null}
 
-          <button type="submit" disabled={isLoading}>
+          <button type="submit" className="auth-submit-button" disabled={isLoading}>
             {isLoading ? 'Wird registriert...' : 'Registrieren'}
           </button>
         </form>

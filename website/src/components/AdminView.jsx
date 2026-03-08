@@ -8,7 +8,6 @@ import { apiClient } from '../api/client'
 
 export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
-  const [selectedModule, setSelectedModule] = useState(null)
   const [isGeneralEditing, setIsGeneralEditing] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const headerRef = useRef(null)
@@ -32,12 +31,6 @@ export default function AdminView({ session, onLogout }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
-
-  const handleNavigateToSensors = (moduleId) => {
-    setSelectedModule(moduleId)
-    setActiveSectionId('sensors')
-    setIsMobileSidebarOpen(false)
-  }
 
   const handleSectionChange = useCallback((sectionId) => {
     setActiveSectionId(sectionId)
@@ -170,11 +163,9 @@ export default function AdminView({ session, onLogout }) {
             section={activeSection}
             entries={sectionEntries}
             config={config}
-            selectedModule={selectedModule}
             sensorTypes={sensorTypes}
             onGeneralFieldChange={updateGeneralField}
             onModuleEnabledChange={updateModuleEnabled}
-            onNavigateToSensors={handleNavigateToSensors}
             onUpdateSensor={updateSensor}
             onUpdateDevice={updateDevice}
             onDesignFieldChange={updateDesignField}
@@ -191,7 +182,8 @@ export default function AdminView({ session, onLogout }) {
           activeSection.id !== 'design' &&
           activeSection.id !== 'general' &&
           activeSection.id !== 'statistics' &&
-          activeSection.id !== 'sensors' ? (
+          activeSection.id !== 'sensors' &&
+          activeSection.id !== 'modules' ? (
             <section className="config-actions" aria-label="Konfiguration">
               <button
                 type="button"
