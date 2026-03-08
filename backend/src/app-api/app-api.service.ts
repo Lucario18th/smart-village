@@ -1,6 +1,34 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+interface InitialDataResponse {
+  villageId: number;
+  sensors?: Array<{
+    id: number;
+    name: string;
+    type: string;
+    unit: string;
+    latitude: number | null;
+    longitude: number | null;
+    lastReading: { value: number; ts: Date; status: string } | null;
+  }>;
+  messages?: Array<{
+    id: number;
+    text: string;
+    priority: string;
+    createdAt: string;
+  }>;
+  rideshares?: Array<{
+    id: number;
+    name: string;
+    description: string | null;
+    personCount: number;
+    maxCapacity: number | null;
+    latitude: number;
+    longitude: number;
+  }>;
+}
+
 @Injectable()
 export class AppApiService {
   constructor(private readonly prisma: PrismaService) {}
@@ -102,7 +130,7 @@ export class AppApiService {
    * Initiale Daten fuer die App: letzte Messwerte, Nachrichten, Mitfahrbaenke.
    * Nur Module liefern, die per Feature-Flag aktiviert sind.
    */
-  async getInitialData(villageId: number) {
+  async getInitialData(villageId: number): Promise<InitialDataResponse> {
     const village = await this.prisma.village.findUnique({
       where: { id: villageId },
       include: { features: true },
@@ -113,7 +141,7 @@ export class AppApiService {
     }
 
     const features = village.features;
-    const result: Record<string, unknown> = { villageId: village.id };
+    const result: InitialDataResponse = { villageId: village.id };
 
     // Sensordaten: nur wenn enableSensorData aktiv ist
     if (features?.enableSensorData) {
