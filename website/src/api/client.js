@@ -142,8 +142,17 @@ export const apiClient = {
 
   // Sensor Reading Endpoints
   sensorReadings: {
-    list(sensorId) {
-      return apiClient.request('GET', `/sensor-readings/${sensorId}`);
+    list(sensorId, options = {}) {
+      const params = new URLSearchParams();
+      if (options.from) params.set('from', options.from);
+      if (options.to) params.set('to', options.to);
+      if (options.limit) params.set('limit', String(options.limit));
+      if (options.order) params.set('order', options.order);
+      const query = params.toString();
+      const endpoint = query
+        ? `/sensor-readings/${sensorId}?${query}`
+        : `/sensor-readings/${sensorId}`;
+      return apiClient.request('GET', endpoint);
     },
     create(sensorId, data) {
       return apiClient.request('POST', `/sensor-readings/${sensorId}`, data);

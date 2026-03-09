@@ -9,6 +9,7 @@ import {
 const db = createMockDb()
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
+const ONE_MINUTE_MS = 60 * 1000
 
 const findVillageBySensorId = (sensorId) => {
   const numericId = Number(sensorId)
@@ -39,6 +40,86 @@ const applyVillagePatch = (village, patch) => {
 
 const toSensorType = (sensorTypeId) =>
   db.sensorTypes.find((sensorType) => sensorType.id === Number(sensorTypeId)) || db.sensorTypes[0]
+
+const getSensorById = (sensorId) => {
+  const village = findVillageBySensorId(sensorId)
+  if (!village) return null
+  const sensor = (village.sensors || []).find((item) => item.id === Number(sensorId))
+  if (!sensor) return null
+  return { village, sensor }
+}
+
+const parseDateOrFallback = (value, fallbackDate) => {
+  if (!value) return fallbackDate
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? fallbackDate : parsed
+}
+
+const parseBucketMs = (bucketValue) => {
+  const raw = String(bucketValue || '1h').trim().toLowerCase()
+  const match = raw.match(/^(\d+)?\s*(m|min|minute|h|hr|hour|d|day)$/)
+  if (!match) return 60 * ONE_MINUTE_MS
+  const amount = Number(match[1] || 1)
+  const unit = match[2]
+  if (unit === 'm' || unit === 'min' || unit === 'minute') return amount * ONE_MINUTE_MS
+  if (unit === 'h' || unit === 'hr' || unit === 'hour') return amount * 60 * ONE_MINUTE_MS
+  return amount * 24 * 60 * ONE_MINUTE_MS
+}
+
+const normalizeTypeName = (typeName) => String(typeName || '').trim().toLowerCase()
+
+const generateMockReadingsForSensor = (sensor, from, to) => {
+  const typeName = normalizeTypeName(sensor.sensorType?.name || sensor.type)
+  const baseValue = Number(sensor.lastValue ?? 20)
+  const stepMinutes = typeName.includes('mitfahrbank') ? 15 : 10
+  const amplitude = typeName.includes('mitfahrbank') ? 2 : Math.max(Math.abs(baseValue) * 0.08, 1)
+  const readings = []
+
+  let cursor = new Date(from)
+  cursor.setSeconds(0, 0)
+
+  let index = 0
+  while (cursor <= to) {
+    const hourAngle = ((cursor.getUTCHours() * 60 + cursor.getUTCMinutes()) / (24 * 60)) * Math.PI * 2
+    const seed = sensor.id * 31 + index * 17
+    const pseudoNoise = Math.sin(seed * 0.13) * (amplitude * 0.18)
+    let value = baseValue + Math.sin(hourAngle) * amplitude + pseudoNoise
+
+    if (typeName.includes('mitfahrbank')) {
+      value = Math.max(0, Math.round(value))
+    } else {
+      value = Number(value.toFixed(2))
+    }
+
+    readings.push({
+      id: Number(`${sensor.id}${index + 1}`),
+      sensorId: sensor.id,
+      ts: new Date(cursor).toISOString(),
+      value,
+      status: 'OK',
+    })
+
+    cursor = new Date(cursor.getTime() + stepMinutes * ONE_MINUTE_MS)
+    index += 1
+  }
+
+  if (sensor.lastTs && sensor.lastValue !== null && sensor.lastValue !== undefined) {
+    const lastTsDate = new Date(sensor.lastTs)
+    if (!Number.isNaN(lastTsDate.getTime()) && lastTsDate >= from && lastTsDate <= to) {
+      readings.push({
+        id: Number(`${sensor.id}9999`),
+        sensorId: sensor.id,
+        ts: lastTsDate.toISOString(),
+        value: Number(sensor.lastValue),
+        status: sensor.lastStatus || 'OK',
+      })
+    }
+  }
+
+  return readings
+    .sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime())
+    .filter((reading, idx, arr) => idx === 0 || reading.ts !== arr[idx - 1].ts)
+}
 
 const defaultLocations = [
   { id: 101, zipCode: '79098', city: 'Freiburg', state: 'BW', latitude: 47.9959, longitude: 7.8522 },
@@ -270,6 +351,107 @@ const additionalHandlers = [
     village.devices = nextDevices
     const updated = nextDevices.find((device) => device.id === deviceId)
     return HttpResponse.json(clone(updated), { status: 200 })
+  }),
+
+  http.get('/api/sensor-readings/:sensorId', ({ params, request }) => {
+    const found = getSensorById(params.sensorId)
+    if (!found) {
+      return HttpResponse.json({ message: 'Sensor not found' }, { status: 404 })
+    }
+
+    const url = new URL(request.url)
+    const now = new Date()
+    const defaultFrom = new Date(now.getTime() - 24 * 60 * ONE_MINUTE_MS)
+    const from = parseDateOrFallback(url.searchParams.get('from'), defaultFrom)
+    const to = parseDateOrFallback(url.searchParams.get('to'), now)
+    const order = (url.searchParams.get('order') || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc'
+    const limit = Math.max(Number(url.searchParams.get('limit') || 1000), 1)
+
+    let readings = generateMockReadingsForSensor(found.sensor, from, to)
+    if (order === 'desc') {
+      readings = readings.reverse()
+    }
+
+    return HttpResponse.json(clone(readings.slice(0, limit)), { status: 200 })
+  }),
+
+  http.get('/api/sensor-readings/:sensorId/timeseries', ({ params, request }) => {
+    const found = getSensorById(params.sensorId)
+    if (!found) {
+      return HttpResponse.json({ message: 'Sensor not found' }, { status: 404 })
+    }
+
+    const url = new URL(request.url)
+    const now = new Date()
+    const defaultFrom = new Date(now.getTime() - 24 * 60 * ONE_MINUTE_MS)
+    const from = parseDateOrFallback(url.searchParams.get('from'), defaultFrom)
+    const to = parseDateOrFallback(url.searchParams.get('to'), now)
+    const bucketMs = parseBucketMs(url.searchParams.get('bucket'))
+    const readings = generateMockReadingsForSensor(found.sensor, from, to)
+
+    const grouped = new Map()
+    readings.forEach((reading) => {
+      const ts = new Date(reading.ts).getTime()
+      const bucketStart = Math.floor(ts / bucketMs) * bucketMs
+      const key = String(bucketStart)
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          bucketStart: new Date(bucketStart).toISOString(),
+          valueMin: Number(reading.value),
+          valueMax: Number(reading.value),
+          valueSum: Number(reading.value),
+          count: 1,
+        })
+        return
+      }
+
+      const current = grouped.get(key)
+      current.valueMin = Math.min(current.valueMin, Number(reading.value))
+      current.valueMax = Math.max(current.valueMax, Number(reading.value))
+      current.valueSum += Number(reading.value)
+      current.count += 1
+    })
+
+    const response = [...grouped.values()]
+      .sort((a, b) => new Date(a.bucketStart).getTime() - new Date(b.bucketStart).getTime())
+      .map((entry) => ({
+        bucketStart: entry.bucketStart,
+        valueMin: Number(entry.valueMin.toFixed(2)),
+        valueMax: Number(entry.valueMax.toFixed(2)),
+        valueAvg: Number((entry.valueSum / entry.count).toFixed(2)),
+        count: entry.count,
+      }))
+
+    return HttpResponse.json(clone(response), { status: 200 })
+  }),
+
+  http.get('/api/sensor-readings/:sensorId/summary', ({ params, request }) => {
+    const found = getSensorById(params.sensorId)
+    if (!found) {
+      return HttpResponse.json({ message: 'Sensor not found' }, { status: 404 })
+    }
+
+    const url = new URL(request.url)
+    const now = new Date()
+    const defaultFrom = new Date(now.getTime() - 24 * 60 * ONE_MINUTE_MS)
+    const from = parseDateOrFallback(url.searchParams.get('from'), defaultFrom)
+    const to = parseDateOrFallback(url.searchParams.get('to'), now)
+    const readings = generateMockReadingsForSensor(found.sensor, from, to)
+    const values = readings.map((item) => Number(item.value))
+    const sum = values.reduce((acc, value) => acc + value, 0)
+
+    const response = {
+      from: from.toISOString(),
+      to: to.toISOString(),
+      min: values.length ? Math.min(...values) : null,
+      max: values.length ? Math.max(...values) : null,
+      avg: values.length ? Number((sum / values.length).toFixed(2)) : null,
+      count: values.length,
+      last: values.length ? values[values.length - 1] : null,
+      lastTimestamp: values.length ? readings[readings.length - 1].ts : null,
+    }
+
+    return HttpResponse.json(clone(response), { status: 200 })
   }),
 
   http.get('/api/locations/search', ({ request }) => {

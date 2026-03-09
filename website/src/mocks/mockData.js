@@ -13,10 +13,10 @@ export const FAKE_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSJ9.mock-signature'
 
 const SENSOR_TYPES = [
-  { id: 1, name: 'Temperature', unit: 'degC' },
-  { id: 2, name: 'Humidity', unit: '%' },
-  { id: 3, name: 'Air Quality', unit: 'AQI' },
-  { id: 4, name: 'Mitfahrbank', unit: 'people' },
+  { id: 1, name: 'Temperatur', unit: '°C' },
+  { id: 2, name: 'Luftfeuchte', unit: '%' },
+  { id: 3, name: 'Luftqualität', unit: 'AQI' },
+  { id: 4, name: 'Mitfahrbank', unit: 'Personen' },
 ]
 
 const VILLAGE_BY_ACCOUNT_ID = {
@@ -63,7 +63,7 @@ const VILLAGE_BY_ACCOUNT_ID = {
         id: 1011,
         name: 'Temp Rathaus',
         sensorTypeId: 1,
-        sensorType: { id: 1, name: 'Temperature', unit: 'degC' },
+        sensorType: { id: 1, name: 'Temperatur', unit: '°C' },
         isActive: true,
         receiveData: true,
         infoText: 'Misst die Temperatur am Rathaus.',
@@ -80,7 +80,7 @@ const VILLAGE_BY_ACCOUNT_ID = {
         id: 1012,
         name: 'Luftfeuchte Rathaus',
         sensorTypeId: 2,
-        sensorType: { id: 2, name: 'Humidity', unit: '%' },
+        sensorType: { id: 2, name: 'Luftfeuchte', unit: '%' },
         isActive: true,
         receiveData: true,
         infoText: 'Relative Luftfeuchte im Zentrum.',
@@ -97,7 +97,7 @@ const VILLAGE_BY_ACCOUNT_ID = {
         id: 1013,
         name: 'Feinstaub Markt',
         sensorTypeId: 3,
-        sensorType: { id: 3, name: 'Air Quality', unit: 'AQI' },
+        sensorType: { id: 3, name: 'Luftqualität', unit: 'AQI' },
         isActive: true,
         receiveData: true,
         infoText: 'Luftqualität am Marktplatz.',
@@ -114,7 +114,7 @@ const VILLAGE_BY_ACCOUNT_ID = {
         id: 1014,
         name: 'Mitfahrbank Dorfplatz',
         sensorTypeId: 4,
-        sensorType: { id: 4, name: 'Mitfahrbank', unit: 'people' },
+        sensorType: { id: 4, name: 'Mitfahrbank', unit: 'Personen' },
         isActive: true,
         receiveData: true,
         infoText: 'Wartende Personen am Dorfplatz.',

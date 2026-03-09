@@ -30,6 +30,31 @@ const truncateToast = (text) =>
 const getSensorDisplayName = (sensor) => sensor.name ?? `Sensor ${sensor.id}`
 const getDeviceDisplayName = (device) =>
   device.name ?? device.deviceId ?? TOAST_MESSAGES.deviceFallback
+const SENSOR_TYPE_NAME_MAP = {
+  temperature: 'Temperatur',
+  humidity: 'Luftfeuchte',
+  'air quality': 'Luftqualität',
+  pressure: 'Luftdruck',
+  rainfall: 'Niederschlag',
+  'wind speed': 'Windgeschwindigkeit',
+  'solar radiation': 'Solarstrahlung',
+  'soil moisture': 'Bodenfeuchte',
+  co2: 'CO₂',
+  people: 'Personen',
+}
+const SENSOR_UNIT_MAP = {
+  degc: '°C',
+  celsius: '°C',
+  people: 'Personen',
+}
+const localizeSensorTypeName = (name) => {
+  if (!name || typeof name !== 'string') return 'Unbekannt'
+  return SENSOR_TYPE_NAME_MAP[name.trim().toLowerCase()] || name
+}
+const localizeSensorUnit = (unit) => {
+  if (!unit || typeof unit !== 'string') return ''
+  return SENSOR_UNIT_MAP[unit.trim().toLowerCase()] || unit
+}
 const isMitfahrbankSensor = (sensorTypeName) =>
   typeof sensorTypeName === 'string' && sensorTypeName.trim().toLowerCase() === 'mitfahrbank'
 const mapSensors = (sensorsFromApi) =>
@@ -42,7 +67,7 @@ const mapSensors = (sensorsFromApi) =>
     return {
       id: sensor.id,
       name: sensor.name,
-      type: sensor.sensorType?.name || 'Unknown',
+      type: localizeSensorTypeName(sensor.sensorType?.name),
       sensorTypeId: sensor.sensorTypeId,
       active: sensor.isActive,
       receiveData: sensor.receiveData ?? true,
@@ -56,11 +81,17 @@ const mapSensors = (sensorsFromApi) =>
       lastValue: sensor.lastValue ?? null,
       lastStatus: sensor.lastStatus ?? null,
       lastTs: sensor.lastTs ?? null,
-      unit: sensor.sensorType?.unit || sensor.lastUnit || '',
+      unit: localizeSensorUnit(sensor.sensorType?.unit || sensor.lastUnit || ''),
       kind: isMitfahrbank ? 'mitfahrbank' : 'sensor',
       waitingCount: isMitfahrbank ? sensor.lastValue ?? null : null,
     }
   })
+const mapSensorTypes = (typesFromApi) =>
+  (typesFromApi || []).map((type) => ({
+    ...type,
+    name: localizeSensorTypeName(type.name),
+    unit: localizeSensorUnit(type.unit),
+  }))
 const mapDevices = (devicesFromApi) =>
   (devicesFromApi || []).map((device) => ({
     id: device.id,
@@ -209,7 +240,7 @@ export function useVillageConfig(session) {
 
         // Load sensor types
         const types = await apiClient.sensorTypes.list()
-        setSensorTypes(types)
+        setSensorTypes(mapSensorTypes(types))
 
         // Load village data
         const village = await apiClient.villages.get(accountId)

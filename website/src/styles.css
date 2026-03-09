@@ -335,6 +335,55 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .no-sensors{margin:12px 0;padding:12px;text-align:center;background:var(--md-sys-color-surface);border-radius:8px;color:var(--md-sys-color-on-surface-variant);font-size:14px}
 .sensor-button{padding:9px 14px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-secondary);color:var(--md-sys-color-on-secondary);font-weight:600;cursor:pointer;font-size:13px}
 
+/* Statistics dashboard */
+.statistics-container{display:grid;gap:14px}
+.statistics-controls{display:grid;gap:10px;padding:12px;border-radius:12px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent)}
+.statistics-layer-tabs{display:flex;flex-wrap:wrap;gap:8px}
+.statistics-tab{padding:8px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
+.statistics-tab.active{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-color:var(--md-sys-color-primary)}
+.statistics-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.statistics-filters label{display:grid;gap:6px;font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface)}
+.statistics-filters select{width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+.statistics-block{padding:14px;border-radius:12px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);display:grid;gap:12px}
+.statistics-block h3{margin:0;color:var(--md-sys-color-primary)}
+.sensor-table-wrap{overflow-x:auto}
+.sensor-table{width:100%;border-collapse:collapse;font-size:14px}
+.sensor-table th,.sensor-table td{padding:10px 8px;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 25%, transparent);text-align:left;vertical-align:top}
+.sensor-table th{font-size:12px;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:.04em}
+.sensor-table tr.is-selected{background:color-mix(in srgb, var(--md-sys-color-primary-container) 34%, transparent)}
+.sensor-link-button{border:none;padding:0;background:transparent;color:var(--md-sys-color-primary);font:inherit;font-weight:700;cursor:pointer}
+.health-pill{display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;line-height:1.2}
+.health-pill.ok{background:color-mix(in srgb, #2e7d32 24%, transparent);color:#1b5e20}
+.health-pill.offline{background:color-mix(in srgb, #c62828 20%, transparent);color:#8e0000}
+.sensor-detail-block h3{font-size:24px}
+.sensor-detail-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sensor-detail-header p{margin:4px 0 0;color:var(--md-sys-color-on-surface-variant)}
+.sensor-trend-pill{padding:6px 10px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-secondary-container) 85%, transparent);color:var(--md-sys-color-on-secondary-container);font-weight:700;font-size:13px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.stats-grid--detail{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.stat-card{padding:12px;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 20%, transparent)}
+.stat-card h3,.stat-card h4{margin:0 0 6px;color:var(--md-sys-color-on-surface-variant);font-size:13px;text-transform:uppercase;letter-spacing:.03em}
+.stat-value{margin:0;font-size:26px;font-weight:800;color:var(--md-sys-color-on-surface);line-height:1.1}
+.stats-chart-wrap{display:grid;gap:8px}
+.stats-chart{width:100%;height:auto;display:block;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 26%, transparent)}
+.stats-axis{stroke:color-mix(in srgb, var(--md-sys-color-outline) 60%, transparent);stroke-width:1}
+.stats-line{fill:none;stroke:var(--md-sys-color-primary);stroke-width:2}
+.stats-chart-scale{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+.stats-empty{padding:14px;border-radius:10px;background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface-variant)}
+.stats-error{margin:0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-error-container) 70%, transparent);color:var(--md-sys-color-on-error-container)}
+.historical-readings{display:grid;gap:8px}
+.historical-readings-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:9px 11px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-primary);font-size:14px;font-weight:700;cursor:pointer;text-align:left}
+.historical-readings-toggle:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 40%, transparent)}
+.historical-readings-chevron{display:inline-flex;align-items:center;justify-content:center;transition:transform .18s ease}
+.historical-readings-chevron.open{transform:rotate(180deg)}
+.sensor-table--compact th,.sensor-table--compact td{padding:8px 7px}
+.sensor-health-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.sensor-health-card{padding:12px;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 22%, transparent)}
+.sensor-health-card h4{margin:0 0 6px;color:var(--md-sys-color-primary)}
+.sensor-health-card p{margin:4px 0 0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.compare-highlights{display:flex;flex-wrap:wrap;gap:8px}
+.compare-chip{padding:8px 10px;border-radius:10px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);font-size:14px}
+
 @media (max-width: 900px){
 	.sensors-settings{max-width:none}
 	.sensor-row{grid-template-columns:1fr;align-items:flex-start}
@@ -345,6 +394,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 	.coordinate-inputs{grid-template-columns:1fr}
 	.form-actions{justify-content:stretch}
 	.btn-save,.btn-cancel{flex:1}
+	.statistics-filters{grid-template-columns:1fr}
 }
 
 .admin-header-toast-slot{position:absolute;top:2px;right:18px;z-index:2;max-width:clamp(240px,42vw,760px);pointer-events:none}
