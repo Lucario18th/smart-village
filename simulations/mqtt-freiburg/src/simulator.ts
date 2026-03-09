@@ -46,6 +46,17 @@ type DeviceRuntimeState = {
   sensorStates: Record<number, SensorRuntimeState>;
 };
 
+type SensorPayload = {
+  value: number | null;
+  ts: string;
+  status: "OK" | "ERROR";
+  unit: string;
+  extra: {
+    source: "simulator";
+    errorReason?: "sensor_failure" | "sensor_stuck";
+  };
+};
+
 type VillageKey = "freiburg" | "loerrach" | "buggingen";
 
 type VillageConfig = {
@@ -486,7 +497,7 @@ function publishMeasurements() {
         status = "ERROR";
       } else if (runtime.stuck) {
         status = "ERROR";
-        if (runtime.stuckValue == null) {
+        if (runtime.stuckValue === null) {
           runtime.stuckValue = valueFor(sensor, ts, village.key, runtime);
         }
         value = runtime.stuckValue;
@@ -497,7 +508,7 @@ function publishMeasurements() {
       runtime.lastSentAt = ts;
 
       const topic = `sv/${ACCOUNT_ID}/${state.device.deviceId}/sensors/${sensor.sensorId}`;
-      const payload: any = {
+      const payload: SensorPayload = {
         value,
         ts: ts.toISOString(),
         status,
