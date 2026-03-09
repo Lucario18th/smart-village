@@ -2,6 +2,26 @@
 
 Stand‑alone MQTT simulator for Smart Village auto‑discovery. Publishes a gateway plus Freiburg sensors for `Account.id = 1` (default) to the backend MQTT ingestion.
 
+### Neuer Multi‑Dorf Simulator
+
+Der neue `src/simulator.ts` simuliert Freiburg, Lörrach und Buggingen mit realistischeren Sensorverläufen, Zeitrafferphase (1 Min. Echtzeit ≙ 1 Tag Sim‑Zeit bis 2026‑03‑26) und anschließender Echtzeit. Auswahl per `VILLAGE=freiburg|loerrach|buggingen`.
+
+Beispiele:
+
+```bash
+cd simulations/mqtt-freiburg
+npm install
+
+# ts-node/tsx
+VILLAGE=freiburg MQTT_URL=mqtt://localhost:1883 tsx src/simulator.ts
+VILLAGE=loerrach  MQTT_URL=mqtt://localhost:1883 tsx src/simulator.ts
+VILLAGE=buggingen MQTT_URL=mqtt://localhost:1883 tsx src/simulator.ts
+
+# oder nach Build
+npm run build
+VILLAGE=freiburg MQTT_URL=mqtt://localhost:1883 node dist/simulator.js
+```
+
 ### Usage
 
 ```bash

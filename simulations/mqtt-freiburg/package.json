@@ -4,9 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "simulate": "SCENARIO=1 tsx src/index.ts",
     "simulate:mitfahrbank": "SCENARIO=2 tsx src/index.ts",
-    "simulate:errors": "SCENARIO=2 DISCOVERY_ON_START=1 tsx src/index.ts"
+    "simulate:errors": "SCENARIO=2 DISCOVERY_ON_START=1 tsx src/index.ts",
+    "sim:freiburg": "VILLAGE=freiburg tsx src/simulator.ts",
+    "sim:loerrach": "VILLAGE=loerrach tsx src/simulator.ts",
+    "sim:buggingen": "VILLAGE=buggingen tsx src/simulator.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
