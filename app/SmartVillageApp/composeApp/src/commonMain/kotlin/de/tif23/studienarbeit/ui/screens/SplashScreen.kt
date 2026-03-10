@@ -184,6 +184,7 @@ private fun VillageCard(
 
 private fun Village.availableFeatures(): List<String> {
     val values = mutableListOf<String>()
+    if (features == null) return values
     if (features.sensorData) values += "Sensordaten"
     if (features.weather) values += "Wetter"
     if (features.messages) values += "Nachrichten"

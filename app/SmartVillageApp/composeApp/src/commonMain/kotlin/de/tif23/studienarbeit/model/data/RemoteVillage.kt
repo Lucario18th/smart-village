@@ -11,7 +11,7 @@ data class RemoteVillage(
     val locationName: String,
     val postalCode: RemotePostalCode,
     val sensorCount: Int,
-    val features: RemoteVillageFeatures
+    val features: RemoteVillageFeatures?
 )
 
 @Serializable

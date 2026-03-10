@@ -18,7 +18,7 @@ fun RemoteVillage.toDomain(): Village {
         city = this.postalCode.city,
         locationName = this.locationName,
         sensorCount = this.sensorCount,
-        features = VillageFeatures(
+        features = if (this.features == null) null else VillageFeatures(
             sensorData = this.features.sensorData,
             weather = this.features.weather,
             messages = this.features.messages,

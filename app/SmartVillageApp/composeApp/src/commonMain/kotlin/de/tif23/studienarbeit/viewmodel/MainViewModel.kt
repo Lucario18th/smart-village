@@ -16,6 +16,10 @@ import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.ui.theme.primaryLight
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
+import de.tif23.studienarbeit.viewmodel.constants.BUGGINGEN_LAT
+import de.tif23.studienarbeit.viewmodel.constants.BUGGINGEN_LON
+import de.tif23.studienarbeit.viewmodel.constants.FREIBURG_LAT
+import de.tif23.studienarbeit.viewmodel.constants.FREIBURG_LON
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
@@ -61,7 +65,12 @@ class MainViewModel(
 
     val mapState = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 16) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel)))
-        scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
+        when(stateFlow.value.village?.village?.name) {
+            "Lörrach" -> scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
+            "Freiburg im Breisgau" -> scroll(lonToX(FREIBURG_LON), latToY(FREIBURG_LAT))
+            "Buggingen" -> scroll(lonToX(BUGGINGEN_LON), latToY(BUGGINGEN_LAT))
+            else -> scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
+        }
     }.apply {
         addLayer(tileStreamProvider)
         scale = 1.0 // to zoom out initially
@@ -124,7 +133,7 @@ class MainViewModel(
             val trainStationsData = Res.readBytes("files/bahnhof_koordinaten.json").decodeToString()
             val trainStations = Json.decodeFromString<TrainStationList>(trainStationsData)
             val villageStations = when (stateFlow.value.village?.village?.name) {
-                "Freiburg" -> trainStations.freiburg
+                "Freiburg im Breisgau" -> trainStations.freiburg
                 "Buggingen" -> trainStations.buggingen
                 "Lörrach" -> trainStations.loerrach
                 else -> emptyList()

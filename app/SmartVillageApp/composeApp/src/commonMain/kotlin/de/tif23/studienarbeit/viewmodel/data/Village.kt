@@ -7,7 +7,7 @@ data class Village(
     val city: String,
     val locationName: String,
     val sensorCount: Int,
-    val features: VillageFeatures,
+    val features: VillageFeatures?,
 )
 
 data class VillageFeatures(
