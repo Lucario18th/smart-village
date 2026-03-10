@@ -10,7 +10,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.tif23.studienarbeit.model.usecase.GetAllVillagesUseCase
+import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
+import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
@@ -18,6 +19,10 @@ import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
 import de.tif23.studienarbeit.viewmodel.data.RecyclingType
+import de.tif23.studienarbeit.viewmodel.data.state.MainViewModelState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -36,11 +41,18 @@ import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
 import kotlin.math.pow
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    getVillageUseCase: GetVillageUseCase = GetVillageUseCase(),
+    selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore()
+) : ViewModel() {
     private val tileStreamProvider = makeOsmTileStreamProvider()
     private val maxLevel = 16
     private val minLevel = 12
     private val mapSize = mapSizeAtLevel(maxLevel, tileSize = 256)
+
+    private val stateFlow = MutableStateFlow(MainViewModelState())
+
+    val viewState = stateFlow.asStateFlow()
 
     val mapState = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 16) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel)))
@@ -68,8 +80,14 @@ class MainViewModel : ViewModel() {
     init {
         loadMarkers()
         viewModelScope.launch {
-            val getAllVillagesUseCase = GetAllVillagesUseCase()
-            getAllVillagesUseCase()
+            stateFlow.update { it.copy(isLoading = true) }
+            val villageId = selectedVillageSettingsStore.getSelectedVillageId()
+            if (villageId == null || villageId == -1) {
+                stateFlow.update { it.copy(isLoading = false, village = null) }
+            } else {
+                val village = getVillageUseCase.getVillageConfig(villageId)
+                stateFlow.update { it.copy(village = village, isLoading = false) }
+            }
         }
     }
 
