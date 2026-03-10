@@ -1,6 +1,7 @@
 package de.tif23.studienarbeit
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -8,6 +9,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.ui.screens.MainScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
 import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
@@ -38,7 +40,16 @@ private val config = SavedStateConfiguration {
 
 @Composable
 fun App() {
-    val backStack = rememberNavBackStack(config, NavDestinations.SplashScreen)
+    val selectedVillageSettingsStore = remember { SelectedVillageSettingsStore() }
+    val hasSelectedVillage = remember {
+        selectedVillageSettingsStore.getSelectedVillageId() != null
+    }
+    val startDestination = if (hasSelectedVillage) {
+        NavDestinations.MainScreen
+    } else {
+        NavDestinations.SplashScreen
+    }
+    val backStack = rememberNavBackStack(config, startDestination)
 
     SmartVillageTheme {
         NavDisplay(

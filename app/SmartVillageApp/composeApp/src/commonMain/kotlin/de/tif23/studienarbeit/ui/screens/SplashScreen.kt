@@ -40,7 +40,7 @@ fun SplashScreen(backStack: NavBackStack<NavKey>, viewModel: SplashScreenViewMod
         bottomBar = {
             Button(
                 onClick = {
-                    if (state.selectedVillage != null) {
+                    if (viewModel.persistSelectedVillage()) {
                         backStack.removeLastOrNull()
                         backStack.add(NavDestinations.MainScreen)
                     }
