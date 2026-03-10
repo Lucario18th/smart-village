@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.tif23.studienarbeit.model.usecase.GetAllVillagesUseCase
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
@@ -66,7 +67,10 @@ class MainViewModel : ViewModel() {
 
     init {
         loadMarkers()
-
+        viewModelScope.launch {
+            val getAllVillagesUseCase = GetAllVillagesUseCase()
+            getAllVillagesUseCase()
+        }
     }
 
     private fun mapSizeAtLevel(wmtsLevel: Int, tileSize: Int): Int {

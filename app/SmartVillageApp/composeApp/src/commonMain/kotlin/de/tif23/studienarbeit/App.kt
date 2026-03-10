@@ -12,6 +12,7 @@ import de.tif23.studienarbeit.ui.screens.MainScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
 import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
 import de.tif23.studienarbeit.ui.screens.RideOfferScreen
+import de.tif23.studienarbeit.ui.screens.SplashScreen
 import de.tif23.studienarbeit.ui.screens.StationDeparturesScreen
 import de.tif23.studienarbeit.ui.theme.SmartVillageTheme
 import de.tif23.studienarbeit.viewmodel.NavDestinations
@@ -30,13 +31,14 @@ private val config = SavedStateConfiguration {
             subclass(NavDestinations.RideDetailsScreen::class, NavDestinations.RideDetailsScreen.serializer())
             subclass(NavDestinations.RideOfferScreen::class, NavDestinations.RideOfferScreen.serializer())
             subclass(NavDestinations.StationScreen::class, NavDestinations.StationScreen.serializer())
+            subclass(NavDestinations.SplashScreen::class, NavDestinations.SplashScreen.serializer())
         }
     }
 }
 
 @Composable
 fun App() {
-    val backStack = rememberNavBackStack(config, NavDestinations.MainScreen)
+    val backStack = rememberNavBackStack(config, NavDestinations.SplashScreen)
 
     SmartVillageTheme {
         NavDisplay(
@@ -86,6 +88,10 @@ fun App() {
                         stationName = stationScreen.stationName,
                         distanceLabel = stationScreen.distanceLabel
                     )
+                }
+
+                entry<NavDestinations.SplashScreen> {
+                    SplashScreen(backStack)
                 }
             }
         )

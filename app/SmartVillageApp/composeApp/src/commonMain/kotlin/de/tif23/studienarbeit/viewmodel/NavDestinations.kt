@@ -35,4 +35,7 @@ object NavDestinations {
         val stationName: String,
         val distanceLabel: String
     ) : NavKey
+
+    @Serializable
+    data object SplashScreen : NavKey
 }
