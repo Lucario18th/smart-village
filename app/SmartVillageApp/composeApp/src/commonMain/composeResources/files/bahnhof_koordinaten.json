@@ -1,0 +1,1226 @@
+{
+    "freiburg": [
+        {
+            "name": "Freiburg (Breisgau) Hauptbahnhof",
+            "lat": 47.9977308,
+            "lon": 7.8412948,
+            "eva": 8000107
+        },
+        {
+            "name": "Heitersheim",
+            "lat": 47.8803534,
+            "lon": 7.6464671,
+            "eva": 8002727
+        },
+        {
+            "name": "Kirchzarten",
+            "lat": 47.967998,
+            "lon": 7.9592049,
+            "eva": 8003293
+        },
+        {
+            "name": "Buchholz (Baden)",
+            "lat": 48.0834769,
+            "lon": 7.9157916,
+            "eva": 8000107
+        },
+        {
+            "name": "Bleibach",
+            "lat": 48.1238473,
+            "lon": 8.0047664,
+            "eva": 8001017
+        },
+        {
+            "name": "Niederwinden",
+            "lat": 48.1395497,
+            "lon": 8.0227419,
+            "eva": 8004423
+        },
+        {
+            "name": "Oberwinden (Elztal)",
+            "lat": 48.1525859,
+            "lon": 8.0450698,
+            "eva": 8004603
+        },
+        {
+            "name": "Riegel Ort",
+            "lat": 48.1541764,
+            "lon": 7.7493469,
+            "eva": 496561
+        },
+        {
+            "name": "Freiburg-Wiehre",
+            "lat": 47.9824641,
+            "lon": 7.8547092,
+            "eva": 8002070
+        },
+        {
+            "name": "Waldkirch",
+            "lat": 48.0956993,
+            "lon": 7.9572603,
+            "eva": 8006159
+        },
+        {
+            "name": "Bad Krozingen",
+            "lat": 47.919666,
+            "lon": 7.6975988,
+            "eva": 8000718
+        },
+        {
+            "name": "Kollnau",
+            "lat": 48.1015276,
+            "lon": 7.9746407,
+            "eva": 8003399
+        },
+        {
+            "name": "Gutach (Breisgau)",
+            "lat": 48.1134839,
+            "lon": 7.9893282,
+            "eva": 8002478
+        },
+        {
+            "name": "Köndringen",
+            "lat": 48.1374241,
+            "lon": 7.8028657,
+            "eva": 8003374
+        },
+        {
+            "name": "Himmelreich",
+            "lat": 47.9586107,
+            "lon": 7.9914722,
+            "eva": 8002844
+        },
+        {
+            "name": "Bötzingen Mühle",
+            "lat": 48.0756475,
+            "lon": 7.7279384,
+            "eva": 8007297
+        },
+        {
+            "name": "Kenzingen",
+            "lat": 48.1948673,
+            "lon": 7.7642435,
+            "eva": 8003233
+        },
+        {
+            "name": "Schallstadt",
+            "lat": 47.9559506,
+            "lon": 7.754131,
+            "eva": 8005317
+        },
+        {
+            "name": "Riegel-Malterdingen",
+            "lat": 48.1517373,
+            "lon": 7.7711138,
+            "eva": 8005090
+        },
+        {
+            "name": "Emmendingen",
+            "lat": 48.1193379,
+            "lon": 7.8478338,
+            "eva": 8001771
+        },
+        {
+            "name": "Kollmarsreute",
+            "lat": 48.098771,
+            "lon": 7.8867395,
+            "eva": 8003398
+        },
+        {
+            "name": "Denzlingen",
+            "lat": 48.0690939,
+            "lon": 7.8817277,
+            "eva": 8001415
+        },
+        {
+            "name": "Freiburg-Zähringen",
+            "lat": 48.0245066,
+            "lon": 7.8638902,
+            "eva": 8002071
+        },
+        {
+            "name": "Freiburg-Herdern",
+            "lat": 48.0085292,
+            "lon": 7.8512755,
+            "eva": 8002067
+        },
+        {
+            "name": "Freiburg-Sankt Georgen",
+            "lat": 47.9755426,
+            "lon": 7.802923,
+            "eva": 8002069
+        },
+        {
+            "name": "Ebringen",
+            "lat": 47.9601713,
+            "lon": 7.7679642,
+            "eva": 8001643
+        },
+        {
+            "name": "Norsingen",
+            "lat": 47.9391394,
+            "lon": 7.7261608,
+            "eva": 8004464
+        },
+        {
+            "name": "Buggingen",
+            "lat": 47.8553108,
+            "lon": 7.6282655,
+            "eva": 8001262
+        },
+        {
+            "name": "Bötzingen",
+            "lat": 48.0703588,
+            "lon": 7.7215298,
+            "eva": 8007296
+        },
+        {
+            "name": "Eichstetten",
+            "lat": 48.0928367,
+            "lon": 7.7478528,
+            "eva": 8007295
+        },
+        {
+            "name": "Nimburg (Baden)",
+            "lat": 48.1057134,
+            "lon": 7.7601532,
+            "eva": 503550
+        },
+        {
+            "name": "Bahlingen am Kaiserstuhl",
+            "lat": 48.1247284,
+            "lon": 7.7416561,
+            "eva": 8007293
+        },
+        {
+            "name": "Bahlingen-Riedlen",
+            "lat": 48.1181017,
+            "lon": 7.7476128,
+            "eva": 8007310
+        },
+        {
+            "name": "Endingen am Kaiserstuhl",
+            "lat": 48.1442372,
+            "lon": 7.7023505,
+            "eva": 8007285
+        },
+        {
+            "name": "Königschaffhausen",
+            "lat": 48.1372962,
+            "lon": 7.6583356,
+            "eva": 8007286
+        },
+        {
+            "name": "Sasbach am Kaiserstuhl",
+            "lat": 48.1386428,
+            "lon": 7.6202852,
+            "eva": 8007287
+        },
+        {
+            "name": "Burkheim-Bischoffingen",
+            "lat": 48.1041385,
+            "lon": 7.6118955,
+            "eva": 8007289
+        },
+        {
+            "name": "Jechtingen",
+            "lat": 48.1203814,
+            "lon": 7.6106034,
+            "eva": 8007288
+        },
+        {
+            "name": "Oberrotweil",
+            "lat": 48.0893756,
+            "lon": 7.6206439,
+            "eva": 8007290
+        },
+        {
+            "name": "Achkarren",
+            "lat": 48.0595628,
+            "lon": 7.6080515,
+            "eva": 8007291
+        },
+        {
+            "name": "Breisach",
+            "lat": 48.026872,
+            "lon": 7.5894944,
+            "eva": 8001143
+        },
+        {
+            "name": "Gottenheim",
+            "lat": 48.0516532,
+            "lon": 7.7278106,
+            "eva": 8002334
+        },
+        {
+            "name": "Gundelfingen (Breisgau)",
+            "lat": 48.0444126,
+            "lon": 7.874317,
+            "eva": 8002465
+        },
+        {
+            "name": "Teningen-Mundingen",
+            "lat": 48.1288321,
+            "lon": 7.8241995,
+            "eva": 8005836
+        },
+        {
+            "name": "Feldberg-Bärental",
+            "lat": 47.8714682,
+            "lon": 8.0984304,
+            "eva": 8001971
+        },
+        {
+            "name": "Münstertal (Schwarzwald)",
+            "lat": 47.8550983,
+            "lon": 7.7811132,
+            "eva": 8007337
+        },
+        {
+            "name": "Bad Krozingen Ost",
+            "lat": 47.916853,
+            "lon": 7.7101196,
+            "eva": 8007330
+        },
+        {
+            "name": "Dietzelbach",
+            "lat": 47.8595084,
+            "lon": 7.763143,
+            "eva": 8007335
+        },
+        {
+            "name": "Etzenbach",
+            "lat": 47.8667451,
+            "lon": 7.7491445,
+            "eva": 8007334
+        },
+        {
+            "name": "Hof (Münstertal)",
+            "lat": 47.8571726,
+            "lon": 7.7724493,
+            "eva": 8007336
+        },
+        {
+            "name": "Oberkrozingen",
+            "lat": 47.9103708,
+            "lon": 7.7160151,
+            "eva": 8007331
+        },
+        {
+            "name": "Staufen",
+            "lat": 47.885411,
+            "lon": 7.7281271,
+            "eva": 8007332
+        },
+        {
+            "name": "Freiburg-Littenweiler",
+            "lat": 47.9817195,
+            "lon": 7.8955654,
+            "eva": 8002068
+        },
+        {
+            "name": "Hinterzarten",
+            "lat": 47.9062885,
+            "lon": 8.1062123,
+            "eva": 8002848
+        },
+        {
+            "name": "Freiburg-Landwasser",
+            "lat": 48.0282063,
+            "lon": 7.8116555,
+            "eva": 8002066
+        },
+        {
+            "name": "Staufen Süd",
+            "lat": 47.8784474,
+            "lon": 7.7277579,
+            "eva": 8007333
+        },
+        {
+            "name": "Ihringen",
+            "lat": 48.0403994,
+            "lon": 7.6489512,
+            "eva": 8003052
+        },
+        {
+            "name": "Wasenweiler",
+            "lat": 48.0464289,
+            "lon": 7.6859286,
+            "eva": 8006215
+        },
+        {
+            "name": "Hugstetten",
+            "lat": 48.0480048,
+            "lon": 7.784349,
+            "eva": 8003025
+        },
+        {
+            "name": "Freiburg Klinikum",
+            "lat": 48.0058934,
+            "lon": 7.8423653,
+            "eva": 8002077
+        },
+        {
+            "name": "Freiburg Messe/Universität",
+            "lat": 48.0128832,
+            "lon": 7.8327603,
+            "eva": 8000453
+        },
+        {
+            "name": "Batzenhäusle",
+            "lat": 48.0890068,
+            "lon": 7.9409087,
+            "eva": 8000821
+        }
+    ],
+    "buggingen": [
+        {
+            "name": "Freiburg (Breisgau) Hauptbahnhof",
+            "lat": 47.9977308,
+            "lon": 7.8412948,
+            "eva": 8000107
+        },
+        {
+            "name": "Binzen",
+            "lat": 47.6314024,
+            "lon": 7.6210477,
+            "eva": 8070323
+        },
+        {
+            "name": "Heitersheim",
+            "lat": 47.8803534,
+            "lon": 7.6464671,
+            "eva": 8002727
+        },
+        {
+            "name": "Wollbach (Baden)",
+            "lat": 47.6682042,
+            "lon": 7.6486148,
+            "eva": 8070579
+        },
+        {
+            "name": "Wittlingen",
+            "lat": 47.6570009,
+            "lon": 7.6470097,
+            "eva": 8070578
+        },
+        {
+            "name": "Hammerstein",
+            "lat": 47.6903052,
+            "lon": 7.6441387,
+            "eva": 8070419
+        },
+        {
+            "name": "Rümmingen",
+            "lat": 47.6429587,
+            "lon": 7.6406902,
+            "eva": 8070524
+        },
+        {
+            "name": "Freiburg-Wiehre",
+            "lat": 47.9824641,
+            "lon": 7.8547092,
+            "eva": 8002070
+        },
+        {
+            "name": "Bad Krozingen",
+            "lat": 47.919666,
+            "lon": 7.6975988,
+            "eva": 8000718
+        },
+        {
+            "name": "Steinen",
+            "lat": 47.641603,
+            "lon": 7.7412441,
+            "eva": 8005701
+        },
+        {
+            "name": "Schallstadt",
+            "lat": 47.9559506,
+            "lon": 7.754131,
+            "eva": 8005317
+        },
+        {
+            "name": "Bad Bellingen",
+            "lat": 47.7308626,
+            "lon": 7.5576209,
+            "eva": 8000864
+        },
+        {
+            "name": "Mulhouse-Ville",
+            "lat": 47.7421497,
+            "lon": 7.3431347,
+            "eva": 8700031
+        },
+        {
+            "name": "Eimeldingen",
+            "lat": 47.6279755,
+            "lon": 7.5956068,
+            "eva": 8001715
+        },
+        {
+            "name": "Freiburg-Herdern",
+            "lat": 48.0085292,
+            "lon": 7.8512755,
+            "eva": 8002067
+        },
+        {
+            "name": "Freiburg-Sankt Georgen",
+            "lat": 47.9755426,
+            "lon": 7.802923,
+            "eva": 8002069
+        },
+        {
+            "name": "Ebringen",
+            "lat": 47.9601713,
+            "lon": 7.7679642,
+            "eva": 8001643
+        },
+        {
+            "name": "Norsingen",
+            "lat": 47.9391394,
+            "lon": 7.7261608,
+            "eva": 8004464
+        },
+        {
+            "name": "Buggingen",
+            "lat": 47.8553108,
+            "lon": 7.6282655,
+            "eva": 8001262
+        },
+        {
+            "name": "Müllheim im Markgräflerland",
+            "lat": 47.810102,
+            "lon": 7.5995606,
+            "eva": 8004124
+        },
+        {
+            "name": "Auggen",
+            "lat": 47.789907,
+            "lon": 7.58665,
+            "eva": 8000657
+        },
+        {
+            "name": "Achkarren",
+            "lat": 48.0595628,
+            "lon": 7.6080515,
+            "eva": 8007291
+        },
+        {
+            "name": "Breisach",
+            "lat": 48.026872,
+            "lon": 7.5894944,
+            "eva": 8001143
+        },
+        {
+            "name": "Lörrach-Haagen/Messe",
+            "lat": 47.6332736,
+            "lon": 7.6812281,
+            "eva": 8002489
+        },
+        {
+            "name": "Efringen-Kirchen",
+            "lat": 47.6557456,
+            "lon": 7.5637267,
+            "eva": 8001671
+        },
+        {
+            "name": "Lörrach-Brombach/Hauingen",
+            "lat": 47.6377499,
+            "lon": 7.6957554,
+            "eva": 8001191
+        },
+        {
+            "name": "Zell (Wiesental)",
+            "lat": 47.7054405,
+            "lon": 7.8488782,
+            "eva": 8006641
+        },
+        {
+            "name": "Hausen-Raitbach",
+            "lat": 47.679248,
+            "lon": 7.8460935,
+            "eva": 8002666
+        },
+        {
+            "name": "Istein",
+            "lat": 47.6610466,
+            "lon": 7.5427618,
+            "eva": 8003098
+        },
+        {
+            "name": "Rheinweiler",
+            "lat": 47.7094954,
+            "lon": 7.5315184,
+            "eva": 8005068
+        },
+        {
+            "name": "Schliengen",
+            "lat": 47.7609819,
+            "lon": 7.568361,
+            "eva": 8005364
+        },
+        {
+            "name": "Gottenheim",
+            "lat": 48.0516532,
+            "lon": 7.7278106,
+            "eva": 8002334
+        },
+        {
+            "name": "Bantzenheim",
+            "lat": 47.811045,
+            "lon": 7.5039462,
+            "eva": 8700329
+        },
+        {
+            "name": "Münstertal (Schwarzwald)",
+            "lat": 47.8550983,
+            "lon": 7.7811132,
+            "eva": 8007337
+        },
+        {
+            "name": "Bad Krozingen Ost",
+            "lat": 47.916853,
+            "lon": 7.7101196,
+            "eva": 8007330
+        },
+        {
+            "name": "Dietzelbach",
+            "lat": 47.8595084,
+            "lon": 7.763143,
+            "eva": 8007335
+        },
+        {
+            "name": "Etzenbach",
+            "lat": 47.8667451,
+            "lon": 7.7491445,
+            "eva": 8007334
+        },
+        {
+            "name": "Hof (Münstertal)",
+            "lat": 47.8571726,
+            "lon": 7.7724493,
+            "eva": 8007336
+        },
+        {
+            "name": "Oberkrozingen",
+            "lat": 47.9103708,
+            "lon": 7.7160151,
+            "eva": 8007331
+        },
+        {
+            "name": "Staufen",
+            "lat": 47.885411,
+            "lon": 7.7281271,
+            "eva": 8007332
+        },
+        {
+            "name": "Freiburg-Littenweiler",
+            "lat": 47.9817195,
+            "lon": 7.8955654,
+            "eva": 8002068
+        },
+        {
+            "name": "Kandern",
+            "lat": 47.7137176,
+            "lon": 7.6568404,
+            "eva": 8070450
+        },
+        {
+            "name": "Kleinkems",
+            "lat": 47.6863658,
+            "lon": 7.5246289,
+            "eva": 8003325
+        },
+        {
+            "name": "Freiburg-Landwasser",
+            "lat": 48.0282063,
+            "lon": 7.8116555,
+            "eva": 8002066
+        },
+        {
+            "name": "Staufen Süd",
+            "lat": 47.8784474,
+            "lon": 7.7277579,
+            "eva": 8007333
+        },
+        {
+            "name": "Rixheim",
+            "lat": 47.7488047,
+            "lon": 7.4063103,
+            "eva": 8706985
+        },
+        {
+            "name": "Habsheim",
+            "lat": 47.7377003,
+            "lon": 7.4182407,
+            "eva": 8701261
+        },
+        {
+            "name": "Neuenburg (Baden)",
+            "lat": 47.8115244,
+            "lon": 7.5628397,
+            "eva": 8089119
+        },
+        {
+            "name": "Ihringen",
+            "lat": 48.0403994,
+            "lon": 7.6489512,
+            "eva": 8003052
+        },
+        {
+            "name": "Wasenweiler",
+            "lat": 48.0464289,
+            "lon": 7.6859286,
+            "eva": 8006215
+        },
+        {
+            "name": "Hugstetten",
+            "lat": 48.0480048,
+            "lon": 7.784349,
+            "eva": 8003025
+        },
+        {
+            "name": "Freiburg Klinikum",
+            "lat": 48.0058934,
+            "lon": 7.8423653,
+            "eva": 8002077
+        },
+        {
+            "name": "Freiburg Messe/Universität",
+            "lat": 48.0128832,
+            "lon": 7.8327603,
+            "eva": 8000453
+        }
+    ],
+    "loerrach": [
+        {
+            "name": "Binzen",
+            "lat": 47.6314024,
+            "lon": 7.6210477,
+            "eva": 8070323
+        },
+        {
+            "name": "Beuggen",
+            "lat": 47.5823581,
+            "lon": 7.8112121,
+            "eva": 8000932
+        },
+        {
+            "name": "Wehr-Brennet",
+            "lat": 47.5816367,
+            "lon": 7.9102512,
+            "eva": 8001174
+        },
+        {
+            "name": "Wollbach (Baden)",
+            "lat": 47.6682042,
+            "lon": 7.6486148,
+            "eva": 8070579
+        },
+        {
+            "name": "Wittlingen",
+            "lat": 47.6570009,
+            "lon": 7.6470097,
+            "eva": 8070578
+        },
+        {
+            "name": "Bad Säckingen",
+            "lat": 47.555908,
+            "lon": 7.9489671,
+            "eva": 8005255
+        },
+        {
+            "name": "Hammerstein",
+            "lat": 47.6903052,
+            "lon": 7.6441387,
+            "eva": 8070419
+        },
+        {
+            "name": "Rümmingen",
+            "lat": 47.6429587,
+            "lon": 7.6406902,
+            "eva": 8070524
+        },
+        {
+            "name": "Schwörstadt",
+            "lat": 47.5910264,
+            "lon": 7.8703642,
+            "eva": 8005497
+        },
+        {
+            "name": "Basel Dreispitz",
+            "lat": 47.5375286,
+            "lon": 7.6094052,
+            "eva": 8500132
+        },
+        {
+            "name": "Basel St. Jakob",
+            "lat": 47.5426262,
+            "lon": 7.6192676,
+            "eva": 8500822
+        },
+        {
+            "name": "Lausen",
+            "lat": 47.4703738,
+            "lon": 7.7598396,
+            "eva": 8500024
+        },
+        {
+            "name": "Itingen",
+            "lat": 47.4674573,
+            "lon": 7.7872012,
+            "eva": 8500025
+        },
+        {
+            "name": "Augarten",
+            "lat": 47.5458179,
+            "lon": 7.7680695,
+            "eva": 721323
+        },
+        {
+            "name": "Salina Raurica",
+            "lat": 47.5306558,
+            "lon": 7.7098235,
+            "eva": 8517131
+        },
+        {
+            "name": "Riehen",
+            "lat": 47.583306,
+            "lon": 7.6519502,
+            "eva": 8005091
+        },
+        {
+            "name": "Steinen",
+            "lat": 47.641603,
+            "lon": 7.7412441,
+            "eva": 8005701
+        },
+        {
+            "name": "Sissach",
+            "lat": 47.4628239,
+            "lon": 7.8120662,
+            "eva": 8500026
+        },
+        {
+            "name": "Diepflingen",
+            "lat": 47.4495456,
+            "lon": 7.8376995,
+            "eva": 8500031
+        },
+        {
+            "name": "Schopfheim West",
+            "lat": 47.6455728,
+            "lon": 7.8016147,
+            "eva": 8005425
+        },
+        {
+            "name": "Bad Bellingen",
+            "lat": 47.7308626,
+            "lon": 7.5576209,
+            "eva": 8000864
+        },
+        {
+            "name": "Weil am Rhein",
+            "lat": 47.5935408,
+            "lon": 7.6084137,
+            "eva": 8006272
+        },
+        {
+            "name": "Haltingen",
+            "lat": 47.611406,
+            "lon": 7.6130857,
+            "eva": 8002546
+        },
+        {
+            "name": "Eimeldingen",
+            "lat": 47.6279755,
+            "lon": 7.5956068,
+            "eva": 8001715
+        },
+        {
+            "name": "Müllheim im Markgräflerland",
+            "lat": 47.810102,
+            "lon": 7.5995606,
+            "eva": 8004124
+        },
+        {
+            "name": "Auggen",
+            "lat": 47.789907,
+            "lon": 7.58665,
+            "eva": 8000657
+        },
+        {
+            "name": "Gräubern",
+            "lat": 47.4758679,
+            "lon": 7.744757,
+            "eva": 8500081
+        },
+        {
+            "name": "Basel Badischer Bahnhof",
+            "lat": 47.5674616,
+            "lon": 7.6073096,
+            "eva": 502072
+        },
+        {
+            "name": "Basel SBB",
+            "lat": 47.5476225,
+            "lon": 7.5896417,
+            "eva": 8500010
+        },
+        {
+            "name": "Frenkendorf-Füllinsdorf",
+            "lat": 47.501507,
+            "lon": 7.7192231,
+            "eva": 8500022
+        },
+        {
+            "name": "Gelterkinden",
+            "lat": 47.4658039,
+            "lon": 7.847518,
+            "eva": 8500027
+        },
+        {
+            "name": "Kaiseraugst",
+            "lat": 47.5384533,
+            "lon": 7.7241523,
+            "eva": 8500300
+        },
+        {
+            "name": "Liestal",
+            "lat": 47.4845166,
+            "lon": 7.7313789,
+            "eva": 8500023
+        },
+        {
+            "name": "Mumpf",
+            "lat": 47.5476038,
+            "lon": 7.9097702,
+            "eva": 8500303
+        },
+        {
+            "name": "Muttenz",
+            "lat": 47.5335638,
+            "lon": 7.6478535,
+            "eva": 8500020
+        },
+        {
+            "name": "Möhlin",
+            "lat": 47.5616898,
+            "lon": 7.8333369,
+            "eva": 8500302
+        },
+        {
+            "name": "Pratteln",
+            "lat": 47.5226188,
+            "lon": 7.6907117,
+            "eva": 8500021
+        },
+        {
+            "name": "Rheinfelden",
+            "lat": 47.5512601,
+            "lon": 7.7921375,
+            "eva": 8530698
+        },
+        {
+            "name": "Stein-Säckingen",
+            "lat": 47.5416401,
+            "lon": 7.9489252,
+            "eva": 8500320
+        },
+        {
+            "name": "Aesch BL",
+            "lat": 47.467793,
+            "lon": 7.6030003,
+            "eva": 8500117
+        },
+        {
+            "name": "Dornach-Arlesheim",
+            "lat": 47.4886026,
+            "lon": 7.6110413,
+            "eva": 8500118
+        },
+        {
+            "name": "Duggingen",
+            "lat": 47.4534854,
+            "lon": 7.6035551,
+            "eva": 8500116
+        },
+        {
+            "name": "Grellingen",
+            "lat": 47.4413338,
+            "lon": 7.5919717,
+            "eva": 8500115
+        },
+        {
+            "name": "Laufen",
+            "lat": 47.4193052,
+            "lon": 7.5025681,
+            "eva": 8587400
+        },
+        {
+            "name": "Münchenstein",
+            "lat": 47.5133658,
+            "lon": 7.6176369,
+            "eva": 8500119
+        },
+        {
+            "name": "Zwingen",
+            "lat": 47.4337515,
+            "lon": 7.5304981,
+            "eva": 8500114
+        },
+        {
+            "name": "Herten (Baden)",
+            "lat": 47.5495264,
+            "lon": 7.7397653,
+            "eva": 8002797
+        },
+        {
+            "name": "Rheinfelden (Baden)",
+            "lat": 47.5569189,
+            "lon": 7.7846387,
+            "eva": 8005064
+        },
+        {
+            "name": "Lörrach Dammstraße",
+            "lat": 47.5976775,
+            "lon": 7.6550492,
+            "eva": 8003736
+        },
+        {
+            "name": "Lörrach Museum/Burghof",
+            "lat": 47.608038,
+            "lon": 7.6612922,
+            "eva": 8003737
+        },
+        {
+            "name": "Lörrach Schwarzwaldstraße",
+            "lat": 47.62456,
+            "lon": 7.6726141,
+            "eva": 8003743
+        },
+        {
+            "name": "Lörrach-Stetten",
+            "lat": 47.6017968,
+            "lon": 7.6591824,
+            "eva": 8003730
+        },
+        {
+            "name": "Lörrach Hauptbahnhof",
+            "lat": 47.6139646,
+            "lon": 7.6653218,
+            "eva": 8003729
+        },
+        {
+            "name": "Lörrach-Haagen/Messe",
+            "lat": 47.6332736,
+            "lon": 7.6812281,
+            "eva": 8002489
+        },
+        {
+            "name": "Efringen-Kirchen",
+            "lat": 47.6557456,
+            "lon": 7.5637267,
+            "eva": 8001671
+        },
+        {
+            "name": "Weil am Rhein Gartenstadt",
+            "lat": 47.5887049,
+            "lon": 7.6163691,
+            "eva": 8000143
+        },
+        {
+            "name": "Weil am Rhein Ost",
+            "lat": 47.5907739,
+            "lon": 7.6349025,
+            "eva": 8006273
+        },
+        {
+            "name": "Lörrach-Brombach/Hauingen",
+            "lat": 47.6377499,
+            "lon": 7.6957554,
+            "eva": 8001191
+        },
+        {
+            "name": "Zell (Wiesental)",
+            "lat": 47.7054405,
+            "lon": 7.8488782,
+            "eva": 8006641
+        },
+        {
+            "name": "Hausen-Raitbach",
+            "lat": 47.679248,
+            "lon": 7.8460935,
+            "eva": 8002666
+        },
+        {
+            "name": "Fahrnau",
+            "lat": 47.6617952,
+            "lon": 7.8395195,
+            "eva": 8001954
+        },
+        {
+            "name": "Schopfheim",
+            "lat": 47.6481345,
+            "lon": 7.8228383,
+            "eva": 8005420
+        },
+        {
+            "name": "Istein",
+            "lat": 47.6610466,
+            "lon": 7.5427618,
+            "eva": 8003098
+        },
+        {
+            "name": "Rheinweiler",
+            "lat": 47.7094954,
+            "lon": 7.5315184,
+            "eva": 8005068
+        },
+        {
+            "name": "Schliengen",
+            "lat": 47.7609819,
+            "lon": 7.568361,
+            "eva": 8005364
+        },
+        {
+            "name": "Wyhlen",
+            "lat": 47.5463252,
+            "lon": 7.6911616,
+            "eva": 8006629
+        },
+        {
+            "name": "Bartenheim",
+            "lat": 47.6349493,
+            "lon": 7.4875323,
+            "eva": 8706987
+        },
+        {
+            "name": "Basel St. Johann",
+            "lat": 47.5700527,
+            "lon": 7.5720745,
+            "eva": 8500016
+        },
+        {
+            "name": "Bantzenheim",
+            "lat": 47.811045,
+            "lon": 7.5039462,
+            "eva": 8700329
+        },
+        {
+            "name": "Riehen Niederholz",
+            "lat": 47.5694531,
+            "lon": 7.6334629,
+            "eva": 8005093
+        },
+        {
+            "name": "Schopfheim Schlattholz",
+            "lat": 47.6533367,
+            "lon": 7.8324701,
+            "eva": 8005426
+        },
+        {
+            "name": "Kandern",
+            "lat": 47.7137176,
+            "lon": 7.6568404,
+            "eva": 8070450
+        },
+        {
+            "name": "Hölstein",
+            "lat": 47.4273522,
+            "lon": 7.7711721,
+            "eva": 8500084
+        },
+        {
+            "name": "Hölstein Süd",
+            "lat": 47.4222682,
+            "lon": 7.7670501,
+            "eva": 8500092
+        },
+        {
+            "name": "Hirschlang",
+            "lat": 47.4103936,
+            "lon": 7.7555003,
+            "eva": 8500094
+        },
+        {
+            "name": "Lampenberg-Ramlinsburg",
+            "lat": 47.4425117,
+            "lon": 7.7612376,
+            "eva": 8500083
+        },
+        {
+            "name": "Bubendorf(CH)",
+            "lat": 47.4596339,
+            "lon": 7.7415166,
+            "eva": 8500082
+        },
+        {
+            "name": "Talhaus",
+            "lat": 47.4513329,
+            "lon": 7.7498646,
+            "eva": 8500080
+        },
+        {
+            "name": "Niederdorf",
+            "lat": 47.4041236,
+            "lon": 7.751737,
+            "eva": 8071810
+        },
+        {
+            "name": "Grenzach",
+            "lat": 47.550923,
+            "lon": 7.6597024,
+            "eva": 8002365
+        },
+        {
+            "name": "Kleinkems",
+            "lat": 47.6863658,
+            "lon": 7.5246289,
+            "eva": 8003325
+        },
+        {
+            "name": "Rixheim",
+            "lat": 47.7488047,
+            "lon": 7.4063103,
+            "eva": 8706985
+        },
+        {
+            "name": "Habsheim",
+            "lat": 47.7377003,
+            "lon": 7.4182407,
+            "eva": 8701261
+        },
+        {
+            "name": "Neuenburg (Baden)",
+            "lat": 47.8115244,
+            "lon": 7.5628397,
+            "eva": 8089119
+        },
+        {
+            "name": "Sierentz",
+            "lat": 47.6560655,
+            "lon": 7.4594999,
+            "eva": 8702060
+        },
+        {
+            "name": "Sommerau",
+            "lat": 47.4390047,
+            "lon": 7.8514319,
+            "eva": 8500032
+        },
+        {
+            "name": "Weil am Rhein Pfädlistraße",
+            "lat": 47.5889673,
+            "lon": 7.626671,
+            "eva": 8000146
+        },
+        {
+            "name": "Maulburg",
+            "lat": 47.6444362,
+            "lon": 7.7810719,
+            "eva": 8003920
+        }
+    ]
+}

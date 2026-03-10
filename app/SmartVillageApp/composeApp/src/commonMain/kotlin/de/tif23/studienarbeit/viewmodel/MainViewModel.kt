@@ -20,6 +20,7 @@ import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
 import de.tif23.studienarbeit.viewmodel.data.RecyclingType
+import de.tif23.studienarbeit.viewmodel.data.TrainStationList
 import de.tif23.studienarbeit.viewmodel.data.state.MainViewModelState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +41,7 @@ import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
+import smartvillageapp.composeapp.generated.resources.bahnhof_location
 import smartvillageapp.composeapp.generated.resources.parkbank_location
 import smartvillageapp.composeapp.generated.resources.wetterstation_location
 import kotlin.math.pow
@@ -118,6 +120,31 @@ class MainViewModel(
                     )
                 }
             }
+
+            val trainStationsData = Res.readBytes("files/bahnhof_koordinaten.json").decodeToString()
+            val trainStations = Json.decodeFromString<TrainStationList>(trainStationsData)
+            val villageStations = when (stateFlow.value.village?.village?.name) {
+                "Freiburg" -> trainStations.freiburg
+                "Buggingen" -> trainStations.buggingen
+                "Lörrach" -> trainStations.loerrach
+                else -> emptyList()
+            }
+
+            villageStations.forEach {
+                mapState.addMarker(
+                    id = it.eva.toString(),
+                    x = lonToX(it.lon),
+                    y = latToY(it.lat)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.bahnhof_location),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = primaryLight
+                    )
+                }
+            }
+
             val sensors = stateFlow.value.village?.sensors!!
             sensors.forEach {
                 mapState.addMarker(
