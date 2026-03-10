@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
+import de.tif23.studienarbeit.ui.theme.primaryLight
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
@@ -39,6 +40,8 @@ import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
+import smartvillageapp.composeapp.generated.resources.parkbank_location
+import smartvillageapp.composeapp.generated.resources.wetterstation_location
 import kotlin.math.pow
 
 class MainViewModel(
@@ -78,7 +81,6 @@ class MainViewModel(
     }
 
     init {
-        loadMarkers()
         viewModelScope.launch {
             stateFlow.update { it.copy(isLoading = true) }
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
@@ -87,6 +89,7 @@ class MainViewModel(
             } else {
                 val village = getVillageUseCase.getVillageConfig(villageId)
                 stateFlow.update { it.copy(village = village, isLoading = false) }
+                loadMarkers()
             }
         }
     }
@@ -110,8 +113,23 @@ class MainViewModel(
                     Icon(
                         painter = if (it.type == RecyclingType.ALTGLAS.name) painterResource(Res.drawable.altglas_location) else painterResource(Res.drawable.altkleider_location),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        modifier = Modifier.size(32.dp),
+                        tint = primaryLight
+                    )
+                }
+            }
+            val sensors = stateFlow.value.village?.sensors!!
+            sensors.forEach {
+                mapState.addMarker(
+                    id = it.id.toString(),
+                    x = lonToX(it.coordinates.lon),
+                    y = latToY(it.coordinates.lat)
+                ) {
+                    Icon(
+                        painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(Res.drawable.wetterstation_location),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = primaryLight
                     )
                 }
             }
