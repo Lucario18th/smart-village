@@ -31,7 +31,7 @@ fun NavBar(backStack: NavBackStack<NavKey>, currentTab: NavBarTabs) {
         )
         NavigationBarItem(
             selected = currentTab == NavBarTabs.SENSORS,
-            onClick = { },
+            onClick = { backStack.add(NavDestinations.SensorScreen) },
             icon = {
                 Icon(
                     painterResource(Res.drawable.thermometer),

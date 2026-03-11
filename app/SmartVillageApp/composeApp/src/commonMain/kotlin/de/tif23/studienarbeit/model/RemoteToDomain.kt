@@ -2,16 +2,21 @@ package de.tif23.studienarbeit.model
 
 import de.tif23.studienarbeit.model.data.RemoteMessage
 import de.tif23.studienarbeit.model.data.RemoteSensor
+import de.tif23.studienarbeit.model.data.RemoteSensorData
 import de.tif23.studienarbeit.model.data.RemoteVillage
 import de.tif23.studienarbeit.model.data.responses.RemoteVillageConfig
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
 import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
+import de.tif23.studienarbeit.viewmodel.data.SensorReading
 import de.tif23.studienarbeit.viewmodel.data.Village
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 fun RemoteVillage.toDomain(): Village {
     return Village(
@@ -42,6 +47,25 @@ fun RemoteSensor.toDomain(): Sensor {
         coordinates = Coordinates(
             lat = this.latitude,
             lon = this.longitude
+        ),
+        lastReading = null
+    )
+}
+
+fun RemoteSensorData.toDomain(): Sensor {
+    return Sensor(
+        id = this.sensorId,
+        name = this.name,
+        type = this.type,
+        unit = this.unit,
+        coordinates = Coordinates(
+            lat = this.latitude,
+            lon = this.longitude
+        ),
+        lastReading = if (this.lastReading == null) null else SensorReading(
+            value = this.lastReading.value,
+            timestamp = parseRemoteDateTime(this.lastReading.timestamp),
+            status = this.lastReading.status
         )
     )
 }
@@ -81,6 +105,15 @@ fun RemoteMessage.toDomain(): Message {
         id = this.id,
         text = this.text,
         priority = this.priority,
-        createdAt = LocalDateTime.parse(this.createdAt)
+        createdAt = parseRemoteDateTime(this.createdAt)
     )
 }
+
+private fun parseRemoteDateTime(value: String): LocalDateTime {
+    return runCatching {
+        Instant.parse(value).toLocalDateTime(TimeZone.currentSystemDefault())
+    }.getOrElse {
+        LocalDateTime.parse(value)
+    }
+}
+
