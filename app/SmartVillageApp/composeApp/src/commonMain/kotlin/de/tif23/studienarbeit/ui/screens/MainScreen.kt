@@ -22,8 +22,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -41,8 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MainViewModel
-import de.tif23.studienarbeit.viewmodel.NavDestinations
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -51,14 +50,9 @@ import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
-import smartvillageapp.composeapp.generated.resources.commute
-import smartvillageapp.composeapp.generated.resources.home
 import smartvillageapp.composeapp.generated.resources.logo
 import smartvillageapp.composeapp.generated.resources.notifications
-import smartvillageapp.composeapp.generated.resources.pinboard
 import smartvillageapp.composeapp.generated.resources.priority_high
-import smartvillageapp.composeapp.generated.resources.settings
-import smartvillageapp.composeapp.generated.resources.thermometer
 import kotlin.time.Clock
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,7 +100,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                     TopBar(villageName = state.village?.village?.name!!)
                 },
                 bottomBar = {
-                    NavBar(backStack)
+                    NavBar(backStack, NavBarTabs.MAIN)
                 }
             ) { paddingValues ->
 
@@ -234,52 +228,6 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun NavBar(backStack: NavBackStack<NavKey>) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = true,
-            onClick = {  },
-            icon = { Icon(painterResource(Res.drawable.home), contentDescription = "Home") },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { backStack.add(NavDestinations.MobilityScreen) },
-            icon = { Icon(painterResource(Res.drawable.commute), contentDescription = "Karte") },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = {
-                Icon(
-                    painterResource(Res.drawable.thermometer),
-                    contentDescription = "Sensoren"
-                )
-            },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = {
-                Icon(
-                    painterResource(Res.drawable.pinboard),
-                    contentDescription = "Pinboard"
-                )
-            },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = {
-                Icon(
-                    painterResource(Res.drawable.settings),
-                    contentDescription = "Einstellungen"
-                )
-            },
-        )
     }
 }
 

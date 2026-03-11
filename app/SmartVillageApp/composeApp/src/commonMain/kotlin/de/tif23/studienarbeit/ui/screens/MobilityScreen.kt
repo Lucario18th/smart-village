@@ -49,6 +49,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.model.usecase.TransitDepartureItem
+import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.TransitStationCardState
@@ -92,6 +94,9 @@ fun MobilityScreen(
                         scrolledContainerColor = Color.Transparent
                     )
                 )
+            },
+            bottomBar = {
+                NavBar(backStack, NavBarTabs.MOBILITY)
             }
         ) { paddingValues ->
             Column(
