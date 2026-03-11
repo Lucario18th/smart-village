@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.api.addCallout
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.addMarker
+import ovh.plrapps.mapcompose.api.centerOnMarker
 import ovh.plrapps.mapcompose.api.onMarkerClick
 import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.ui.layout.Forced
@@ -65,15 +66,25 @@ class MainViewModel(
 
     val mapState = MapState(levelCount = maxLevel + 1, mapSize, mapSize, workerCount = 16) {
         minimumScaleMode(Forced(1 / 2.0.pow(maxLevel - minLevel)))
-        when(stateFlow.value.village?.village?.name) {
-            "Lörrach" -> scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
-            "Freiburg im Breisgau" -> scroll(lonToX(FREIBURG_LON), latToY(FREIBURG_LAT))
-            "Buggingen" -> scroll(lonToX(BUGGINGEN_LON), latToY(BUGGINGEN_LAT))
-            else -> scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
-        }
+        scroll(lonToX(LOERRACH_LON), latToY(LOERRACH_LAT))
     }.apply {
         addLayer(tileStreamProvider)
         scale = 1.0 // to zoom out initially
+        addMarker(
+            id = "init_loerrach",
+            x = lonToX(LOERRACH_LON),
+            y = latToY(LOERRACH_LAT)
+        ) {}
+        addMarker(
+            id = "init_freiburg",
+            x = lonToX(FREIBURG_LON),
+            y = latToY(FREIBURG_LAT)
+        ) {}
+        addMarker(
+            id = "init_buggingen",
+            x = lonToX(BUGGINGEN_LON),
+            y = latToY(BUGGINGEN_LAT)
+        ) {}
 
         onMarkerClick { id, x, y ->
             addCallout(
@@ -100,6 +111,18 @@ class MainViewModel(
             } else {
                 val village = getVillageUseCase.getVillageConfig(villageId)
                 stateFlow.update { it.copy(village = village, isLoading = false) }
+                viewModelScope.launch {
+                    mapState.centerOnMarker(
+                        id = when (village.village.name) {
+                            "Freiburg im Breisgau" -> "init_freiburg"
+                            "Buggingen" -> "init_buggingen"
+                            "Lörrach" -> "init_loerrach"
+                            else -> "init_loerrach"
+                        },
+                        destScale = 1.0,
+                        destAngle = 0f
+                    )
+                }
                 loadMarkers()
             }
         }
