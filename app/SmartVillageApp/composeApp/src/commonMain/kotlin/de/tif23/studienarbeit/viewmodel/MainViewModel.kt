@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
+import de.tif23.studienarbeit.model.usecase.GetMessagesUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.ui.theme.primaryLight
@@ -25,6 +26,7 @@ import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
 import de.tif23.studienarbeit.viewmodel.data.RecyclingType
 import de.tif23.studienarbeit.viewmodel.data.TrainStationList
+import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.state.MainViewModelState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,8 +54,9 @@ import smartvillageapp.composeapp.generated.resources.wetterstation_location
 import kotlin.math.pow
 
 class MainViewModel(
-    getVillageUseCase: GetVillageUseCase = GetVillageUseCase(),
-    selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore()
+    private val getVillageUseCase: GetVillageUseCase = GetVillageUseCase(),
+    private val selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore(),
+    private val getMessagesUseCase: GetMessagesUseCase = GetMessagesUseCase()
 ) : ViewModel() {
     private val tileStreamProvider = makeOsmTileStreamProvider()
     private val maxLevel = 16
@@ -111,20 +114,28 @@ class MainViewModel(
             } else {
                 val village = getVillageUseCase.getVillageConfig(villageId)
                 stateFlow.update { it.copy(village = village, isLoading = false) }
-                viewModelScope.launch {
-                    mapState.centerOnMarker(
-                        id = when (village.village.name) {
-                            "Freiburg im Breisgau" -> "init_freiburg"
-                            "Buggingen" -> "init_buggingen"
-                            "Lörrach" -> "init_loerrach"
-                            else -> "init_loerrach"
-                        },
-                        destScale = 1.0,
-                        destAngle = 0f
-                    )
-                }
+                moveToInitialPosition(village)
                 loadMarkers()
+                viewModelScope.launch {
+                    val messages = getMessagesUseCase.getInitialMessages(villageId)
+                    stateFlow.update { it.copy(messages = messages) }
+                }
             }
+        }
+    }
+
+    private fun moveToInitialPosition(village: VillageConfig) {
+        viewModelScope.launch {
+            mapState.centerOnMarker(
+                id = when (village.village.name) {
+                    "Freiburg im Breisgau" -> "init_freiburg"
+                    "Buggingen" -> "init_buggingen"
+                    "Lörrach" -> "init_loerrach"
+                    else -> "init_loerrach"
+                },
+                destScale = 1.0,
+                destAngle = 0f
+            )
         }
     }
 

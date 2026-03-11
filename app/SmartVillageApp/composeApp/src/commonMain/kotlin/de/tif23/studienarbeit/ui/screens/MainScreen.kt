@@ -43,6 +43,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.viewmodel.MainViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.ui.MapUI
 import smartvillageapp.composeapp.generated.resources.Res
@@ -54,19 +56,16 @@ import smartvillageapp.composeapp.generated.resources.home
 import smartvillageapp.composeapp.generated.resources.logo
 import smartvillageapp.composeapp.generated.resources.notifications
 import smartvillageapp.composeapp.generated.resources.pinboard
+import smartvillageapp.composeapp.generated.resources.priority_high
 import smartvillageapp.composeapp.generated.resources.settings
 import smartvillageapp.composeapp.generated.resources.thermometer
+import kotlin.time.Clock
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewModel()) {
     val state by viewModel.viewState.collectAsState()
 
-    val notifications = listOf(
-        "Baustelle B317",
-        "Wochenmarkt"
-    )
-    val notificationTimes = listOf("heute", "Sa")
     val sensors = listOf(
         SensorCardData("22 C", "Temperatur"),
         SensorCardData("60 %", "Luftfeuchtigkeit"),
@@ -136,37 +135,56 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    item {
-                        Text(
-                            text = "Neuigkeiten",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 8.dp)
-                        )
-                    }
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            Column {
-                                notifications.forEachIndexed { index, title ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { }
-                                            .padding(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(text = title)
-                                        Text(
-                                            text = notificationTimes.getOrElse(index) { "" },
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                    if (index < notifications.lastIndex) {
-                                        HorizontalDivider()
+                    if (state.messages.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "Neuigkeiten",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 4.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                        }
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                            ) {
+                                Column {
+                                    state.messages.forEachIndexed { index, message ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { }
+                                                .padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            if (message.priority == "hoch") {
+                                                Icon(
+                                                    painter = painterResource(Res.drawable.priority_high),
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                            Text(text = message.text)
+                                            Text(
+                                                text = if (message.createdAt.date == Clock.System.now()
+                                                        .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                                                ) {
+                                                    "${message.createdAt.hour}:${message.createdAt.minute}"
+                                                } else {
+                                                    "${message.createdAt.day}.${message.createdAt.month}"
+                                                },
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        if (index < state.messages.lastIndex) {
+                                            HorizontalDivider()
+                                        }
                                     }
                                 }
                             }

@@ -273,6 +273,7 @@ kotlin {
                 implementation(libs.jetbrains.material3.adaptiveNavigation3)
                 implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
                 implementation(libs.multiplatform.settings.no.arg)
+                implementation(libs.kotlinx.datetime)
             }
         }
         commonTest.dependencies {
