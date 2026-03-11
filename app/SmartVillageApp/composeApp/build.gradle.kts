@@ -274,6 +274,8 @@ kotlin {
                 implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
                 implementation(libs.multiplatform.settings.no.arg)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kmqtt.common)
+                implementation(libs.kmqtt.client)
             }
         }
         commonTest.dependencies {
