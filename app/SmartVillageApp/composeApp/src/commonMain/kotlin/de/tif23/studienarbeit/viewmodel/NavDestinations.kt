@@ -30,6 +30,17 @@ object NavDestinations {
     data class RideDetailsScreen(val rideId: String) : NavKey
 
     @Serializable
+    data class RidesharePointDetailScreen(
+        val pointId: Int,
+        val name: String,
+        val description: String,
+        val personCount: Int,
+        val maxCapacity: Int,
+        val latitude: Double,
+        val longitude: Double
+    ) : NavKey
+
+    @Serializable
     data object RideOfferScreen : NavKey
 
     @Serializable

@@ -115,7 +115,7 @@ fun MobilityScreen(
                 }
 
                 when (selectedTabIndex) {
-                    0 -> CarpoolTabContent(backStack)
+                    0 -> CarpoolTabContent(backStack, mobilityViewModel)
                     1 -> TransitTabContent(backStack, mobilityViewModel)
                     else -> RoutingTabContent()
                 }
@@ -125,19 +125,44 @@ fun MobilityScreen(
 }
 
 @Composable
-private fun CarpoolTabContent(backStack: NavBackStack<NavKey>) {
-    val rides = listOf(
-        RideOffer("Freiburg", "Morgen, 10:00", "Max M.", "3 Plätze frei"),
-        RideOffer("Offenburg", "Fr, 14:30", "Lisa K.", "1 Platz frei"),
-        RideOffer("Karlsruhe Hbf", "Sa, 08:00", "Tom R.", "2 Plätze frei")
-    )
+private fun CarpoolTabContent(
+    backStack: NavBackStack<NavKey>,
+    mobilityViewModel: MobilityViewModel
+) {
+    LaunchedEffect(Unit) {
+        mobilityViewModel.refreshCarpool()
+    }
+
+    val carpoolUiState by mobilityViewModel.carpoolUiState.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(rides) { ride ->
+        if (carpoolUiState.isLoading) {
+            item {
+                Text("Mitfahrbänke werden geladen...")
+            }
+        }
+
+        carpoolUiState.errorMessage?.let { error ->
+            item {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        if (!carpoolUiState.isLoading && carpoolUiState.errorMessage == null && carpoolUiState.ridesharePoints.isEmpty()) {
+            item {
+                Text("Keine Mitfahrbänke verfuegbar")
+            }
+        }
+
+        items(carpoolUiState.ridesharePoints) { ridesharePoint ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -151,20 +176,34 @@ private fun CarpoolTabContent(backStack: NavBackStack<NavKey>) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Ziel: ${ride.destination}",
+                            text = ridesharePoint.name,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(text = "Zeit: ${ride.time}")
+                    Text(text = ridesharePoint.description)
                     Text(
-                        text = "Fahrerin/Fahrer: ${ride.driver} - ${ride.seats}",
+                        text = "Eingetragen: ${ridesharePoint.personCount} / ${ridesharePoint.maxCapacity}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { backStack.add(NavDestinations.RideDetailsScreen("abc")) }) {
-                        Text("Mitfahren anfragen")
+                    Button(
+                        onClick = {
+                            backStack.add(
+                                de.tif23.studienarbeit.viewmodel.NavDestinations.RidesharePointDetailScreen(
+                                    pointId = ridesharePoint.id,
+                                    name = ridesharePoint.name,
+                                    description = ridesharePoint.description,
+                                    personCount = ridesharePoint.personCount,
+                                    maxCapacity = ridesharePoint.maxCapacity,
+                                    latitude = ridesharePoint.coordinates.lat,
+                                    longitude = ridesharePoint.coordinates.lon
+                                )
+                            )
+                        }
+                    ) {
+                        Text("Details")
                     }
                 }
             }
@@ -436,12 +475,6 @@ private fun DepartureRow(departure: TransitDepartureItem) {
     Spacer(modifier = Modifier.height(8.dp))
 }
 
-private data class RideOffer(
-    val destination: String,
-    val time: String,
-    val driver: String,
-    val seats: String
-)
 
 private data class StopDepartures(
     val name: String,

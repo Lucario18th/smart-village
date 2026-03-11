@@ -1,12 +1,14 @@
 package de.tif23.studienarbeit.model
 
 import de.tif23.studienarbeit.model.data.RemoteMessage
+import de.tif23.studienarbeit.model.data.RemoteRidesharePoint
 import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorData
 import de.tif23.studienarbeit.model.data.RemoteVillage
 import de.tif23.studienarbeit.model.data.responses.RemoteVillageConfig
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
+import de.tif23.studienarbeit.viewmodel.data.RidesharePoint
 import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
 import de.tif23.studienarbeit.viewmodel.data.SensorReading
@@ -117,3 +119,16 @@ private fun parseRemoteDateTime(value: String): LocalDateTime {
     }
 }
 
+fun RemoteRidesharePoint.toDomain(): RidesharePoint {
+    return RidesharePoint(
+        id = this.id,
+        name = this.name,
+        description = this.description,
+        personCount = this.personCount,
+        maxCapacity = this.maxCapacity,
+        coordinates = Coordinates(
+            lat = this.latitude,
+            lon = this.longitude
+        )
+    )
+}

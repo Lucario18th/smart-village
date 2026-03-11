@@ -14,6 +14,7 @@ import de.tif23.studienarbeit.ui.screens.MainScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
 import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
 import de.tif23.studienarbeit.ui.screens.RideOfferScreen
+import de.tif23.studienarbeit.ui.screens.RidesharePointDetailScreen
 import de.tif23.studienarbeit.ui.screens.SensorDetailScreen
 import de.tif23.studienarbeit.ui.screens.SensorsScreen
 import de.tif23.studienarbeit.ui.screens.SplashScreen
@@ -34,6 +35,7 @@ private val config = SavedStateConfiguration {
             subclass(NavDestinations.SettingsScreen::class, NavDestinations.SettingsScreen.serializer())
             subclass(NavDestinations.NotificationsScreen::class, NavDestinations.NotificationsScreen.serializer())
             subclass(NavDestinations.RideDetailsScreen::class, NavDestinations.RideDetailsScreen.serializer())
+            subclass(NavDestinations.RidesharePointDetailScreen::class, NavDestinations.RidesharePointDetailScreen.serializer())
             subclass(NavDestinations.RideOfferScreen::class, NavDestinations.RideOfferScreen.serializer())
             subclass(NavDestinations.StationScreen::class, NavDestinations.StationScreen.serializer())
             subclass(NavDestinations.SplashScreen::class, NavDestinations.SplashScreen.serializer())
@@ -95,6 +97,17 @@ fun App() {
 
                 entry<NavDestinations.RideDetailsScreen> {
                     RideDetailsScreen(backStack)
+                }
+
+                entry<NavDestinations.RidesharePointDetailScreen> { ridesharePointDetailScreen ->
+                    RidesharePointDetailScreen(
+                        name = ridesharePointDetailScreen.name,
+                        description = ridesharePointDetailScreen.description,
+                        personCount = ridesharePointDetailScreen.personCount,
+                        maxCapacity = ridesharePointDetailScreen.maxCapacity,
+                        latitude = ridesharePointDetailScreen.latitude,
+                        longitude = ridesharePointDetailScreen.longitude
+                    )
                 }
 
                 entry<NavDestinations.RideOfferScreen> {

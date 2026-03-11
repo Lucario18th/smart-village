@@ -3,7 +3,7 @@ package de.tif23.studienarbeit.model.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RemoteRideShareOffer(
+data class RemoteRidesharePoint(
     val id: Int,
     val name: String,
     val description: String,
