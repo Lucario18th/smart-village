@@ -5,6 +5,7 @@ import de.tif23.studienarbeit.model.data.RemoteRidesharePoint
 import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorData
 import de.tif23.studienarbeit.model.data.RemoteVillage
+import de.tif23.studienarbeit.model.data.responses.Departure
 import de.tif23.studienarbeit.model.data.responses.RemoteVillageConfig
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
@@ -12,12 +13,14 @@ import de.tif23.studienarbeit.viewmodel.data.RidesharePoint
 import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
 import de.tif23.studienarbeit.viewmodel.data.SensorReading
+import de.tif23.studienarbeit.viewmodel.data.StationDeparture
 import de.tif23.studienarbeit.viewmodel.data.Village
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 fun RemoteVillage.toDomain(): Village {
@@ -111,6 +114,7 @@ fun RemoteMessage.toDomain(): Message {
     )
 }
 
+@OptIn(ExperimentalTime::class)
 private fun parseRemoteDateTime(value: String): LocalDateTime {
     return runCatching {
         Instant.parse(value).toLocalDateTime(TimeZone.currentSystemDefault())
@@ -130,5 +134,27 @@ fun RemoteRidesharePoint.toDomain(): RidesharePoint {
             lat = this.latitude,
             lon = this.longitude
         )
+    )
+}
+
+
+private fun parseCustomDateTime(input: String): LocalDateTime {
+    val year = input.substring(0, 2).toInt() + 2000  // yy -> 2000 + yy
+    val month = input.substring(2, 4).toInt()
+    val day = input.substring(4, 6).toInt()
+    val hour = input.substring(6, 8).toInt()
+    val minute = input.substring(8, 10).toInt()
+
+    return LocalDateTime(year, month, day, hour, minute)
+}
+
+fun Departure.toDomain(): StationDeparture {
+    return StationDeparture(
+        trainNumber = this.tl?.n?: "-1",
+        line = this.dp?.fb?: "-1",
+        destination = this.dp?.ppth?.split("|")?.last()?: "-1",
+        stops = this.dp?.ppth?.split("|")?.distinct()?: listOf(),
+        departure = parseCustomDateTime(this.dp?.pt?: "2603121111"),
+        platform = this.dp?.pp?: "-1"
     )
 }

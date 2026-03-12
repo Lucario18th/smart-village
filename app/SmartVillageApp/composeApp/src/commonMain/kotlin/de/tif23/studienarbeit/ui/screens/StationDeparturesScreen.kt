@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,14 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import de.tif23.studienarbeit.model.usecase.StationDepartureItem
 import de.tif23.studienarbeit.viewmodel.StationDeparturesViewModel
+import de.tif23.studienarbeit.viewmodel.data.StationDeparture
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.train
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("UNUSED_PARAMETER")
 fun StationDeparturesScreen(
     backStack: NavBackStack<NavKey>,
     stationId: String,
@@ -119,17 +119,21 @@ fun StationDeparturesScreen(
                 }
             }
 
-            items(uiState.departures) { item ->
-                StationDepartureCard(item)
-                Spacer(modifier = Modifier.height(4.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+            item {
+                uiState.departures.forEachIndexed { index, departure ->
+                    StationDepartureCard(departure)
+                    if (index < uiState.departures.lastIndex) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun StationDepartureCard(item: StationDepartureItem) {
+private fun StationDepartureCard(item: StationDeparture) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -143,14 +147,20 @@ private fun StationDepartureCard(item: StationDepartureItem) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "${item.time}  ${item.line}",
+                    "${formatDepartureTime(item)}  ${item.line}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text("-> ${item.destination}", fontWeight = FontWeight.SemiBold)
-            Text(item.status, style = MaterialTheme.typography.bodySmall)
+            Text("Gleis ${item.platform}", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
+
+private fun formatDepartureTime(departure: StationDeparture): String {
+    val dateTime = departure.departure
+    return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+}
+

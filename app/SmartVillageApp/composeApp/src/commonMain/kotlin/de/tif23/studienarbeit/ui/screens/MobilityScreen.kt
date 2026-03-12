@@ -1,7 +1,6 @@
 package de.tif23.studienarbeit.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,17 +47,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import de.tif23.studienarbeit.model.usecase.TransitDepartureItem
 import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.TransitStationCardState
+import de.tif23.studienarbeit.viewmodel.data.StationDeparture
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
-import smartvillageapp.composeapp.generated.resources.bus_railway
 import smartvillageapp.composeapp.generated.resources.settings
 import smartvillageapp.composeapp.generated.resources.train
 import smartvillageapp.composeapp.generated.resources.transportation
@@ -191,7 +189,7 @@ private fun CarpoolTabContent(
                     Button(
                         onClick = {
                             backStack.add(
-                                de.tif23.studienarbeit.viewmodel.NavDestinations.RidesharePointDetailScreen(
+                                NavDestinations.RidesharePointDetailScreen(
                                     pointId = ridesharePoint.id,
                                     name = ridesharePoint.name,
                                     description = ridesharePoint.description,
@@ -257,6 +255,12 @@ private fun TransitTabContent(
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
+            }
+        }
+
+        if (!uiState.isLoading && uiState.errorMessage == null && uiState.stations.isEmpty()) {
+            item {
+                Text("Keine Bahnhoefe verfuegbar")
             }
         }
 
@@ -357,48 +361,6 @@ private fun RoutingTabContent() {
 }
 
 @Composable
-private fun StopCard(
-    stop: StopDepartures,
-    onClick: () -> Unit = { }
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(Res.drawable.bus_railway),
-                        contentDescription = "Haltestelle",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Haltestelle: ${stop.name}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { onClick() }
-                    )
-                }
-                Text(text = stop.distance, style = MaterialTheme.typography.bodySmall)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            stop.departures.forEachIndexed { index, departure ->
-                DepartureRow(departure)
-                if (index < stop.departures.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun StationCard(
     station: TransitStationCardState,
     onShowAllDepartures: () -> Unit
@@ -454,7 +416,7 @@ private fun StationCard(
 }
 
 @Composable
-private fun DepartureRow(departure: TransitDepartureItem) {
+private fun DepartureRow(departure: StationDeparture) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -463,39 +425,25 @@ private fun DepartureRow(departure: TransitDepartureItem) {
         Column(modifier = Modifier.weight(1f)) {
             Text("${departure.line} - ${departure.destination}", fontWeight = FontWeight.SemiBold)
             Text(
-                text = departure.status,
+                text = "Gleis ${departure.platform}",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
-        Text(departure.time, style = MaterialTheme.typography.bodySmall)
+        Text(formatDepartureTime(departure), style = MaterialTheme.typography.bodySmall)
     }
     Spacer(modifier = Modifier.height(8.dp))
 }
 
-
-private data class StopDepartures(
-    val name: String,
-    val distance: String,
-    val departures: List<TransitDepartureItem>
-)
-
-private data class StationDepartures(
-    val name: String,
-    val distance: String,
-    val departures: List<TransitDepartureItem>
-)
-
-private data class Departure(
-    val line: String,
-    val destination: String,
-    val time: String,
-    val status: String
-)
+private fun formatDepartureTime(departure: StationDeparture): String {
+    val dateTime = departure.departure
+    return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+}
 
 private data class RouteOption(
     val title: String,
     val subtitle: String
 )
+
