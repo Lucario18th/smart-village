@@ -60,7 +60,9 @@ data class DepartureTrainInfo(
 	@XmlSerialName("wings")
 	val wings: String?,
 	@XmlSerialName("ppth")
-	val plannedPath: String
+	val plannedPath: String,
+	@XmlSerialName("hi")
+	val isHidden: String?
 )
 
 @Serializable
@@ -80,5 +82,7 @@ data class ArrivalTrainInfo(
 	@XmlSerialName("pde")
 	val plannedDistantEndpoint: String?,
 	@XmlSerialName("ppth")
-	val plannedPath: String
+	val plannedPath: String,
+	@XmlSerialName("hi")
+	val isHidden: String?
 )

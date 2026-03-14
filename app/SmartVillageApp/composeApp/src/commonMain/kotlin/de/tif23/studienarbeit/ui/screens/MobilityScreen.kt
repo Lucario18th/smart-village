@@ -42,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
@@ -53,7 +55,9 @@ import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.data.Station
 import de.tif23.studienarbeit.viewmodel.data.StationDeparture
+import de.tif23.studienarbeit.viewmodel.data.TripStatus
 import de.tif23.studienarbeit.viewmodel.data.state.MobilityViewModelState
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.background_dark
@@ -410,29 +414,137 @@ private fun StationCard(
 
 @Composable
 private fun DepartureRow(departure: StationDeparture) {
+    val changedLine = departure.changedLine?.takeIf { it.isNotBlank() && it != departure.line }
+    val changedDestination = departure.changedDestination?.takeIf {
+        it.isNotBlank() && it != departure.destination
+    }
+    val changedStops = departure.changedStops?.takeIf { it.isNotEmpty() && it != departure.stops }
+    val changedPlatform = departure.changedPlatform?.takeIf { it.isNotBlank() && it != departure.platform }
+    val changedDeparture = departure.changedDeparture?.takeIf { it != departure.departure }
+    val plannedStops = departure.stops.takeIf { it.isNotEmpty() }?.let { formatStops(it) }
+    val changedStopsLabel = changedStops?.let { formatStops(it) }
+    val statusLabel = formatTripStatusLabel(departure.status)
+
+    val plannedHeadline = "${departure.line} - ${departure.destination}"
+    val changedHeadline = if (changedLine != null || changedDestination != null) {
+        "${changedLine ?: departure.line} - ${changedDestination ?: departure.destination}"
+    } else {
+        null
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text("${departure.line} - ${departure.destination}", fontWeight = FontWeight.SemiBold)
-            Text(
-                text = "Gleis ${departure.platform}",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
+            DeviationAwareText(
+                plannedValue = plannedHeadline,
+                changedValue = changedHeadline,
+                style = MaterialTheme.typography.bodyMedium,
+                unchangedFontWeight = FontWeight.SemiBold,
+                changedFontWeight = FontWeight.SemiBold
             )
+
+            DeviationAwareText(
+                plannedValue = "Gleis ${departure.platform}",
+                changedValue = changedPlatform?.let { "Gleis $it" },
+                style = MaterialTheme.typography.bodySmall,
+                unchangedColor = MaterialTheme.colorScheme.primary,
+                unchangedFontWeight = FontWeight.Medium,
+                plannedChangedColor = MaterialTheme.colorScheme.primary
+            )
+
+            plannedStops?.let {
+                DeviationAwareText(
+                    plannedValue = "über $it",
+                    changedValue = changedStopsLabel?.let { value -> "über $value" },
+                    style = MaterialTheme.typography.bodySmall,
+                    unchangedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    plannedChangedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Spacer(modifier = Modifier.width(12.dp))
-        Text(formatDepartureTime(departure), style = MaterialTheme.typography.bodySmall)
+
+        Column(horizontalAlignment = Alignment.End) {
+            DeviationAwareText(
+                plannedValue = formatTime(departure.departure),
+                changedValue = changedDeparture?.let { formatTime(it) },
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            statusLabel?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
     }
     Spacer(modifier = Modifier.height(8.dp))
 }
 
-private fun formatDepartureTime(departure: StationDeparture): String {
-    val dateTime = departure.departure
+@Composable
+private fun DeviationAwareText(
+    plannedValue: String,
+    changedValue: String?,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+    unchangedColor: Color = Color.Unspecified,
+    unchangedFontWeight: FontWeight? = null,
+    changedFontWeight: FontWeight? = null,
+    plannedChangedColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    if (changedValue == null) {
+        Text(
+            text = plannedValue,
+            modifier = modifier,
+            style = style,
+            color = unchangedColor,
+            fontWeight = unchangedFontWeight
+        )
+        return
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = plannedValue,
+            style = style,
+            color = plannedChangedColor,
+            textDecoration = TextDecoration.LineThrough,
+            fontWeight = unchangedFontWeight
+        )
+        Text(
+            text = changedValue,
+            style = style,
+            color = MaterialTheme.colorScheme.error,
+            fontWeight = changedFontWeight
+        )
+    }
+}
+
+private fun formatTime(dateTime: LocalDateTime): String {
     return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+}
+
+private fun formatStops(stops: List<String>, maxVisibleStops: Int = 3): String {
+    val shownStops = stops.take(maxVisibleStops).joinToString(", ")
+    return if (stops.size > maxVisibleStops) "$shownStops ..." else shownStops
+}
+
+private fun formatTripStatusLabel(status: TripStatus?): String? {
+    return when (status) {
+        TripStatus.CANCELED -> "Ausfall"
+        TripStatus.ADDED -> "Zusatzfahrt"
+        TripStatus.PLANNED, null -> null
+    }
 }
 
 private data class RouteOption(

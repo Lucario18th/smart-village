@@ -10,6 +10,13 @@ class GetDeparturesUseCase() {
     suspend operator fun invoke(evaNo: String, date: String, hour: String): List<StationDeparture> {
         val station = repository.getPlanTimetable(evaNo, date, hour)
         val filteredDepartures = station.timetableEntry.filter { it.departure != null }
-        return filteredDepartures.map { it.toDomain(stationName = station.station) }
+        val changes = repository.getTimetableChanges(evaNo).timetableEntry
+        return filteredDepartures.map { departure ->
+            departure.toDomain(
+                stationEvaNo = evaNo,
+                stationName = station.station,
+                timeTableChange = changes.find { it.id == departure.id }
+            )
+        }
     }
 }

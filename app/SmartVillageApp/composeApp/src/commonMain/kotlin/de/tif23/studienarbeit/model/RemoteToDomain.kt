@@ -6,6 +6,7 @@ import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorData
 import de.tif23.studienarbeit.model.data.RemoteVillage
 import de.tif23.studienarbeit.model.data.responses.RemoteVillageConfig
+import de.tif23.studienarbeit.model.data.responses.TimeTableChange
 import de.tif23.studienarbeit.model.data.responses.TimeTableEntry
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
@@ -15,6 +16,7 @@ import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
 import de.tif23.studienarbeit.viewmodel.data.SensorReading
 import de.tif23.studienarbeit.viewmodel.data.StationDeparture
 import de.tif23.studienarbeit.viewmodel.data.TrainType
+import de.tif23.studienarbeit.viewmodel.data.TripStatus
 import de.tif23.studienarbeit.viewmodel.data.Village
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
@@ -149,23 +151,44 @@ private fun parseCustomDateTime(input: String): LocalDateTime {
     return LocalDateTime(year, month, day, hour, minute)
 }
 
-fun TimeTableEntry.toDomain(stationName: String): StationDeparture {
+fun TimeTableEntry.toDomain(
+    stationName: String,
+    timeTableChange: TimeTableChange? = null,
+    stationEvaNo: String
+): StationDeparture {
     return StationDeparture(
         trainNumber = this.tripLabel.trainNumber,
+        stationEvaNo = stationEvaNo,
         fromStation = stationName,
         line = this.departure?.fb ?: "-1",
-        destination = this.departure?.plannedPath?.split("|")?.last() ?: "-1",
+        changedLine = if (timeTableChange?.departure?.changedLine != this.departure?.fb) timeTableChange?.departure?.changedLine else null,
+        destination = this.departure?.plannedPath?.split("|")?.last() ?: "---",
+        changedDestination = timeTableChange?.departure?.changedPath?.split("|")?.lastOrNull(),
         stops = this.departure?.plannedPath?.split("|")?.distinct() ?: listOf(),
+        changedStops = timeTableChange?.departure?.changedPath?.split("|"),
         departure = parseCustomDateTime(this.departure?.plannedTime ?: "2603121111"),
+        changedDeparture = timeTableChange?.departure?.changedTime?.let { parseCustomDateTime(it) },
+        changedPlatform = timeTableChange?.departure?.changedPlatform,
         platform = this.departure?.plannedPlatform ?: "-1",
+        status = when (timeTableChange?.departure?.status) {
+            "p" -> TripStatus.PLANNED
+            "a" -> TripStatus.ADDED
+            "c" -> TripStatus.CANCELED
+            else -> null
+        },
         category = when (this.tripLabel.tripCategory) {
             "ICE" -> TrainType.LONG_DISTANCE
             "IC" -> TrainType.LONG_DISTANCE
+            "FLX" -> TrainType.LONG_DISTANCE
+            "EN" -> TrainType.LONG_DISTANCE
+            "EC" -> TrainType.LONG_DISTANCE
+            "NJ" -> TrainType.LONG_DISTANCE
+            "ECE" -> TrainType.LONG_DISTANCE
             "RB" -> TrainType.REGIONAL
             "RE" -> TrainType.REGIONAL
             "S" -> TrainType.S
             "SWE" -> TrainType.S
             else -> TrainType.LONG_DISTANCE
-        }
+        },
     )
 }
