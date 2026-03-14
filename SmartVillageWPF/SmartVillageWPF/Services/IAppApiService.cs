@@ -4,7 +4,7 @@ namespace SmartVillageWPF.Services;
 
 /// <summary>
 /// Defines the contract for calling the App-API REST endpoints.
-/// Base URL: http://192.168.23.113:8000 (configurable via IConfigService).
+/// Base URL is configurable via IConfigService (defaults to http://localhost:8000).
 /// </summary>
 public interface IAppApiService
 {

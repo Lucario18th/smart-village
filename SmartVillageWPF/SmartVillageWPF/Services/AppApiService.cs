@@ -36,14 +36,16 @@ public class AppApiService : IAppApiService
     {
         _logger.LogInformation("Fetching village config for village {VillageId}", villageId);
         var response = await GetAsync<VillageConfig>($"api/app/villages/{villageId}/config");
-        return response ?? throw new InvalidOperationException($"No config returned for village {villageId}");
+        return response ?? throw new InvalidOperationException(
+            $"Failed to retrieve config data for village {villageId} (API returned null)");
     }
 
     public async Task<InitialData> GetInitialDataAsync(int villageId)
     {
         _logger.LogInformation("Fetching initial data for village {VillageId}", villageId);
         var response = await GetAsync<InitialData>($"api/app/villages/{villageId}/initial-data");
-        return response ?? throw new InvalidOperationException($"No initial data returned for village {villageId}");
+        return response ?? throw new InvalidOperationException(
+            $"Failed to retrieve initial data for village {villageId} (API returned null)");
     }
 
     /// <summary>

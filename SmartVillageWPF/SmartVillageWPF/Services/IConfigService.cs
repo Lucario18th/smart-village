@@ -15,8 +15,7 @@ public interface IConfigService
 
     /// <summary>
     /// Base URL for the App-API (backend HTTP).
-    /// Defaults to http://localhost:8000.
-    /// When UseCustomHost is true, uses CustomHost instead of localhost.
+    /// Configurable via UseCustomHost/CustomHost; defaults to http://localhost:8000.
     /// </summary>
     string AppApiBaseUrl { get; }
 
