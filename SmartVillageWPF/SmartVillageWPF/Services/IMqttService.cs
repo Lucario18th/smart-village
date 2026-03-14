@@ -45,4 +45,10 @@ public interface IMqttService
     /// Disconnect from the MQTT broker asynchronously.
     /// </summary>
     Task DisconnectAsync();
+
+    /// <summary>
+    /// Subscribe to the app sensor topic for a specific village.
+    /// Unsubscribes from any previously selected village topic.
+    /// </summary>
+    Task SubscribeToVillageAsync(int villageId);
 }

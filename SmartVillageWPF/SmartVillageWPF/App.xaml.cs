@@ -43,6 +43,14 @@ public partial class App : Application
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IMqttService, MqttService>();
 
+        // App-API HTTP client (configured from IConfigService)
+        services.AddHttpClient<IAppApiService, AppApiService>((sp, client) =>
+        {
+            var config = sp.GetRequiredService<IConfigService>();
+            client.BaseAddress = new Uri(config.AppApiBaseUrl.TrimEnd('/') + "/");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         // ViewModels (singletons so they persist across navigation)
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DashboardViewModel>();

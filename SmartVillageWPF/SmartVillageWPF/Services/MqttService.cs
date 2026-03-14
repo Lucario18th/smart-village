@@ -28,6 +28,7 @@ public class MqttService : IMqttService, IDisposable
     private bool _disposed;
     private CancellationTokenSource? _reconnectCts;
     private bool _intentionalDisconnect;
+    private int? _currentVillageId;
 
     private const int ReconnectDelayMs = 5000;
     private const int MaxReconnectDelayMs = 60000;
@@ -115,14 +116,52 @@ public class MqttService : IMqttService, IDisposable
             }
         }
 
+        _currentVillageId = null;
         SetStatus(ConnectionStatus.Disconnected);
+    }
+
+    public async Task SubscribeToVillageAsync(int villageId)
+    {
+        if (_client == null || !_client.IsConnected)
+        {
+            _logger.LogWarning("Cannot subscribe to village {VillageId}: MQTT not connected", villageId);
+            _currentVillageId = villageId;
+            return;
+        }
+
+        // Unsubscribe from previous village topic if different
+        if (_currentVillageId.HasValue && _currentVillageId.Value != villageId)
+        {
+            var oldTopic = $"app/village/{_currentVillageId.Value}/sensors";
+            try
+            {
+                await _client.UnsubscribeAsync(oldTopic);
+                _logger.LogInformation("Unsubscribed from {Topic}", oldTopic);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to unsubscribe from {Topic}", oldTopic);
+            }
+        }
+
+        _currentVillageId = villageId;
+        var newTopic = $"app/village/{villageId}/sensors";
+
+        var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
+            .WithTopicFilter(f => f
+                .WithTopic(newTopic)
+                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce))
+            .Build();
+
+        await _client.SubscribeAsync(subscribeOptions);
+        _logger.LogInformation("Subscribed to village topic: {Topic}", newTopic);
     }
 
     private async Task SubscribeToTopicsAsync()
     {
         if (_client == null) return;
 
-        var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
+        var builder = new MqttClientSubscribeOptionsBuilder()
             .WithTopicFilter(f => f
                 .WithTopic(_config.SensorTopicPattern)
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce))
@@ -131,10 +170,19 @@ public class MqttService : IMqttService, IDisposable
                 .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce))
             .WithTopicFilter(f => f
                 .WithTopic(_config.AppSensorTopicPattern)
-                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce))
-            .Build();
+                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce));
 
-        await _client.SubscribeAsync(subscribeOptions);
+        // Also subscribe to the specific village topic if one was selected before connect
+        if (_currentVillageId.HasValue)
+        {
+            var villageTopic = $"app/village/{_currentVillageId.Value}/sensors";
+            builder.WithTopicFilter(f => f
+                .WithTopic(villageTopic)
+                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtMostOnce));
+            _logger.LogInformation("Also subscribing to village-specific topic: {Topic}", villageTopic);
+        }
+
+        await _client.SubscribeAsync(builder.Build());
 
         _logger.LogInformation("Subscribed to topics: {Sensor}, {Discovery}, {AppSensor}",
             _config.SensorTopicPattern, _config.DiscoveryTopicPattern, _config.AppSensorTopicPattern);

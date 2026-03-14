@@ -12,6 +12,7 @@
             <views:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter" />
             <views:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
             <views:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <views:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

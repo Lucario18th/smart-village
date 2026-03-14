@@ -7,7 +7,8 @@ namespace SmartVillageWPF.ViewModels;
 
 /// <summary>
 /// ViewModel for the sensors list view.
-/// Displays all sensors discovered via MQTT and their latest readings.
+/// Displays sensors from the App-API and live MQTT updates.
+/// Respects sensorDetailVisibility flags and enableSensorData feature flag.
 /// </summary>
 public partial class SensorsViewModel : ObservableObject
 {
@@ -19,6 +20,22 @@ public partial class SensorsViewModel : ObservableObject
     [ObservableProperty]
     private string _filterText = string.Empty;
 
+    [ObservableProperty]
+    private bool _isSensorDataEnabled = true;
+
+    // Sensor detail visibility flags (from village config)
+    [ObservableProperty]
+    private bool _showSensorName = true;
+
+    [ObservableProperty]
+    private bool _showSensorType = true;
+
+    [ObservableProperty]
+    private bool _showSensorDescription = true;
+
+    [ObservableProperty]
+    private bool _showSensorCoordinates = true;
+
     public ObservableCollection<SensorDisplayItem> Sensors { get; } = new();
 
     public SensorsViewModel(IMqttService mqttService)
@@ -29,8 +46,80 @@ public partial class SensorsViewModel : ObservableObject
         _mqttService.DiscoveryReceived += OnDiscoveryReceived;
     }
 
+    /// <summary>
+    /// Called by MainViewModel when a village is selected.
+    /// Populates the sensor list from the App-API config and initial data.
+    /// </summary>
+    public void ApplyVillageData(VillageConfig config, InitialData initialData)
+    {
+        // Apply feature flag
+        IsSensorDataEnabled = config.Features?.SensorData ?? true;
+
+        // Apply sensor detail visibility
+        var visibility = config.SensorDetailVisibility;
+        ShowSensorName = visibility?.Name ?? true;
+        ShowSensorType = visibility?.Type ?? true;
+        ShowSensorDescription = visibility?.Description ?? true;
+        ShowSensorCoordinates = visibility?.Coordinates ?? true;
+
+        // Clear previous data
+        Sensors.Clear();
+        TotalReadingsReceived = 0;
+
+        if (!IsSensorDataEnabled) return;
+
+        // Build sensor display items from config (has type/unit info)
+        var configSensors = config.Sensors.ToDictionary(s => s.Id);
+
+        // Populate from initial data (includes last readings)
+        if (initialData.Sensors != null)
+        {
+            foreach (var sensor in initialData.Sensors)
+            {
+                var item = new SensorDisplayItem
+                {
+                    SensorId = sensor.Id,
+                    Name = sensor.Name,
+                    SensorTypeName = sensor.Type,
+                    Unit = sensor.Unit,
+                    Latitude = sensor.Latitude,
+                    Longitude = sensor.Longitude,
+                };
+
+                if (sensor.LastReading != null)
+                {
+                    item.LatestValue = sensor.LastReading.Value;
+                    item.LatestTimestamp = sensor.LastReading.Ts;
+                    item.Status = sensor.LastReading.Status;
+                    item.ReadingCount = 1;
+                    TotalReadingsReceived++;
+                }
+
+                Sensors.Add(item);
+            }
+        }
+        else
+        {
+            // Fallback: populate from config sensors (no readings)
+            foreach (var sensor in config.Sensors)
+            {
+                Sensors.Add(new SensorDisplayItem
+                {
+                    SensorId = sensor.Id,
+                    Name = sensor.Name,
+                    SensorTypeName = sensor.Type,
+                    Unit = sensor.Unit,
+                    Latitude = sensor.Latitude,
+                    Longitude = sensor.Longitude,
+                });
+            }
+        }
+    }
+
     private void OnSensorDataReceived(object? sender, SensorReading reading)
     {
+        if (!IsSensorDataEnabled) return;
+
         TotalReadingsReceived++;
 
         var existing = Sensors.FirstOrDefault(s => s.SensorId == reading.SensorId);
@@ -69,7 +158,6 @@ public partial class SensorsViewModel : ObservableObject
             if (existing != null)
             {
                 existing.Name = sensor.Name;
-                existing.SensorTypeId = sensor.SensorTypeId;
                 existing.Latitude = sensor.Latitude;
                 existing.Longitude = sensor.Longitude;
             }
@@ -79,34 +167,13 @@ public partial class SensorsViewModel : ObservableObject
                 {
                     SensorId = sensor.SensorId.Value,
                     Name = sensor.Name,
-                    SensorTypeId = sensor.SensorTypeId,
                     Latitude = sensor.Latitude,
                     Longitude = sensor.Longitude,
-                    Unit = GetUnitForSensorType(sensor.SensorTypeId)
+                    Unit = "?"
                 });
             }
         }
     }
-
-    /// <summary>
-    /// Returns the default unit for a sensor type ID.
-    /// Sensor type IDs and units are from backend/prisma/seed.js.
-    /// </summary>
-    // TODO: Consider fetching sensor types from the backend REST API
-    // (GET /api/sensor-types) to avoid synchronization issues when sensor types change.
-    private static string GetUnitForSensorType(int sensorTypeId) => sensorTypeId switch
-    {
-        1 => "°C",        // Temperature
-        2 => "%",         // Humidity
-        3 => "hPa",       // Pressure
-        4 => "mm",        // Rainfall
-        5 => "m/s",       // Wind Speed
-        6 => "W/m²",      // Solar Radiation
-        7 => "%",         // Soil Moisture
-        8 => "ppm",       // CO2
-        9 => "Personen",  // Rideshare bench (people count)
-        _ => "?"
-    };
 }
 
 /// <summary>
@@ -119,6 +186,9 @@ public partial class SensorDisplayItem : ObservableObject
 
     [ObservableProperty]
     private string _name = string.Empty;
+
+    [ObservableProperty]
+    private string _sensorTypeName = string.Empty;
 
     [ObservableProperty]
     private int _sensorTypeId;

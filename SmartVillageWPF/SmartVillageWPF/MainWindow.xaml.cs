@@ -13,5 +13,10 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+
+        Loaded += async (_, _) =>
+        {
+            await viewModel.LoadVillagesCommand.ExecuteAsync(null);
+        };
     }
 }

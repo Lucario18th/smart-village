@@ -7,7 +7,7 @@
         xmlns:views="clr-namespace:SmartVillageWPF.Views"
         d:DataContext="{d:DesignInstance vm:MainViewModel}"
         mc:Ignorable="d"
-        Title="Smart Village Admin" Height="700" Width="1100"
+        Title="Smart Village" Height="700" Width="1100"
         MinHeight="500" MinWidth="800"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundBrush}">
@@ -20,9 +20,20 @@
                 <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold"
                            Foreground="{StaticResource OnPrimaryBrush}" VerticalAlignment="Center" />
 
-                <!-- Connection Status Indicator -->
+                <!-- Village Selector + Connection Status -->
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
                             HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                    <!-- Village ComboBox -->
+                    <TextBlock Text="Village:" Foreground="{StaticResource OnPrimaryBrush}"
+                               FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding Villages}"
+                              SelectedItem="{Binding SelectedVillage}"
+                              DisplayMemberPath="Name"
+                              MinWidth="150" Margin="0,0,16,0"
+                              VerticalAlignment="Center" />
+
+                    <!-- Connection Status Indicator -->
                     <Ellipse Width="10" Height="10" Margin="0,0,6,0" VerticalAlignment="Center">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
@@ -49,6 +60,12 @@
                                VerticalAlignment="Center" />
                 </StackPanel>
             </DockPanel>
+        </Border>
+
+        <!-- Error message banner -->
+        <Border DockPanel.Dock="Top" Background="#FFF3E0" Padding="12,6"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Collapsed}">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#E65100" FontSize="13" TextWrapping="Wrap" />
         </Border>
 
         <!-- Main Layout: Sidebar + Content (matching web admin .admin-layout grid) -->
