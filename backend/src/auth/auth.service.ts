@@ -240,6 +240,43 @@ export class AuthService {
     return { success: true };
   }
 
+  async changePassword(
+    accountId: number,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const account = await this.prisma.account.findUnique({
+      where: { id: accountId },
+    });
+
+    if (!account) {
+      throw new UnauthorizedException({
+        statusCode: 401,
+        message: "User does not exist",
+        error: "Unauthorized",
+        code: "USER_NOT_FOUND",
+      });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, account.passwordHash);
+    if (!valid) {
+      throw new UnauthorizedException({
+        statusCode: 401,
+        message: "Current password is incorrect",
+        error: "Unauthorized",
+        code: "INVALID_PASSWORD",
+      });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.account.update({
+      where: { id: accountId },
+      data: { passwordHash: newHash },
+    });
+
+    return { success: true };
+  }
+
   async resendVerificationCode(email: string) {
     const account = await this.prisma.account.findUnique({
       where: { email },

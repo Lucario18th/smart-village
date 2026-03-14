@@ -63,6 +63,9 @@ export const apiClient = {
     getMe() {
       return apiClient.request('GET', '/auth/me');
     },
+    changePassword(currentPassword, newPassword) {
+      return apiClient.request('POST', '/auth/change-password', { currentPassword, newPassword });
+    },
   },
 
   // Sensor Endpoints
