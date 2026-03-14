@@ -1,0 +1,177 @@
+<UserControl x:Class="SmartVillageWPF.Views.SensorsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SmartVillageWPF.ViewModels"
+             d:DataContext="{d:DesignInstance vm:SensorsViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             Background="{StaticResource BackgroundBrush}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel>
+            <!-- Header -->
+            <TextBlock Text="Sensors" Style="{StaticResource HeadlineStyle}" />
+
+            <!-- Sensor data disabled notice -->
+            <Border Margin="0,0,0,16" Background="#FFF3E0">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSensorDataEnabled}" Value="False">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="Sensor data is disabled for this village." Style="{StaticResource SubtitleStyle}"
+                           Foreground="#E65100" />
+            </Border>
+
+            <TextBlock Style="{StaticResource SubtitleStyle}" Margin="0,0,0,16">
+                <Run Text="Total readings received: " />
+                <Run Text="{Binding TotalReadingsReceived, Mode=OneWay}" FontWeight="SemiBold" />
+            </TextBlock>
+
+            <!-- Sensor detail visibility legend -->
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Sensor Detail Visibility" Style="{StaticResource CaptionStyle}" Margin="0,0,0,4" />
+                    <WrapPanel>
+                        <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,12,0">
+                            <Run Text="Name: " />
+                            <Run FontWeight="SemiBold">
+                                <Run.Text>
+                                    <Binding Path="ShowSensorName" StringFormat="{}{0}" />
+                                </Run.Text>
+                            </Run>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,12,0">
+                            <Run Text="Type: " />
+                            <Run FontWeight="SemiBold">
+                                <Run.Text>
+                                    <Binding Path="ShowSensorType" StringFormat="{}{0}" />
+                                </Run.Text>
+                            </Run>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,12,0">
+                            <Run Text="Description: " />
+                            <Run FontWeight="SemiBold">
+                                <Run.Text>
+                                    <Binding Path="ShowSensorDescription" StringFormat="{}{0}" />
+                                </Run.Text>
+                            </Run>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,12,0">
+                            <Run Text="Coordinates: " />
+                            <Run FontWeight="SemiBold">
+                                <Run.Text>
+                                    <Binding Path="ShowSensorCoordinates" StringFormat="{}{0}" />
+                                </Run.Text>
+                            </Run>
+                        </TextBlock>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Sensor Grid -->
+            <ItemsControl ItemsSource="{Binding Sensors}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:SensorDisplayItem}">
+                        <Border Style="{StaticResource CardBorderStyle}" Width="280" Margin="0,0,12,12">
+                            <StackPanel>
+                                <!-- Sensor Name & ID -->
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource CaptionStyle}">
+                                        <Run Text="ID: " />
+                                        <Run Text="{Binding SensorId, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleStyle}"
+                                               FontSize="16" TextTrimming="CharacterEllipsis"
+                                               Visibility="{Binding DataContext.ShowSensorName, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                </DockPanel>
+
+                                <!-- Sensor Type (visibility controlled) -->
+                                <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,0,4"
+                                           Visibility="{Binding DataContext.ShowSensorType, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="Type: " FontWeight="SemiBold" />
+                                    <Run Text="{Binding SensorTypeName, Mode=OneWay}" />
+                                </TextBlock>
+
+                                <!-- Value & Unit -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock FontSize="28" FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryBrush}"
+                                               Text="{Binding LatestValue, StringFormat='{}{0:F1}'}" />
+                                    <TextBlock FontSize="16" Foreground="{StaticResource OnSurfaceVariantBrush}"
+                                               VerticalAlignment="Bottom" Margin="4,0,0,4"
+                                               Text="{Binding Unit}" />
+                                </StackPanel>
+
+                                <!-- Status -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center">
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Fill" Value="{StaticResource StatusUnknownBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="OK">
+                                                        <Setter Property="Fill" Value="{StaticResource StatusOkBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="ERROR">
+                                                        <Setter Property="Fill" Value="{StaticResource StatusErrorBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="SUSPECT">
+                                                        <Setter Property="Fill" Value="{StaticResource StatusWarnBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+                                    <TextBlock Text="{Binding Status}" Style="{StaticResource CaptionStyle}" />
+                                </StackPanel>
+
+                                <!-- Readings count & timestamp -->
+                                <TextBlock Style="{StaticResource CaptionStyle}">
+                                    <Run Text="Readings: " />
+                                    <Run Text="{Binding ReadingCount, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource CaptionStyle}"
+                                           Text="{Binding LatestTimestamp, StringFormat='Last: {0:HH:mm:ss}'}" />
+
+                                <!-- Coordinates (visibility controlled by both data availability and feature flag) -->
+                                <TextBlock Margin="0,4,0,0"
+                                           Visibility="{Binding DataContext.ShowSensorCoordinates, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Latitude}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="📍 " />
+                                    <Run Text="{Binding Latitude, StringFormat='{}{0:F4}', Mode=OneWay}" />
+                                    <Run Text=", " />
+                                    <Run Text="{Binding Longitude, StringFormat='{}{0:F4}', Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Empty state -->
+            <TextBlock Text="No sensors available. Select a village or connect to the MQTT broker to start receiving data."
+                       Style="{StaticResource SubtitleStyle}" Margin="0,16"
+                       Visibility="{Binding Sensors.Count, Converter={StaticResource ZeroToVisibilityConverter}, FallbackValue=Visible}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
