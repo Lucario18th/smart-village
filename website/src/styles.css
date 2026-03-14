@@ -511,3 +511,79 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 	.map-frame{order:1;min-height:320px;height:auto}
 	.map-legend-overlay{right:8px;bottom:8px;max-width:min(80%,320px)}
 }
+
+/* ─── Public UI ─── */
+.public-page{min-height:100vh;display:flex;flex-direction:column;background:var(--md-sys-color-background);color:var(--md-sys-color-on-background)}
+.public-header{background:color-mix(in srgb, var(--md-sys-color-surface) 92%, transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);position:sticky;top:0;z-index:20}
+.public-header-content{display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto;padding:12px 20px}
+.public-header-title{font-size:18px;font-weight:800;color:var(--md-sys-color-primary);text-decoration:none;letter-spacing:-.02em}
+.public-header-title:hover{color:color-mix(in srgb, var(--md-sys-color-primary) 82%, #000)}
+.public-header-nav{display:flex;gap:12px;align-items:center}
+.public-header-admin-link{font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface-variant);text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);transition:background .15s ease,color .15s ease}
+.public-header-admin-link:hover{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.public-main{flex:1;max-width:960px;width:100%;margin:0 auto;padding:24px 20px}
+.public-footer{text-align:center;padding:18px 20px;font-size:13px;color:var(--md-sys-color-on-surface-variant);border-top:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent)}
+.public-footer p{margin:0}
+.public-loading,.public-error,.public-empty{text-align:center;padding:48px 20px;color:var(--md-sys-color-on-surface-variant)}
+.public-error{color:var(--md-sys-color-error)}
+.public-back-link{display:inline-block;font-size:14px;font-weight:600;color:var(--md-sys-color-primary);text-decoration:none;margin-bottom:16px}
+.public-back-link:hover{text-decoration:underline}
+
+/* Village list */
+.village-list-title{margin:0 0 4px;font-size:clamp(24px,3.5vw,32px);color:var(--md-sys-color-on-background);letter-spacing:-.02em}
+.village-list-subtitle{margin:0 0 20px;color:var(--md-sys-color-on-surface-variant);font-size:15px}
+.village-card-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.village-card{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:14px;text-decoration:none;color:var(--md-sys-color-on-surface);background:color-mix(in srgb, var(--md-sys-color-surface) 82%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.village-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);border-color:var(--md-sys-color-primary)}
+.village-card-name{margin:0;font-size:18px;font-weight:700;color:var(--md-sys-color-primary)}
+.village-card-location,.village-card-postal{margin:0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.village-card-meta{display:flex;gap:8px;align-items:center;margin-top:4px}
+.village-card-sensor-count{font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface-variant);padding:3px 8px;border-radius:6px;background:color-mix(in srgb, var(--md-sys-color-secondary-container) 64%, transparent)}
+.village-card-features{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.feature-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 72%, transparent);color:var(--md-sys-color-on-primary-container)}
+.village-card-action{margin-top:auto;font-size:14px;font-weight:700;color:var(--md-sys-color-primary)}
+
+/* Village detail */
+.village-detail{display:flex;flex-direction:column;gap:20px}
+.village-detail-header{display:flex;flex-direction:column;gap:4px}
+.village-detail-name{margin:0;font-size:clamp(24px,3.5vw,32px);color:var(--md-sys-color-primary);letter-spacing:-.02em}
+.village-detail-location,.village-detail-postal{margin:0;font-size:15px;color:var(--md-sys-color-on-surface-variant)}
+.village-section{padding:16px 18px;border-radius:14px;background:color-mix(in srgb, var(--md-sys-color-surface) 82%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 22%, transparent)}
+.village-section h3{margin:0 0 12px;font-size:18px;color:var(--md-sys-color-on-surface)}
+.village-section-disabled{background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 60%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent)}
+.village-section-empty{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.disabled-message{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px;font-style:italic}
+
+/* Sensor cards */
+.sensor-card-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.sensor-card{padding:14px;border-radius:11px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent);display:flex;flex-direction:column;gap:4px}
+.sensor-card-name{margin:0;font-size:15px;font-weight:700;color:var(--md-sys-color-on-surface)}
+.sensor-card-type{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-card-description{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-card-reading{display:flex;align-items:baseline;gap:4px;margin-top:6px}
+.sensor-card-value{font-size:22px;font-weight:800;color:var(--md-sys-color-primary)}
+.sensor-card-unit{font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-card-no-data{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
+.sensor-card-coords{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+
+/* Messages */
+.message-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.message-item{padding:12px 14px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 14%, transparent)}
+.message-priority-high{border-left:3px solid var(--md-sys-color-error)}
+.message-text{margin:0;font-size:14px;color:var(--md-sys-color-on-surface)}
+.message-time{display:block;margin-top:4px;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+
+/* Rideshare cards */
+.rideshare-card-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.rideshare-card{padding:14px;border-radius:11px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent);display:flex;flex-direction:column;gap:4px}
+.rideshare-card-name{margin:0;font-size:15px;font-weight:700;color:var(--md-sys-color-on-surface)}
+.rideshare-card-description{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.rideshare-card-count{margin:0;font-size:14px;font-weight:600;color:var(--md-sys-color-primary)}
+
+@media (max-width: 640px){
+  .public-header-content{padding:10px 14px}
+  .public-main{padding:16px 14px}
+  .village-card-grid{grid-template-columns:1fr}
+  .sensor-card-grid{grid-template-columns:1fr}
+  .rideshare-card-grid{grid-template-columns:1fr}
+}

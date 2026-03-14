@@ -1,13 +1,21 @@
 import React from 'react'
+import { Routes, Route, useParams } from 'react-router-dom'
 import AdminView from './components/AdminView'
 import LoginView from './components/LoginView'
 import RegisterView from './components/RegisterView'
 import EmailVerificationPending from './components/EmailVerificationPending'
 import EmailVerifiedView from './components/EmailVerifiedView'
+import PublicLayout from './components/public/PublicLayout'
+import VillageListView from './components/public/VillageListView'
+import VillageDetailView from './components/public/VillageDetailView'
 import { useAdminAuth } from './hooks/useAdminAuth'
 import { apiClient } from './api/client'
 
-export default function App() {
+/**
+ * Admin area – login / registration / verification / dashboard.
+ * All existing admin behaviour is preserved; it now lives under /admin/*.
+ */
+function AdminArea() {
   const { session, login, logout } = useAdminAuth()
   const [pendingVerificationEmail, setPendingVerificationEmail] = React.useState(() =>
     sessionStorage.getItem('pending_verification_email') || ''
@@ -134,4 +142,42 @@ export default function App() {
   }
 
   return <AdminView session={session} onLogout={logout} />
+}
+
+/**
+ * Wrapper that reads :villageId from the URL and passes it to VillageDetailView.
+ */
+function VillageDetailRoute() {
+  const { villageId } = useParams()
+  return (
+    <PublicLayout>
+      <VillageDetailView villageId={villageId} />
+    </PublicLayout>
+  )
+}
+
+/**
+ * Top‑level application with split routing:
+ *   /                      – Public landing page (village list)
+ *   /village/:villageId    – Public village detail view
+ *   /admin/*               – Admin area (login, dashboard, configuration)
+ */
+export default function App() {
+  return (
+    <Routes>
+      {/* --- Public routes (read‑only, no auth) --- */}
+      <Route
+        path="/"
+        element={
+          <PublicLayout>
+            <VillageListView />
+          </PublicLayout>
+        }
+      />
+      <Route path="/village/:villageId" element={<VillageDetailRoute />} />
+
+      {/* --- Admin routes (existing UI under /admin) --- */}
+      <Route path="/admin/*" element={<AdminArea />} />
+    </Routes>
+  )
 }

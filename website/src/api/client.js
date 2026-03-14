@@ -174,6 +174,19 @@ export const apiClient = {
     },
   },
 
+  // Public App-API Endpoints (no auth required)
+  appApi: {
+    getVillages() {
+      return apiClient.request('GET', '/app/villages');
+    },
+    getVillageConfig(villageId) {
+      return apiClient.request('GET', `/app/villages/${villageId}/config`);
+    },
+    getVillageInitialData(villageId) {
+      return apiClient.request('GET', `/app/villages/${villageId}/initial-data`);
+    },
+  },
+
   // Health check
   health() {
     return apiClient.request('GET', '/health');
