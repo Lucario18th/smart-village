@@ -17,12 +17,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,34 +34,41 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.viewmodel.StationDeparturesViewModel
 import de.tif23.studienarbeit.viewmodel.data.StationDeparture
+import de.tif23.studienarbeit.viewmodel.data.TrainType
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
+import smartvillageapp.composeapp.generated.resources.back
 import smartvillageapp.composeapp.generated.resources.train
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("UNUSED_PARAMETER")
 fun StationDeparturesScreen(
     backStack: NavBackStack<NavKey>,
-    stationId: String,
-    stationName: String,
-    distanceLabel: String,
-    stationDeparturesViewModel: StationDeparturesViewModel = viewModel()
+    viewModel: StationDeparturesViewModel = viewModel()
 ) {
-    val uiState by stationDeparturesViewModel.uiState.collectAsState()
-
-    LaunchedEffect(stationId, stationName, distanceLabel) {
-        stationDeparturesViewModel.load(
-            stationId = stationId,
-            stationName = stationName,
-            distanceLabel = distanceLabel
-        )
-    }
+    val state by viewModel.viewState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(uiState.stationName) }
+                title = {
+                    Text(
+                        text = state.stationName,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { backStack.removeLastOrNull() }
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.back),
+                            contentDescription = "Zurück",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -81,7 +88,7 @@ fun StationDeparturesScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        uiState.distanceLabel,
+                        state.distanceLabel,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -90,20 +97,32 @@ fun StationDeparturesScreen(
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = true, onClick = { }, label = { Text("Alle") })
-                    FilterChip(selected = false, onClick = { }, label = { Text("Fern") })
-                    FilterChip(selected = false, onClick = { }, label = { Text("Regional") })
-                    FilterChip(selected = false, onClick = { }, label = { Text("Bus") })
+                    FilterChip(
+                        selected = state.currentFilter == null,
+                        onClick = { viewModel.applyFilter(null) },
+                        label = { Text("Alle") })
+                    FilterChip(
+                        selected = state.currentFilter == TrainType.LONG_DISTANCE,
+                        onClick = { viewModel.applyFilter(TrainType.LONG_DISTANCE) },
+                        label = { Text("Fern") })
+                    FilterChip(
+                        selected = state.currentFilter == TrainType.REGIONAL,
+                        onClick = { viewModel.applyFilter(TrainType.REGIONAL) },
+                        label = { Text("Regional") })
+                    FilterChip(
+                        selected = state.currentFilter == TrainType.S,
+                        onClick = { viewModel.applyFilter(TrainType.S) },
+                        label = { Text("S-Bahn") })
                 }
             }
 
-            if (uiState.isLoading) {
+            if (state.isLoading) {
                 item {
                     Text("Abfahrten werden geladen...")
                 }
             }
 
-            uiState.errorMessage?.let { error ->
+            state.errorMessage?.let { error ->
                 item {
                     Text(
                         text = error,
@@ -113,16 +132,16 @@ fun StationDeparturesScreen(
                 }
             }
 
-            if (!uiState.isLoading && uiState.errorMessage == null && uiState.departures.isEmpty()) {
+            if (!state.isLoading && state.errorMessage == null && state.departures.isEmpty()) {
                 item {
                     Text("Keine Abfahrten gefunden")
                 }
             }
 
             item {
-                uiState.departures.forEachIndexed { index, departure ->
+                state.filteredDepartures.forEachIndexed { index, departure ->
                     StationDepartureCard(departure)
-                    if (index < uiState.departures.lastIndex) {
+                    if (index < state.filteredDepartures.lastIndex) {
                         Spacer(modifier = Modifier.height(4.dp))
                         HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     }
@@ -161,6 +180,8 @@ private fun StationDepartureCard(item: StationDeparture) {
 
 private fun formatDepartureTime(departure: StationDeparture): String {
     val dateTime = departure.departure
-    return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+    return "${dateTime.hour.toString().padStart(2, '0')}:${
+        dateTime.minute.toString().padStart(2, '0')
+    }"
 }
 

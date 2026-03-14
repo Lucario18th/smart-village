@@ -7,10 +7,10 @@ import de.tif23.studienarbeit.model.usecase.GetDeparturesUseCase
 import de.tif23.studienarbeit.model.usecase.GetRidesharePointUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageTrainStationsUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
-import de.tif23.studienarbeit.viewmodel.data.RidesharePoint
-import de.tif23.studienarbeit.viewmodel.data.StationDeparture
+import de.tif23.studienarbeit.viewmodel.data.Coordinates
+import de.tif23.studienarbeit.viewmodel.data.Station
+import de.tif23.studienarbeit.viewmodel.data.state.MobilityViewModelState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,86 +26,91 @@ class MobilityViewModel(
     private val getVillageTrainStationsUseCase: GetVillageTrainStationsUseCase = GetVillageTrainStationsUseCase(),
     private val selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore()
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(MobilityTransitUiState(isLoading = true))
-    val uiState: StateFlow<MobilityTransitUiState> = _uiState.asStateFlow()
+    private val stateFlow = MutableStateFlow(MobilityViewModelState())
 
-    private val _carpoolUiState = MutableStateFlow(MobilityCarpoolUiState(isLoading = true))
-    val carpoolUiState: StateFlow<MobilityCarpoolUiState> = _carpoolUiState.asStateFlow()
+    val viewState = stateFlow.asStateFlow()
 
     init {
-        refresh()
-        refreshCarpool()
+        loadStations()
+        loadRidesharePoints()
     }
 
-    fun refresh() {
+    fun loadStations() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null, stations = emptyList()) }
+            stateFlow.update { it.copy(isLoadingStations = true, stationErrorMessage = null, stations = emptyList()) }
 
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
             if (villageId == null) {
-                _uiState.value = MobilityTransitUiState(
-                    isLoading = false,
-                    errorMessage = "Kein Dorf ausgewählt."
-                )
+                stateFlow.update {
+                    it.copy(isLoadingStations = false, stationErrorMessage = "Kein Dorf ausgewählt.", stations = emptyList())
+                }
                 return@launch
             }
 
             runCatching {
                 val villageName = getVillageUseCase.getVillageConfig(villageId).village.name
-                val stations = getVillageTrainStationsUseCase.getTopStationsForVillage(villageName, limit = 5)
+                val stationBaseData = getVillageTrainStationsUseCase.getTopStationsForVillage(villageName, limit = 5)
                 val (date, hour) = getCurrentTimetableDateAndHour()
 
-                stations.map { station ->
-                    val departures = runCatching {
-                        getDeparturesUseCase(station.eva.toString(), date, hour)
-                    }.getOrDefault(emptyList())
-
-                    TransitStationCardState(
-                        stationId = station.eva.toString(),
+                val stations = mutableListOf<Station>()
+                stationBaseData.forEach { station ->
+                    val departures = getDeparturesUseCase(station.eva.toString(), date, hour)
+                    stations.add(Station(
+                        evaNo = station.eva.toString(),
                         name = station.name,
-                        distance = "Beispielbahnhof",
-                        departures = departures.take(3)
+                        distance = "500m",
+                        departures = departures,
+                        coordinates = Coordinates(station.lat, station.lon)
+                    ))
+                }
+                return@runCatching stations
+
+            }.onSuccess { stations ->
+                stateFlow.update {
+                    it.copy(
+                        isLoadingStations = false,
+                        stations = stations
                     )
                 }
-            }.onSuccess { stationCards ->
-                _uiState.value = MobilityTransitUiState(
-                    isLoading = false,
-                    stations = stationCards
-                )
             }.onFailure { error ->
-                _uiState.value = MobilityTransitUiState(
-                    isLoading = false,
-                    errorMessage = error.message ?: "Abfahrten konnten nicht geladen werden"
-                )
+                stateFlow.update {
+                    it.copy(
+                        isLoadingStations = false,
+                        stationErrorMessage = error.message ?: "Abfahrten konnten nicht geladen werden"
+                    )
+                }
             }
         }
     }
 
-    fun refreshCarpool() {
+    fun loadRidesharePoints() {
         viewModelScope.launch {
-            _carpoolUiState.update { it.copy(isLoading = true, errorMessage = null) }
+            stateFlow.update { it.copy(isLoadingRidesharePoints = true, ridesharePointErrorMessage = null) }
 
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
             if (villageId == null) {
-                _carpoolUiState.value = MobilityCarpoolUiState(
-                    isLoading = false,
-                    errorMessage = "Kein Dorf ausgewählt."
-                )
+                stateFlow.update {
+                    it.copy(isLoadingRidesharePoints = false, ridesharePointErrorMessage = "Kein Dorf ausgewählt.")
+                }
                 return@launch
             }
 
             runCatching {
                 getRidesharePointUseCase.getRidesharePoints(villageId)
             }.onSuccess { ridesharePoints ->
-                _carpoolUiState.value = MobilityCarpoolUiState(
-                    isLoading = false,
-                    ridesharePoints = ridesharePoints
-                )
+                stateFlow.update {
+                    it.copy(
+                        isLoadingRidesharePoints = false,
+                        ridesharePoints = ridesharePoints
+                    )
+                }
             }.onFailure { error ->
-                _carpoolUiState.value = MobilityCarpoolUiState(
-                    isLoading = false,
-                    errorMessage = error.message ?: "Mitfahrbänke konnten nicht geladen werden"
-                )
+                stateFlow.update {
+                    it.copy(
+                        isLoadingRidesharePoints = false,
+                        ridesharePointErrorMessage = error.message ?: "Mitfahrgelegenheiten konnten nicht geladen werden"
+                    )
+                }
             }
         }
     }
@@ -119,23 +124,4 @@ private fun getCurrentTimetableDateAndHour(): Pair<String, String> {
     val hour = now.hour.toString().padStart(2, '0')
     return date to hour
 }
-
-data class MobilityTransitUiState(
-    val isLoading: Boolean = false,
-    val stations: List<TransitStationCardState> = emptyList(),
-    val errorMessage: String? = null
-)
-
-data class TransitStationCardState(
-    val stationId: String?,
-    val name: String,
-    val distance: String,
-    val departures: List<StationDeparture>
-)
-
-data class MobilityCarpoolUiState(
-    val isLoading: Boolean = false,
-    val ridesharePoints: List<RidesharePoint> = emptyList(),
-    val errorMessage: String? = null
-)
 

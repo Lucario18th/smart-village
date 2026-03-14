@@ -5,8 +5,8 @@ import de.tif23.studienarbeit.model.data.RemoteRidesharePoint
 import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorData
 import de.tif23.studienarbeit.model.data.RemoteVillage
-import de.tif23.studienarbeit.model.data.responses.Departure
 import de.tif23.studienarbeit.model.data.responses.RemoteVillageConfig
+import de.tif23.studienarbeit.model.data.responses.TimeTableEntry
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
 import de.tif23.studienarbeit.viewmodel.data.RidesharePoint
@@ -14,6 +14,7 @@ import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
 import de.tif23.studienarbeit.viewmodel.data.SensorReading
 import de.tif23.studienarbeit.viewmodel.data.StationDeparture
+import de.tif23.studienarbeit.viewmodel.data.TrainType
 import de.tif23.studienarbeit.viewmodel.data.Village
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
@@ -148,13 +149,23 @@ private fun parseCustomDateTime(input: String): LocalDateTime {
     return LocalDateTime(year, month, day, hour, minute)
 }
 
-fun Departure.toDomain(): StationDeparture {
+fun TimeTableEntry.toDomain(stationName: String): StationDeparture {
     return StationDeparture(
-        trainNumber = this.tl?.n?: "-1",
-        line = this.dp?.fb?: "-1",
-        destination = this.dp?.ppth?.split("|")?.last()?: "-1",
-        stops = this.dp?.ppth?.split("|")?.distinct()?: listOf(),
-        departure = parseCustomDateTime(this.dp?.pt?: "2603121111"),
-        platform = this.dp?.pp?: "-1"
+        trainNumber = this.tripLabel.trainNumber,
+        fromStation = stationName,
+        line = this.departure?.fb ?: "-1",
+        destination = this.departure?.plannedPath?.split("|")?.last() ?: "-1",
+        stops = this.departure?.plannedPath?.split("|")?.distinct() ?: listOf(),
+        departure = parseCustomDateTime(this.departure?.plannedTime ?: "2603121111"),
+        platform = this.departure?.plannedPlatform ?: "-1",
+        category = when (this.tripLabel.tripCategory) {
+            "ICE" -> TrainType.LONG_DISTANCE
+            "IC" -> TrainType.LONG_DISTANCE
+            "RB" -> TrainType.REGIONAL
+            "RE" -> TrainType.REGIONAL
+            "S" -> TrainType.S
+            "SWE" -> TrainType.S
+            else -> TrainType.LONG_DISTANCE
+        }
     )
 }

@@ -2,6 +2,7 @@ package de.tif23.studienarbeit
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -21,6 +22,7 @@ import de.tif23.studienarbeit.ui.screens.SplashScreen
 import de.tif23.studienarbeit.ui.screens.StationDeparturesScreen
 import de.tif23.studienarbeit.ui.theme.SmartVillageTheme
 import de.tif23.studienarbeit.viewmodel.NavDestinations
+import de.tif23.studienarbeit.viewmodel.StationDeparturesViewModel
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -114,12 +116,10 @@ fun App() {
                     RideOfferScreen(backStack)
                 }
 
-                entry<NavDestinations.StationScreen> { stationScreen ->
+                entry<NavDestinations.StationScreen> { stationEvaNo ->
                     StationDeparturesScreen(
                         backStack = backStack,
-                        stationId = stationScreen.stationId,
-                        stationName = stationScreen.stationName,
-                        distanceLabel = stationScreen.distanceLabel
+                        viewModel = viewModel(factory = StationDeparturesViewModel.Factory(stationEvaNo))
                     )
                 }
 

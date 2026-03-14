@@ -22,6 +22,7 @@ class TimeTableRepository {
             }
         }
         val xmlResponse = result.bodyAsText()
+        println(xmlResponse)
         return XML.v1.decodeFromString(RemoteTimetableResponse.serializer(), xmlResponse)
     }
 }

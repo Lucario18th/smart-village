@@ -45,9 +45,7 @@ object NavDestinations {
 
     @Serializable
     data class StationScreen(
-        val stationId: String,
-        val stationName: String,
-        val distanceLabel: String
+        val stationEvaNo: String,
     ) : NavKey
 
     @Serializable

@@ -9,52 +9,76 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 data class RemoteTimetableResponse(
 	val station: String,
 	@XmlElement
-	val s: List<Departure>
+	@XmlSerialName("s")
+	val timetableEntry: List<TimeTableEntry>
 )
 
 @Serializable
 @XmlSerialName("s")
-data class Departure(
+data class TimeTableEntry(
 	val id: String?,
 	@XmlElement
-	val tl: LineInfo?,
+	@XmlSerialName("tl")
+	val tripLabel: LineInfo,
 	@XmlElement
-	val ar: ArrivalTrainInfo?,
+	@XmlSerialName("ar")
+	val arrival: ArrivalTrainInfo?,
 	@XmlElement
-	val dp: DepartureTrainInfo?
+	@XmlSerialName("dp")
+	val departure: DepartureTrainInfo?
 )
 
 @Serializable
 @XmlSerialName("tl")
 data class LineInfo(
-	val f: String?,
-	val t: String?,
-	val o: String?,
-	val c: String?,
-	val n: String?,
+	@XmlSerialName("f")
+	val filterFlag: String?,
+	@XmlSerialName("t")
+	val tripType: String?,
+	@XmlSerialName("o")
+	val ownerId: String,
+	@XmlSerialName("c")
+	val tripCategory: String, // z.B. ICE / IC / RE
+	@XmlSerialName("n")
+	val trainNumber: String,
 )
 
 @Serializable
 @XmlSerialName("dp")
 data class DepartureTrainInfo(
-	val pt: String?,
-	val pp: String?,
-	val l: String?,
+	@XmlSerialName("pt")
+	val plannedTime: String,
+	@XmlSerialName("pp")
+	val plannedPlatform: String,
+	@XmlSerialName("l")
+	val line: String?,
 	val fb: String?,
-	val tra: String?,
-	val pde: String?,
+	@XmlSerialName("tra")
+	val transition: String?,
+	@XmlSerialName("pde")
+	val plannedDistantEndpoint: String?,
+	@XmlSerialName("wings")
 	val wings: String?,
-	val ppth: String?
+	@XmlSerialName("ppth")
+	val plannedPath: String
 )
 
 @Serializable
 @XmlSerialName("ar")
 data class ArrivalTrainInfo(
-	val pt: String?,
-	val pp: String?,
-	val l: String?,
-	val fb: String?,
-	val tra: String?,
+	@XmlSerialName("pt")
+	val plannedTime: String,
+	@XmlSerialName("pp")
+	val plannedPlatform: String,
+	@XmlSerialName("l")
+	val line: String?,
+	@XmlSerialName("fb")
+	val lineFb: String,
+	@XmlSerialName("tra")
+	val transition: String?,
 	val wings: String?,
-	val ppth: String?
+	@XmlSerialName("pde")
+	val plannedDistantEndpoint: String?,
+	@XmlSerialName("ppth")
+	val plannedPath: String
 )

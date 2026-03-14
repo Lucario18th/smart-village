@@ -51,8 +51,9 @@ import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
-import de.tif23.studienarbeit.viewmodel.TransitStationCardState
+import de.tif23.studienarbeit.viewmodel.data.Station
 import de.tif23.studienarbeit.viewmodel.data.StationDeparture
+import de.tif23.studienarbeit.viewmodel.data.state.MobilityViewModelState
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.background_dark
@@ -68,6 +69,8 @@ fun MobilityScreen(
     backStack: NavBackStack<NavKey>,
     mobilityViewModel: MobilityViewModel = viewModel()
 ) {
+    val state by mobilityViewModel.viewState.collectAsState()
+    
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabs = listOf("Mitfahren", "ÖPNV", "Route")
     val backgroundPainter = painterResource(
@@ -113,8 +116,8 @@ fun MobilityScreen(
                 }
 
                 when (selectedTabIndex) {
-                    0 -> CarpoolTabContent(backStack, mobilityViewModel)
-                    1 -> TransitTabContent(backStack, mobilityViewModel)
+                    0 -> CarpoolTabContent(backStack, mobilityViewModel, state)
+                    1 -> TransitTabContent(backStack, mobilityViewModel, state)
                     else -> RoutingTabContent()
                 }
             }
@@ -125,26 +128,25 @@ fun MobilityScreen(
 @Composable
 private fun CarpoolTabContent(
     backStack: NavBackStack<NavKey>,
-    mobilityViewModel: MobilityViewModel
+    mobilityViewModel: MobilityViewModel,
+    state: MobilityViewModelState
 ) {
     LaunchedEffect(Unit) {
-        mobilityViewModel.refreshCarpool()
+        mobilityViewModel.loadRidesharePoints()
     }
-
-    val carpoolUiState by mobilityViewModel.carpoolUiState.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (carpoolUiState.isLoading) {
+        if (state.isLoadingRidesharePoints) {
             item {
                 Text("Mitfahrbänke werden geladen...")
             }
         }
 
-        carpoolUiState.errorMessage?.let { error ->
+        state.ridesharePointErrorMessage?.let { error ->
             item {
                 Text(
                     text = error,
@@ -154,13 +156,13 @@ private fun CarpoolTabContent(
             }
         }
 
-        if (!carpoolUiState.isLoading && carpoolUiState.errorMessage == null && carpoolUiState.ridesharePoints.isEmpty()) {
+        if (!state.isLoadingRidesharePoints && state.ridesharePointErrorMessage == null && state.ridesharePoints.isEmpty()) {
             item {
-                Text("Keine Mitfahrbänke verfuegbar")
+                Text("Keine Mitfahrbänke verfügbar")
             }
         }
 
-        items(carpoolUiState.ridesharePoints) { ridesharePoint ->
+        items(state.ridesharePoints) { ridesharePoint ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -212,13 +214,12 @@ private fun CarpoolTabContent(
 @Composable
 private fun TransitTabContent(
     backStack: NavBackStack<NavKey>,
-    mobilityViewModel: MobilityViewModel
+    mobilityViewModel: MobilityViewModel,
+    state: MobilityViewModelState
 ) {
     LaunchedEffect(Unit) {
-        mobilityViewModel.refresh()
+        mobilityViewModel.loadStations()
     }
-
-    val uiState by mobilityViewModel.uiState.collectAsState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -229,12 +230,12 @@ private fun TransitTabContent(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     painter = painterResource(Res.drawable.train),
-                    contentDescription = "Bahnhoefe",
+                    contentDescription = "Bahnhöfe",
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Bahnhoefe",
+                    text = "Bahnhöfe",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -242,13 +243,13 @@ private fun TransitTabContent(
             }
         }
 
-        if (uiState.isLoading) {
+        if (state.isLoadingStations) {
             item {
                 Text("Abfahrten werden geladen...")
             }
         }
 
-        uiState.errorMessage?.let { error ->
+        state.stationErrorMessage?.let { error ->
             item {
                 Text(
                     text = error,
@@ -258,25 +259,17 @@ private fun TransitTabContent(
             }
         }
 
-        if (!uiState.isLoading && uiState.errorMessage == null && uiState.stations.isEmpty()) {
+        if (!state.isLoadingStations && state.stationErrorMessage == null && state.stations.isEmpty()) {
             item {
-                Text("Keine Bahnhoefe verfuegbar")
+                Text("Keine Bahnhöfe verfuegbar")
             }
         }
 
-        items(uiState.stations) { station ->
+        items(state.stations) { station ->
             StationCard(
                 station = station,
                 onShowAllDepartures = {
-                    station.stationId?.let { stopId ->
-                        backStack.add(
-                            NavDestinations.StationScreen(
-                                stationId = stopId,
-                                stationName = station.name,
-                                distanceLabel = station.distance
-                            )
-                        )
-                    }
+                    backStack.add(NavDestinations.StationScreen(station.evaNo))
                 }
             )
         }
@@ -362,7 +355,7 @@ private fun RoutingTabContent() {
 
 @Composable
 private fun StationCard(
-    station: TransitStationCardState,
+    station: Station,
     onShowAllDepartures: () -> Unit
 ) {
     Card(
@@ -383,7 +376,7 @@ private fun StationCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Bahnhof: ${station.name}",
+                        text = station.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -394,7 +387,7 @@ private fun StationCard(
 
             if (station.departures.isEmpty()) {
                 Text(
-                    text = "Keine Abfahrten verfuegbar",
+                    text = "Keine Abfahrten verfügbar",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -408,7 +401,7 @@ private fun StationCard(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            TextButton(onClick = onShowAllDepartures, enabled = station.stationId != null) {
+            TextButton(onClick = onShowAllDepartures, enabled = true) {
                 Text("Alle Abfahrten")
             }
         }
