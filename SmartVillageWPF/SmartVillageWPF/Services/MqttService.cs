@@ -206,9 +206,7 @@ public class MqttService : IMqttService, IDisposable
             {
                 SensorId = sensorId,
                 Value = data.Value,
-                Timestamp = !string.IsNullOrEmpty(data.Timestamp)
-                    ? DateTime.Parse(data.Timestamp, null, System.Globalization.DateTimeStyles.RoundtripKind)
-                    : DateTime.UtcNow,
+                Timestamp = ParseTimestamp(data.Timestamp),
                 Status = data.Status ?? "OK",
                 Unit = data.Unit
             };
@@ -273,9 +271,7 @@ public class MqttService : IMqttService, IDisposable
             {
                 SensorId = data.SensorId,
                 Value = data.Value,
-                Timestamp = !string.IsNullOrEmpty(data.Ts)
-                    ? DateTime.Parse(data.Ts, null, System.Globalization.DateTimeStyles.RoundtripKind)
-                    : DateTime.UtcNow,
+                Timestamp = ParseTimestamp(data.Ts),
                 Status = data.Status ?? "OK",
                 Unit = data.Unit
             };
@@ -359,6 +355,20 @@ public class MqttService : IMqttService, IDisposable
         if (Status == status) return;
         Status = status;
         StatusChanged?.Invoke(this, status);
+    }
+
+    /// <summary>
+    /// Safely parses an ISO 8601 timestamp string, falling back to UTC now if parsing fails.
+    /// </summary>
+    private static DateTime ParseTimestamp(string? timestamp)
+    {
+        if (string.IsNullOrEmpty(timestamp))
+            return DateTime.UtcNow;
+
+        if (DateTime.TryParse(timestamp, null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed))
+            return parsed;
+
+        return DateTime.UtcNow;
     }
 
     public void Dispose()

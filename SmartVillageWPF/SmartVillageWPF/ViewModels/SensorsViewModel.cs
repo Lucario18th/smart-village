@@ -92,6 +92,8 @@ public partial class SensorsViewModel : ObservableObject
     /// Returns the default unit for a sensor type ID.
     /// Sensor type IDs and units are from backend/prisma/seed.js.
     /// </summary>
+    // TODO: Consider fetching sensor types from the backend REST API
+    // (GET /api/sensor-types) to avoid synchronization issues when sensor types change.
     private static string GetUnitForSensorType(int sensorTypeId) => sensorTypeId switch
     {
         1 => "°C",        // Temperature
