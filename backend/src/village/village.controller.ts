@@ -1,13 +1,17 @@
 import {
   Controller,
   Get,
+  Post,
   Put,
   Patch,
+  Delete,
   Param,
   Body,
   UseGuards,
   ParseIntPipe,
   BadRequestException,
+  NotFoundException,
+  HttpCode,
 } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { PrismaService } from '../prisma/prisma.service'
@@ -204,5 +208,111 @@ export class VillageController {
       showSensorDescription: features.showSensorDescription,
       showSensorCoordinates: features.showSensorCoordinates,
     }
+  }
+
+  // ── Custom Modules ────────────────────────────────────────────────────────
+
+  @Get(':villageId/modules')
+  @UseGuards(JwtAuthGuard)
+  async getModules(@Param('villageId', ParseIntPipe) villageId: number) {
+    const village = await this.prisma.village.findUnique({ where: { id: villageId } })
+    if (!village) throw new NotFoundException('Village not found')
+
+    const modules = await this.prisma.villageModule.findMany({
+      where: { villageId },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    })
+
+    return modules.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description ?? '',
+      isEnabled: m.isEnabled,
+      sensorIds: m.sensors.map((s) => s.id),
+    }))
+  }
+
+  @Post(':villageId/modules')
+  @UseGuards(JwtAuthGuard)
+  async createModule(
+    @Param('villageId', ParseIntPipe) villageId: number,
+    @Body() body: { name: string; description?: string; sensorIds?: number[] },
+  ) {
+    if (!body.name?.trim()) throw new BadRequestException('Name ist erforderlich')
+
+    const village = await this.prisma.village.findUnique({ where: { id: villageId } })
+    if (!village) throw new NotFoundException('Village not found')
+
+    const sensorIds = (body.sensorIds ?? []).map(Number)
+
+    const created = await this.prisma.villageModule.create({
+      data: {
+        villageId,
+        name: body.name.trim(),
+        description: body.description?.trim() ?? null,
+        sensors: sensorIds.length > 0 ? { connect: sensorIds.map((id) => ({ id })) } : undefined,
+      },
+      include: { sensors: { select: { id: true } } },
+    })
+
+    return {
+      id: created.id,
+      name: created.name,
+      description: created.description ?? '',
+      isEnabled: created.isEnabled,
+      sensorIds: created.sensors.map((s) => s.id),
+    }
+  }
+
+  @Patch(':villageId/modules/:moduleId')
+  @UseGuards(JwtAuthGuard)
+  async updateModule(
+    @Param('villageId', ParseIntPipe) villageId: number,
+    @Param('moduleId', ParseIntPipe) moduleId: number,
+    @Body() body: { name?: string; description?: string; isEnabled?: boolean; sensorIds?: number[] },
+  ) {
+    const existing = await this.prisma.villageModule.findFirst({
+      where: { id: moduleId, villageId },
+    })
+    if (!existing) throw new NotFoundException('Modul nicht gefunden')
+
+    const sensorIds = body.sensorIds?.map(Number)
+
+    const updated = await this.prisma.villageModule.update({
+      where: { id: moduleId },
+      data: {
+        ...(body.name !== undefined && { name: body.name.trim() }),
+        ...(body.description !== undefined && { description: body.description.trim() || null }),
+        ...(body.isEnabled !== undefined && { isEnabled: body.isEnabled }),
+        ...(sensorIds !== undefined && {
+          sensors: { set: sensorIds.map((id) => ({ id })) },
+        }),
+      },
+      include: { sensors: { select: { id: true } } },
+    })
+
+    return {
+      id: updated.id,
+      name: updated.name,
+      description: updated.description ?? '',
+      isEnabled: updated.isEnabled,
+      sensorIds: updated.sensors.map((s) => s.id),
+    }
+  }
+
+  @Delete(':villageId/modules/:moduleId')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(204)
+  async deleteModule(
+    @Param('villageId', ParseIntPipe) villageId: number,
+    @Param('moduleId', ParseIntPipe) moduleId: number,
+  ) {
+    const existing = await this.prisma.villageModule.findFirst({
+      where: { id: moduleId, villageId },
+    })
+    if (!existing) throw new NotFoundException('Modul nicht gefunden')
+
+    await this.prisma.villageModule.delete({ where: { id: moduleId } })
   }
 }

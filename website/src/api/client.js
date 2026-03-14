@@ -128,6 +128,23 @@ export const apiClient = {
     },
   },
 
+  // Village Modules (custom user-defined modules)
+  villageModules: {
+    list(villageId) {
+      return apiClient.request('GET', `/villages/${villageId}/modules`);
+    },
+    create(villageId, data) {
+      return apiClient.request('POST', `/villages/${villageId}/modules`, data);
+    },
+    update(villageId, moduleId, data) {
+      return apiClient.request('PATCH', `/villages/${villageId}/modules/${moduleId}`, data);
+    },
+    delete(villageId, moduleId) {
+      return apiClient.request('DELETE', `/villages/${villageId}/modules/${moduleId}`);
+    },
+  },
+
+
   // Location search
   locations: {
     search(query) {

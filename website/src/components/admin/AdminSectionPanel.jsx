@@ -59,6 +59,8 @@ export default function AdminSectionPanel({
           onSave={onGeneralSave}
           isSaving={isGeneralSaving}
           canSave={canGeneralSave}
+          villageId={internalVillageId}
+          sensors={config.sensors || []}
         />
       )
     }

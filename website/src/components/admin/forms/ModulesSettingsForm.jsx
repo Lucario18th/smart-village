@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { apiClient } from '../../../api/client'
 
 const SENSOR_FIELD_TOGGLES = [
   { id: 'name', label: 'Name' },
@@ -68,24 +69,131 @@ export default function ModulesSettingsForm({
   onSave,
   isSaving = false,
   canSave = false,
+  villageId = null,
+  sensors = [],
 }) {
   const safeValues = values && typeof values === 'object' ? values : {}
   const [isEditing, setIsEditing] = useState(false)
-  const [isSensorOptionsOpen, setIsSensorOptionsOpen] = useState(false)
   const editSnapshotRef = useRef(null)
   const sensorFields = {
     ...DEFAULT_SENSOR_FIELDS,
     ...(safeValues.sensors?.fields || {}),
   }
 
+  // ── Custom Modules State ──────────────────────────────────────────────────
+  const [customModules, setCustomModules] = useState([])
+  const [modulesLoading, setModulesLoading] = useState(false)
+  const [showModuleForm, setShowModuleForm] = useState(false)
+  const [editingModule, setEditingModule] = useState(null) // null = new, object = edit
+  const [moduleForm, setModuleForm] = useState({ name: '', description: '', sensorIds: [] })
+  const [moduleFormError, setModuleFormError] = useState('')
+  const [moduleFormSaving, setModuleFormSaving] = useState(false)
+  const [deletingModuleId, setDeletingModuleId] = useState(null)
+  const [sensorSearch, setSensorSearch] = useState('')
+
+  const loadCustomModules = useCallback(async () => {
+    if (!villageId) return
+    setModulesLoading(true)
+    try {
+      const data = await apiClient.villageModules.list(villageId)
+      setCustomModules(data)
+    } catch {
+      /* ignore */
+    } finally {
+      setModulesLoading(false)
+    }
+  }, [villageId])
+
+  useEffect(() => {
+    loadCustomModules()
+  }, [loadCustomModules])
+
+  const openCreateForm = () => {
+    setEditingModule(null)
+    setModuleForm({ name: '', description: '', sensorIds: [] })
+    setModuleFormError('')
+    setShowModuleForm(true)
+  }
+
+  const openEditForm = (mod) => {
+    setEditingModule(mod)
+    setModuleForm({ name: mod.name, description: mod.description, sensorIds: [...mod.sensorIds] })
+    setModuleFormError('')
+    setShowModuleForm(true)
+  }
+
+  const cancelModuleForm = () => {
+    setShowModuleForm(false)
+    setEditingModule(null)
+    setModuleFormError('')
+    setSensorSearch('')
+  }
+
+  const handleModuleFormSave = async () => {
+    if (!moduleForm.name.trim()) {
+      setModuleFormError('Bitte einen Namen eingeben.')
+      return
+    }
+    setModuleFormSaving(true)
+    setModuleFormError('')
+    try {
+      if (editingModule) {
+        const updated = await apiClient.villageModules.update(villageId, editingModule.id, {
+          name: moduleForm.name.trim(),
+          description: moduleForm.description.trim(),
+          sensorIds: moduleForm.sensorIds,
+        })
+        setCustomModules((prev) => prev.map((m) => (m.id === updated.id ? updated : m)))
+      } else {
+        const created = await apiClient.villageModules.create(villageId, {
+          name: moduleForm.name.trim(),
+          description: moduleForm.description.trim(),
+          sensorIds: moduleForm.sensorIds,
+        })
+        setCustomModules((prev) => [...prev, created])
+      }
+      cancelModuleForm()
+    } catch (err) {
+      setModuleFormError(err.message || 'Speichern fehlgeschlagen')
+    } finally {
+      setModuleFormSaving(false)
+    }
+  }
+
+  const handleDeleteModule = async (moduleId) => {
+    setDeletingModuleId(moduleId)
+    try {
+      await apiClient.villageModules.delete(villageId, moduleId)
+      setCustomModules((prev) => prev.filter((m) => m.id !== moduleId))
+    } catch {
+      /* ignore */
+    } finally {
+      setDeletingModuleId(null)
+    }
+  }
+
+  const handleToggleModuleEnabled = async (mod) => {
+    try {
+      const updated = await apiClient.villageModules.update(villageId, mod.id, {
+        isEnabled: !mod.isEnabled,
+      })
+      setCustomModules((prev) => prev.map((m) => (m.id === updated.id ? updated : m)))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const toggleModuleFormSensor = (sensorId) => {
+    setModuleForm((prev) => {
+      const ids = prev.sensorIds
+      return {
+        ...prev,
+        sensorIds: ids.includes(sensorId) ? ids.filter((id) => id !== sensorId) : [...ids, sensorId],
+      }
+    })
+  }
+
   const modules = [
-    {
-      id: 'sensors',
-      title: 'Sensordaten',
-      description: 'Sensor-basierte Datenerfassung und -visualisierung',
-      placement: 'Startseite und Detailansichten',
-      category: 'Daten',
-    },
     {
       id: 'weather',
       title: 'Wetterdaten',
@@ -136,6 +244,7 @@ export default function ModulesSettingsForm({
         modules: Object.fromEntries(
           modules.map((module) => [module.id, safeValues[module.id]?.enabled ?? false])
         ),
+        sensorsEnabled: safeValues.sensors?.enabled ?? true,
         sensorFields: { ...sensorFields },
       }
       setIsEditing(true)
@@ -146,6 +255,9 @@ export default function ModulesSettingsForm({
       Object.entries(editSnapshotRef.current.modules || {}).forEach(([moduleId, enabled]) => {
         onModuleEnabledChange(moduleId, enabled)
       })
+      if (editSnapshotRef.current.sensorsEnabled !== undefined) {
+        onModuleEnabledChange('sensors', editSnapshotRef.current.sensorsEnabled)
+      }
       Object.entries(editSnapshotRef.current.sensorFields || {}).forEach(([fieldId, enabled]) => {
         onModuleFieldEnabledChange?.('sensors', fieldId, enabled)
       })
@@ -163,16 +275,9 @@ export default function ModulesSettingsForm({
 
   const handleModuleEnabledChange = (moduleId, enabled) => {
     onModuleEnabledChange(moduleId, enabled)
-
-    if (moduleId === 'sensors' && !enabled) {
-      SENSOR_FIELD_TOGGLES.forEach((field) => {
-        onModuleFieldEnabledChange?.('sensors', field.id, false)
-      })
-      setIsSensorOptionsOpen(false)
-    }
   }
 
-  const isSensorsModuleEnabled = safeValues.sensors?.enabled ?? false
+  const isSensorsEnabled = safeValues.sensors?.enabled ?? true
 
   return (
     <section className="module-settings">
@@ -229,6 +334,56 @@ export default function ModulesSettingsForm({
         <p className="auth-hint">Moduldaten konnten nicht geladen werden. Standardwerte werden angezeigt.</p>
       )}
 
+      {/* ── Sensor-Übertragungseinstellungen ────────────────────────── */}
+      <div className="sensor-settings-card">
+        <div className="sensor-settings-head">
+          <div className="sensor-settings-info">
+            <h3 className="sensor-settings-title">Sensordaten-Übertragung</h3>
+            <p className="sensor-settings-desc">
+              Steuert, ob Sensordaten an die App übertragen werden und welche Felder dabei sichtbar sind.
+              Diese Einstellung gilt global für alle Module.
+            </p>
+          </div>
+          <label className="switch-control" aria-label="Sensordaten-Übertragung aktivieren">
+            <input
+              type="checkbox"
+              checked={isSensorsEnabled}
+              onChange={(e) => {
+                onModuleEnabledChange('sensors', e.target.checked)
+                if (!e.target.checked) {
+                  SENSOR_FIELD_TOGGLES.forEach((f) => onModuleFieldEnabledChange?.('sensors', f.id, false))
+                }
+              }}
+              disabled={!isEditing}
+            />
+            <span className="switch-slider" aria-hidden="true" />
+          </label>
+        </div>
+        {isSensorsEnabled && (
+          <div className="sensor-settings-fields">
+            <p className="sensor-settings-fields-label">Angezeigte Felder in der App</p>
+            <ul className="sensor-settings-field-list">
+              {SENSOR_FIELD_TOGGLES.map((field) => (
+                <li key={field.id} className="sensor-settings-field-item">
+                  <span>{field.label}</span>
+                  <label className="switch-control">
+                    <input
+                      type="checkbox"
+                      checked={sensorFields[field.id] ?? false}
+                      onChange={(e) => onModuleFieldEnabledChange?.('sensors', field.id, e.target.checked)}
+                      disabled={!isEditing}
+                      aria-label={`${field.label} anzeigen`}
+                    />
+                    <span className="switch-slider" aria-hidden="true" />
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <p className="module-settings-section-label">App-Module</p>
       <div className="service-grid">
         {modules.map((module) => (
           <ServiceCard
@@ -240,55 +395,174 @@ export default function ModulesSettingsForm({
             isEnabled={safeValues[module.id]?.enabled ?? false}
             onEnabledChange={(enabled) => handleModuleEnabledChange(module.id, enabled)}
             isEditing={isEditing}
-            isExpanded={module.id === 'sensors' && isSensorOptionsOpen}
-            secondaryControl={
-              module.id === 'sensors' ? (
-                <button
-                  type="button"
-                  className="service-module-expand service-module-expand--icon"
-                  onClick={() => setIsSensorOptionsOpen((prev) => !prev)}
-                  aria-expanded={isSensorOptionsOpen}
-                  aria-label={isSensorOptionsOpen ? 'Optionen einklappen' : 'Optionen ausklappen'}
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    {isSensorOptionsOpen ? (
-                      <path fill="currentColor" d="m7.41 15.59 4.59-4.58 4.59 4.58L18 14.17l-6-6-6 6 1.41 1.42Z" />
-                    ) : (
-                      <path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41Z" />
-                    )}
-                  </svg>
-                </button>
-              ) : null
-            }
           >
-            {module.id === 'sensors' ? (
-              <div className="service-module-details">
-                {isSensorOptionsOpen ? (
-                  <ul className="service-module-options" aria-label="Sensor-Anzeigeoptionen">
-                    {SENSOR_FIELD_TOGGLES.map((field) => (
-                      <li key={field.id}>
-                        <span>{field.label}</span>
-                        <label className="switch-control">
-                          <input
-                            type="checkbox"
-                            checked={sensorFields[field.id] ?? false}
-                            onChange={(event) =>
-                              onModuleFieldEnabledChange?.('sensors', field.id, event.target.checked)
-                            }
-                            disabled={!isEditing || !isSensorsModuleEnabled}
-                            aria-label={`${field.label} anzeigen`}
-                          />
-                          <span className="switch-slider" aria-hidden="true" />
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </div>
-            ) : null}
+            {null}
           </ServiceCard>
         ))}
       </div>
+
+      {/* ── Eigene Module ───────────────────────────────────────────── */}
+      {villageId && (
+        <div className="custom-modules-section">
+          <div className="custom-modules-header">
+            <div>
+              <h2 className="custom-modules-title">Eigene Module</h2>
+              <p className="custom-modules-hint">
+                Erstellen Sie eigene Module und ordnen Sie Sensoren zu.
+              </p>
+            </div>
+            <button type="button" className="cm-add-btn" onClick={openCreateForm}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
+              </svg>
+              Neues Modul
+            </button>
+          </div>
+
+          {modulesLoading && <p className="cm-loading">Lade Module…</p>}
+
+          {!modulesLoading && customModules.length === 0 && (
+            <p className="cm-empty">Noch keine eigenen Module vorhanden.</p>
+          )}
+
+          {!modulesLoading && customModules.length > 0 && (
+            <ul className="cm-list">
+              {customModules.map((mod) => (
+                <li key={mod.id} className="cm-item">
+                  <div className="cm-item-main">
+                    <div className="cm-item-info">
+                      <strong className="cm-item-name">{mod.name}</strong>
+                      {mod.description && <span className="cm-item-desc">{mod.description}</span>}
+                      <span className="cm-item-sensors">
+                        {mod.sensorIds.length === 0
+                          ? 'Keine Sensoren zugeordnet'
+                          : `${mod.sensorIds.length} Sensor${mod.sensorIds.length === 1 ? '' : 'en'} zugeordnet`}
+                      </span>
+                    </div>
+                    <div className="cm-item-actions">
+                      <label className="switch-control" title={mod.isEnabled ? 'Aktiv' : 'Inaktiv'}>
+                        <input
+                          type="checkbox"
+                          checked={mod.isEnabled}
+                          onChange={() => handleToggleModuleEnabled(mod)}
+                          aria-label={`${mod.name} aktivieren`}
+                        />
+                        <span className="switch-slider" aria-hidden="true" />
+                      </label>
+                      <button
+                        type="button"
+                        className="cm-icon-btn cm-edit-btn"
+                        onClick={() => openEditForm(mod)}
+                        aria-label={`${mod.name} bearbeiten`}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <path fill="currentColor" d="m3 17.25 9.06-9.06 3.75 3.75L6.75 21H3v-3.75ZM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.33a1 1 0 0 0-1.41 0l-1.78 1.77 3.75 3.75 1.78-1.77Z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        className="cm-icon-btn cm-delete-btn"
+                        onClick={() => handleDeleteModule(mod.id)}
+                        disabled={deletingModuleId === mod.id}
+                        aria-label={`${mod.name} löschen`}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12ZM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4Z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Modul-Formular (Erstellen / Bearbeiten) */}
+          {showModuleForm && (
+            <div className="cm-form-overlay" role="dialog" aria-modal="true" aria-label={editingModule ? 'Modul bearbeiten' : 'Neues Modul'}>
+              <div className="cm-form-card">
+                <h3 className="cm-form-title">{editingModule ? 'Modul bearbeiten' : 'Neues Modul'}</h3>
+
+                <div className="cm-form-static">
+                  <label className="cm-form-label">
+                    Name <span aria-hidden="true">*</span>
+                    <input
+                      type="text"
+                      className="cm-form-input"
+                      value={moduleForm.name}
+                      onChange={(e) => setModuleForm((p) => ({ ...p, name: e.target.value }))}
+                      placeholder="z. B. Luftqualität Dorfplatz"
+                      maxLength={80}
+                      autoFocus
+                    />
+                  </label>
+
+                  <label className="cm-form-label">
+                    Beschreibung
+                    <input
+                      type="text"
+                      className="cm-form-input"
+                      value={moduleForm.description}
+                      onChange={(e) => setModuleForm((p) => ({ ...p, description: e.target.value }))}
+                      placeholder="Optional"
+                      maxLength={200}
+                    />
+                  </label>
+                </div>
+
+                {sensors.length > 0 && (
+                  <fieldset className="cm-sensor-fieldset">
+                    <legend className="cm-sensor-legend">Sensoren zuordnen</legend>
+                    <div className="cm-sensor-search-wrap">
+                      <svg className="cm-sensor-search-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/>
+                      </svg>
+                      <input
+                        type="search"
+                        className="cm-sensor-search"
+                        placeholder="Sensors suchen…"
+                        value={sensorSearch}
+                        onChange={(e) => setSensorSearch(e.target.value)}
+                        aria-label="Sensoren filtern"
+                      />
+                    </div>
+                    <ul className="cm-sensor-list">
+                      {sensors.filter((s) => {
+                        const q = sensorSearch.trim().toLowerCase()
+                        if (!q) return true
+                        return s.name?.toLowerCase().includes(q) || s.type?.toLowerCase().includes(q)
+                      }).map((s) => (
+                        <li key={s.id} className="cm-sensor-item">
+                          <label className="cm-sensor-label">
+                            <input
+                              type="checkbox"
+                              checked={moduleForm.sensorIds.includes(s.id)}
+                              onChange={() => toggleModuleFormSensor(s.id)}
+                            />
+                            <span className="cm-sensor-name">{s.name}</span>
+                            {s.type && <span className="cm-sensor-type">{s.type}</span>}
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  </fieldset>
+                )}
+
+                {moduleFormError && <p className="cm-form-error">{moduleFormError}</p>}
+
+                <div className="cm-form-actions cm-form-actions--footer">
+                  <button type="button" className="cm-form-cancel" onClick={cancelModuleForm} disabled={moduleFormSaving}>
+                    Abbrechen
+                  </button>
+                  <button type="button" className="cm-form-save" onClick={handleModuleFormSave} disabled={moduleFormSaving}>
+                    {moduleFormSaving ? 'Speichern…' : 'Speichern'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   )
 }
