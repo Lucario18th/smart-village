@@ -134,6 +134,20 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-form-grid input,.admin-form-grid textarea,.admin-form-grid select,.module-controls select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
 .design-hint{margin:0 0 12px;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
 .design-subtitle{margin:0 0 6px;font-size:16px;line-height:1.3;color:var(--md-sys-color-primary);letter-spacing:.01em}
+.design-card{padding:16px 18px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent);background:var(--md-sys-color-surface-container-low);display:grid;gap:12px}
+.design-card-header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.design-card-title{margin:0;font-size:15px;font-weight:700;color:var(--md-sys-color-primary)}
+.design-card-hint{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+.design-card-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:480px;gap:10px 16px}
+.design-select-field{display:grid;gap:5px}
+.design-select-label{font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface-variant)}
+.design-select{padding:8px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;font-size:14px;cursor:pointer;width:100%}
+.design-select:focus{outline:2px solid var(--md-sys-color-primary);outline-offset:1px;border-color:var(--md-sys-color-primary)}
+.design-toggle-group{display:inline-flex;width:fit-content;padding:3px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-outline) 20%, var(--md-sys-color-surface-container))}
+.design-toggle-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 18px;border-radius:7px;border:none;background:transparent;color:var(--md-sys-color-on-surface-variant);font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease,color .15s ease,box-shadow .15s ease;white-space:nowrap}
+.design-toggle-btn svg{width:15px;height:15px;display:block;flex-shrink:0}
+.design-toggle-btn.is-active{background:var(--md-sys-color-surface);color:var(--md-sys-color-primary);font-weight:700;box-shadow:0 1px 4px color-mix(in srgb, var(--md-sys-color-shadow) 20%, transparent)}
+.design-toggle-btn:not(.is-active):hover{background:color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);color:var(--md-sys-color-on-surface)}
 .general-settings{position:relative;display:grid;gap:10px}
 .general-form-header{position:static;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:0;z-index:2}
 .general-form-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
