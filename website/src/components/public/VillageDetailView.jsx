@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
+import PublicMapPanel from './PublicMapPanel'
 
 export default function VillageDetailView({ villageId }) {
   const [config, setConfig] = useState(null)
@@ -89,7 +90,17 @@ export default function VillageDetailView({ villageId }) {
         <section className="village-section village-section-disabled">
           <p className="disabled-message">Die Karte wurde vom Administrator deaktiviert.</p>
         </section>
-      ) : null}
+      ) : (
+        <section className="village-section village-map-section">
+          <h3>Karte</h3>
+          <PublicMapPanel
+            zipCode={config.postalCode?.zipCode}
+            city={config.postalCode?.city}
+            sensors={sensors}
+            rideshares={rideshares}
+          />
+        </section>
+      )}
 
       {/* Sensor data section */}
       {features.sensorData === false ? (

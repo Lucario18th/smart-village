@@ -16,7 +16,7 @@ services:
     networks:
       - smartvillage-net
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "--no-check-certificate", "https://127.0.0.1/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -53,7 +53,7 @@ services:
     env_file:
       - ./smartvillage.env
     volumes:
-      - /srv/smartvillage/postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -89,4 +89,5 @@ services:
 networks:
   smartvillage-net:
 
-volumes: {}
+volumes:
+  postgres-data:
