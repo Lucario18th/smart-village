@@ -26,8 +26,14 @@ class SensorDetailsViewModel(
         viewModelScope.launch {
             mqttSensorRepository.observeSensorData(1,1)
                 .collect { sensorUpdate ->
+                    println("SensorUpdate: $sensorUpdate")
                     stateFlow.value = stateFlow.value.copy(sensorData = sensorUpdate)
                 }
         }
+    }
+
+    override fun onCleared() {
+        MqttClientProvider.disconnect()
+        super.onCleared()
     }
 }

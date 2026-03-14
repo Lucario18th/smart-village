@@ -81,7 +81,8 @@ fun App() {
 
                 entry<NavDestinations.SensorDetailScreen> { sensorDetailScreen ->
                     SensorDetailScreen(
-                        sensorId = sensorDetailScreen.sensorId
+                        sensorId = sensorDetailScreen.sensorId,
+                        backStack = backStack
                     )
                 }
 

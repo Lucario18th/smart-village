@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,12 +24,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.viewmodel.SensorDetailsViewModel
+import org.jetbrains.compose.resources.painterResource
+import smartvillageapp.composeapp.generated.resources.Res
+import smartvillageapp.composeapp.generated.resources.back
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SensorDetailScreen(
     sensorId: Int,
+    backStack: NavBackStack<NavKey>,
     viewModel: SensorDetailsViewModel = viewModel()
 ) {
     val state by viewModel.viewState.collectAsState()
@@ -35,7 +43,15 @@ fun SensorDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Sensor-Details") }
+                title = { Text("Sensor-Details") },
+                navigationIcon = {
+                    IconButton(onClick = { backStack.removeLastOrNull() }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.back),
+                            contentDescription = "Zurück",
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
