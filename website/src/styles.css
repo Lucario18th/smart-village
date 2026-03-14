@@ -322,6 +322,15 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .sensor-form-switch .switch-slider::before{width:20px;height:20px;left:4px;top:4px}
 .sensor-form-switch .switch-control input:checked + .switch-slider::before{transform:translateX(20px)}
 .coordinate-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.coord-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.coord-label-row label{margin:0}
+.coord-map-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface);color:var(--md-sys-color-primary);font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s ease,border-color .15s ease}
+.coord-map-btn svg{width:14px;height:14px;display:block;flex-shrink:0}
+.coord-map-btn:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 10%, var(--md-sys-color-surface));border-color:var(--md-sys-color-primary)}
+.coord-picker-wrap{margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid var(--md-sys-color-outline)}
+.coord-picker-map{height:240px;width:100%;display:block;cursor:crosshair!important}
+.coord-picker-map .leaflet-container{cursor:crosshair!important}
+.coord-picker-hint{margin:0;padding:6px 10px;font-size:12px;color:var(--md-sys-color-on-surface-variant);background:var(--md-sys-color-surface-container-low);text-align:center}
 .form-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:6px}
 .btn-save,.btn-cancel{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:background .2s ease,border-color .2s ease,transform .2s ease}
 .btn-save svg,.btn-cancel svg{width:16px;height:16px;display:block}

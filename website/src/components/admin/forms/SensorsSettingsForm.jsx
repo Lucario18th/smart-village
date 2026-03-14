@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 // import { isMitfahrbankSensor } from '../../hooks/useVillageConfig'
 import { isMitfahrbankSensor } from '../../../hooks/useVillageConfig'
+import CoordinatePicker from './CoordinatePicker'
 
 
 function formatCoords(lat, lng) {
@@ -103,12 +104,21 @@ function DeviceForm({ device, onSave, onCancel }) {
       longitude: '',
     }
   )
+  const [showMap, setShowMap] = useState(false)
 
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }))
+  }
+
+  const handleMapPick = (lat, lng) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat.toFixed(6),
+      longitude: lng.toFixed(6),
     }))
   }
 
@@ -148,7 +158,20 @@ function DeviceForm({ device, onSave, onCancel }) {
         />
       </div>
       <div className="form-group">
-        <label>Koordinaten (optional)</label>
+        <div className="coord-label-row">
+          <label>Koordinaten (optional)</label>
+          <button
+            type="button"
+            className="coord-map-btn"
+            onClick={() => setShowMap((v) => !v)}
+            aria-expanded={showMap}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" />
+            </svg>
+            {showMap ? 'Karte schließen' : 'Auf Karte setzen'}
+          </button>
+        </div>
         <div className="coordinate-inputs">
           <input
             type="number"
@@ -167,6 +190,13 @@ function DeviceForm({ device, onSave, onCancel }) {
             placeholder="Länge (lng)"
           />
         </div>
+        {showMap && (
+          <CoordinatePicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={handleMapPick}
+          />
+        )}
         <small>Diese Position wird für alle Sensoren genutzt, sofern diese keine eigenen Koordinaten haben.</small>
       </div>
       <div className="form-actions">
@@ -295,12 +325,21 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
           longitude: '',
         }
   )
+  const [showMap, setShowMap] = useState(false)
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
+    }))
+  }
+
+  const handleMapPick = (lat, lng) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat.toFixed(6),
+      longitude: lng.toFixed(6),
     }))
   }
 
@@ -405,7 +444,20 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
       </div>
 
       <div className="form-group">
-        <label>Sensor-Koordinaten (optional)</label>
+        <div className="coord-label-row">
+          <label>Sensor-Koordinaten (optional)</label>
+          <button
+            type="button"
+            className="coord-map-btn"
+            onClick={() => setShowMap((v) => !v)}
+            aria-expanded={showMap}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" />
+            </svg>
+            {showMap ? 'Karte schließen' : 'Auf Karte setzen'}
+          </button>
+        </div>
         <div className="coordinate-inputs">
           <input
             type="number"
@@ -424,6 +476,13 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
             placeholder="Länge (lng)"
           />
         </div>
+        {showMap && (
+          <CoordinatePicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={handleMapPick}
+          />
+        )}
         <small>Freilassen, wenn die Position des Controllers verwendet werden soll.</small>
       </div>
 
