@@ -1,13 +1,14 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function PublicLayout({ children }) {
   return (
     <div className="public-page">
       <header className="public-header">
         <div className="public-header-content">
-          <a href="/" className="public-header-title">Smart Village</a>
+          <Link to="/" className="public-header-title">Smart Village</Link>
           <nav className="public-header-nav">
-            <a href="/admin" className="public-header-admin-link">Admin</a>
+            <Link to="/admin" className="public-header-admin-link">Admin</Link>
           </nav>
         </div>
       </header>

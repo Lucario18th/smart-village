@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 
 export default function VillageDetailView({ villageId }) {
@@ -47,7 +48,7 @@ export default function VillageDetailView({ villageId }) {
     return (
       <div className="public-error" role="alert">
         <p>{error}</p>
-        <a href="/" className="public-back-link">← Zurück zur Übersicht</a>
+        <Link to="/" className="public-back-link">← Zurück zur Übersicht</Link>
       </div>
     )
   }
@@ -56,7 +57,7 @@ export default function VillageDetailView({ villageId }) {
     return (
       <div className="public-empty">
         <p>Gemeinde nicht gefunden.</p>
-        <a href="/" className="public-back-link">← Zurück zur Übersicht</a>
+        <Link to="/" className="public-back-link">← Zurück zur Übersicht</Link>
       </div>
     )
   }
@@ -69,7 +70,7 @@ export default function VillageDetailView({ villageId }) {
 
   return (
     <div className="village-detail">
-      <a href="/" className="public-back-link">← Zurück zur Übersicht</a>
+      <Link to="/" className="public-back-link">← Zurück zur Übersicht</Link>
 
       <div className="village-detail-header">
         <h2 className="village-detail-name">{config.name}</h2>

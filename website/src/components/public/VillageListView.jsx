@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 
 export default function VillageListView() {
@@ -60,9 +61,9 @@ export default function VillageListView() {
       <p className="village-list-subtitle">Wählen Sie eine Gemeinde, um aktuelle Informationen zu sehen.</p>
       <div className="village-card-grid">
         {villages.map((village) => (
-          <a
+          <Link
             key={village.villageId}
-            href={`/village/${village.villageId}`}
+            to={`/village/${village.villageId}`}
             className="village-card"
           >
             <h3 className="village-card-name">{village.name}</h3>
@@ -81,14 +82,14 @@ export default function VillageListView() {
             </div>
             {village.features ? (
               <div className="village-card-features">
-                {village.features.map ? <span className="feature-badge">Karte</span> : null}
-                {village.features.sensorData ? <span className="feature-badge">Sensoren</span> : null}
-                {village.features.messages ? <span className="feature-badge">Nachrichten</span> : null}
-                {village.features.rideShare ? <span className="feature-badge">Mitfahrbänke</span> : null}
+                {village.features.map ? <span key="map" className="feature-badge">Karte</span> : null}
+                {village.features.sensorData ? <span key="sensorData" className="feature-badge">Sensoren</span> : null}
+                {village.features.messages ? <span key="messages" className="feature-badge">Nachrichten</span> : null}
+                {village.features.rideShare ? <span key="rideShare" className="feature-badge">Mitfahrbänke</span> : null}
               </div>
             ) : null}
             <span className="village-card-action">Öffnen →</span>
-          </a>
+          </Link>
         ))}
       </div>
     </div>
