@@ -33,6 +33,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.DepartureRow
+import de.tif23.studienarbeit.ui.components.RequestLocationPermission
+import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MapScreenViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.data.state.MapSheetContent
@@ -52,6 +54,12 @@ fun MapScreen(
     viewModel: MapScreenViewModel = viewModel()
 ) {
     val state by viewModel.viewState.collectAsState()
+
+    if (getPlatform().name == "Android") {
+        RequestLocationPermission {
+            viewModel.startLocationTracking()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -99,11 +107,13 @@ fun MapScreen(
             ModalBottomSheet(
                 onDismissRequest = { viewModel.dismissSheet() }
             ) {
-                SheetContent(content = sheetContent, backStack)
             }
+
+            SheetContent(content = sheetContent, backStack)
         }
     }
 }
+
 
 @Composable
 private fun SheetContent(content: MapSheetContent, backStack: NavBackStack<NavKey>) {
@@ -184,7 +194,13 @@ private fun SheetContent(content: MapSheetContent, backStack: NavBackStack<NavKe
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.clickable { backStack.add(NavDestinations.StationScreen(content.evaNo)) }
+                    modifier = Modifier.clickable {
+                        backStack.add(
+                            NavDestinations.StationScreen(
+                                content.evaNo
+                            )
+                        )
+                    }
                 ) {
                     Icon(
                         painter = painterResource(Res.drawable.train),
@@ -254,7 +270,9 @@ private fun SheetContent(content: MapSheetContent, backStack: NavBackStack<NavKe
 }
 
 private fun formatTime(dateTime: LocalDateTime): String {
-    return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+    return "${dateTime.hour.toString().padStart(2, '0')}:${
+        dateTime.minute.toString().padStart(2, '0')
+    }"
 }
 
 

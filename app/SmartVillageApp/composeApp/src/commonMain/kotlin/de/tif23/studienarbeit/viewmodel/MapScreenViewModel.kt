@@ -11,6 +11,8 @@ import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.model.usecase.GetDeparturesUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageTrainStationsUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
+import de.tif23.studienarbeit.provider.LocationService
+import de.tif23.studienarbeit.provider.createLocationService
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
@@ -50,6 +52,7 @@ import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
 import smartvillageapp.composeapp.generated.resources.cloud_circle
 import smartvillageapp.composeapp.generated.resources.parkbank_location
+import smartvillageapp.composeapp.generated.resources.settings
 import smartvillageapp.composeapp.generated.resources.train
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -63,6 +66,7 @@ class MapScreenViewModel(
     private val getDeparturesUseCase: GetDeparturesUseCase = GetDeparturesUseCase()
 ) : ViewModel() {
 
+    private val locationService: LocationService = createLocationService()
     private val tileStreamProvider = makeOsmTileStreamProvider()
     private val maxLevel = 16
     private val minLevel = 12
@@ -88,6 +92,30 @@ class MapScreenViewModel(
 
     init {
         loadVillageAndMap()
+    }
+
+    fun startLocationTracking() {
+        viewModelScope.launch {
+            locationService.locationFlow.collect { location ->
+                // Update User Position Marker
+                mapState.addMarker(
+                    id = "user_location",
+                    x = lonToX(location.lon),
+                    y = latToY(location.lat)
+                ) {
+                    // UI für den Standort (blauer Punkt)
+                    Icon(
+                        painter = painterResource(Res.drawable.settings), // Oder eigenes Icon
+                        contentDescription = "Ihr Standort",
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Optional: Karte zentrieren beim ersten Fix
+                // mapState.centerOnMarker("user_location", 1.0f)
+            }
+        }
     }
 
     fun dismissSheet() {
