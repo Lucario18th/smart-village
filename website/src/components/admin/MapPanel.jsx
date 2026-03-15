@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
@@ -6,10 +6,48 @@ import { geocodeCity } from '../../utils/geocoding'
 import {
   buildMarkers,
   buildSelectionState,
+  defaultSelectionState,
   getControllerSelectionState,
   toggleControllerSelection,
   toggleSensorSelection,
 } from '../../utils/mapViewUtils'
+
+function loadSelectionFromStorage(storageKey) {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const raw = window.localStorage.getItem(storageKey)
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw)
+    const controllers = Array.isArray(parsed?.controllers) ? parsed.controllers : []
+    const sensors = Array.isArray(parsed?.sensors) ? parsed.sensors : []
+
+    return {
+      controllers: new Set(controllers),
+      sensors: new Set(sensors),
+    }
+  } catch (error) {
+    console.warn('Map selection could not be restored from localStorage', error)
+    return null
+  }
+}
+
+function saveSelectionToStorage(storageKey, selection) {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        controllers: [...selection.controllers],
+        sensors: [...selection.sensors],
+      })
+    )
+  } catch (error) {
+    console.warn('Map selection could not be saved to localStorage', error)
+  }
+}
 
 const buildEmbedUrl = (lat, lng) => {
   const delta = 0.03
@@ -242,6 +280,15 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   const [error, setError] = useState('')
   const [selection, setSelection] = useState(() => buildSelectionState(devices, sensors))
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const hydratedStorageKeyRef = useRef(null)
+
+  const storageKey = useMemo(() => {
+    const villageIdentifier =
+      general?.municipalityCode ||
+      `${general?.zipCode || ''}-${general?.city || ''}` ||
+      'default'
+    return `sv:map-selection:admin:${villageIdentifier}`
+  }, [general?.municipalityCode, general?.zipCode, general?.city])
 
   const locationLabel =
     general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : ''
@@ -276,8 +323,26 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   }, [general?.zipCode, general?.city])
 
   useEffect(() => {
+    if (hydratedStorageKeyRef.current !== storageKey) {
+      const restoredSelection = loadSelectionFromStorage(storageKey)
+      setSelection(
+        buildSelectionState(
+          devices,
+          sensors,
+          restoredSelection || defaultSelectionState
+        )
+      )
+      hydratedStorageKeyRef.current = storageKey
+      return
+    }
+
     setSelection((prev) => buildSelectionState(devices, sensors, prev))
-  }, [devices, sensors])
+  }, [storageKey, devices, sensors])
+
+  useEffect(() => {
+    if (hydratedStorageKeyRef.current !== storageKey) return
+    saveSelectionToStorage(storageKey, selection)
+  }, [storageKey, selection])
 
   const embedUrl = useMemo(
     () => buildEmbedUrl(center.lat, center.lng),

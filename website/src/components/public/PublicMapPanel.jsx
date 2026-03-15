@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
@@ -6,8 +6,44 @@ import { geocodeCity } from '../../utils/geocoding'
 import {
   buildMarkers,
   buildSelectionState,
+  defaultSelectionState,
   toggleSensorSelection,
 } from '../../utils/mapViewUtils'
+
+function loadSelectionFromStorage(storageKey) {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const raw = window.localStorage.getItem(storageKey)
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw)
+    const sensors = Array.isArray(parsed?.sensors) ? parsed.sensors : []
+
+    return {
+      controllers: new Set(),
+      sensors: new Set(sensors),
+    }
+  } catch (error) {
+    console.warn('Public map selection could not be restored from localStorage', error)
+    return null
+  }
+}
+
+function saveSelectionToStorage(storageKey, selection) {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        sensors: [...selection.sensors],
+      })
+    )
+  } catch (error) {
+    console.warn('Public map selection could not be saved to localStorage', error)
+  }
+}
 
 const BASE_MAP_ZOOM = 13
 const APP_PIN_PATH =
@@ -125,6 +161,12 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
   const [center, setCenter] = useState(FALLBACK_LOCATION)
   const [selection, setSelection] = useState(() => buildSelectionState([], []))
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const hydratedStorageKeyRef = useRef(null)
+
+  const storageKey = useMemo(() => {
+    const villageIdentifier = `${zipCode || ''}-${city || ''}` || 'default'
+    return `sv:map-selection:public:${villageIdentifier}`
+  }, [zipCode, city])
 
   const normalizedSensors = useMemo(() => {
     const sensorItems = sensors.map((sensor) => ({
@@ -182,8 +224,26 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
   }, [zipCode, city])
 
   useEffect(() => {
+    if (hydratedStorageKeyRef.current !== storageKey) {
+      const restoredSelection = loadSelectionFromStorage(storageKey)
+      setSelection(
+        buildSelectionState(
+          [],
+          normalizedSensors,
+          restoredSelection || defaultSelectionState
+        )
+      )
+      hydratedStorageKeyRef.current = storageKey
+      return
+    }
+
     setSelection((prev) => buildSelectionState([], normalizedSensors, prev))
-  }, [normalizedSensors])
+  }, [storageKey, normalizedSensors])
+
+  useEffect(() => {
+    if (hydratedStorageKeyRef.current !== storageKey) return
+    saveSelectionToStorage(storageKey, selection)
+  }, [storageKey, selection])
 
   const markers = useMemo(
     () => buildMarkers({ sensors: normalizedSensors, devices: [], selection, includeControllers: false }),
