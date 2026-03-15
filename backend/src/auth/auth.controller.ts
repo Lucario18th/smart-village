@@ -15,7 +15,6 @@ import { Request } from "express";
 import { VerifyEmailCodeDto } from "./dto/verify-email-code.dto";
 import { ResendVerificationDto } from "./dto/resend-verification.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
-import { ChangePasswordDto } from "./dto/change-password.dto";
 
 @Controller("auth")
 export class AuthController {
