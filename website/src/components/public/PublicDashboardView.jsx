@@ -1,54 +1,299 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { apiClient } from '../../api/client'
 import { applyThemeToDOM, getThemeClass } from '../../config/themeManager'
 import { useMqttLiveReadings } from '../../hooks/useMqttLiveReadings'
 import PublicMapPanel from './PublicMapPanel'
+import AiAssistantWidget from '../common/AiAssistantWidget'
 
 const PUBLIC_PREFS_KEY = 'smart-village-public-preferences'
 const PUBLIC_LAST_VILLAGE_KEY = 'smart-village-public-last-village-id'
 const PUBLIC_REFRESH_INTERVAL_MS =
   Number.parseInt(import.meta.env?.VITE_PUBLIC_REFRESH_INTERVAL_MS ?? '5000', 10) || 5000
 
+const DATE_LOCALES = {
+  de: 'de-DE',
+  en: 'en-GB',
+  fr: 'fr-FR',
+}
+
+const I18N = {
+  de: {
+    appTitle: 'Smart Village User',
+    navOpen: 'Navigation öffnen',
+    navClose: 'Navigation schließen',
+    navAria: 'Nutzer Navigation',
+    compactInfoAria: 'Dorfinformationen kompakt',
+    statusLabel: 'Status',
+    chooseVillage: 'Bitte Gemeinde auswaehlen',
+    villagesLoadError: 'Gemeinden konnten nicht geladen werden.',
+    villageDataLoadError: 'Gemeindedaten konnten nicht geladen werden.',
+    villageLoading: 'Gemeindedaten werden geladen...',
+    noSensors: 'Keine Sensoren verfuegbar.',
+    noReadings: 'Keine Messwerte',
+    noWeather: 'Keine Wetterdaten verfuegbar.',
+    weatherValue: 'Wetterwert',
+    noMessages: 'Keine Nachrichten vorhanden.',
+    noRideshare: 'Keine Mitfahrbank-Daten vorhanden.',
+    onePerson: 'Person',
+    manyPeople: 'Personen',
+    waiting: 'wartend',
+    noTextile: 'Keine Containerdaten verfuegbar.',
+    textileFallback: 'Container',
+    noVillageFooter: 'nicht ausgewaehlt',
+    footerVillage: 'Gemeinde',
+    settings: {
+      villageTitle: 'Gemeinde',
+      villageSelectLabel: 'Gemeinde auswaehlen',
+      selectPlaceholder: 'Bitte auswaehlen',
+      languageTitle: 'Sprache',
+      languageLabel: 'Anzeigesprache',
+      designTitle: 'Farbschema',
+      designHint: 'Wird automatisch gespeichert und beim naechsten Besuch wiederhergestellt.',
+      themeMode: 'Theme-Modus',
+      themeLight: 'Hell',
+      themeDark: 'Dunkel',
+      contrast: 'Kontrast',
+      contrastStandard: 'Standard',
+      contrastHigh: 'Hoch',
+      currentVillage: 'Aktuelle Gemeinde',
+      active: 'Aktiv',
+      inactive: 'Deaktiviert',
+      supportTitle: 'Mitmachen und Unterstuetzen',
+      supportHint: 'Hilf mit durch Feedback, Reichweite oder Unterstuetzung.',
+    },
+    sections: {
+      map: { label: 'Home', title: 'Startseite', heading: 'Karte' },
+      sensors: { label: 'Sensoren', title: 'Sensoren', heading: 'Sensoren' },
+      weather: { label: 'Wetter', title: 'Wetter', heading: 'Wetter' },
+      messages: { label: 'Nachrichten', title: 'Nachrichten', heading: 'Nachrichten' },
+      rideshare: { label: 'Mitfahrbank', title: 'Mitfahrbaenke', heading: 'Mitfahrbaenke' },
+      events: { label: 'Events', title: 'Veranstaltungen', heading: 'Veranstaltungen' },
+      textile: { label: 'Container', title: 'Altkleidercontainer', heading: 'Altkleidercontainer' },
+      settings: { label: 'Einstellungen', title: 'Einstellungen', heading: 'Einstellungen' },
+    },
+    modules: {
+      map: 'Karte',
+      sensorData: 'Sensordaten',
+      weather: 'Wetter',
+      messages: 'Nachrichten',
+      rideShare: 'Mitfahrbaenke',
+      events: 'Events',
+      textileContainers: 'Altkleidercontainer',
+    },
+    community: {
+      support: 'Uns unterstuetzen',
+      feedback: 'Feedback senden',
+      newsletter: 'Newsletter',
+      volunteer: 'Mitmachen',
+      pendingSuffix: 'bald',
+    },
+  },
+  en: {
+    appTitle: 'Smart Village User',
+    navOpen: 'Open navigation',
+    navClose: 'Close navigation',
+    navAria: 'User navigation',
+    compactInfoAria: 'Village info compact',
+    statusLabel: 'Status',
+    chooseVillage: 'Please select a village',
+    villagesLoadError: 'Villages could not be loaded.',
+    villageDataLoadError: 'Village data could not be loaded.',
+    villageLoading: 'Loading village data...',
+    noSensors: 'No sensors available.',
+    noReadings: 'No readings',
+    noWeather: 'No weather data available.',
+    weatherValue: 'Weather value',
+    noMessages: 'No messages available.',
+    noRideshare: 'No rideshare data available.',
+    onePerson: 'person',
+    manyPeople: 'people',
+    waiting: 'waiting',
+    noTextile: 'No container data available.',
+    textileFallback: 'Container',
+    noVillageFooter: 'not selected',
+    footerVillage: 'Village',
+    settings: {
+      villageTitle: 'Village',
+      villageSelectLabel: 'Select village',
+      selectPlaceholder: 'Please select',
+      languageTitle: 'Language',
+      languageLabel: 'Display language',
+      designTitle: 'Color scheme',
+      designHint: 'Saved automatically and restored on your next visit.',
+      themeMode: 'Theme mode',
+      themeLight: 'Light',
+      themeDark: 'Dark',
+      contrast: 'Contrast',
+      contrastStandard: 'Standard',
+      contrastHigh: 'High',
+      currentVillage: 'Current village',
+      active: 'Active',
+      inactive: 'Disabled',
+      supportTitle: 'Join and support',
+      supportHint: 'Help with feedback, outreach, or support.',
+    },
+    sections: {
+      map: { label: 'Home', title: 'Home', heading: 'Map' },
+      sensors: { label: 'Sensors', title: 'Sensors', heading: 'Sensors' },
+      weather: { label: 'Weather', title: 'Weather', heading: 'Weather' },
+      messages: { label: 'Messages', title: 'Messages', heading: 'Messages' },
+      rideshare: { label: 'Rideshare', title: 'Rideshare benches', heading: 'Rideshare benches' },
+      events: { label: 'Events', title: 'Events', heading: 'Events' },
+      textile: { label: 'Containers', title: 'Textile containers', heading: 'Textile containers' },
+      settings: { label: 'Settings', title: 'Settings', heading: 'Settings' },
+    },
+    modules: {
+      map: 'Map',
+      sensorData: 'Sensor data',
+      weather: 'Weather',
+      messages: 'Messages',
+      rideShare: 'Rideshare benches',
+      events: 'Events',
+      textileContainers: 'Textile containers',
+    },
+    community: {
+      support: 'Support us',
+      feedback: 'Send feedback',
+      newsletter: 'Newsletter',
+      volunteer: 'Get involved',
+      pendingSuffix: 'soon',
+    },
+  },
+  fr: {
+    appTitle: 'Smart Village User',
+    navOpen: 'Ouvrir la navigation',
+    navClose: 'Fermer la navigation',
+    navAria: 'Navigation utilisateur',
+    compactInfoAria: 'Informations compactes de la commune',
+    statusLabel: 'Statut',
+    chooseVillage: 'Veuillez choisir une commune',
+    villagesLoadError: 'Impossible de charger les communes.',
+    villageDataLoadError: 'Impossible de charger les donnees de la commune.',
+    villageLoading: 'Chargement des donnees de la commune...',
+    noSensors: 'Aucun capteur disponible.',
+    noReadings: 'Aucune mesure',
+    noWeather: 'Aucune donnee meteo disponible.',
+    weatherValue: 'Valeur meteo',
+    noMessages: 'Aucun message disponible.',
+    noRideshare: 'Aucune donnee de covoiturage disponible.',
+    onePerson: 'personne',
+    manyPeople: 'personnes',
+    waiting: 'en attente',
+    noTextile: 'Aucune donnee de conteneur disponible.',
+    textileFallback: 'Conteneur',
+    noVillageFooter: 'non selectionnee',
+    footerVillage: 'Commune',
+    settings: {
+      villageTitle: 'Commune',
+      villageSelectLabel: 'Choisir une commune',
+      selectPlaceholder: 'Veuillez choisir',
+      languageTitle: 'Langue',
+      languageLabel: "Langue d'affichage",
+      designTitle: 'Theme visuel',
+      designHint: 'Enregistre automatiquement et restaure a la prochaine visite.',
+      themeMode: 'Mode du theme',
+      themeLight: 'Clair',
+      themeDark: 'Sombre',
+      contrast: 'Contraste',
+      contrastStandard: 'Standard',
+      contrastHigh: 'Eleve',
+      currentVillage: 'Commune active',
+      active: 'Actif',
+      inactive: 'Desactive',
+      supportTitle: 'Participer et soutenir',
+      supportHint: 'Aidez via vos retours, votre reseau ou votre soutien.',
+    },
+    sections: {
+      map: { label: 'Accueil', title: 'Accueil', heading: 'Carte' },
+      sensors: { label: 'Capteurs', title: 'Capteurs', heading: 'Capteurs' },
+      weather: { label: 'Meteo', title: 'Meteo', heading: 'Meteo' },
+      messages: { label: 'Messages', title: 'Messages', heading: 'Messages' },
+      rideshare: { label: 'Covoiturage', title: 'Bancs de covoiturage', heading: 'Bancs de covoiturage' },
+      events: { label: 'Evenements', title: 'Evenements', heading: 'Evenements' },
+      textile: { label: 'Conteneurs', title: 'Conteneurs textiles', heading: 'Conteneurs textiles' },
+      settings: { label: 'Parametres', title: 'Parametres', heading: 'Parametres' },
+    },
+    modules: {
+      map: 'Carte',
+      sensorData: 'Donnees capteurs',
+      weather: 'Meteo',
+      messages: 'Messages',
+      rideShare: 'Bancs de covoiturage',
+      events: 'Evenements',
+      textileContainers: 'Conteneurs textiles',
+    },
+    community: {
+      support: 'Nous soutenir',
+      feedback: 'Envoyer un retour',
+      newsletter: 'Newsletter',
+      volunteer: 'Participer',
+      pendingSuffix: 'bientot',
+    },
+  },
+}
+
+const PUBLIC_COMMUNITY_LINKS = [
+  {
+    id: 'support',
+    href: import.meta.env?.VITE_PUBLIC_SUPPORT_URL || '#',
+  },
+  {
+    id: 'feedback',
+    href: import.meta.env?.VITE_PUBLIC_FEEDBACK_URL || '#',
+  },
+  {
+    id: 'newsletter',
+    href: import.meta.env?.VITE_PUBLIC_NEWSLETTER_URL || '#',
+  },
+  {
+    id: 'volunteer',
+    href: import.meta.env?.VITE_PUBLIC_VOLUNTEER_URL || '#',
+  },
+]
+
+function PublicCommunityLink({ href, label, pendingSuffix }) {
+  const isPlaceholder = !href || href === '#'
+  if (isPlaceholder) {
+    return <span className="public-community-link is-pending">{label} ({pendingSuffix})</span>
+  }
+
+  const isExternal = /^https?:\/\//i.test(href)
+  return (
+    <a
+      className="public-community-link"
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noreferrer' : undefined}
+    >
+      {label}
+    </a>
+  )
+}
+
 const DEFAULT_PREFS = {
+  language: 'de',
   themeMode: 'light',
   contrast: 'standard',
   iconSet: 'default',
 }
 
-const USER_SECTIONS = [
-  { id: 'map', label: 'Home', title: 'Startseite' },
-  { id: 'sensors', label: 'Sensoren', title: 'Sensoren' },
-  { id: 'weather', label: 'Wetter', title: 'Wetter' },
-  { id: 'messages', label: 'Nachrichten', title: 'Nachrichten' },
-  { id: 'rideshare', label: 'Mitfahrbank', title: 'Mitfahrbaenke' },
-  { id: 'events', label: 'Events', title: 'Veranstaltungen' },
-  { id: 'textile', label: 'Container', title: 'Altkleidercontainer' },
-  { id: 'settings', label: 'Einstellungen', title: 'Einstellungen' },
-]
-
-const DEPARTURE_PLACEHOLDERS = [
-  {
-    id: 'dep-1',
-    line: 'RE 7',
-    destination: 'Freiburg (Breisgau) Hbf',
-    time: 'In 6 min',
-    platform: 'Gleis 2',
-  },
-  {
-    id: 'dep-2',
-    line: 'RB 26',
-    destination: 'Basel Bad Bf',
-    time: 'In 14 min',
-    platform: 'Gleis 1',
-  },
-  {
-    id: 'dep-3',
-    line: 'S5',
-    destination: 'Lahr (Schwarzwald)',
-    time: 'In 21 min',
-    platform: 'Gleis 3',
-  },
-]
+const DEPARTURE_PLACEHOLDERS_BY_LOCALE = {
+  de: [
+    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'In 6 min', platform: 'Gleis 2' },
+    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'In 14 min', platform: 'Gleis 1' },
+    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'In 21 min', platform: 'Gleis 3' },
+  ],
+  en: [
+    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'In 6 min', platform: 'Platform 2' },
+    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'In 14 min', platform: 'Platform 1' },
+    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'In 21 min', platform: 'Platform 3' },
+  ],
+  fr: [
+    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'Dans 6 min', platform: 'Voie 2' },
+    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'Dans 14 min', platform: 'Voie 1' },
+    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'Dans 21 min', platform: 'Voie 3' },
+  ],
+}
 
 function loadPublicPrefs() {
   try {
@@ -107,7 +352,24 @@ function UserNavIcon({ sectionId }) {
   )
 }
 
+function buildUserSections(text) {
+  return [
+    { id: 'map', label: text.sections.map.label, title: text.sections.map.title },
+    { id: 'sensors', label: text.sections.sensors.label, title: text.sections.sensors.title },
+    { id: 'weather', label: text.sections.weather.label, title: text.sections.weather.title },
+    { id: 'messages', label: text.sections.messages.label, title: text.sections.messages.title },
+    { id: 'rideshare', label: text.sections.rideshare.label, title: text.sections.rideshare.title },
+    { id: 'events', label: text.sections.events.label, title: text.sections.events.title },
+    { id: 'textile', label: text.sections.textile.label, title: text.sections.textile.title },
+    { id: 'settings', label: text.sections.settings.label, title: text.sections.settings.title },
+  ]
+}
+
 export default function PublicDashboardView({ initialVillageId = null }) {
+  const headerRef = useRef(null)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [mobileHeaderHeight, setMobileHeaderHeight] = useState(0)
+
   const [villages, setVillages] = useState([])
   const [isVillagesLoading, setIsVillagesLoading] = useState(true)
   const [villagesError, setVillagesError] = useState(null)
@@ -123,6 +385,32 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const [villageError, setVillageError] = useState(null)
 
   const [prefs, setPrefs] = useState(() => loadPublicPrefs())
+  const locale = DATE_LOCALES[prefs.language] ? prefs.language : 'de'
+  const text = I18N[locale]
+  const userSections = useMemo(() => buildUserSections(text), [text])
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const nextHeight = Math.round(headerRef.current?.getBoundingClientRect().height || 0)
+      setMobileHeaderHeight(nextHeight)
+    }
+
+    updateHeaderHeight()
+
+    let resizeObserver = null
+    if (typeof ResizeObserver !== 'undefined' && headerRef.current) {
+      resizeObserver = new ResizeObserver(updateHeaderHeight)
+      resizeObserver.observe(headerRef.current)
+    }
+
+    window.addEventListener('resize', updateHeaderHeight)
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
+      window.removeEventListener('resize', updateHeaderHeight)
+    }
+  }, [])
 
   useEffect(() => {
     applyThemeToDOM(getThemeClass(prefs.themeMode, prefs.contrast))
@@ -140,7 +428,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
         }
       } catch (error) {
         if (!cancelled) {
-          setVillagesError(error.message || 'Gemeinden konnten nicht geladen werden.')
+          setVillagesError(error.message || text.villagesLoadError)
         }
       } finally {
         if (!cancelled) {
@@ -153,7 +441,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [text.villagesLoadError])
 
   useEffect(() => {
     if (isVillagesLoading || villages.length === 0) return
@@ -206,7 +494,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
         }
       } catch (error) {
         if (!cancelled) {
-          setVillageError(error.message || 'Gemeindedaten konnten nicht geladen werden.')
+          setVillageError(error.message || text.villageDataLoadError)
           setConfig(null)
           setInitialData(null)
         }
@@ -221,7 +509,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     return () => {
       cancelled = true
     }
-  }, [selectedVillageId])
+  }, [selectedVillageId, text.villageDataLoadError])
 
   const selectedVillage = useMemo(
     () => villages.find((village) => String(village.villageId) === selectedVillageId) || null,
@@ -255,10 +543,10 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
   const enabledSections = useMemo(() => {
     if (!selectedVillageId || !config) {
-      return USER_SECTIONS
+      return userSections
     }
 
-    return USER_SECTIONS.filter((section) => {
+    return userSections.filter((section) => {
       if (section.id === 'map') return features.map !== false
       if (section.id === 'sensors') return features.sensorData !== false
       if (section.id === 'weather') return features.weather === true
@@ -268,7 +556,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       if (section.id === 'textile') return features.textileContainers === true
       return true
     })
-  }, [selectedVillageId, config, features])
+  }, [selectedVillageId, config, features, userSections])
 
   useEffect(() => {
     if (!enabledSections.some((section) => section.id === activeSectionId)) {
@@ -304,15 +592,46 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   }, [selectedVillageId])
 
   const activeSection = useMemo(
-    () => enabledSections.find((section) => section.id === activeSectionId) || enabledSections[0] || USER_SECTIONS[0],
-    [enabledSections, activeSectionId]
+    () => enabledSections.find((section) => section.id === activeSectionId) || enabledSections[0] || userSections[0],
+    [enabledSections, activeSectionId, userSections]
   )
+
+  const assistantContext = useMemo(
+    () => ({
+      view: 'public',
+      villageName: selectedVillage?.name || config?.name || '',
+      statusText: villageStatusText,
+      infoText: villageInfoText,
+      sensors: liveSensors,
+      modules: {
+        map: features.map !== false,
+        sensorData: features.sensorData !== false,
+        weather: features.weather === true,
+        messages: features.messages !== false,
+        rideShare: features.rideShare !== false,
+        events: features.events === true,
+        textileContainers: features.textileContainers === true,
+      },
+      activeSectionId,
+    }),
+    [
+      selectedVillage,
+      config,
+      villageStatusText,
+      villageInfoText,
+      liveSensors,
+      features,
+      activeSectionId,
+    ]
+  )
+
+  const departurePlaceholders = DEPARTURE_PLACEHOLDERS_BY_LOCALE[locale] || DEPARTURE_PLACEHOLDERS_BY_LOCALE.de
 
   const renderTabContent = () => {
     if (!selectedVillageId) {
       return (
         <section className="public-dashboard-empty">
-          <h3>Bitte Gemeinde auswaehlen</h3>
+          <h3>{text.chooseVillage}</h3>
         </section>
       )
     }
@@ -320,7 +639,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (isVillageLoading) {
       return (
         <section className="public-loading">
-          <p>Gemeindedaten werden geladen...</p>
+          <p>{text.villageLoading}</p>
         </section>
       )
     }
@@ -336,12 +655,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'map') {
       return (
         <section className="village-section village-map-section">
-          <h3>Karte</h3>
+          <h3>{text.sections.map.heading}</h3>
           <PublicMapPanel
             zipCode={config?.postalCode?.zipCode}
             city={config?.postalCode?.city}
             sensors={liveSensors}
             rideshares={rideshares}
+            locale={locale}
           />
         </section>
       )
@@ -350,9 +670,9 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'sensors') {
       return (
         <section className="village-section">
-          <h3>Sensoren</h3>
+          <h3>{text.sections.sensors.heading}</h3>
           {liveSensors.length === 0 ? (
-            <p className="village-section-empty">Keine Sensoren verfuegbar.</p>
+            <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
               {liveSensors.map((sensor) => (
@@ -365,7 +685,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                       <span className="sensor-card-unit">{sensor.unit}</span>
                     </div>
                   ) : (
-                    <p className="sensor-card-no-data">Keine Messwerte</p>
+                    <p className="sensor-card-no-data">{text.noReadings}</p>
                   )}
                   {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
                     <p className="sensor-card-coords">
@@ -383,14 +703,14 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'weather') {
       return (
         <section className="village-section">
-          <h3>Wetter</h3>
+          <h3>{text.sections.weather.heading}</h3>
           {weatherEntries.length === 0 ? (
-            <p className="village-section-empty">Keine Wetterdaten verfuegbar.</p>
+            <p className="village-section-empty">{text.noWeather}</p>
           ) : (
             <div className="sensor-card-grid">
               {weatherEntries.map((entry) => (
                 <div key={entry.id || entry.label} className="sensor-card">
-                  <h4 className="sensor-card-name">{entry.label || 'Wetterwert'}</h4>
+                  <h4 className="sensor-card-name">{entry.label || text.weatherValue}</h4>
                   <div className="sensor-card-reading">
                     <span className="sensor-card-value">{entry.value}</span>
                     <span className="sensor-card-unit">{entry.unit || ''}</span>
@@ -406,15 +726,15 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'messages') {
       return (
         <section className="village-section">
-          <h3>Nachrichten</h3>
+          <h3>{text.sections.messages.heading}</h3>
           {messages.length === 0 ? (
-            <p className="village-section-empty">Keine Nachrichten vorhanden.</p>
+            <p className="village-section-empty">{text.noMessages}</p>
           ) : (
             <ul className="message-list">
               {messages.map((msg) => (
                 <li key={msg.id} className={`message-item message-priority-${msg.priority}`}>
                   <p className="message-text">{msg.text}</p>
-                  <time className="message-time">{new Date(msg.createdAt).toLocaleString('de-DE')}</time>
+                  <time className="message-time">{new Date(msg.createdAt).toLocaleString(DATE_LOCALES[locale])}</time>
                 </li>
               ))}
             </ul>
@@ -426,9 +746,9 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'rideshare') {
       return (
         <section className="village-section">
-          <h3>Mitfahrbaenke</h3>
+          <h3>{text.sections.rideshare.heading}</h3>
           {rideshares.length === 0 ? (
-            <p className="village-section-empty">Keine Mitfahrbank-Daten vorhanden.</p>
+            <p className="village-section-empty">{text.noRideshare}</p>
           ) : (
             <div className="rideshare-card-grid">
               {rideshares.map((rs) => (
@@ -436,7 +756,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                   <h4 className="rideshare-card-name">{rs.name}</h4>
                   {rs.description ? <p className="rideshare-card-description">{rs.description}</p> : null}
                   <p className="rideshare-card-count">
-                    {rs.personCount} {rs.personCount === 1 ? 'Person' : 'Personen'} wartend
+                    {rs.personCount} {rs.personCount === 1 ? text.onePerson : text.manyPeople} {text.waiting}
                     {rs.maxCapacity != null ? ` (max. ${rs.maxCapacity})` : ''}
                   </p>
                 </div>
@@ -450,10 +770,10 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'events') {
       return (
         <section className="village-section public-events-panel">
-          <h3>Veranstaltungen</h3>
+          <h3>{text.sections.events.heading}</h3>
           {events.length === 0 ? (
             <div className="public-departure-grid">
-              {DEPARTURE_PLACEHOLDERS.map((departure) => (
+              {departurePlaceholders.map((departure) => (
                 <article key={departure.id} className="public-departure-card">
                   <span className="public-departure-line">{departure.line}</span>
                   <h4>{departure.destination}</h4>
@@ -468,7 +788,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                 <li key={event.id} className="message-item message-priority-normal">
                   <p className="message-text">{event.title || event.name || 'Event'}</p>
                   {event.startAt ? (
-                    <time className="message-time">{new Date(event.startAt).toLocaleString('de-DE')}</time>
+                    <time className="message-time">{new Date(event.startAt).toLocaleString(DATE_LOCALES[locale])}</time>
                   ) : null}
                 </li>
               ))}
@@ -481,14 +801,14 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'textile') {
       return (
         <section className="village-section">
-          <h3>Altkleidercontainer</h3>
+          <h3>{text.sections.textile.heading}</h3>
           {textileContainers.length === 0 ? (
-            <p className="village-section-empty">Keine Containerdaten verfuegbar.</p>
+            <p className="village-section-empty">{text.noTextile}</p>
           ) : (
             <div className="rideshare-card-grid">
               {textileContainers.map((container) => (
                 <div key={container.id} className="rideshare-card">
-                  <h4 className="rideshare-card-name">{container.name || 'Container'}</h4>
+                  <h4 className="rideshare-card-name">{container.name || text.textileFallback}</h4>
                   {container.description ? <p className="rideshare-card-description">{container.description}</p> : null}
                 </div>
               ))}
@@ -501,15 +821,56 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id === 'settings') {
       return (
         <section className="village-section public-settings-panel">
+          <section className="public-settings-block">
+            <h3>{text.settings.villageTitle}</h3>
+            <div className="public-village-picker public-village-picker--settings">
+              <label htmlFor="public-village-select-settings">{text.settings.villageSelectLabel}</label>
+              <select
+                id="public-village-select-settings"
+                value={selectedVillageId}
+                onChange={(event) => setSelectedVillageId(event.target.value)}
+                disabled={isVillagesLoading}
+              >
+                <option value="">{text.settings.selectPlaceholder}</option>
+                {villages.map((village) => (
+                  <option key={village.villageId} value={String(village.villageId)}>
+                    {village.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </section>
+
+          <section className="public-settings-block">
+            <h3>{text.settings.languageTitle}</h3>
+            <div className="public-village-picker public-village-picker--settings">
+              <label htmlFor="public-language-select">{text.settings.languageLabel}</label>
+              <select
+                id="public-language-select"
+                value={locale}
+                onChange={(event) =>
+                  setPrefs((current) => ({
+                    ...current,
+                    language: event.target.value,
+                  }))
+                }
+              >
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="fr">Francais</option>
+              </select>
+            </div>
+          </section>
+
           <section className="design-card">
             <div className="design-card-header">
-              <h3 className="design-card-title">Farbschema</h3>
-              <p className="design-card-hint">Wird automatisch gespeichert und beim naechsten Besuch wiederhergestellt.</p>
+              <h3 className="design-card-title">{text.settings.designTitle}</h3>
+              <p className="design-card-hint">{text.settings.designHint}</p>
             </div>
             <div className="design-card-fields">
               <div className="design-select-field">
-                <span className="design-select-label">Theme-Modus</span>
-                <div className="design-toggle-group" role="group" aria-label="Theme-Modus">
+                <span className="design-select-label">{text.settings.themeMode}</span>
+                <div className="design-toggle-group" role="group" aria-label={text.settings.themeMode}>
                   <button
                     type="button"
                     className={`design-toggle-btn${prefs.themeMode === 'light' ? ' is-active' : ''}`}
@@ -521,7 +882,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                     }
                     aria-pressed={prefs.themeMode === 'light'}
                   >
-                    Hell
+                    {text.settings.themeLight}
                   </button>
                   <button
                     type="button"
@@ -534,13 +895,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                     }
                     aria-pressed={prefs.themeMode === 'dark'}
                   >
-                    Dunkel
+                    {text.settings.themeDark}
                   </button>
                 </div>
               </div>
               <div className="design-select-field">
-                <span className="design-select-label">Kontrast</span>
-                <div className="design-toggle-group" role="group" aria-label="Kontrast">
+                <span className="design-select-label">{text.settings.contrast}</span>
+                <div className="design-toggle-group" role="group" aria-label={text.settings.contrast}>
                   <button
                     type="button"
                     className={`design-toggle-btn${prefs.contrast === 'standard' ? ' is-active' : ''}`}
@@ -552,7 +913,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                     }
                     aria-pressed={prefs.contrast === 'standard'}
                   >
-                    Standard
+                    {text.settings.contrastStandard}
                   </button>
                   <button
                     type="button"
@@ -565,7 +926,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                     }
                     aria-pressed={prefs.contrast === 'high'}
                   >
-                    Hoch
+                    {text.settings.contrastHigh}
                   </button>
                 </div>
               </div>
@@ -573,15 +934,30 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           </section>
 
           <div className="public-settings-summary">
-            <p>Aktuelle Gemeinde: {selectedVillage?.name || '-'}</p>
-            <p>Karte: {features.map === false ? 'Deaktiviert' : 'Aktiv'}</p>
-            <p>Sensordaten: {features.sensorData === false ? 'Deaktiviert' : 'Aktiv'}</p>
-            <p>Wetter: {features.weather === true ? 'Aktiv' : 'Deaktiviert'}</p>
-            <p>Nachrichten: {features.messages === false ? 'Deaktiviert' : 'Aktiv'}</p>
-            <p>Mitfahrbaenke: {features.rideShare === false ? 'Deaktiviert' : 'Aktiv'}</p>
-            <p>Events: {features.events === true ? 'Aktiv' : 'Deaktiviert'}</p>
-            <p>Altkleidercontainer: {features.textileContainers === true ? 'Aktiv' : 'Deaktiviert'}</p>
+            <p>{text.settings.currentVillage}: {selectedVillage?.name || '-'}</p>
+            <p>{text.modules.map}: {features.map === false ? text.settings.inactive : text.settings.active}</p>
+            <p>{text.modules.sensorData}: {features.sensorData === false ? text.settings.inactive : text.settings.active}</p>
+            <p>{text.modules.weather}: {features.weather === true ? text.settings.active : text.settings.inactive}</p>
+            <p>{text.modules.messages}: {features.messages === false ? text.settings.inactive : text.settings.active}</p>
+            <p>{text.modules.rideShare}: {features.rideShare === false ? text.settings.inactive : text.settings.active}</p>
+            <p>{text.modules.events}: {features.events === true ? text.settings.active : text.settings.inactive}</p>
+            <p>{text.modules.textileContainers}: {features.textileContainers === true ? text.settings.active : text.settings.inactive}</p>
           </div>
+
+          <section className="public-settings-block">
+            <h3>{text.settings.supportTitle}</h3>
+            <p className="public-settings-hint">{text.settings.supportHint}</p>
+            <div className="public-community-links public-community-links--settings">
+              {PUBLIC_COMMUNITY_LINKS.map((link) => (
+                <PublicCommunityLink
+                  key={link.id}
+                  href={link.href}
+                  label={text.community[link.id]}
+                  pendingSuffix={text.community.pendingSuffix}
+                />
+              ))}
+            </div>
+          </section>
         </section>
       )
     }
@@ -591,29 +967,62 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
   return (
     <main className="admin-page public-user-page">
-      <header className="admin-header public-user-header">
+      <header ref={headerRef} className="admin-header public-user-header">
         <div className="admin-header-content">
           <div className="admin-header-title-row">
-            <h1>Smart Village User</h1>
+            <h1>{text.appTitle}</h1>
+            <div className="admin-header-actions-right">
+              <AiAssistantWidget
+                audience="user"
+                contextData={assistantContext}
+                placement="header"
+                launcherVariant="compact"
+                locale={locale}
+              />
+              <button
+                type="button"
+                className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}
+                aria-label={isMobileSidebarOpen ? text.navClose : text.navOpen}
+                aria-expanded={isMobileSidebarOpen}
+                aria-controls="public-sidebar"
+                onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
+              >
+                <span className="admin-sidebar-toggle-line" />
+                <span className="admin-sidebar-toggle-line" />
+                <span className="admin-sidebar-toggle-line" />
+              </button>
+            </div>
           </div>
           {selectedVillageId && (villageStatusText || villageInfoText) ? (
-            <div className="public-user-header-meta" aria-label="Dorfinformationen kompakt">
-              {villageStatusText ? <p className="public-user-header-status">Status: {villageStatusText}</p> : null}
+            <div className="public-user-header-meta" aria-label={text.compactInfoAria}>
+              {villageStatusText ? <p className="public-user-header-status">{text.statusLabel}: {villageStatusText}</p> : null}
               {villageInfoText ? <p className="public-user-header-info">{villageInfoText}</p> : null}
             </div>
           ) : null}
         </div>
       </header>
 
-      <div className="admin-layout public-user-layout">
-        <aside className="admin-sidebar public-user-sidebar">
-          <nav className="admin-nav" aria-label="Nutzer Navigation">
+      <div className="admin-layout public-user-layout" style={{ '--mobile-header-height': `${mobileHeaderHeight}px` }}>
+        {isMobileSidebarOpen ? (
+          <button
+            type="button"
+            className="admin-sidebar-backdrop"
+            aria-label={text.navClose}
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        ) : null}
+
+        <aside id="public-sidebar" className={`admin-sidebar public-user-sidebar${isMobileSidebarOpen ? ' is-open' : ''}`}>
+          <nav className="admin-nav" aria-label={text.navAria}>
             {enabledSections.map((section) => (
               <button
                 key={section.id}
                 type="button"
                 className={`admin-nav-button${activeSection.id === section.id ? ' active' : ''}`}
-                onClick={() => setActiveSectionId(section.id)}
+                onClick={() => {
+                  setActiveSectionId(section.id)
+                  setIsMobileSidebarOpen(false)
+                }}
                 aria-pressed={activeSection.id === section.id}
               >
                 <span className="admin-nav-button-content">
@@ -623,24 +1032,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               </button>
             ))}
           </nav>
-          <div className="admin-sidebar-actions public-user-sidebar-actions">
-            <div className="public-village-picker public-village-picker--sidebar">
-              <label htmlFor="public-village-select">Gemeinde</label>
-              <select
-                id="public-village-select"
-                value={selectedVillageId}
-                onChange={(event) => setSelectedVillageId(event.target.value)}
-                disabled={isVillagesLoading}
-              >
-                <option value="">Bitte auswaehlen</option>
-                {villages.map((village) => (
-                  <option key={village.villageId} value={String(village.villageId)}>
-                    {village.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
         </aside>
 
         <section className={`admin-main-content public-user-main${activeSection.id === 'map' ? ' is-map-home' : ''}`}>
@@ -660,7 +1051,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
           {activeSection.id !== 'map' ? (
             <footer className="app-footer public-user-footer">
-              Gemeinde: {selectedVillage?.name || 'nicht ausgewaehlt'}
+              {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
             </footer>
           ) : null}
         </section>

@@ -5,6 +5,7 @@ import { ADMIN_SECTIONS } from '../config/adminSections'
 import { useVillageConfig } from '../hooks/useVillageConfig'
 import DeleteAccountDialog from './DeleteAccountDialog'
 import { apiClient } from '../api/client'
+import AiAssistantWidget from './common/AiAssistantWidget'
 
 export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
@@ -82,6 +83,29 @@ export default function AdminView({ session, onLogout }) {
   const userEmail = session?.email || 'Unbekannt'
   const internalVillageId = config.meta?.id ?? '—'
 
+  const assistantContext = useMemo(() => {
+    const sensorList = config?.modules?.sensors?.sensors || []
+    const moduleFlags = {
+      map: config?.modules?.map?.enabled ?? true,
+      sensorData: config?.modules?.sensors?.enabled ?? true,
+      weather: config?.modules?.weather?.enabled ?? false,
+      messages: config?.modules?.news?.enabled ?? false,
+      events: config?.modules?.events?.enabled ?? false,
+      rideShare: config?.modules?.rideSharingBench?.enabled ?? false,
+      textileContainers: config?.modules?.oldClothesContainer?.enabled ?? false,
+    }
+
+    return {
+      view: 'admin',
+      villageName: config?.general?.villageName || '',
+      statusText: config?.general?.statusText || '',
+      infoText: config?.general?.infoText || '',
+      sensors: sensorList,
+      modules: moduleFlags,
+      activeSectionId,
+    }
+  }, [config, activeSectionId])
+
   const handleDeleteAccount = async () => {
     if (!session?.sub) return
     setDeleteLoading(true)
@@ -115,18 +139,21 @@ export default function AdminView({ session, onLogout }) {
                 Smart Village Admin
               </button>
             </h1>
-            <button
-              type="button"
-              className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}
-              aria-label={isMobileSidebarOpen ? 'Navigation schließen' : 'Navigation öffnen'}
-              aria-expanded={isMobileSidebarOpen}
-              aria-controls="admin-sidebar"
-              onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
-            >
-              <span className="admin-sidebar-toggle-line" />
-              <span className="admin-sidebar-toggle-line" />
-              <span className="admin-sidebar-toggle-line" />
-            </button>
+            <div className="admin-header-actions-right">
+              <AiAssistantWidget audience="admin" contextData={assistantContext} placement="header" />
+              <button
+                type="button"
+                className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}
+                aria-label={isMobileSidebarOpen ? 'Navigation schließen' : 'Navigation öffnen'}
+                aria-expanded={isMobileSidebarOpen}
+                aria-controls="admin-sidebar"
+                onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
+              >
+                <span className="admin-sidebar-toggle-line" />
+                <span className="admin-sidebar-toggle-line" />
+                <span className="admin-sidebar-toggle-line" />
+              </button>
+            </div>
           </div>
           <p className="admin-header-user">
             Angemeldet als <strong>{userEmail}</strong>
