@@ -14,6 +14,8 @@ import { JwtAuthGuard } from "./jwt-auth.guard";
 import { Request } from "express";
 import { VerifyEmailCodeDto } from "./dto/verify-email-code.dto";
 import { ResendVerificationDto } from "./dto/resend-verification.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -47,5 +49,17 @@ export class AuthController {
   @HttpCode(200)
   resendVerification(@Body() dto: ResendVerificationDto) {
     return this.authService.resendVerificationCode(dto.email);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("change-password")
+  @HttpCode(200)
+  changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
+    const user = req.user as { sub: number };
+    return this.authService.changePassword(
+      user.sub,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 }

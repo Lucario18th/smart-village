@@ -69,6 +69,7 @@ model Village {
   rideshares       RideShare[]
   devices          Device[]
   features         VillageFeatures?
+  villageModules   VillageModule[]
 
   @@index([accountId])
   @@index([postalCodeId])
@@ -117,6 +118,21 @@ model VillageFeatures {
   showSensorCoordinates   Boolean @default(true)
 
   village                 Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
+}
+
+/// Benutzerdefiniertes Modul einer Gemeinde, dem Sensoren zugeordnet werden koennen.
+model VillageModule {
+  id          Int       @id @default(autoincrement())
+  villageId   Int
+  name        String
+  description String?
+  isEnabled   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  village     Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  sensors     Sensor[]  @relation("VillageModuleSensors")
+
+  @@index([villageId])
 }
 
 model PostalCode {
@@ -179,6 +195,7 @@ model Sensor {
   sensorType   SensorType    @relation(fields: [sensorTypeId], references: [id])
   status       SensorStatus?
   readings     SensorReading[]
+  villageModules VillageModule[] @relation("VillageModuleSensors")
 
   @@index([villageId])
   @@index([deviceId])
