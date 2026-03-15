@@ -69,7 +69,7 @@ fun SplashScreen(backStack: NavBackStack<NavKey>, viewModel: SplashScreenViewMod
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Bitte waehle dein Dorf aus:",
+                text = "Bitte wähle dein Dorf aus:",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 6.dp, bottom = 12.dp)

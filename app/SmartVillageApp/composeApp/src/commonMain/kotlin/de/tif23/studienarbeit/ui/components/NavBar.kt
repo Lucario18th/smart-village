@@ -51,7 +51,11 @@ fun NavBar(backStack: NavBackStack<NavKey>, currentTab: NavBarTabs) {
         )
         NavigationBarItem(
             selected = currentTab == NavBarTabs.SETTINGS,
-            onClick = { },
+            onClick = {
+                if (currentTab != NavBarTabs.SETTINGS) {
+                    backStack.add(NavDestinations.SettingsScreen)
+                }
+            },
             icon = {
                 Icon(
                     painterResource(Res.drawable.settings),

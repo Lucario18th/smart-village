@@ -18,6 +18,7 @@ import de.tif23.studienarbeit.ui.screens.RideOfferScreen
 import de.tif23.studienarbeit.ui.screens.RidesharePointDetailScreen
 import de.tif23.studienarbeit.ui.screens.SensorDetailScreen
 import de.tif23.studienarbeit.ui.screens.SensorsScreen
+import de.tif23.studienarbeit.ui.screens.SettingsScreen
 import de.tif23.studienarbeit.ui.screens.SplashScreen
 import de.tif23.studienarbeit.ui.screens.StationDeparturesScreen
 import de.tif23.studienarbeit.ui.theme.SmartVillageTheme
@@ -91,7 +92,7 @@ fun App() {
                 }
 
                 entry<NavDestinations.SettingsScreen> {
-
+                    SettingsScreen(backStack = backStack)
                 }
 
                 entry<NavDestinations.NotificationsScreen> {
