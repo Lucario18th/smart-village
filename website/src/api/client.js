@@ -4,6 +4,32 @@
  */
 
 const API_BASE_URL = '/api'; // Nginx leitet /api/* zu Backend durch
+const SESSION_KEY = 'smart-village-admin-session';
+const TOKEN_KEY = 'access_token';
+
+function getActiveToken() {
+  try {
+    const rawSession = localStorage.getItem(SESSION_KEY);
+    if (!rawSession) {
+      localStorage.removeItem(TOKEN_KEY);
+      return null;
+    }
+
+    const parsedSession = JSON.parse(rawSession);
+    const expiresAt = Date.parse(parsedSession?.idleExpiresAt || '');
+    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      return null;
+    }
+
+    return parsedSession.token || null;
+  } catch {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    return null;
+  }
+}
 
 export const apiClient = {
   async request(method, endpoint, data = null) {
@@ -17,7 +43,7 @@ export const apiClient = {
     };
 
     // Token aus localStorage hinzufügen falls vorhanden
-    const token = localStorage.getItem('access_token');
+    const token = getActiveToken();
     if (token) {
       options.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -191,6 +217,19 @@ export const apiClient = {
         to,
       });
       return apiClient.request('GET', `/sensor-readings/${sensorId}/summary?${params}`);
+    },
+  },
+
+  // Public App-API Endpoints (no auth required)
+  appApi: {
+    getVillages() {
+      return apiClient.request('GET', '/app/villages');
+    },
+    getVillageConfig(villageId) {
+      return apiClient.request('GET', `/app/villages/${villageId}/config`);
+    },
+    getVillageInitialData(villageId) {
+      return apiClient.request('GET', `/app/villages/${villageId}/initial-data`);
     },
   },
 

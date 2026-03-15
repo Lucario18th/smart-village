@@ -609,3 +609,141 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 	.map-frame{order:1;min-height:320px;height:auto}
 	.map-legend-overlay{right:8px;bottom:8px;max-width:min(80%,320px)}
 }
+
+/* ─── Public UI ─── */
+.public-page{min-height:100vh;display:flex;flex-direction:column;background:var(--md-sys-color-background);color:var(--md-sys-color-on-background)}
+.public-header{background:color-mix(in srgb, var(--md-sys-color-surface) 92%, transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);position:sticky;top:0;z-index:20}
+.public-header-content{display:flex;align-items:center;justify-content:space-between;max-width:960px;margin:0 auto;padding:12px 20px}
+.public-header-title{font-size:18px;font-weight:800;color:var(--md-sys-color-primary);text-decoration:none;letter-spacing:-.02em}
+.public-header-title:hover{color:color-mix(in srgb, var(--md-sys-color-primary) 82%, #000)}
+.public-header-nav{display:flex;gap:12px;align-items:center}
+.public-header-admin-link{font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface-variant);text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);transition:background .15s ease,color .15s ease}
+.public-header-admin-link:hover{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.public-main{flex:1;max-width:960px;width:100%;margin:0 auto;padding:24px 20px}
+.public-main--full{max-width:none;margin:0;padding:0;height:100vh;overflow:hidden}
+.public-footer{text-align:center;padding:18px 20px;font-size:13px;color:var(--md-sys-color-on-surface-variant);border-top:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent)}
+.public-footer p{margin:0}
+.public-loading,.public-error,.public-empty{text-align:center;padding:48px 20px;color:var(--md-sys-color-on-surface-variant)}
+.public-error{color:var(--md-sys-color-error)}
+.public-back-link{display:inline-block;font-size:14px;font-weight:600;color:var(--md-sys-color-primary);text-decoration:none;margin-bottom:16px}
+.public-back-link:hover{text-decoration:underline}
+
+.public-dashboard{display:grid;gap:14px}
+.public-dashboard-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:14px}
+.public-village-picker{display:grid;gap:6px;justify-items:end}
+.public-village-picker label{font-size:12px;font-weight:700;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:.06em}
+.public-village-picker select{min-width:230px;padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 42%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
+.public-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border-radius:12px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 82%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 20%, transparent)}
+.public-tab-button{padding:8px 13px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--md-sys-color-on-surface-variant);font-weight:700;cursor:pointer;transition:background .16s ease,color .16s ease,border-color .16s ease}
+.public-tab-button:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 50%, transparent);color:var(--md-sys-color-on-surface)}
+.public-tab-button.active{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);border-color:color-mix(in srgb, var(--md-sys-color-primary) 36%, transparent)}
+.public-tab-content{min-height:260px}
+.public-dashboard-empty{padding:28px 20px;border-radius:12px;border:1px dashed color-mix(in srgb, var(--md-sys-color-outline) 42%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 65%, transparent);text-align:center}
+.public-dashboard-empty h3{margin:0 0 8px;color:var(--md-sys-color-primary)}
+.public-dashboard-empty p{margin:0;color:var(--md-sys-color-on-surface-variant)}
+.public-info-grid{display:grid;gap:12px}
+.public-settings-panel .admin-form-grid{margin-top:8px}
+.public-settings-summary{margin-top:10px;display:grid;gap:4px}
+.public-settings-summary p{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.public-departures-panel .design-hint{margin-bottom:10px}
+.public-departure-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.public-departure-card{padding:14px;border-radius:11px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent);display:grid;gap:5px}
+.public-departure-line{display:inline-flex;align-items:center;justify-content:center;width:max-content;padding:3px 8px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 72%, transparent);color:var(--md-sys-color-on-primary-container);font-size:11px;font-weight:800;letter-spacing:.04em}
+.public-departure-card h4{margin:0;color:var(--md-sys-color-on-surface)}
+.public-departure-card p{margin:0;font-weight:700;color:var(--md-sys-color-primary)}
+.public-departure-card small{color:var(--md-sys-color-on-surface-variant)}
+
+.public-user-page{padding:0}
+.public-user-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:14px;margin-bottom:14px}
+.public-village-picker--header{margin-top:4px}
+.public-user-layout{grid-template-columns:220px minmax(0,1fr)}
+.public-user-sidebar{display:flex;padding:8px 12px 0 0;min-height:0}
+.public-user-main{padding-top:8px;min-height:0}
+.public-user-main .village-section{max-width:none}
+.public-user-main .public-dashboard-empty{margin-top:8px}
+.public-user-main .public-loading,
+.public-user-main .public-error{padding:26px 16px}
+.public-user-footer{margin-top:20px}
+
+@media (min-width: 901px){
+	.public-page{height:100vh;overflow:hidden}
+	.public-main--full{height:100vh;overflow:hidden}
+	.public-user-page{height:100%;padding:0 10px 10px;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+	.public-user-layout{height:100%;min-height:0}
+	.public-user-main.is-map-home{padding:0 8px 0 0;overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr)}
+	.public-user-main.is-map-home .village-map-section{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;padding:12px}
+	.public-user-main.is-map-home .village-map-section .map-panel{height:100%;min-height:0}
+	.public-user-main.is-map-home .map-layout{height:100%;min-height:0}
+	.public-user-main.is-map-home .map-frame{height:100%;min-height:0}
+}
+
+/* Village list */
+.village-list-title{margin:0 0 4px;font-size:clamp(24px,3.5vw,32px);color:var(--md-sys-color-on-background);letter-spacing:-.02em}
+.village-list-subtitle{margin:0 0 20px;color:var(--md-sys-color-on-surface-variant);font-size:15px}
+.village-card-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.village-card{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:14px;text-decoration:none;color:var(--md-sys-color-on-surface);background:color-mix(in srgb, var(--md-sys-color-surface) 82%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.village-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);border-color:var(--md-sys-color-primary)}
+.village-card-name{margin:0;font-size:18px;font-weight:700;color:var(--md-sys-color-primary)}
+.village-card-location,.village-card-postal{margin:0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.village-card-meta{display:flex;gap:8px;align-items:center;margin-top:4px}
+.village-card-sensor-count{font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface-variant);padding:3px 8px;border-radius:6px;background:color-mix(in srgb, var(--md-sys-color-secondary-container) 64%, transparent)}
+.village-card-features{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.feature-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 72%, transparent);color:var(--md-sys-color-on-primary-container)}
+.village-card-action{margin-top:auto;font-size:14px;font-weight:700;color:var(--md-sys-color-primary)}
+
+/* Village detail */
+.village-detail{display:flex;flex-direction:column;gap:20px}
+.village-detail-header{display:flex;flex-direction:column;gap:4px}
+.village-detail-name{margin:0;font-size:clamp(24px,3.5vw,32px);color:var(--md-sys-color-primary);letter-spacing:-.02em}
+.village-detail-location,.village-detail-postal{margin:0;font-size:15px;color:var(--md-sys-color-on-surface-variant)}
+.village-section{padding:16px 18px;border-radius:14px;background:color-mix(in srgb, var(--md-sys-color-surface) 82%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 22%, transparent)}
+.village-section h3{margin:0 0 12px;font-size:18px;color:var(--md-sys-color-on-surface)}
+.village-section-disabled{background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 60%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent)}
+.village-section-empty{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
+.disabled-message{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px;font-style:italic}
+.village-map-section .map-panel{height:500px}
+.public-map-panel .map-tree h3{font-size:24px}
+
+/* Sensor cards */
+.sensor-card-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.sensor-card{padding:14px;border-radius:11px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent);display:flex;flex-direction:column;gap:4px}
+.sensor-card-name{margin:0;font-size:15px;font-weight:700;color:var(--md-sys-color-on-surface)}
+.sensor-card-type{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-card-description{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-card-reading{display:flex;align-items:baseline;gap:4px;margin-top:6px}
+.sensor-card-value{font-size:22px;font-weight:800;color:var(--md-sys-color-primary)}
+.sensor-card-unit{font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+.sensor-card-no-data{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
+.sensor-card-coords{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+
+/* Messages */
+.message-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.message-item{padding:12px 14px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 14%, transparent)}
+.message-priority-high{border-left:3px solid var(--md-sys-color-error)}
+.message-text{margin:0;font-size:14px;color:var(--md-sys-color-on-surface)}
+.message-time{display:block;margin-top:4px;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+
+/* Rideshare cards */
+.rideshare-card-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.rideshare-card{padding:14px;border-radius:11px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent);display:flex;flex-direction:column;gap:4px}
+.rideshare-card-name{margin:0;font-size:15px;font-weight:700;color:var(--md-sys-color-on-surface)}
+.rideshare-card-description{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.rideshare-card-count{margin:0;font-size:14px;font-weight:600;color:var(--md-sys-color-primary)}
+
+@media (max-width: 640px){
+  .public-header-content{padding:10px 14px}
+  .public-main{padding:16px 14px}
+	.public-main--full{height:auto;overflow:visible}
+	.public-dashboard-header{grid-template-columns:1fr}
+	.public-village-picker{justify-items:stretch}
+	.public-village-picker select{min-width:0;width:100%}
+	.public-user-header{grid-template-columns:1fr}
+	.public-village-picker--header{justify-items:stretch;width:100%}
+	.public-user-layout{grid-template-columns:1fr}
+	.public-user-sidebar{padding:0}
+  .village-card-grid{grid-template-columns:1fr}
+  .sensor-card-grid{grid-template-columns:1fr}
+  .rideshare-card-grid{grid-template-columns:1fr}
+	.village-map-section .map-panel{height:auto}
+	.village-map-section .map-frame{min-height:320px}
+}

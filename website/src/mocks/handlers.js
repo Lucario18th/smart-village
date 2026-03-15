@@ -473,6 +473,124 @@ const additionalHandlers = [
 ]
 
 /**
+ * App-API handlers (public, no auth)
+ */
+const appApiHandlers = [
+  // GET /api/app/villages
+  http.get('/api/app/villages', () => {
+    const villages = Object.values(db.villages).map((v) => ({
+      villageId: v.id,
+      name: v.name,
+      locationName: v.locationName,
+      postalCode: v.postalCode
+        ? { zipCode: v.postalCode.zipCode, city: v.postalCode.city }
+        : null,
+      sensorCount: (v.sensors || []).length,
+      features: {
+        sensorData: true,
+        weather: true,
+        messages: true,
+        events: true,
+        map: true,
+        rideShare: true,
+        textileContainers: false,
+      },
+    }))
+    return HttpResponse.json(
+      { success: true, data: villages, timestamp: new Date().toISOString() },
+      { status: 200 },
+    )
+  }),
+
+  // GET /api/app/villages/:villageId/config
+  http.get('/api/app/villages/:villageId/config', ({ params }) => {
+    const village = db.villages[String(params.villageId)]
+    if (!village) {
+      return HttpResponse.json({ message: 'Village not found' }, { status: 404 })
+    }
+
+    const publicSensors = (village.sensors || [])
+      .filter((s) => s.isActive && s.receiveData)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        type: s.sensorType?.name || 'Unbekannt',
+        unit: s.sensorType?.unit || '',
+        latitude: s.latitude,
+        longitude: s.longitude,
+      }))
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          villageId: village.id,
+          name: village.name,
+          locationName: village.locationName,
+          postalCode: village.postalCode
+            ? { zipCode: village.postalCode.zipCode, city: village.postalCode.city }
+            : null,
+          features: {
+            sensorData: true,
+            weather: true,
+            messages: true,
+            events: true,
+            map: true,
+            rideShare: true,
+            textileContainers: false,
+          },
+          sensorDetailVisibility: {
+            name: true,
+            type: true,
+            description: true,
+            coordinates: true,
+          },
+          sensors: publicSensors,
+        },
+        timestamp: new Date().toISOString(),
+      },
+      { status: 200 },
+    )
+  }),
+
+  // GET /api/app/villages/:villageId/initial-data
+  http.get('/api/app/villages/:villageId/initial-data', ({ params }) => {
+    const village = db.villages[String(params.villageId)]
+    if (!village) {
+      return HttpResponse.json({ message: 'Village not found' }, { status: 404 })
+    }
+
+    const sensors = (village.sensors || [])
+      .filter((s) => s.isActive && s.receiveData)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        type: s.sensorType?.name || 'Unbekannt',
+        unit: s.sensorType?.unit || '',
+        latitude: s.latitude,
+        longitude: s.longitude,
+        lastReading: s.lastValue != null
+          ? { value: s.lastValue, ts: s.lastTs, status: s.lastStatus || 'OK' }
+          : null,
+      }))
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          villageId: village.id,
+          sensors,
+          messages: [],
+          rideshares: [],
+        },
+        timestamp: new Date().toISOString(),
+      },
+      { status: 200 },
+    )
+  }),
+]
+
+/**
  * All handlers for MSW
  */
-export const handlers = [...authHandlers, ...additionalHandlers]
+export const handlers = [...authHandlers, ...appApiHandlers, ...additionalHandlers]

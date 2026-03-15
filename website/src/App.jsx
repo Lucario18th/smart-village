@@ -1,14 +1,21 @@
 import React from 'react'
+import { Routes, Route, useParams } from 'react-router-dom'
 import AdminView from './components/AdminView'
 import LoginView from './components/LoginView'
 import RegisterView from './components/RegisterView'
 import EmailVerificationPending from './components/EmailVerificationPending'
 import EmailVerifiedView from './components/EmailVerifiedView'
+import PublicLayout from './components/public/PublicLayout'
+import PublicDashboardView from './components/public/PublicDashboardView'
 import { useAdminAuth } from './hooks/useAdminAuth'
 import { apiClient } from './api/client'
 
-export default function App() {
-  const { session, login, logout } = useAdminAuth()
+/**
+ * Admin area – login / registration / verification / dashboard.
+ * All existing admin behaviour is preserved; it now lives under /admin/*.
+ */
+function AdminArea() {
+  const { session, login, logout, notice } = useAdminAuth()
   const [pendingVerificationEmail, setPendingVerificationEmail] = React.useState(() =>
     sessionStorage.getItem('pending_verification_email') || ''
   )
@@ -32,6 +39,8 @@ export default function App() {
           not_found: 'Das zugehörige Konto wurde nicht gefunden.',
         }[verificationResult.reason] || 'Die E-Mail-Bestätigung ist fehlgeschlagen.'
       : null
+
+  const loginNoticeMessage = verificationFailureMessage || notice
 
   React.useEffect(() => {
     if (pendingVerificationEmail) {
@@ -128,10 +137,41 @@ export default function App() {
             initialEmail={initialEmail}
           />
         )}
-        noticeMessage={verificationFailureMessage}
+        noticeMessage={loginNoticeMessage}
       />
     )
   }
 
   return <AdminView session={session} onLogout={logout} />
+}
+
+/**
+ * Wrapper that reads :villageId from the URL and passes it to VillageDetailView.
+ */
+function PublicDashboardRoute() {
+  const { villageId } = useParams()
+  return (
+    <PublicLayout>
+      <PublicDashboardView initialVillageId={villageId || null} />
+    </PublicLayout>
+  )
+}
+
+/**
+ * Top‑level application with split routing:
+ *   /                      – Public landing page (village list)
+ *   /village/:villageId    – Public village detail view
+ *   /admin/*               – Admin area (login, dashboard, configuration)
+ */
+export default function App() {
+  return (
+    <Routes>
+      {/* --- Public routes (read‑only, no auth) --- */}
+      <Route path="/" element={<PublicDashboardRoute />} />
+      <Route path="/village/:villageId" element={<PublicDashboardRoute />} />
+
+      {/* --- Admin routes (existing UI under /admin) --- */}
+      <Route path="/admin/*" element={<AdminArea />} />
+    </Routes>
+  )
 }
