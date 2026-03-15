@@ -42,6 +42,16 @@ describe('mapViewUtils selection logic', () => {
     expect(state.indeterminate).toBe(false)
     expect(state.checked).toBe(true)
   })
+
+  it('preserves deselected sensors after selection rebuild', () => {
+    const initial = buildSelectionState(baseDevices, baseSensors, defaultSelectionState)
+    const deselected = toggleSensorSelection(10, baseSensors, initial)
+
+    const rebuilt = buildSelectionState(baseDevices, baseSensors, deselected)
+
+    expect(rebuilt.sensors.has(10)).toBe(false)
+    expect(rebuilt.sensors.has(11)).toBe(true)
+  })
 })
 
 describe('marker building and positioning', () => {

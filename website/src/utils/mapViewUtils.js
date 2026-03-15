@@ -15,32 +15,22 @@ export const defaultSelectionState = {
 export function buildSelectionState(devices = [], sensors = [], previous = defaultSelectionState) {
   const prevControllers = previous?.controllers ?? defaultSelectionState.controllers
   const prevSensors = previous?.sensors ?? defaultSelectionState.sensors
+  const isInitialSelection = previous === defaultSelectionState
 
   const deviceIds = new Set(devices.map((d) => d.id))
   const sensorIds = new Set(sensors.map((s) => s.id))
   const nextControllers = new Set([...prevControllers].filter((id) => deviceIds.has(id)))
   const nextSensors = new Set([...prevSensors].filter((id) => sensorIds.has(id)))
 
-  const defaultSelectControllers = prevControllers.size === 0
-  const defaultSelectSensors = prevSensors.size === 0
-
-  devices.forEach((device) => {
-    const isKnown = prevControllers.has(device.id)
-    if (defaultSelectControllers || (!isKnown && prevControllers.size > 0)) {
+  if (isInitialSelection) {
+    devices.forEach((device) => {
       nextControllers.add(device.id)
-    }
-  })
+    })
 
-  sensors.forEach((sensor) => {
-    const isKnown = prevSensors.has(sensor.id)
-    if (!isKnown) {
+    sensors.forEach((sensor) => {
       nextSensors.add(sensor.id)
-      return
-    }
-    if (defaultSelectSensors || prevControllers.has(sensor.deviceId) || defaultSelectControllers) {
-      nextSensors.add(sensor.id)
-    }
-  })
+    })
+  }
 
   return {
     controllers: nextControllers,

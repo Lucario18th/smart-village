@@ -401,7 +401,46 @@ export function useVillageConfig(session) {
   }, [nextSensorId])
 
   // Update bestehenden sensor
-  const updateSensor = useCallback((sensorId, updates) => {
+  const updateSensor = useCallback(async (sensorId, updates) => {
+    const isActiveToggleUpdate =
+      sensorId > 0 &&
+      Object.keys(updates).length === 1 &&
+      Object.prototype.hasOwnProperty.call(updates, 'active')
+
+    if (isActiveToggleUpdate) {
+      const previousSensor = (configRef.current.sensors || []).find((sensor) => sensor.id === sensorId)
+      const previousActive = previousSensor?.active
+
+      setConfig((currentConfig) => {
+        const nextConfig = {
+          ...currentConfig,
+          sensors: (currentConfig.sensors || []).map((sensor) =>
+            sensor.id === sensorId ? { ...sensor, ...updates } : sensor
+          ),
+        }
+        return markUpdated(nextConfig)
+      })
+
+      try {
+        await apiClient.sensors.update(sensorId, { isActive: updates.active })
+      } catch (error) {
+        if (previousActive !== undefined) {
+          setConfig((currentConfig) => {
+            const rolledBackConfig = {
+              ...currentConfig,
+              sensors: (currentConfig.sensors || []).map((sensor) =>
+                sensor.id === sensorId ? { ...sensor, active: previousActive } : sensor
+              ),
+            }
+            return markUpdated(rolledBackConfig)
+          })
+        }
+        setStorageMessage(`Sensorstatus konnte nicht gespeichert werden: ${error.message}`)
+      }
+
+      return
+    }
+
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
