@@ -9,6 +9,9 @@ object NavDestinations {
     data object MainScreen : NavKey
 
     @Serializable
+    data object MapScreen : NavKey
+
+    @Serializable
     data object MobilityScreen : NavKey
 
     @Serializable

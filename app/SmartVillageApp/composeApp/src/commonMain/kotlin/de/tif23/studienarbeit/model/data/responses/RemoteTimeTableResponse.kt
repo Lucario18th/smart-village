@@ -7,7 +7,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("timetable")
 data class RemoteTimetableResponse(
-	val station: String,
+	val station: String?,
 	@XmlElement
 	@XmlSerialName("s")
 	val timetableEntry: List<TimeTableEntry>

@@ -1,5 +1,6 @@
 package de.tif23.studienarbeit.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -42,6 +44,7 @@ import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MainViewModel
+import de.tif23.studienarbeit.viewmodel.NavDestinations
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -52,6 +55,7 @@ import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
 import smartvillageapp.composeapp.generated.resources.logo
 import smartvillageapp.composeapp.generated.resources.notifications
+import smartvillageapp.composeapp.generated.resources.open_in_full
 import smartvillageapp.composeapp.generated.resources.priority_high
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -127,6 +131,22 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                     )
                             ) {
                                 MapUI(state = viewModel.mapState)
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(8.dp)
+                                        .clickable { backStack.add(NavDestinations.MapScreen) }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.open_in_full),
+                                        contentDescription = "Vollbild",
+                                        modifier = Modifier.padding(4.dp),
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
                             }
                         }
                     }

@@ -14,7 +14,7 @@ class GetDeparturesUseCase() {
         return filteredDepartures.map { departure ->
             departure.toDomain(
                 stationEvaNo = evaNo,
-                stationName = station.station,
+                stationName = station.station?: "Bahnhof",
                 timeTableChange = changes.find { it.id == departure.id }
             )
         }

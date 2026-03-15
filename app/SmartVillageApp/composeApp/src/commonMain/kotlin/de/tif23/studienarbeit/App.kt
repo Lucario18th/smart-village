@@ -12,6 +12,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.ui.screens.MainScreen
+import de.tif23.studienarbeit.ui.screens.MapScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
 import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
 import de.tif23.studienarbeit.ui.screens.RideOfferScreen
@@ -31,6 +32,7 @@ private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
             subclass(NavDestinations.MainScreen::class, NavDestinations.MainScreen.serializer())
+            subclass(NavDestinations.MapScreen::class, NavDestinations.MapScreen.serializer())
             subclass(NavDestinations.MobilityScreen::class, NavDestinations.MobilityScreen.serializer())
             subclass(NavDestinations.SensorScreen::class, NavDestinations.SensorScreen.serializer())
             subclass(NavDestinations.SensorDetailScreen::class, NavDestinations.SensorDetailScreen.serializer())
@@ -70,6 +72,10 @@ fun App() {
             entryProvider = entryProvider {
                 entry<NavDestinations.MainScreen> {
                     MainScreen(backStack = backStack)
+                }
+
+                entry<NavDestinations.MapScreen> {
+                    MapScreen(backStack = backStack)
                 }
 
                 entry<NavDestinations.MobilityScreen> {
