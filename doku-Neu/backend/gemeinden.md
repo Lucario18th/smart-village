@@ -30,6 +30,8 @@ Die Sensoren werden über den SensorService geladen, der automatisch den letzten
   "id": 1,
   "name": "Musterdorf",
   "locationName": "Musterdorf am See",
+  "statusText": "Rathaus heute bis 16:00 geoeffnet",
+  "infoText": "Willkommen in Musterdorf",
   "contactEmail": "info@musterdorf.de",
   "contactPhone": "0761 12345",
   "municipalityCode": "08315123",
@@ -62,6 +64,7 @@ Aktualisiert die Metadaten einer Gemeinde.
 **Eingabe (alle optional):**
 - `name` (String) – Name der Gemeinde
 - `locationName` (String) – Ortsbezeichnung
+- `statusText` (String) – Kurzstatus der Gemeinde (z. B. aktuelle Hinweise)
 - `phone` (String) – Telefonnummer
 - `infoText` (String) – Informationstext
 - `contactEmail` (String) – Kontakt-E-Mail

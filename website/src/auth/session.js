@@ -3,10 +3,25 @@ import { apiClient } from '../api/client'
 const SESSION_KEY = 'smart-village-admin-session'
 const TOKEN_KEY = 'access_token'
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000
+const MAP_VIEW_STATE_PREFIX = 'smart-village-admin-map-view:'
+
+function clearMapViewSessionState() {
+  try {
+    for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
+      const key = sessionStorage.key(i)
+      if (key && key.startsWith(MAP_VIEW_STATE_PREFIX)) {
+        sessionStorage.removeItem(key)
+      }
+    }
+  } catch {
+    // Ignore storage errors during logout cleanup.
+  }
+}
 
 function clearStorage() {
   localStorage.removeItem(SESSION_KEY)
   localStorage.removeItem(TOKEN_KEY)
+  clearMapViewSessionState()
 }
 
 function withIdleExpiry(session) {

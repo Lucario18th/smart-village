@@ -190,6 +190,7 @@ export default function AdminView({ session, onLogout }) {
             canGeneralSave={hasUnsavedChanges}
             onDeleteAccount={() => setShowDeleteDialog(true)}
             isDeleteLoading={deleteLoading || isLoading}
+            userSub={session?.sub ?? null}
           />
 
           {activeSection.id !== 'map' &&

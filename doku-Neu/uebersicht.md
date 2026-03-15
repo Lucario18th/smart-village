@@ -53,10 +53,12 @@ Das ORM Prisma verwaltet das Schema und die Migrationen.
 Ein Mosquitto-Broker empfängt Nachrichten von IoT-Geräten.
 Das Backend abonniert bestimmte Topics und verarbeitet die eingehenden Sensordaten.
 Über ein Discovery-Protokoll können sich neue Geräte automatisch anmelden.
+Zusaetzlich stellt Mosquitto einen WebSocket-Listener bereit, damit Browser-Clients MQTT-Daten direkt empfangen koennen.
 
 **Reverse Proxy (Nginx):**
 Nginx dient als Einstiegspunkt für alle HTTP-Anfragen.
 Es liefert das Frontend aus und leitet API-Anfragen an das Backend weiter.
+Der Pfad `/mqtt` wird als WebSocket-Proxy auf den Mosquitto-WebSocket-Port weitergeleitet.
 HTTPS wird über selbstsignierte Zertifikate bereitgestellt.
 
 **E-Mail-Dienst (MailHog):**
@@ -80,6 +82,10 @@ Das Backend validiert die Nachrichten und speichert die Daten in der Datenbank.
 
 Das Frontend fragt regelmäßig neue Daten ab (Polling alle 5 Sekunden).
 Neu entdeckte Geräte oder Sensoren werden dem Benutzer über eine Benachrichtigung angezeigt.
+Fuer Public-Daten werden Live-Messwerte zusaetzlich direkt per MQTT-WebSocket eingemischt.
+
+In der Public-Oberflaeche werden Tabs und Inhalte dynamisch aus den Village-Feature-Flags erzeugt.
+Deaktivierte Module werden nicht angezeigt.
 
 ```
 Benutzer (Browser)

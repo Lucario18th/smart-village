@@ -110,6 +110,7 @@ Der Token wird über den Login-Endpunkt erhalten.
 {
   "name": "Neuer Name",
   "locationName": "Musterdorf am See",
+  "statusText": "Aktuelle Hinweise aus dem Rathaus",
   "phone": "0761 12345",
   "infoText": "Willkommen in Musterdorf",
   "contactEmail": "info@musterdorf.de",
@@ -146,10 +147,20 @@ Der Token wird über den Login-Endpunkt erhalten.
 {
   "name": "Neuer Name",
   "isActive": false,
+  "receiveData": true,
+  "exposeToApp": true,
   "latitude": 48.0,
   "longitude": 7.9
 }
 ```
+
+Hinweise zu Sensor-Flags:
+- `isActive`: Sensor gilt systemseitig als aktiv/inaktiv.
+- `receiveData`: Backend nimmt Messwerte dieses Sensors an.
+- `exposeToApp`: Sensor darf in App/Public-Konfiguration ausgeliefert werden.
+
+Zusatzfeld in Sensor-Listen:
+- `dataStale` (Boolean): `true`, wenn seit etwa 60 Sekunden kein neuer Messwert empfangen wurde.
 
 ### Messwerte (Sensor Readings)
 

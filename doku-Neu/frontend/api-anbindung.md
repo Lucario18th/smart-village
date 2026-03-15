@@ -142,6 +142,8 @@ Die Funktion `saveConfig()` führt einen komplexen Speichervorgang durch:
 6. Die Gemeindedaten werden über `PUT /api/villages/:id` aktualisiert.
 7. Die Modul-Flags und Sensordetail-Sichtbarkeit werden über `PATCH /api/villages/:id/features` aktualisiert.
 
+Beim Speichern der Gemeindedaten wird auch `general.statusText` an das Backend uebergeben.
+
 Die Modul-Flags werden wie folgt auf die VillageFeatures-Felder abgebildet:
 
 | Frontend-Modul | Backend-Feld |
@@ -222,6 +224,16 @@ Das Frontend speichert folgende Daten im LocalStorage:
 | `smart-village-admin-session` | Session-Daten (Account-ID, E-Mail) |
 | `smart-village-admin-token` | JWT-Token |
 | `smart-village-config:{villageId}` | Gemeinde-Konfiguration |
+| `smart-village-public-selected-village` | Letztgewaehlte Gemeinde im Public-Bereich |
+
+Zusatzlich werden Kartenfilter im Adminbereich je Nutzer/Gemeinde in der Session gespeichert.
+Diese Filter werden nur durch explizite Benutzeraktionen geaendert und nicht durch Polling-Updates ueberschrieben.
+
+## Live-Messwerte im Public-Bereich
+
+Der Hook `useMqttLiveReadings` verbindet den Browser ueber WebSocket-MQTT (`/mqtt`) mit Mosquitto.
+Public-Views mergen die Livewerte in die per REST geladenen Sensordaten.
+Dadurch erscheinen neue Messwerte sofort, auch zwischen zwei Polling-Zyklen.
 
 Beim Abmelden werden Session und Token gelöscht.
 Die Konfiguration bleibt erhalten, damit sie beim nächsten Login schneller geladen werden kann.

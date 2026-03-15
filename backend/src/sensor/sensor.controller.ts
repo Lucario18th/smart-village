@@ -77,12 +77,13 @@ export class SensorController {
       infoText?: string;
       isActive?: boolean;
       receiveData?: boolean;
+      exposeToApp?: boolean;
       deviceId?: number | null;
       latitude?: number | null;
       longitude?: number | null;
     },
   ) {
-    const { name, infoText, isActive, receiveData, deviceId, latitude, longitude } = body;
+    const { name, infoText, isActive, receiveData, exposeToApp, deviceId, latitude, longitude } = body;
     const parsedLatitude = this.parseOptionalNumber(latitude, "latitude");
     const parsedLongitude = this.parseOptionalNumber(longitude, "longitude");
     const parsedDeviceId = this.parseOptionalNumber(deviceId, "deviceId");
@@ -92,6 +93,7 @@ export class SensorController {
       infoText,
       isActive,
       receiveData,
+      exposeToApp,
       deviceId: parsedDeviceId,
       latitude: parsedLatitude,
       longitude: parsedLongitude,

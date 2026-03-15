@@ -53,6 +53,9 @@ Vorteile:
 - Gemeinden können Module unabhängig voneinander ein- und ausschalten.
 - Die App zeigt nur relevante Inhalte an.
 
+Zusatzlich liefert die App-API pro Gemeinde einen frei pflegbaren Statustext (`statusText`) und einen Informationstext (`infoText`).
+Beide Felder koennen im Adminbereich gepflegt werden und werden an Public-/App-Clients durchgereicht.
+
 ## Datenmodell-Erweiterungen
 
 ### VillageFeatures
@@ -177,6 +180,8 @@ Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfüllt si
     "villageId": 1,
     "name": "Freiburg im Breisgau",
     "locationName": "79098 Freiburg im Breisgau",
+    "statusText": "Aktuelle Hinweise aus dem Rathaus",
+    "infoText": "Willkommen im Smart Village",
     "postalCode": { "zipCode": "79098", "city": "Freiburg im Breisgau" },
     "features": {
       "sensorData": true,
@@ -210,6 +215,10 @@ Ein Sensor erscheint in dieser Liste nur, wenn alle drei Bedingungen erfüllt si
 
 Das Objekt `sensorDetailVisibility` teilt der App mit, welche Detailinformationen zu einem Sensor angezeigt werden sollen.
 Wenn `VillageFeatures` nicht gesetzt ist, ist `sensorDetailVisibility` `null`.
+
+Hinweis:
+- `statusText` ist als eigenes Feld in `Village` persistiert.
+- `infoText` bleibt weiterhin als Informationstext der Gemeinde verfuegbar.
 
 ### GET /app/villages/:villageId/initial-data
 

@@ -56,6 +56,7 @@ model Village {
   name             String
   locationName     String
   phone            String?
+  statusText       String?
   infoText         String?
   contactEmail     String?
   contactPhone     String?

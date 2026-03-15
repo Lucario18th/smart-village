@@ -57,6 +57,7 @@ export class VillageController {
       name?: string
       locationName?: string
       phone?: string
+      statusText?: string
       infoText?: string
       contactEmail?: string
       contactPhone?: string
@@ -81,6 +82,7 @@ export class VillageController {
           locationName: body.locationName,
         }),
         ...(body.phone !== undefined && { phone: body.phone }),
+        ...(body.statusText !== undefined && { statusText: body.statusText }),
         ...(body.infoText !== undefined && { infoText: body.infoText }),
         ...(body.contactEmail !== undefined && { contactEmail: body.contactEmail }),
         ...(body.contactPhone !== undefined && { contactPhone: body.contactPhone }),

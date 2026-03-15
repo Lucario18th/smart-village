@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
 import { geocodeCity } from '../../utils/geocoding'
 import {
   buildMarkers,
-  buildSelectionState,
   getControllerSelectionState,
   toggleControllerSelection,
   toggleSensorSelection,
@@ -18,6 +17,9 @@ const buildEmbedUrl = (lat, lng) => {
 }
 
 const BASE_MAP_ZOOM = 13
+const MAP_VIEW_STATE_PREFIX = 'smart-village-admin-map-view'
+const MAP_FILTER_DEBUG_ENABLED =
+  import.meta.env.DEV && (import.meta.env.VITE_MAP_FILTER_DEBUG ?? 'true') !== 'false'
 const APP_PIN_PATH =
   'M430,560L530,560L530,360L505,360L505,300L455,300L455,360L430,360L430,560Z M480,774Q602,662 661,570.5Q720,479 720,408Q720,299 650.5,229.5Q581,160 480,160Q379,160 309.5,229.5Q240,299 240,408Q240,479 299,570.5Q358,662 480,774ZM480,880Q319,743 239.5,625.5Q160,508 160,408Q160,258 256.5,169Q353,80 480,80Q607,80 703.5,169Q800,258 800,408Q800,508 720.5,625.5Q641,743 480,880Z'
 const iconCache = new Map()
@@ -46,6 +48,48 @@ const getPinIcon = (color, variant) => {
 const CITY_PIN_ICON = getPinIcon('#ff2d55', 'city')
 const GATEWAY_PIN_ICON = getPinIcon('#1f2937', 'gateway')
 
+function toMapViewStorageKey(userSub, villageId) {
+  const userKey = userSub ?? 'anonymous'
+  const villageKey = villageId ?? 'unknown'
+  return `${MAP_VIEW_STATE_PREFIX}:${userKey}:${villageKey}`
+}
+
+function parseMapViewState(storageKey) {
+  if (!storageKey) return null
+  try {
+    const raw = sessionStorage.getItem(storageKey)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return {
+      isPanelOpen: parsed?.isPanelOpen === true,
+      autoIncludeNew: parsed?.autoIncludeNew === true,
+      selection: {
+        controllers: new Set(Array.isArray(parsed?.controllers) ? parsed.controllers : []),
+        sensors: new Set(Array.isArray(parsed?.sensors) ? parsed.sensors : []),
+      },
+    }
+  } catch {
+    return null
+  }
+}
+
+function persistMapViewState(storageKey, state) {
+  if (!storageKey) return
+  try {
+    sessionStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        isPanelOpen: state.isPanelOpen === true,
+        autoIncludeNew: state.autoIncludeNew !== false,
+        controllers: [...state.selection.controllers],
+        sensors: [...state.selection.sensors],
+      })
+    )
+  } catch {
+    // Ignore storage errors so map interaction remains functional.
+  }
+}
+
 function MapViewportSync({ center, panelOpen }) {
   const map = useMap()
 
@@ -70,6 +114,11 @@ function SelectionTree({
   allSelected,
   partiallySelected,
   onToggleAll,
+  autoIncludeNew,
+  onAutoIncludeNewChange,
+  onShowOnlySensors,
+  onShowOnlyGateways,
+  onResetSelection,
 }) {
   const [expandedGateways, setExpandedGateways] = useState(() => new Set(devices.map((d) => d.id)))
 
@@ -106,6 +155,26 @@ function SelectionTree({
     <div className="map-tree" aria-label="Sensor- und Controller-Auswahl">
       <h3>Sichtbare Sensoren</h3>
       <p className="map-tree-hint">Gateway- und Sensor-Toggles können unabhängig voneinander gesteuert werden.</p>
+      <label className="map-tree-item map-tree-item--master">
+        <span className="map-tree-name map-tree-name--gateway">Neue Sensoren/Gateways automatisch anzeigen</span>
+        <input
+          type="checkbox"
+          checked={autoIncludeNew}
+          onChange={(event) => onAutoIncludeNewChange(event.target.checked)}
+          aria-label="Neue Sensoren und Gateways automatisch anzeigen"
+        />
+      </label>
+      <div className="map-tree-actions" role="group" aria-label="Schnellaktionen für Kartenfilter">
+        <button type="button" className="map-tree-action-btn" onClick={onShowOnlySensors}>
+          Nur Sensoren
+        </button>
+        <button type="button" className="map-tree-action-btn" onClick={onShowOnlyGateways}>
+          Nur Gateways
+        </button>
+        <button type="button" className="map-tree-action-btn" onClick={onResetSelection}>
+          Reset
+        </button>
+      </div>
       <label className="map-tree-item map-tree-item--master">
         <span className="map-tree-name map-tree-name--gateway">Alle Sensoren und Gateways</span>
         <input
@@ -237,11 +306,33 @@ function VisibilityIcon({ visible }) {
   )
 }
 
-export default function MapPanel({ general, sensors = [], devices = [] }) {
+export default function MapPanel({ general, sensors = [], devices = [], villageId, userSub }) {
+  const storageKey = useMemo(() => toMapViewStorageKey(userSub, villageId), [userSub, villageId])
+  const initialMapViewState = useMemo(() => parseMapViewState(storageKey), [storageKey])
   const [center, setCenter] = useState(FALLBACK_LOCATION)
   const [error, setError] = useState('')
-  const [selection, setSelection] = useState(() => buildSelectionState(devices, sensors))
-  const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [selection, setSelection] = useState(() => {
+    if (initialMapViewState?.selection) {
+      return initialMapViewState.selection
+    }
+    return {
+      controllers: new Set(devices.map((device) => device.id)),
+      sensors: new Set(sensors.map((sensor) => sensor.id)),
+    }
+  })
+  const [isPanelOpen, setIsPanelOpen] = useState(initialMapViewState?.isPanelOpen === true)
+  const [autoIncludeNew, setAutoIncludeNew] = useState(initialMapViewState?.autoIncludeNew === true)
+  const [selectionInitialized, setSelectionInitialized] = useState(
+    Boolean(initialMapViewState?.selection)
+  )
+  const [hydratedStorageKey, setHydratedStorageKey] = useState(storageKey)
+  const [lastUserAction, setLastUserAction] = useState('init')
+  const [lastUserActionAt, setLastUserActionAt] = useState(null)
+  const [lastPersistedAt, setLastPersistedAt] = useState(null)
+  const [persistCount, setPersistCount] = useState(0)
+  const hydratedStorageKeyRef = useRef(storageKey)
+  const knownControllerIdsRef = useRef(new Set())
+  const knownSensorIdsRef = useRef(new Set())
 
   const locationLabel =
     general?.zipCode && general?.city ? `${general.zipCode} ${general.city}` : ''
@@ -276,8 +367,123 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
   }, [general?.zipCode, general?.city])
 
   useEffect(() => {
-    setSelection((prev) => buildSelectionState(devices, sensors, prev))
-  }, [devices, sensors])
+    setHydratedStorageKey(null)
+    hydratedStorageKeyRef.current = null
+    knownControllerIdsRef.current = new Set()
+    knownSensorIdsRef.current = new Set()
+    const persisted = parseMapViewState(storageKey)
+    const currentControllerIds = new Set(devices.map((device) => device.id))
+    const currentSensorIds = new Set(sensors.map((sensor) => sensor.id))
+
+    if (persisted?.selection) {
+      setSelection(persisted.selection)
+      setIsPanelOpen(persisted.isPanelOpen === true)
+      setAutoIncludeNew(persisted.autoIncludeNew === true)
+      setSelectionInitialized(true)
+      // Treat currently loaded IDs as already known on remount.
+      // This prevents auto-include from turning everything back on after tab switches.
+      knownControllerIdsRef.current = currentControllerIds
+      knownSensorIdsRef.current = currentSensorIds
+      setHydratedStorageKey(storageKey)
+      hydratedStorageKeyRef.current = storageKey
+      return
+    }
+
+    setSelection({ controllers: new Set(), sensors: new Set() })
+    setIsPanelOpen(false)
+    setAutoIncludeNew(false)
+    setSelectionInitialized(false)
+    knownControllerIdsRef.current = currentControllerIds
+    knownSensorIdsRef.current = currentSensorIds
+    setHydratedStorageKey(storageKey)
+    hydratedStorageKeyRef.current = storageKey
+  }, [storageKey, devices, sensors])
+
+  useEffect(() => {
+    if (selectionInitialized) return
+    if (devices.length === 0 && sensors.length === 0) return
+
+    setSelection((prev) => {
+      if (prev.controllers.size > 0 || prev.sensors.size > 0) {
+        return prev
+      }
+      return {
+        controllers: new Set(devices.map((device) => device.id)),
+        sensors: new Set(sensors.map((sensor) => sensor.id)),
+      }
+    })
+    knownControllerIdsRef.current = new Set(devices.map((device) => device.id))
+    knownSensorIdsRef.current = new Set(sensors.map((sensor) => sensor.id))
+    setSelectionInitialized(true)
+  }, [devices, sensors, selectionInitialized])
+
+  useEffect(() => {
+    setSelection((prev) => {
+      const nextControllers = new Set(prev.controllers)
+      const nextSensors = new Set(prev.sensors)
+
+      const knownControllers = knownControllerIdsRef.current
+      const knownSensors = knownSensorIdsRef.current
+
+      if (autoIncludeNew) {
+        devices.forEach((device) => {
+          const isNewController = !knownControllers.has(device.id)
+          if (isNewController) {
+            nextControllers.add(device.id)
+          }
+        })
+        sensors.forEach((sensor) => {
+          const isNewSensor = !knownSensors.has(sensor.id)
+          if (isNewSensor) {
+            nextSensors.add(sensor.id)
+          }
+        })
+      }
+
+      knownControllerIdsRef.current = new Set(devices.map((device) => device.id))
+      knownSensorIdsRef.current = new Set(sensors.map((sensor) => sensor.id))
+
+      const unchanged =
+        nextControllers.size === prev.controllers.size &&
+        nextSensors.size === prev.sensors.size &&
+        [...nextControllers].every((id) => prev.controllers.has(id)) &&
+        [...nextSensors].every((id) => prev.sensors.has(id))
+
+      if (unchanged) {
+        return prev
+      }
+
+      return {
+        controllers: nextControllers,
+        sensors: nextSensors,
+      }
+    })
+  }, [devices, sensors, autoIncludeNew])
+
+  useEffect(() => {
+    if (hydratedStorageKey !== storageKey) return
+    persistMapViewState(storageKey, { selection, isPanelOpen, autoIncludeNew })
+    setLastPersistedAt(new Date().toISOString())
+    setPersistCount((prev) => prev + 1)
+  }, [storageKey, selection, isPanelOpen, autoIncludeNew, hydratedStorageKey])
+
+  const updateSelectionFromUser = (action, updater) => {
+    setSelection((prev) => updater(prev))
+    setLastUserAction(action)
+    setLastUserActionAt(new Date().toISOString())
+  }
+
+  const updatePanelOpenFromUser = (nextOpen) => {
+    setIsPanelOpen(nextOpen)
+    setLastUserAction(nextOpen ? 'panel:open' : 'panel:close')
+    setLastUserActionAt(new Date().toISOString())
+  }
+
+  const updateAutoIncludeNewFromUser = (enabled) => {
+    setAutoIncludeNew(enabled)
+    setLastUserAction(enabled ? 'autoInclude:on' : 'autoInclude:off')
+    setLastUserActionAt(new Date().toISOString())
+  }
 
   const embedUrl = useMemo(
     () => buildEmbedUrl(center.lat, center.lng),
@@ -289,29 +495,112 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
     [sensors, devices, selection]
   )
 
+  const debugState = useMemo(() => {
+    if (!MAP_FILTER_DEBUG_ENABLED) return null
+    const persisted = parseMapViewState(storageKey)
+    const activeControllers = devices.filter((device) => selection.controllers.has(device.id)).length
+    const activeSensors = sensors.filter((sensor) => selection.sensors.has(sensor.id)).length
+    return {
+      storageKey,
+      hydratedStorageKey,
+      hydratedStorageKeyRef: hydratedStorageKeyRef.current,
+      selectionInitialized,
+      autoIncludeNew,
+      isPanelOpen,
+      activeControllers,
+      totalControllers: devices.length,
+      activeSensors,
+      totalSensors: sensors.length,
+      lastUserAction,
+      lastUserActionAt,
+      lastPersistedAt,
+      persistCount,
+      knownControllersCount: knownControllerIdsRef.current.size,
+      knownSensorsCount: knownSensorIdsRef.current.size,
+      persistedSummary: persisted
+        ? {
+            isPanelOpen: persisted.isPanelOpen,
+            autoIncludeNew: persisted.autoIncludeNew,
+            controllersCount: persisted.selection.controllers.size,
+            sensorsCount: persisted.selection.sensors.size,
+          }
+        : null,
+    }
+  }, [
+    storageKey,
+    hydratedStorageKey,
+    selectionInitialized,
+    autoIncludeNew,
+    isPanelOpen,
+    devices,
+    sensors,
+    selection.controllers,
+    selection.sensors,
+    lastUserAction,
+    lastUserActionAt,
+    lastPersistedAt,
+    persistCount,
+  ])
+
   const handleToggleController = (controllerId) => {
-    setSelection((prev) => toggleControllerSelection(controllerId, sensors, prev))
+    updateSelectionFromUser(`toggle:controller:${controllerId}`, (prev) =>
+      toggleControllerSelection(controllerId, sensors, prev)
+    )
   }
 
   const handleToggleSensor = (sensorId) => {
-    setSelection((prev) => toggleSensorSelection(sensorId, sensors, prev))
+    updateSelectionFromUser(`toggle:sensor:${sensorId}`, (prev) =>
+      toggleSensorSelection(sensorId, sensors, prev)
+    )
   }
 
+  const selectedControllerCount = useMemo(
+    () => devices.reduce((count, device) => (selection.controllers.has(device.id) ? count + 1 : count), 0),
+    [devices, selection.controllers]
+  )
+  const selectedSensorCount = useMemo(
+    () => sensors.reduce((count, sensor) => (selection.sensors.has(sensor.id) ? count + 1 : count), 0),
+    [sensors, selection.sensors]
+  )
   const totalSelectableCount = devices.length + sensors.length
-  const selectedCount = selection.controllers.size + selection.sensors.size
+  const selectedCount = selectedControllerCount + selectedSensorCount
   const allSelected = totalSelectableCount > 0 && selectedCount === totalSelectableCount
   const partiallySelected = selectedCount > 0 && selectedCount < totalSelectableCount
 
   const handleToggleAll = () => {
     if (allSelected) {
-      setSelection({ controllers: new Set(), sensors: new Set() })
+      updateSelectionFromUser('toggle:all:off', () => ({
+        controllers: new Set(),
+        sensors: new Set(),
+      }))
       return
     }
 
-    setSelection({
+    updateSelectionFromUser('toggle:all:on', () => ({
       controllers: new Set(devices.map((device) => device.id)),
       sensors: new Set(sensors.map((sensor) => sensor.id)),
-    })
+    }))
+  }
+
+  const handleShowOnlySensors = () => {
+    updateSelectionFromUser('quick:onlySensors', () => ({
+      controllers: new Set(),
+      sensors: new Set(sensors.map((sensor) => sensor.id)),
+    }))
+  }
+
+  const handleShowOnlyGateways = () => {
+    updateSelectionFromUser('quick:onlyGateways', () => ({
+      controllers: new Set(devices.map((device) => device.id)),
+      sensors: new Set(),
+    }))
+  }
+
+  const handleResetSelection = () => {
+    updateSelectionFromUser('quick:reset', () => ({
+      controllers: new Set(devices.map((device) => device.id)),
+      sensors: new Set(sensors.map((sensor) => sensor.id)),
+    }))
   }
 
   return (
@@ -327,6 +616,11 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
             allSelected={allSelected}
             partiallySelected={partiallySelected}
             onToggleAll={handleToggleAll}
+            autoIncludeNew={autoIncludeNew}
+            onAutoIncludeNewChange={updateAutoIncludeNewFromUser}
+            onShowOnlySensors={handleShowOnlySensors}
+            onShowOnlyGateways={handleShowOnlyGateways}
+            onResetSelection={handleResetSelection}
           />
         ) : null}
         <div className="map-frame" role="region" aria-label="Gemeindekarte">
@@ -371,7 +665,7 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
             className="map-toggle-button map-toggle-button--in-map"
             aria-pressed={isPanelOpen}
             aria-label={isPanelOpen ? 'Sensor Filter ausblenden' : 'Sensor Filter einblenden'}
-            onClick={() => setIsPanelOpen((prev) => !prev)}
+            onClick={() => updatePanelOpenFromUser(!isPanelOpen)}
           >
             <span className="map-toggle-icon">
               <VisibilityIcon visible={isPanelOpen} />
@@ -379,6 +673,26 @@ export default function MapPanel({ general, sensors = [], devices = [] }) {
             <span>Sensor Filter</span>
           </button>
           <div className="map-ui-layer" aria-hidden="true">
+            {MAP_FILTER_DEBUG_ENABLED && debugState ? (
+              <div className="map-debug-overlay" role="note" aria-label="Map filter debug state">
+                <h5>Map Filter Debug</h5>
+                <p>Key: {debugState.storageKey}</p>
+                <p>Hydrated: {String(debugState.hydratedStorageKey === debugState.storageKey)}</p>
+                <p>User action: {debugState.lastUserAction || 'none'}</p>
+                <p>Action at: {debugState.lastUserActionAt || 'n/a'}</p>
+                <p>Persisted at: {debugState.lastPersistedAt || 'n/a'} ({debugState.persistCount})</p>
+                <p>
+                  Active: G {debugState.activeControllers}/{debugState.totalControllers}, S {debugState.activeSensors}/{debugState.totalSensors}
+                </p>
+                <p>
+                  Known IDs: G {debugState.knownControllersCount}, S {debugState.knownSensorsCount}
+                </p>
+                <p>
+                  Stored: {debugState.persistedSummary ? `G ${debugState.persistedSummary.controllersCount}, S ${debugState.persistedSummary.sensorsCount}` : 'none'}
+                </p>
+                <p>Auto-include: {String(debugState.autoIncludeNew)}</p>
+              </div>
+            ) : null}
             <div className="map-legend-overlay" aria-label="Legende">
               <h4>Legende</h4>
               <ul>

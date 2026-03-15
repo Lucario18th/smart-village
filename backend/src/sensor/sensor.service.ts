@@ -5,6 +5,8 @@ import { PrismaService } from "../prisma/prisma.service";
 export class SensorService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private static readonly STALE_THRESHOLD_MS = 60 * 1000;
+
   async listByVillage(villageId: number) {
     const sensors = await this.prisma.sensor.findMany({
       where: { villageId },
@@ -15,13 +17,19 @@ export class SensorService {
     const sensorIds = sensors.map((s) => s.id);
     const latestBySensor = await this.getLatestReadings(sensorIds);
 
+    const now = Date.now();
     return sensors.map((sensor) => {
       const latest = latestBySensor.get(sensor.id);
+      const lastTs = latest?.ts ?? null;
+      const dataStale =
+        lastTs !== null &&
+        now - lastTs.getTime() > SensorService.STALE_THRESHOLD_MS;
       return {
         ...sensor,
-        lastTs: latest?.ts ?? null,
+        lastTs,
         lastValue: latest?.value ?? null,
         lastStatus: latest?.status ?? null,
+        dataStale,
       };
     });
   }
