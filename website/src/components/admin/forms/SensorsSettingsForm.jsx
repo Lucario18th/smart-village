@@ -231,7 +231,8 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive }) {
   const sensorCoords = formatCoords(sensor.latitude, sensor.longitude)
   const deviceCoords = device ? formatCoords(device.latitude, device.longitude) : null
   const statusColor = getStatusColor(sensor.lastStatus || sensor.status)
-  const dimmed = sensor.active === false
+  const isExposed = sensor.exposeToApp !== false
+  const dimmed = !isExposed || sensor.dataStale === true
   const isMitfahrbank =
     sensor.kind === 'mitfahrbank' || isMitfahrbankSensor(sensorType?.name || '')
   const valueToShow = sensor.waitingCount ?? sensor.lastValue
@@ -262,6 +263,11 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive }) {
           >
             {sensor.lastStatus || 'OK'}
           </span>
+          {sensor.dataStale && (
+            <span className="badge" style={{ backgroundColor: '#9e9e9e', color: '#fff' }} title="Keine neuen Daten seit mehr als 1 Minute">
+              Keine Daten
+            </span>
+          )}
           <span className="sensor-last-value">
             {isMitfahrbank ? WAITING_LABEL : 'Letzter Wert:'} {valueLabel}
           </span>
@@ -276,13 +282,13 @@ function SensorRow({ sensor, sensorTypes, devices, onEdit, onToggleActive }) {
         </p>
       </div>
       <div className="sensor-actions">
-        <div className="sensor-toggle" title="Sensor aktivieren/deaktivieren">
-          <span className="sensor-toggle-label">Aktiv</span>
+        <div className="sensor-toggle" title="In der App anzeigen">
+          <span className="sensor-toggle-label">In App</span>
           <label className="switch-control">
             <input
               type="checkbox"
-              aria-label="Sensor aktivieren oder deaktivieren"
-              checked={sensor.active}
+              aria-label="Sensor in der App anzeigen"
+              checked={sensor.exposeToApp !== false}
               onChange={(e) => onToggleActive(e.target.checked)}
             />
             <span className="switch-slider" aria-hidden="true" />
@@ -311,12 +317,13 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
           latitude: sensor.latitude ?? '',
           longitude: sensor.longitude ?? '',
           receiveData: sensor.receiveData !== false,
+          exposeToApp: sensor.exposeToApp !== false,
         }
       : {
           name: '',
           sensorTypeId: sensorTypes[0]?.id || 1,
           infoText: '',
-          active: true,
+          exposeToApp: true,
           receiveData: true,
           dataSourceUrl: '',
           updateInterval: '300', // 5 minutes default
@@ -363,20 +370,20 @@ function SensorForm({ sensor, sensorTypes, devices, onSave, onCancel }) {
     <form className="sensor-form" onSubmit={handleSubmit}>
       <div className="sensor-form-header">
         <h4>Sensor bearbeiten</h4>
-        <div className="sensor-form-switch" title="Sensor aktivieren/deaktivieren">
-          <span className="sensor-form-switch-label">Aktiv</span>
-          <label className="switch-control" htmlFor="sensor-active">
-            <input
-              id="sensor-active"
-              type="checkbox"
-              name="active"
-              checked={formData.active}
-              onChange={handleChange}
-              aria-label="Sensor aktivieren oder deaktivieren"
-            />
-            <span className="switch-slider" aria-hidden="true" />
-          </label>
-        </div>
+        <div className="sensor-form-switch" title="In der App anzeigen">
+            <span className="sensor-form-switch-label">In App</span>
+            <label className="switch-control" htmlFor="sensor-exposeToApp">
+              <input
+                id="sensor-exposeToApp"
+                type="checkbox"
+                name="exposeToApp"
+                checked={formData.exposeToApp !== false}
+                onChange={handleChange}
+                aria-label="Sensor in der App anzeigen"
+              />
+              <span className="switch-slider" aria-hidden="true" />
+            </label>
+          </div>
       </div>
 
       <div className="form-group">
@@ -558,6 +565,7 @@ export default function SensorsSettingsForm({
   const [editingSensorId, setEditingSensorId] = useState(null)
   const [editingDeviceId, setEditingDeviceId] = useState(null)
   const [expandedDeviceIds, setExpandedDeviceIds] = useState(() => new Set())
+  const [expandedInactiveSectionIds, setExpandedInactiveSectionIds] = useState(() => new Set())
 
   const sensors = useMemo(() => {
     return config?.sensors || []
@@ -585,7 +593,7 @@ export default function SensorsSettingsForm({
       name: formData.name,
       sensorTypeId: parseInt(formData.sensorTypeId),
       infoText: formData.infoText,
-      active: formData.active,
+      exposeToApp: formData.exposeToApp !== false,
       receiveData: formData.receiveData,
       deviceId: formData.deviceId === '' ? null : formData.deviceId,
       latitude: formData.latitude,
@@ -613,6 +621,8 @@ export default function SensorsSettingsForm({
     setEditingDeviceId(null)
   }
 
+  const isSensorInactive = (sensor) => sensor.exposeToApp === false || sensor.dataStale === true
+
   const toggleDeviceSensors = (deviceId) => {
     setExpandedDeviceIds((prev) => {
       const next = new Set(prev)
@@ -620,6 +630,17 @@ export default function SensorsSettingsForm({
         next.delete(deviceId)
       } else {
         next.add(deviceId)
+      }
+      return next
+    })
+  }
+  const toggleInactiveSection = (key) => {
+    setExpandedInactiveSectionIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        next.add(key)
       }
       return next
     })
@@ -669,31 +690,56 @@ export default function SensorsSettingsForm({
                         <div className="gateway-sensors-list">
                           {deviceSensors.length === 0 ? (
                             <p className="empty-message">Diesem Gateway sind aktuell keine Sensoren zugeordnet.</p>
-                          ) : (
-                            deviceSensors.map((sensor) => (
-                              <div key={sensor.id}>
-                                {editingSensorId === sensor.id ? (
-                                  <div className="sensor-form-container">
-                                    <SensorForm
-                                      sensor={sensor}
-                                      sensorTypes={sensorTypes}
-                                      devices={devices}
-                                      onSave={handleUpdateSensor}
-                                      onCancel={() => setEditingSensorId(null)}
-                                    />
-                                  </div>
-                                ) : (
-                                  <SensorRow
-                                    sensor={sensor}
-                                    sensorTypes={sensorTypes}
-                                    devices={devices}
-                                    onEdit={() => setEditingSensorId(sensor.id)}
-                                    onToggleActive={(active) => onUpdateSensor(sensor.id, { active })}
-                                  />
+                          ) : (() => {
+                            const activeSensors = deviceSensors.filter((s) => !isSensorInactive(s))
+                            const inactiveSensors = deviceSensors.filter((s) => isSensorInactive(s))
+                            const inactiveSectionKey = `device-${device.id}`
+                            const inactiveExpanded = expandedInactiveSectionIds.has(inactiveSectionKey)
+                            return (
+                              <>
+                                {activeSensors.length === 0 && inactiveSensors.length > 0 && (
+                                  <p className="empty-message">Alle Sensoren dieses Geräts sind inaktiv.</p>
                                 )}
-                              </div>
-                            ))
-                          )}
+                                {activeSensors.map((sensor) => (
+                                  <div key={sensor.id}>
+                                    {editingSensorId === sensor.id ? (
+                                      <div className="sensor-form-container">
+                                        <SensorForm sensor={sensor} sensorTypes={sensorTypes} devices={devices} onSave={handleUpdateSensor} onCancel={() => setEditingSensorId(null)} />
+                                      </div>
+                                    ) : (
+                                      <SensorRow sensor={sensor} sensorTypes={sensorTypes} devices={devices} onEdit={() => setEditingSensorId(sensor.id)} onToggleActive={(exposeToApp) => onUpdateSensor(sensor.id, { exposeToApp })} />
+                                    )}
+                                  </div>
+                                ))}
+                                {inactiveSensors.length > 0 && (
+                                  <div className="inactive-sensors-section">
+                                    <button
+                                      type="button"
+                                      className="inactive-sensors-toggle"
+                                      onClick={() => toggleInactiveSection(inactiveSectionKey)}
+                                      aria-expanded={inactiveExpanded}
+                                    >
+                                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ width: '1em', height: '1em' }}>
+                                        <path fill="currentColor" d={inactiveExpanded ? 'M7 14l5-5 5 5z' : 'M7 10l5 5 5-5z'} />
+                                      </svg>
+                                      Inaktive Sensoren ({inactiveSensors.length})
+                                    </button>
+                                    {inactiveExpanded && inactiveSensors.map((sensor) => (
+                                      <div key={sensor.id}>
+                                        {editingSensorId === sensor.id ? (
+                                          <div className="sensor-form-container">
+                                            <SensorForm sensor={sensor} sensorTypes={sensorTypes} devices={devices} onSave={handleUpdateSensor} onCancel={() => setEditingSensorId(null)} />
+                                          </div>
+                                        ) : (
+                                          <SensorRow sensor={sensor} sensorTypes={sensorTypes} devices={devices} onEdit={() => setEditingSensorId(sensor.id)} onToggleActive={(exposeToApp) => onUpdateSensor(sensor.id, { exposeToApp })} />
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
+                            )
+                          })()}
                         </div>
                       ) : null}
                     </>
@@ -712,29 +758,53 @@ export default function SensorsSettingsForm({
             <p className="helper-text">Diese Sensoren sind aktuell keinem Gateway zugewiesen.</p>
           </div>
           <div className="sensors-list">
-            {unassignedSensors.map((sensor) => (
-              <div key={sensor.id}>
-                {editingSensorId === sensor.id ? (
-                  <div className="sensor-form-container">
-                    <SensorForm
-                      sensor={sensor}
-                      sensorTypes={sensorTypes}
-                      devices={devices}
-                      onSave={handleUpdateSensor}
-                      onCancel={() => setEditingSensorId(null)}
-                    />
-                  </div>
-                ) : (
-                  <SensorRow
-                    sensor={sensor}
-                    sensorTypes={sensorTypes}
-                    devices={devices}
-                    onEdit={() => setEditingSensorId(sensor.id)}
-                    onToggleActive={(active) => onUpdateSensor(sensor.id, { active })}
-                  />
-                )}
-              </div>
-            ))}
+            {(() => {
+              const activeSensors = unassignedSensors.filter((s) => !isSensorInactive(s))
+              const inactiveSensors = unassignedSensors.filter((s) => isSensorInactive(s))
+              const inactiveSectionKey = 'unassigned'
+              const inactiveExpanded = expandedInactiveSectionIds.has(inactiveSectionKey)
+              return (
+                <>
+                  {activeSensors.map((sensor) => (
+                    <div key={sensor.id}>
+                      {editingSensorId === sensor.id ? (
+                        <div className="sensor-form-container">
+                          <SensorForm sensor={sensor} sensorTypes={sensorTypes} devices={devices} onSave={handleUpdateSensor} onCancel={() => setEditingSensorId(null)} />
+                        </div>
+                      ) : (
+                        <SensorRow sensor={sensor} sensorTypes={sensorTypes} devices={devices} onEdit={() => setEditingSensorId(sensor.id)} onToggleActive={(exposeToApp) => onUpdateSensor(sensor.id, { exposeToApp })} />
+                      )}
+                    </div>
+                  ))}
+                  {inactiveSensors.length > 0 && (
+                    <div className="inactive-sensors-section">
+                      <button
+                        type="button"
+                        className="inactive-sensors-toggle"
+                        onClick={() => toggleInactiveSection(inactiveSectionKey)}
+                        aria-expanded={inactiveExpanded}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ width: '1em', height: '1em' }}>
+                          <path fill="currentColor" d={inactiveExpanded ? 'M7 14l5-5 5 5z' : 'M7 10l5 5 5-5z'} />
+                        </svg>
+                        Inaktive Sensoren ({inactiveSensors.length})
+                      </button>
+                      {inactiveExpanded && inactiveSensors.map((sensor) => (
+                        <div key={sensor.id}>
+                          {editingSensorId === sensor.id ? (
+                            <div className="sensor-form-container">
+                              <SensorForm sensor={sensor} sensorTypes={sensorTypes} devices={devices} onSave={handleUpdateSensor} onCancel={() => setEditingSensorId(null)} />
+                            </div>
+                          ) : (
+                            <SensorRow sensor={sensor} sensorTypes={sensorTypes} devices={devices} onEdit={() => setEditingSensorId(sensor.id)} onToggleActive={(exposeToApp) => onUpdateSensor(sensor.id, { exposeToApp })} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </section>
       ) : null}

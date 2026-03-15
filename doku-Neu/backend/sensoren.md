@@ -45,6 +45,8 @@ Messwerte werden als Zeitreihen gespeichert und können aggregiert abgefragt wer
 Gibt alle Sensoren einer Gemeinde zurück.
 Jeder Sensor enthält zusätzlich den letzten Messwert (Zeitstempel, Wert und Status), sofern vorhanden.
 Das wird im SensorService durch eine zusätzliche Abfrage des letzten SensorReading realisiert.
+Zusaetzlich wird pro Sensor das Feld `dataStale` berechnet.
+`dataStale` ist `true`, wenn seit dem letzten Messwert ungefaehr 60 Sekunden vergangen sind.
 
 ### Sensor anlegen
 
@@ -72,6 +74,14 @@ Erstellt einen neuen Sensor für die angegebene Gemeinde.
 
 Aktualisiert die Felder eines bestehenden Sensors.
 Nur die mitgesendeten Felder werden geändert (Partial Update).
+
+Wichtige Steuerfelder:
+- `isActive`: Markiert den Sensor als aktiv/inaktiv.
+- `receiveData`: Legt fest, ob eingehende Messwerte gespeichert werden.
+- `exposeToApp`: Legt fest, ob der Sensor in App/Public-Endpunkten sichtbar ist.
+
+Die Freigabe fuer App/Public erfolgt ueber `exposeToApp`.
+Ein Sensor kann also intern aktiv bleiben, aber trotzdem aus App/Public ausgeblendet werden.
 
 ### Sensor löschen
 

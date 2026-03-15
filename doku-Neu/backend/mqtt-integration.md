@@ -8,6 +8,16 @@ Das Backend abonniert diese Topics und verarbeitet die eingehenden Nachrichten.
 
 Die Implementierung befindet sich unter `backend/src/mqtt/`.
 
+## Browser-Integration (WebSocket)
+
+Neben der Backend-Anbindung wird MQTT auch direkt im Browser genutzt:
+
+- Mosquitto stellt einen WebSocket-Listener auf Port `9001` bereit.
+- Nginx proxyt den Pfad `/mqtt` als WebSocket-Verbindung auf diesen Listener.
+- Das Frontend kann dadurch Live-Messwerte direkt ueber MQTT abonnieren, ohne REST-Polling fuer jeden Einzelwert.
+
+Wichtig: Das betrifft die Frontend-Liveanzeige. Die persistente Speicherung erfolgt weiterhin im Backend ueber die normalen MQTT-Sensortopics und den `SensorReadingService`.
+
 ## Konfiguration
 
 Die MQTT-Verbindung wird über Umgebungsvariablen konfiguriert:
@@ -141,7 +151,7 @@ Dieser Prozess ermöglicht es IoT-Geräten, sich automatisch beim System anzumel
 3. Das Backend prüft, ob Gerät `weather-01` existiert und zu einer Gemeinde von Account 1 gehört.
 4. Das Backend prüft, ob Sensor 5 zu diesem Gerät gehört.
 5. Der Messwert wird in der Tabelle `SensorReading` gespeichert.
-6. Im Frontend wird beim nächsten Polling-Zyklus (alle 5 Sekunden) der neue Messwert angezeigt.
+6. Im Frontend wird der neue Messwert entweder beim naechsten Polling-Zyklus angezeigt oder sofort ueber die WebSocket-MQTT-Verbindung aktualisiert.
 
 ## Entwurfsentscheidungen
 

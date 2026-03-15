@@ -101,6 +101,8 @@ export class AppApiService {
       villageId: village.id,
       name: village.name,
       locationName: village.locationName,
+      statusText: village.statusText,
+      infoText: village.infoText,
       postalCode: village.postalCode
         ? { zipCode: village.postalCode.zipCode, city: village.postalCode.city }
         : null,

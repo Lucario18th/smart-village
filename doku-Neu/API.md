@@ -1,5 +1,9 @@
 # 📚 Smart Village API Documentation
 
+> Hinweis (Stand 2026-03-15): Dieses Dokument ist ein allgemeiner Ueberblick.
+> Die verbindliche und gepflegte API-Referenz liegt in `api/endpunkte.md`.
+> Fuer App-spezifische Endpunkte unter `/app` siehe `backend/app-api.md`.
+
 Vollständige Dokumentation aller verfügbaren API Endpoints.
 
 ## 🌐 Base URL

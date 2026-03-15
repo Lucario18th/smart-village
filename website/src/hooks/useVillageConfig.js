@@ -6,6 +6,8 @@ import {
 } from '../config/configModel'
 import { applyThemeToDOM, getThemeClass } from '../config/themeManager'
 
+const ADMIN_DESIGN_STORAGE_PREFIX = 'smart-village-admin-design'
+
 const TOAST_MESSAGES = {
   sensor: 'Neuer Sensor entdeckt: ',
   device: 'Neues Gerät entdeckt: ',
@@ -57,6 +59,35 @@ const localizeSensorUnit = (unit) => {
 }
 const isMitfahrbankSensor = (sensorTypeName) =>
   typeof sensorTypeName === 'string' && sensorTypeName.trim().toLowerCase() === 'mitfahrbank'
+
+const getDesignStorageKey = (accountId) => `${ADMIN_DESIGN_STORAGE_PREFIX}:${accountId}`
+
+const loadStoredDesign = (accountId) => {
+  if (!accountId) return null
+  try {
+    const raw = localStorage.getItem(getDesignStorageKey(accountId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    return {
+      themeMode: parsed.themeMode === 'dark' ? 'dark' : 'light',
+      contrast: parsed.contrast === 'high' ? 'high' : 'standard',
+      primaryColor: typeof parsed.primaryColor === 'string' ? parsed.primaryColor : '#3498db',
+    }
+  } catch {
+    return null
+  }
+}
+
+const persistDesign = (accountId, design) => {
+  if (!accountId || !design) return
+  try {
+    localStorage.setItem(getDesignStorageKey(accountId), JSON.stringify(design))
+  } catch {
+    // Ignore storage write errors.
+  }
+}
+
 const mapSensors = (sensorsFromApi) =>
   (sensorsFromApi || []).map((sensor) => {
     const statusValue =
@@ -70,6 +101,7 @@ const mapSensors = (sensorsFromApi) =>
       type: localizeSensorTypeName(sensor.sensorType?.name),
       sensorTypeId: sensor.sensorTypeId,
       active: sensor.isActive,
+      exposeToApp: sensor.exposeToApp ?? true,
       receiveData: sensor.receiveData ?? true,
       infoText: sensor.infoText || '',
       deviceId: sensor.device?.id ?? null,
@@ -78,6 +110,7 @@ const mapSensors = (sensorsFromApi) =>
       longitude: sensor.longitude ?? '',
       discovered: !!sensor.discovered,
       status: statusValue,
+      dataStale: sensor.dataStale ?? false,
       lastValue: sensor.lastValue ?? null,
       lastStatus: sensor.lastStatus ?? null,
       lastTs: sensor.lastTs ?? null,
@@ -222,6 +255,11 @@ export function useVillageConfig(session) {
     deviceIdsRef.current = new Set((config.devices || []).map((d) => d.id))
   }, [config])
 
+  useEffect(() => {
+    if (!session?.sub) return
+    persistDesign(session.sub, config.design)
+  }, [session?.sub, config.design])
+
   // Load village data and sensor types from API
   useEffect(() => {
     if (!session || !session.email || !session.token) return
@@ -246,6 +284,7 @@ export function useVillageConfig(session) {
         const village = await apiClient.villages.get(accountId)
 
         // Build config from API response
+        const storedDesign = loadStoredDesign(accountId)
         const newConfig = {
           meta: {
             id: village.id,
@@ -286,9 +325,9 @@ export function useVillageConfig(session) {
             oldClothesContainer: { enabled: village.features?.enableTextileContainers ?? false },
           },
           design: {
-            themeMode: 'light',
-            contrast: 'standard',
-            primaryColor: '#3498db',
+            themeMode: storedDesign?.themeMode || 'light',
+            contrast: storedDesign?.contrast || 'standard',
+            primaryColor: storedDesign?.primaryColor || '#3498db',
           },
           sensors: mapSensors(village.sensors),
           devices: mapDevices(village.devices),
@@ -547,6 +586,7 @@ export function useVillageConfig(session) {
         name: config.general.villageName,
         locationName: config.general.locationName,
         phone: config.general.phone,
+        statusText: config.general.statusText,
         infoText: config.general.infoText,
         contactEmail: config.general.contactEmail,
         contactPhone: config.general.contactPhone,
@@ -606,6 +646,7 @@ export function useVillageConfig(session) {
             infoText: sensor.infoText,
             isActive: sensor.active,
             receiveData: sensor.receiveData,
+            exposeToApp: sensor.exposeToApp,
             deviceId: resolvedDeviceId,
             latitude,
             longitude,
@@ -618,6 +659,7 @@ export function useVillageConfig(session) {
                   infoText: sensor.infoText,
                   active: sensor.active,
                   receiveData: sensor.receiveData,
+                  exposeToApp: sensor.exposeToApp,
                   deviceId: resolvedDeviceId,
                   latitude: sensor.latitude ?? '',
                   longitude: sensor.longitude ?? '',
@@ -663,6 +705,7 @@ export function useVillageConfig(session) {
           villageName: village.name || '',
           locationName: village.locationName || '',
           phone: village.phone || '',
+          statusText: village.statusText || '',
           infoText: village.infoText || '',
           contactEmail: village.contactEmail || config.meta.email,
           contactPhone: village.contactPhone || '',

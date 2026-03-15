@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
+import { useMqttLiveReadings } from '../../hooks/useMqttLiveReadings'
 import PublicMapPanel from './PublicMapPanel'
 
 export default function VillageDetailView({ villageId }) {
@@ -34,7 +35,9 @@ export default function VillageDetailView({ villageId }) {
     }
 
     loadVillage()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [villageId])
 
   if (isLoading) {
@@ -68,6 +71,22 @@ export default function VillageDetailView({ villageId }) {
   const sensors = initialData?.sensors || config.sensors || []
   const messages = initialData?.messages || []
   const rideshares = initialData?.rideshares || []
+  const canShowMap = features.map !== false
+  const canShowSensors = features.sensorData !== false
+  const canShowMessages = features.messages !== false
+  const canShowRideShare = features.rideShare !== false
+
+  // Live-MQTT: direkt vom Broker, ohne Backend-Polling
+  const liveReadings = useMqttLiveReadings(true)
+
+  const liveSensors = useMemo(
+    () =>
+      sensors.map((sensor) => {
+        const live = liveReadings[sensor.id]
+        return live ? { ...sensor, lastReading: live } : sensor
+      }),
+    [sensors, liveReadings]
+  )
 
   return (
     <div className="village-detail">
@@ -85,36 +104,26 @@ export default function VillageDetailView({ villageId }) {
         ) : null}
       </div>
 
-      {/* Map section */}
-      {features.map === false ? (
-        <section className="village-section village-section-disabled">
-          <p className="disabled-message">Die Karte wurde vom Administrator deaktiviert.</p>
-        </section>
-      ) : (
+      {canShowMap ? (
         <section className="village-section village-map-section">
           <h3>Karte</h3>
           <PublicMapPanel
             zipCode={config.postalCode?.zipCode}
             city={config.postalCode?.city}
-            sensors={sensors}
+            sensors={liveSensors}
             rideshares={rideshares}
           />
         </section>
-      )}
+      ) : null}
 
-      {/* Sensor data section */}
-      {features.sensorData === false ? (
-        <section className="village-section village-section-disabled">
-          <p className="disabled-message">Sensordaten wurden vom Administrator deaktiviert.</p>
-        </section>
-      ) : (
+      {canShowSensors ? (
         <section className="village-section">
           <h3>Sensoren</h3>
-          {sensors.length === 0 ? (
+          {liveSensors.length === 0 ? (
             <p className="village-section-empty">Keine Sensoren verfügbar.</p>
           ) : (
             <div className="sensor-card-grid">
-              {sensors.map((sensor) => (
+              {liveSensors.map((sensor) => (
                 <div key={sensor.id} className="sensor-card">
                   {visibility.name !== false ? (
                     <h4 className="sensor-card-name">{sensor.name}</h4>
@@ -143,51 +152,49 @@ export default function VillageDetailView({ villageId }) {
             </div>
           )}
         </section>
-      )}
+      ) : null}
 
-      {/* Messages section */}
-      {features.messages === false ? (
-        <section className="village-section village-section-disabled">
-          <p className="disabled-message">Nachrichten wurden vom Administrator deaktiviert.</p>
-        </section>
-      ) : messages.length > 0 ? (
+      {canShowMessages ? (
         <section className="village-section">
           <h3>Nachrichten</h3>
-          <ul className="message-list">
-            {messages.map((msg) => (
-              <li key={msg.id} className={`message-item message-priority-${msg.priority}`}>
-                <p className="message-text">{msg.text}</p>
-                <time className="message-time">
-                  {new Date(msg.createdAt).toLocaleString('de-DE')}
-                </time>
-              </li>
-            ))}
-          </ul>
+          {messages.length === 0 ? (
+            <p className="village-section-empty">Keine Nachrichten vorhanden.</p>
+          ) : (
+            <ul className="message-list">
+              {messages.map((msg) => (
+                <li key={msg.id} className={`message-item message-priority-${msg.priority}`}>
+                  <p className="message-text">{msg.text}</p>
+                  <time className="message-time">
+                    {new Date(msg.createdAt).toLocaleString('de-DE')}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : null}
 
-      {/* Ride-share section */}
-      {features.rideShare === false ? (
-        <section className="village-section village-section-disabled">
-          <p className="disabled-message">Mitfahrbänke wurden vom Administrator deaktiviert.</p>
-        </section>
-      ) : rideshares.length > 0 ? (
+      {canShowRideShare ? (
         <section className="village-section">
           <h3>Mitfahrbänke</h3>
-          <div className="rideshare-card-grid">
-            {rideshares.map((rs) => (
-              <div key={rs.id} className="rideshare-card">
-                <h4 className="rideshare-card-name">{rs.name}</h4>
-                {rs.description ? (
-                  <p className="rideshare-card-description">{rs.description}</p>
-                ) : null}
-                <p className="rideshare-card-count">
-                  {rs.personCount} {rs.personCount === 1 ? 'Person' : 'Personen'} wartend
-                  {rs.maxCapacity != null ? ` (max. ${rs.maxCapacity})` : ''}
-                </p>
-              </div>
-            ))}
-          </div>
+          {rideshares.length === 0 ? (
+            <p className="village-section-empty">Keine Mitfahrbank-Daten vorhanden.</p>
+          ) : (
+            <div className="rideshare-card-grid">
+              {rideshares.map((rs) => (
+                <div key={rs.id} className="rideshare-card">
+                  <h4 className="rideshare-card-name">{rs.name}</h4>
+                  {rs.description ? (
+                    <p className="rideshare-card-description">{rs.description}</p>
+                  ) : null}
+                  <p className="rideshare-card-count">
+                    {rs.personCount} {rs.personCount === 1 ? 'Person' : 'Personen'} wartend
+                    {rs.maxCapacity != null ? ` (max. ${rs.maxCapacity})` : ''}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       ) : null}
     </div>

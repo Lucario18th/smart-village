@@ -24,6 +24,7 @@ export default function AdminSectionPanel({
   internalVillageId,
   onDeleteAccount,
   isDeleteLoading,
+  userSub,
 }) {
   const renderForm = () => {
     if (section.id === 'map') {
@@ -32,6 +33,8 @@ export default function AdminSectionPanel({
           general={config.general}
           sensors={config.sensors || []}
           devices={config.devices || []}
+          villageId={internalVillageId}
+          userSub={userSub}
         />
       )
     }

@@ -5,6 +5,17 @@ Sie richtet sich an Entwickler, die neu in das Projekt einsteigen oder bestehend
 
 Alle Dokumente sind in deutscher Sprache verfasst.
 
+## Aktueller Stand (2026-03-15)
+
+Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand ab:
+
+- Sensorfreigabe fuer App/Public erfolgt ueber `Sensor.exposeToApp` (nicht ueber `isActive`).
+- Sensoren werden nach ca. 60 Sekunden ohne neue Messwerte als `dataStale` gekennzeichnet.
+- Gemeinde-Status kann als `Village.statusText` persistiert und ueber API/App-API ausgeliefert werden.
+- Public-Ansichten verwenden modulbasierte Sichtbarkeit (Feature-Flags), ohne deaktivierte Platzhalter.
+- Browser-MQTT-Liveupdates laufen direkt ueber WebSocket (`/mqtt` via Nginx, Mosquitto WS-Port 9001).
+- Kartenfilter im Adminbereich werden pro Nutzer/Gemeinde in der Session persistiert und nicht durch Polling zurueckgesetzt.
+
 ## Hinweis zur Mobile API
 
 Die Mobile API (`/mobile-api/`) wird in dieser Dokumentation bewusst nicht behandelt.
@@ -17,6 +28,7 @@ Die Dokumentation ist in folgende Bereiche aufgeteilt:
 ```
 docs/
 ├── README.md                              ← Dieses Dokument (Navigation)
+├── aenderungen-2026-03-15.md              ← Letzte umgesetzte Änderungen (Snapshot)
 ├── uebersicht.md                          ← Projektübersicht
 ├── architektur/
 │   ├── system-uebersicht.md               ← Systemarchitektur
@@ -50,6 +62,7 @@ docs/
 
 | Dokument | Beschreibung |
 |----------|-------------|
+| [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, MQTT und Infrastruktur. |
 | [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten. |
 | [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten. |
 | [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk. |

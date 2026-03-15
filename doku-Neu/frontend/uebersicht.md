@@ -38,7 +38,8 @@ website/
 │   │   └── themeManager.js     ← Theme-Verwaltung
 │   ├── hooks/
 │   │   ├── useAdminAuth.js     ← Authentifizierungs-Hook
-│   │   └── useVillageConfig.js ← Haupthook für Gemeindedaten
+│   │   ├── useVillageConfig.js ← Haupthook für Gemeindedaten
+│   │   └── useMqttLiveReadings.js ← Live-Messwerte per MQTT im Browser
 │   ├── components/
 │   │   ├── LoginView.jsx           ← Anmeldeformular
 │   │   ├── RegisterView.jsx        ← Registrierungsformular
@@ -86,6 +87,12 @@ Stattdessen wird der Zustand über eine Zustandsvariable (`view`) verwaltet.
 | E-Mail-Verifizierung | EmailVerificationPending | E-Mail noch nicht verifiziert |
 | Verifiziert | EmailVerifiedView | E-Mail erfolgreich verifiziert |
 | Angemeldet | AdminView | Gültiger Token vorhanden |
+
+Im Public-/User-Bereich werden angezeigte Tabs dynamisch aus den Village-Feature-Flags erzeugt.
+Deaktivierte Module (z. B. Karte, Wetter, Events) werden komplett ausgeblendet.
+
+Die ausgewaehlte Gemeinde wird im Browser persistiert.
+Beim ersten Laden wird bevorzugt die letzte Auswahl genutzt, sonst Gemeinde-ID 1 (falls vorhanden).
 
 ## Theming
 
