@@ -6,5 +6,12 @@ import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 data class MainViewModelState(
     val village: VillageConfig? = null,
     val isLoading: Boolean = false,
-    val messages: List<Message> = emptyList()
+    val messages: List<Message> = emptyList(),
+    val environmentalData: EnvironmentalData = EnvironmentalData()
+)
+
+data class EnvironmentalData(
+    val temperature: String = "-",
+    val humidity: String = "-",
+    val windSpeed: String = "-"
 )

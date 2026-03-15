@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.model.usecase.GetMessagesUseCase
+import de.tif23.studienarbeit.model.usecase.GetSensorDataUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.ui.theme.primaryLight
@@ -25,8 +26,10 @@ import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
 import de.tif23.studienarbeit.viewmodel.data.RecyclingType
+import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.TrainStationList
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
+import de.tif23.studienarbeit.viewmodel.data.state.EnvironmentalData
 import de.tif23.studienarbeit.viewmodel.data.state.MainViewModelState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,15 +51,17 @@ import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
-import smartvillageapp.composeapp.generated.resources.bahnhof_location
+import smartvillageapp.composeapp.generated.resources.cloud_circle
 import smartvillageapp.composeapp.generated.resources.parkbank_location
-import smartvillageapp.composeapp.generated.resources.wetterstation_location
+import smartvillageapp.composeapp.generated.resources.train
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 class MainViewModel(
     private val getVillageUseCase: GetVillageUseCase = GetVillageUseCase(),
     private val selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore(),
-    private val getMessagesUseCase: GetMessagesUseCase = GetMessagesUseCase()
+    private val getMessagesUseCase: GetMessagesUseCase = GetMessagesUseCase(),
+    private val getSensorDataUseCase: GetSensorDataUseCase = GetSensorDataUseCase()
 ) : ViewModel() {
     private val tileStreamProvider = makeOsmTileStreamProvider()
     private val maxLevel = 16
@@ -116,10 +121,23 @@ class MainViewModel(
                 stateFlow.update { it.copy(village = village, isLoading = false) }
                 moveToInitialPosition(village)
                 loadMarkers()
+                loadEnvironmentalData(villageId)
                 viewModelScope.launch {
                     val messages = getMessagesUseCase.getInitialMessages(villageId)
                     stateFlow.update { it.copy(messages = messages) }
                 }
+            }
+        }
+    }
+
+    private fun loadEnvironmentalData(villageId: Int) {
+        viewModelScope.launch {
+            val sensors = runCatching {
+                getSensorDataUseCase.getInitialSensorData(villageId)
+            }.getOrDefault(emptyList())
+
+            stateFlow.update {
+                it.copy(environmentalData = buildEnvironmentalData(sensors))
             }
         }
     }
@@ -141,6 +159,77 @@ class MainViewModel(
 
     private fun mapSizeAtLevel(wmtsLevel: Int, tileSize: Int): Int {
         return tileSize * 2.0.pow(wmtsLevel).toInt()
+    }
+
+    private fun buildEnvironmentalData(sensors: List<Sensor>): EnvironmentalData {
+        val temperature = sensors.averageForCategory { it.matchesTemperature() }
+        val humidity = sensors.averageForCategory { it.matchesHumidity() }
+        val windSpeed = sensors.averageForCategory { it.matchesWindSpeed() }
+
+        return EnvironmentalData(
+            temperature = temperature?.let { formatAverage(it, "C") } ?: "-",
+            humidity = humidity?.let { formatAverage(it, "%") } ?: "-",
+            windSpeed = windSpeed?.let { formatAverage(it, "m/s") } ?: "-"
+        )
+    }
+
+    private inline fun List<Sensor>.averageForCategory(crossinline matchesCategory: (Sensor) -> Boolean): Double? {
+        val values = this
+            .asSequence()
+            .filter { matchesCategory(it) }
+            .mapNotNull { it.lastReading?.value }
+            .toList()
+
+        if (values.isEmpty()) {
+            return null
+        }
+
+        return values.average()
+    }
+
+    private fun Sensor.matchesTemperature(): Boolean {
+        val normalizedType = type.lowercase()
+        val normalizedName = name.lowercase()
+        return normalizedType.contains("temperatur") ||
+            normalizedType.contains("temperature") ||
+            normalizedType.contains("temp") ||
+            normalizedName.contains("temperatur") ||
+            normalizedName.contains("temperature") ||
+            unit.equals("c", ignoreCase = true) ||
+            unit.equals("°c", ignoreCase = true)
+    }
+
+    private fun Sensor.matchesHumidity(): Boolean {
+        val normalizedType = type.lowercase()
+        val normalizedName = name.lowercase()
+        return normalizedType.contains("luftfeuchtigkeit") ||
+            normalizedType.contains("humidity") ||
+            normalizedType.contains("feuchtigkeit") ||
+            normalizedName.contains("luftfeuchtigkeit") ||
+            normalizedName.contains("humidity") ||
+            unit == "%"
+    }
+
+    private fun Sensor.matchesWindSpeed(): Boolean {
+        val normalizedType = type.lowercase()
+        val normalizedName = name.lowercase()
+        return normalizedType.contains("windgeschwindigkeit") ||
+            normalizedType.contains("wind speed") ||
+            normalizedType.contains("windspeed") ||
+            normalizedName.contains("windgeschwindigkeit") ||
+            normalizedName.contains("wind speed") ||
+            normalizedName.contains("windspeed") ||
+            unit.equals("m/s", ignoreCase = true)
+    }
+
+    private fun formatAverage(value: Double, unit: String): String {
+        val rounded = (value * 10).roundToInt() / 10.0
+        val displayValue = if (rounded % 1.0 == 0.0) {
+            rounded.toInt().toString()
+        } else {
+            rounded.toString()
+        }
+        return "$displayValue $unit"
     }
 
     private fun loadMarkers() {
@@ -180,9 +269,9 @@ class MainViewModel(
                     y = latToY(it.lat)
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.bahnhof_location),
+                        painter = painterResource(Res.drawable.train),
                         contentDescription = null,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = primaryLight
                     )
                 }
@@ -196,9 +285,9 @@ class MainViewModel(
                     y = latToY(it.coordinates.lat)
                 ) {
                     Icon(
-                        painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(Res.drawable.wetterstation_location),
+                        painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(Res.drawable.cloud_circle),
                         contentDescription = null,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
                         tint = primaryLight
                     )
                 }

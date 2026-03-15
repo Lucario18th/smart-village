@@ -54,16 +54,17 @@ import smartvillageapp.composeapp.generated.resources.logo
 import smartvillageapp.composeapp.generated.resources.notifications
 import smartvillageapp.composeapp.generated.resources.priority_high
 import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewModel()) {
     val state by viewModel.viewState.collectAsState()
 
     val sensors = listOf(
-        SensorCardData("22 C", "Temperatur"),
-        SensorCardData("60 %", "Luftfeuchtigkeit"),
-        SensorCardData("42 dB", "Lärm")
+        SensorCardData(state.environmentalData.temperature, "Temperatur"),
+        SensorCardData(state.environmentalData.humidity, "Luftfeuchtigkeit"),
+        SensorCardData(state.environmentalData.windSpeed, "Windgeschwindigkeit")
     )
     val backgroundPainter = painterResource(
         if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
