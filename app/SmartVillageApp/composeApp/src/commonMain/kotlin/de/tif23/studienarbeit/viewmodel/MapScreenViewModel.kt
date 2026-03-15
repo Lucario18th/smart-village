@@ -14,6 +14,7 @@ import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.provider.LocationService
 import de.tif23.studienarbeit.provider.createLocationService
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
 import de.tif23.studienarbeit.viewmodel.constants.BUGGINGEN_LAT
@@ -50,10 +51,10 @@ import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
-import smartvillageapp.composeapp.generated.resources.cloud_circle
+import smartvillageapp.composeapp.generated.resources.circle_full
 import smartvillageapp.composeapp.generated.resources.parkbank_location
-import smartvillageapp.composeapp.generated.resources.settings
-import smartvillageapp.composeapp.generated.resources.train
+import smartvillageapp.composeapp.generated.resources.train_filled
+import smartvillageapp.composeapp.generated.resources.weather_filled
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.time.Clock
@@ -105,10 +106,10 @@ class MapScreenViewModel(
                 ) {
                     // UI für den Standort (blauer Punkt)
                     Icon(
-                        painter = painterResource(Res.drawable.settings), // Oder eigenes Icon
+                        painter = painterResource(Res.drawable.circle_full), // Oder eigenes Icon
                         contentDescription = "Ihr Standort",
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = onSurfaceLight
                     )
                 }
 
@@ -174,10 +175,10 @@ class MapScreenViewModel(
                 y = latToY(it.lat)
             ) {
                 Icon(
-                    painter = painterResource(Res.drawable.train),
+                    painter = painterResource(Res.drawable.train_filled),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = onSurfaceLight
                 )
             }
         }
@@ -192,11 +193,11 @@ class MapScreenViewModel(
                     painter = if (it.type == "Mitfahrbank") {
                         painterResource(Res.drawable.parkbank_location)
                     } else {
-                        painterResource(Res.drawable.cloud_circle)
+                        painterResource(Res.drawable.weather_filled)
                     },
                     contentDescription = null,
                     modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = onSurfaceLight
                 )
             }
         }
@@ -314,6 +315,25 @@ class MapScreenViewModel(
     private fun formatNumericValue(value: Double): String {
         val rounded = (value * 10).roundToInt() / 10.0
         return if (rounded % 1.0 == 0.0) rounded.toInt().toString() else rounded.toString()
+    }
+
+    fun centerOnUser() {
+        viewModelScope.launch {
+            mapState.centerOnMarker("user_location", destScale = 1.0)
+        }
+    }
+
+    fun centerOnVillage() {
+        viewModelScope.launch {
+            mapState.centerOnMarker(
+                id = when (stateFlow.value.village?.village?.name) {
+                    "Freiburg im Breisgau" -> "init_freiburg"
+                    "Buggingen" -> "init_buggingen"
+                    "Lörrach" -> "init_loerrach"
+                    else -> "init_loerrach"
+                }, destScale = 1.0
+            )
+        }
     }
 }
 

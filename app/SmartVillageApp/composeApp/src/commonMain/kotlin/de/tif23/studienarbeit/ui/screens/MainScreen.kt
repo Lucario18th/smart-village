@@ -1,6 +1,5 @@
 package de.tif23.studienarbeit.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +23,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -41,8 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import de.tif23.studienarbeit.ui.components.MapButton
 import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.ui.components.RequestLocationPermission
 import de.tif23.studienarbeit.util.NavBarTabs
+import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MainViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import kotlinx.datetime.TimeZone
@@ -53,7 +54,9 @@ import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
+import smartvillageapp.composeapp.generated.resources.city
 import smartvillageapp.composeapp.generated.resources.logo
+import smartvillageapp.composeapp.generated.resources.my_location
 import smartvillageapp.composeapp.generated.resources.notifications
 import smartvillageapp.composeapp.generated.resources.open_in_full
 import smartvillageapp.composeapp.generated.resources.priority_high
@@ -73,6 +76,12 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
     val backgroundPainter = painterResource(
         if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
     )
+
+    if (getPlatform().name == "Android") {
+        RequestLocationPermission {
+            viewModel.startLocationTracking()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Image(
@@ -131,20 +140,29 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                     )
                             ) {
                                 MapUI(state = viewModel.mapState)
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(8.dp)
-                                        .clickable { backStack.add(NavDestinations.MapScreen) }
+                                Column(
+                                    modifier = Modifier.align(Alignment.TopEnd)
                                 ) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.open_in_full),
-                                        contentDescription = "Vollbild",
-                                        modifier = Modifier.padding(4.dp),
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    MapButton(
+                                        icon = Res.drawable.open_in_full,
+                                        contentDescription = "Vollbildkarte",
+                                        onClick = {
+                                            backStack.add(NavDestinations.MapScreen)
+                                        }
+                                    )
+                                    MapButton(
+                                        icon = Res.drawable.my_location,
+                                        contentDescription = "Auf mich zentrieren",
+                                        onClick = {
+                                            viewModel.centerOnUser()
+                                        }
+                                    )
+                                    MapButton(
+                                        icon = Res.drawable.city,
+                                        contentDescription = "Auf Dorf zentrieren",
+                                        onClick = {
+                                            viewModel.centerOnVillage()
+                                        }
                                     )
                                 }
                             }

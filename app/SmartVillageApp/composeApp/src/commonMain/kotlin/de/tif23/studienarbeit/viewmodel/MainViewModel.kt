@@ -21,8 +21,11 @@ import de.tif23.studienarbeit.model.usecase.GetMessagesUseCase
 import de.tif23.studienarbeit.model.usecase.GetSensorDataUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageTrainStationsUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
+import de.tif23.studienarbeit.provider.LocationService
+import de.tif23.studienarbeit.provider.createLocationService
 import de.tif23.studienarbeit.provider.makeOsmTileStreamProvider
 import de.tif23.studienarbeit.ui.theme.backgroundLight
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
 import de.tif23.studienarbeit.ui.theme.primaryLight
 import de.tif23.studienarbeit.util.latToY
 import de.tif23.studienarbeit.util.lonToX
@@ -58,9 +61,10 @@ import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.altglas_location
 import smartvillageapp.composeapp.generated.resources.altkleider_location
-import smartvillageapp.composeapp.generated.resources.cloud_circle
+import smartvillageapp.composeapp.generated.resources.circle_full
 import smartvillageapp.composeapp.generated.resources.parkbank_location
-import smartvillageapp.composeapp.generated.resources.train
+import smartvillageapp.composeapp.generated.resources.train_filled
+import smartvillageapp.composeapp.generated.resources.weather_filled
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -71,6 +75,8 @@ class MainViewModel(
     private val getSensorDataUseCase: GetSensorDataUseCase = GetSensorDataUseCase(),
     private val getVillageTrainStationsUseCase: GetVillageTrainStationsUseCase = GetVillageTrainStationsUseCase()
 ) : ViewModel() {
+
+    private val locationService: LocationService = createLocationService()
     private val tileStreamProvider = makeOsmTileStreamProvider()
     private val maxLevel = 16
     private val minLevel = 12
@@ -120,6 +126,30 @@ class MainViewModel(
                     val messages = getMessagesUseCase.getInitialMessages(villageId)
                     stateFlow.update { it.copy(messages = messages) }
                 }
+            }
+        }
+    }
+
+    fun startLocationTracking() {
+        viewModelScope.launch {
+            locationService.locationFlow.collect { location ->
+                // Update User Position Marker
+                mapState.addMarker(
+                    id = "user_location",
+                    x = lonToX(location.lon),
+                    y = latToY(location.lat)
+                ) {
+                    // UI für den Standort (blauer Punkt)
+                    Icon(
+                        painter = painterResource(Res.drawable.circle_full), // Oder eigenes Icon
+                        contentDescription = "Ihr Standort",
+                        modifier = Modifier.size(24.dp),
+                        tint = onSurfaceLight
+                    )
+                }
+
+                // Optional: Karte zentrieren beim ersten Fix
+                // mapState.centerOnMarker("user_location", 1.0f)
             }
         }
     }
@@ -273,7 +303,7 @@ class MainViewModel(
                         ),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
-                        tint = primaryLight
+                        tint = onSurfaceLight
                     )
                 }
             }
@@ -289,10 +319,10 @@ class MainViewModel(
                     y = latToY(it.lat)
                 ) {
                     Icon(
-                        painter = painterResource(Res.drawable.train),
+                        painter = painterResource(Res.drawable.train_filled),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = primaryLight
+                        tint = onSurfaceLight
                     )
                 }
             }
@@ -306,14 +336,33 @@ class MainViewModel(
                 ) {
                     Icon(
                         painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(
-                            Res.drawable.cloud_circle
+                            Res.drawable.weather_filled
                         ),
                         contentDescription = null,
                         modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
-                        tint = primaryLight
+                        tint = onSurfaceLight
                     )
                 }
             }
+        }
+    }
+
+    fun centerOnUser() {
+        viewModelScope.launch {
+            mapState.centerOnMarker("user_location", destScale = 1.0)
+        }
+    }
+
+    fun centerOnVillage() {
+        viewModelScope.launch {
+            mapState.centerOnMarker(
+                id = when (stateFlow.value.village?.village?.name) {
+                    "Freiburg im Breisgau" -> "init_freiburg"
+                    "Buggingen" -> "init_buggingen"
+                    "Lörrach" -> "init_loerrach"
+                    else -> "init_loerrach"
+                }, destScale = 1.0
+            )
         }
     }
 
@@ -329,7 +378,7 @@ class MainViewModel(
         ) {
             Text(
                 text = text,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = onSurfaceLight,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(8.dp)
             )

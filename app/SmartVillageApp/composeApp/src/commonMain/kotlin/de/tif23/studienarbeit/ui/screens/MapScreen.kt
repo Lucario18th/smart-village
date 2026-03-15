@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.DepartureRow
+import de.tif23.studienarbeit.ui.components.MapButton
 import de.tif23.studienarbeit.ui.components.RequestLocationPermission
 import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MapScreenViewModel
@@ -43,7 +44,9 @@ import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.ui.MapUI
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.back
+import smartvillageapp.composeapp.generated.resources.city
 import smartvillageapp.composeapp.generated.resources.cloud_circle
+import smartvillageapp.composeapp.generated.resources.my_location
 import smartvillageapp.composeapp.generated.resources.parkbank_location
 import smartvillageapp.composeapp.generated.resources.train
 
@@ -69,7 +72,7 @@ fun MapScreen(
                     IconButton(onClick = { backStack.removeLastOrNull() }) {
                         Icon(
                             painter = painterResource(Res.drawable.back),
-                            contentDescription = "Zuruck"
+                            contentDescription = "Zurück"
                         )
                     }
                 }
@@ -82,6 +85,25 @@ fun MapScreen(
                 .padding(paddingValues)
         ) {
             MapUI(state = viewModel.mapState)
+
+            Column(
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                MapButton(
+                    icon = Res.drawable.my_location,
+                    contentDescription = "Auf mich zentrieren",
+                    onClick = {
+                        viewModel.centerOnUser()
+                    }
+                )
+                MapButton(
+                    icon = Res.drawable.city,
+                    contentDescription = "Auf Dorf zentrieren",
+                    onClick = {
+                        viewModel.centerOnVillage()
+                    }
+                )
+            }
 
             if (state.isLoading) {
                 CircularProgressIndicator(
@@ -107,9 +129,8 @@ fun MapScreen(
             ModalBottomSheet(
                 onDismissRequest = { viewModel.dismissSheet() }
             ) {
+                SheetContent(content = sheetContent, backStack)
             }
-
-            SheetContent(content = sheetContent, backStack)
         }
     }
 }
