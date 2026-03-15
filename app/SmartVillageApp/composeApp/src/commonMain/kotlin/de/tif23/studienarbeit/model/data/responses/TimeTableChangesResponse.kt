@@ -7,8 +7,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("timetable")
 data class TimeTableChangesResponse(
-    val station: String,
-    val eva: String,
+    val station: String?,
+    val eva: String?,
     @XmlElement
     @XmlSerialName("s")
     val timetableEntry: List<TimeTableChange>
