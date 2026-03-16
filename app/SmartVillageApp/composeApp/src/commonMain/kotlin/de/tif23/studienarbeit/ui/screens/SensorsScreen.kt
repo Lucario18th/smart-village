@@ -113,7 +113,7 @@ fun SensorsScreen(
                             .padding(paddingValues),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Keine Sensoren verfuegbar")
+                        Text("Keine Sensoren verfügbar")
                     }
                 }
 

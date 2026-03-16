@@ -20,7 +20,7 @@ class SensorDetailsViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
-            MqttClientProvider.connect("localhost", 1883, 1)
+            MqttClientProvider.connect("192.168.23.113", 1883, 1)
         }
 
         viewModelScope.launch {

@@ -18,6 +18,8 @@ data class VillageConfigResponse(
 @Serializable
 data class RemoteVillageConfig(
     val villageId: Int,
+    val statusText: String?,
+    val infoText: String?,
     val name: String,
     val locationName: String,
     val postalCode: RemotePostalCode,

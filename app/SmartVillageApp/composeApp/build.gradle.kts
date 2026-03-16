@@ -109,23 +109,6 @@ dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
 
-fun String.toKotlinStringLiteral(): String =
-    buildString {
-        append('"')
-        for (ch in this@toKotlinStringLiteral) {
-            when (ch) {
-                '\\' -> append("\\\\")
-                '"' -> append("\\\"")
-                '\n' -> append("\\n")
-                '\r' -> append("\\r")
-                '\t' -> append("\\t")
-                '$' -> append("\\$")
-                else -> append(ch)
-            }
-        }
-        append('"')
-    }
-
 buildkonfig {
     packageName = "de.tif23.studienarbeit"
 
@@ -144,12 +127,12 @@ buildkonfig {
         buildConfigField(
             STRING,
             "DB_CLIENT_ID",
-            dbClientId.toKotlinStringLiteral()
+            dbClientId
         )
         buildConfigField(
             STRING,
             "DB_CLIENT_SECRET",
-            dbClientSecret.toKotlinStringLiteral()
+            dbClientSecret
         )
     }
 }
