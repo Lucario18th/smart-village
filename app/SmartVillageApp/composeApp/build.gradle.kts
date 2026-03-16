@@ -112,16 +112,16 @@ dependencies {
 buildkonfig {
     packageName = "de.tif23.studienarbeit"
 
-    val localProperties = Properties()
-    val localPropertiesFile = rootProject.file("local.properties")
-    if (localPropertiesFile.exists()) {
-        localProperties.load(localPropertiesFile.inputStream())
+    val envProperties = Properties()
+    val envFile = rootProject.file("../../infra/smartvillage.env")
+    if (envFile.exists()) {
+        envProperties.load(envFile.inputStream())
     }
 
-    val dbClientId = localProperties.getProperty("db-client-id")
-        ?: error("Property 'db-client-id' is missing in local.properties")
-    val dbClientSecret = localProperties.getProperty("db-client-secret")
-        ?: error("Property 'db-client-secret' is missing in local.properties")
+    val dbClientId = envProperties.getProperty("DB_CLIENT_ID")
+        ?: error("Property 'DB_CLIENT_ID' is missing in smart-village/infra/smartvillage.env")
+    val dbClientSecret = envProperties.getProperty("DB_CLIENT_SECRET")
+        ?: error("Property 'DB_CLIENT_SECRET' is missing in smart-village/infra/smartvillage.env")
 
     defaultConfigs {
         buildConfigField(
