@@ -1,0 +1,130 @@
+﻿<Window x:Class="SmartVillageWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SmartVillageWPF.ViewModels"
+        xmlns:views="clr-namespace:SmartVillageWPF.Views"
+        d:DataContext="{d:DesignInstance vm:MainViewModel}"
+        mc:Ignorable="d"
+        Title="Smart Village" Height="700" Width="1100"
+        MinHeight="500" MinWidth="800"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+
+    <DockPanel>
+        <!-- Header Bar (matching web admin .admin-header) -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}"
+                Padding="16,10" MinHeight="46">
+            <DockPanel>
+                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{StaticResource OnPrimaryBrush}" VerticalAlignment="Center" />
+
+                <!-- Village Selector + Connection Status -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                            HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                    <!-- Village ComboBox -->
+                    <TextBlock Text="Village:" Foreground="{StaticResource OnPrimaryBrush}"
+                               FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding Villages}"
+                              SelectedItem="{Binding SelectedVillage}"
+                              DisplayMemberPath="Name"
+                              MinWidth="150" Margin="0,0,16,0"
+                              VerticalAlignment="Center" />
+
+                    <!-- Connection Status Indicator -->
+                    <Ellipse Width="10" Height="10" Margin="0,0,6,0" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource StatusUnknownBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ConnectionViewModel.StatusText}" Value="Connected">
+                                        <Setter Property="Fill" Value="{StaticResource StatusOkBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ConnectionViewModel.StatusText}" Value="Connecting">
+                                        <Setter Property="Fill" Value="{StaticResource StatusWarnBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ConnectionViewModel.StatusText}" Value="Reconnecting">
+                                        <Setter Property="Fill" Value="{StaticResource StatusWarnBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ConnectionViewModel.StatusText}" Value="Error">
+                                        <Setter Property="Fill" Value="{StaticResource StatusErrorBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding ConnectionViewModel.StatusText}"
+                               Foreground="{StaticResource OnPrimaryBrush}" FontSize="13"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Error message banner -->
+        <Border DockPanel.Dock="Top" Background="#FFF3E0" Padding="12,6"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Collapsed}">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#E65100" FontSize="13" TextWrapping="Wrap" />
+        </Border>
+
+        <!-- Main Layout: Sidebar + Content (matching web admin .admin-layout grid) -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar (matching .admin-sidebar) -->
+            <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource SurfaceVariantBrush}"
+                    BorderThickness="0,0,1,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0">
+                        <Button Content="📊  Dashboard" Style="{StaticResource NavButtonStyle}"
+                                Command="{Binding NavigateToCommand}" CommandParameter="Dashboard" />
+                        <Button Content="📡  Sensors" Style="{StaticResource NavButtonStyle}"
+                                Command="{Binding NavigateToCommand}" CommandParameter="Sensors" />
+                        <Button Content="🔌  Connection" Style="{StaticResource NavButtonStyle}"
+                                Command="{Binding NavigateToCommand}" CommandParameter="Connection" />
+                    </StackPanel>
+
+                    <!-- Version info at bottom -->
+                    <TextBlock DockPanel.Dock="Bottom" Text="Smart Village WPF v1.0"
+                               Foreground="{StaticResource OnSurfaceVariantBrush}" FontSize="11"
+                               Margin="16,0,0,12" VerticalAlignment="Bottom" />
+                </DockPanel>
+            </Border>
+
+            <!-- Main Content Area -->
+            <ContentControl Grid.Column="1">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentView}" Value="Dashboard">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <views:DashboardView DataContext="{Binding DashboardViewModel}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentView}" Value="Sensors">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <views:SensorsView DataContext="{Binding SensorsViewModel}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentView}" Value="Connection">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <views:ConnectionView DataContext="{Binding ConnectionViewModel}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+        </Grid>
+    </DockPanel>
+</Window>

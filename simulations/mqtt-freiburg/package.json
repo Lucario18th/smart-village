@@ -1,0 +1,24 @@
+{
+  "name": "mqtt-freiburg-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "simulate": "SCENARIO=1 tsx src/index.ts",
+    "simulate:mitfahrbank": "SCENARIO=2 tsx src/index.ts",
+    "simulate:errors": "SCENARIO=2 DISCOVERY_ON_START=1 tsx src/index.ts",
+    "sim:freiburg": "VILLAGE=freiburg tsx src/simulator.ts",
+    "sim:loerrach": "VILLAGE=loerrach tsx src/simulator.ts",
+    "sim:buggingen": "VILLAGE=buggingen tsx src/simulator.ts"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "dayjs": "^1.11.19",
+    "mqtt": "^5.3.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.9.0"
+  }
+}

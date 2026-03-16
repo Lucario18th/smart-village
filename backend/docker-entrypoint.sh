@@ -1,9 +1,16 @@
 #!/bin/sh
 set -e
 
-# DB wartet ggf. noch -> optional kleines Sleep oder healthcheck später
-echo "Running Prisma migrations..."
+echo "Waiting for database smartvillage-postgres:5432..."
+until nc -z smartvillage-postgres 5432; do
+  sleep 1
+done
+
+echo "Running Prisma migrations (deploy)..."
 npx prisma migrate deploy
+
+echo "Running Prisma seed..."
+npx prisma db seed
 
 echo "Starting NestJS..."
 node dist/main.js

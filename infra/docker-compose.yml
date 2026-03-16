@@ -1,58 +1,94 @@
-version: "3.9"
-
 services:
   nginx:
-    image: nginx:alpine
-    container_name: smartvillage-nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - backend
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - frontend-build:/usr/share/nginx/html:ro
-    networks:
-      - smartvillage-net
-
-  frontend:
     build:
       context: ../website
       dockerfile: Dockerfile
-    container_name: smartvillage-frontend
+    container_name: smartvillage-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
     volumes:
-      - frontend-build:/usr/share/nginx/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
     networks:
       - smartvillage-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "--no-check-certificate", "https://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   backend:
     build:
       context: ../backend
       dockerfile: Dockerfile
     container_name: smartvillage-backend
-    env_file:
-      - ../backend/.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    env_file:
+      - ./smartvillage.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./csv:/app/infra/csv:ro
     networks:
       - smartvillage-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
 
   postgres:
-    image: timescale/timescaledb-postgis:latest
+    image: timescale/timescaledb:latest-pg15
     container_name: smartvillage-postgres
-    environment:
-      POSTGRES_USER: smartvillage
-      POSTGRES_PASSWORD: smartvillage
-      POSTGRES_DB: smartvillage
+    env_file:
+      - ./smartvillage.env
     volumes:
-      - /srv/smartvillage/postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - smartvillage-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartvillage -d smartvillage"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: smartvillage-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - smartvillage-net
 
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smartvillage-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - smartvillage-net
 
 networks:
   smartvillage-net:
 
 volumes:
   postgres-data:
-  frontend-build:
