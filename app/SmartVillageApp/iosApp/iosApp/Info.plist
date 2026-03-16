@@ -4,5 +4,8 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Wir benötigen Ihren Standort, damit wir Ihre aktuelle Position auf der Karte anzeigen können.</string>
+
 </dict>
 </plist>

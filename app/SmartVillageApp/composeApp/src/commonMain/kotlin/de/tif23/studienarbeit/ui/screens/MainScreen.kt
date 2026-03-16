@@ -17,55 +17,73 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import de.tif23.studienarbeit.ui.components.MapButton
+import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.ui.components.RequestLocationPermission
+import de.tif23.studienarbeit.util.NavBarTabs
+import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MainViewModel
+import de.tif23.studienarbeit.viewmodel.NavDestinations
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.ui.MapUI
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.account_circle
 import smartvillageapp.composeapp.generated.resources.background_dark
 import smartvillageapp.composeapp.generated.resources.background_light
-import smartvillageapp.composeapp.generated.resources.home
+import smartvillageapp.composeapp.generated.resources.city
 import smartvillageapp.composeapp.generated.resources.logo
-import smartvillageapp.composeapp.generated.resources.map
+import smartvillageapp.composeapp.generated.resources.my_location
 import smartvillageapp.composeapp.generated.resources.notifications
-import smartvillageapp.composeapp.generated.resources.pinboard
-import smartvillageapp.composeapp.generated.resources.settings
-import smartvillageapp.composeapp.generated.resources.thermometer
+import smartvillageapp.composeapp.generated.resources.open_in_full
+import smartvillageapp.composeapp.generated.resources.priority_high
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel = viewModel()) {
-    val notifications = listOf(
-        "Baustelle B317",
-        "Wochenmarkt"
-    )
-    val notificationTimes = listOf("heute", "Sa")
+fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewModel()) {
+    val state by viewModel.viewState.collectAsState()
+
     val sensors = listOf(
-        SensorCardData("22 C", "Temperatur"),
-        SensorCardData("60 %", "Luftfeuchtigkeit"),
-        SensorCardData("42 dB", "Lärm")
+        SensorCardData(state.environmentalData.temperature, "Temperatur"),
+        SensorCardData(state.environmentalData.humidity, "Luftfeuchtigkeit"),
+        SensorCardData(state.environmentalData.windSpeed, "Windgeschwindigkeit")
     )
     val backgroundPainter = painterResource(
         if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
     )
+
+    if (getPlatform().name == "Android") {
+        RequestLocationPermission {
+            viewModel.startLocationTracking()
+        }
+    } else if (getPlatform().name == "Ios") {
+        viewModel.startLocationTracking()
+    }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Image(
@@ -75,107 +93,175 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             contentScale = ContentScale.Crop
         )
 
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                TopBar()
-            },
-            bottomBar = {
-                NavBar()
-            }
-        ) { paddingValues ->
-
-            LazyColumn(
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else if (state.village == null && !state.isLoading) {
+            Text(
+                text = "Das Dorf mit der ID ... konnte nicht geladen werden \n Bitte löschen Sie den Speicherinhalt der App und starten Sie die App erneut",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues)
-            ) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Box(
+                    .align(Alignment.Center)
+                    .padding(24.dp)
+            )
+        } else {
+
+            Scaffold(
+                containerColor = Color.Transparent,
+                topBar = {
+                    TopBar(villageName = state.village?.village?.name!!)
+                },
+                bottomBar = {
+                    NavBar(backStack, NavBarTabs.MAIN)
+                }
+            ) { paddingValues ->
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues)
+                ) {
+                    item {
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(360.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.surfaceVariant,
-                                    shape = RectangleShape
-                                )
+                                .padding(16.dp),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            MapUI(state = viewModel.mapState)
-                        }
-                    }
-                }
-                item {
-                    Text(
-                        text = "Neuigkeiten",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 8.dp)
-                    )
-                }
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        Column {
-                            notifications.forEachIndexed { index, title ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { }
-                                        .padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(text = title)
-                                    Text(
-                                        text = notificationTimes.getOrElse(index) { "" },
-                                        style = MaterialTheme.typography.bodySmall
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(360.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                        shape = RectangleShape
                                     )
-                                }
-                                if (index < notifications.lastIndex) {
-                                    HorizontalDivider()
+                            ) {
+                                MapUI(state = viewModel.mapState)
+                                Column(
+                                    modifier = Modifier.align(Alignment.TopEnd)
+                                ) {
+                                    MapButton(
+                                        icon = Res.drawable.open_in_full,
+                                        contentDescription = "Vollbildkarte",
+                                        onClick = {
+                                            backStack.add(NavDestinations.MapScreen)
+                                        }
+                                    )
+                                    MapButton(
+                                        icon = Res.drawable.my_location,
+                                        contentDescription = "Auf mich zentrieren",
+                                        onClick = {
+                                            viewModel.centerOnUser()
+                                        }
+                                    )
+                                    MapButton(
+                                        icon = Res.drawable.city,
+                                        contentDescription = "Auf Dorf zentrieren",
+                                        onClick = {
+                                            viewModel.centerOnVillage()
+                                        }
+                                    )
                                 }
                             }
                         }
                     }
-                }
-                item {
-                    Text(
-                        text = "Umweltdaten",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                    )
-                }
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        sensors.forEach { sensor ->
+                    if (state.messages.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "Neuigkeiten",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 4.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                        }
+                        item {
                             Card(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .height(92.dp)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                             ) {
-                                Column(
+                                Column {
+                                    state.messages.forEachIndexed { index, message ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { }
+                                                .padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            if (message.priority == "hoch") {
+                                                Icon(
+                                                    painter = painterResource(Res.drawable.priority_high),
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                            Text(text = message.text)
+                                            Text(
+                                                text = if (message.createdAt.date == Clock.System.now()
+                                                        .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                                                ) {
+                                                    "${message.createdAt.hour}:${message.createdAt.minute}"
+                                                } else {
+                                                    "${message.createdAt.day}.${message.createdAt.month}"
+                                                },
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        if (index < state.messages.lastIndex) {
+                                            HorizontalDivider()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        Text(
+                            text = "Umweltdaten",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                        )
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            sensors.forEach { sensor ->
+                                Card(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
+                                        .weight(1f)
+                                        .height(92.dp)
                                 ) {
-                                    Text(text = sensor.value, style = MaterialTheme.typography.titleLarge)
-                                    Spacer(modifier = Modifier.size(16.dp))
-                                    Text(text = sensor.label, style = MaterialTheme.typography.bodySmall)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = sensor.value,
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                        Spacer(modifier = Modifier.size(16.dp))
+                                        Text(
+                                            text = sensor.label,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -187,54 +273,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 }
 
 @Composable
-private fun NavBar() {
-    NavigationBar {
-        NavigationBarItem(
-            selected = true,
-            onClick = { },
-            icon = { Icon(painterResource(Res.drawable.home), contentDescription = "Home") },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(painterResource(Res.drawable.map), contentDescription = "Karte") },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = {
-                Icon(
-                    painterResource(Res.drawable.thermometer),
-                    contentDescription = "Sensoren"
-                )
-            },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = {
-                Icon(
-                    painterResource(Res.drawable.pinboard),
-                    contentDescription = "Pinboard"
-                )
-            },
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = {
-                Icon(
-                    painterResource(Res.drawable.settings),
-                    contentDescription = "Einstellungen"
-                )
-            },
-        )
-    }
-}
-
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar() {
+private fun TopBar(villageName: String) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -243,7 +283,7 @@ private fun TopBar() {
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Smart Village")
+                Text(villageName)
             }
         },
         actions = {
