@@ -81,6 +81,8 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
         RequestLocationPermission {
             viewModel.startLocationTracking()
         }
+    } else if (getPlatform().name == "Ios") {
+        viewModel.startLocationTracking()
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {

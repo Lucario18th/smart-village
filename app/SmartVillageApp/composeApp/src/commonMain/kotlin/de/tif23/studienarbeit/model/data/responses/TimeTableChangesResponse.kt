@@ -28,7 +28,19 @@ data class TimeTableChange(
     val arrival: ArrivalTrainChange?,
     @XmlElement
     @XmlSerialName("dp")
-    val departure: DepartureTrainChange?
+    val departure: DepartureTrainChange?,
+    @XmlElement
+    val ref: Tl?
+)
+
+@Serializable
+@XmlSerialName("ref")
+data class Tl(
+    val f: String?,
+    val t: String?,
+    val o: String?,
+    val c: String?,
+    val n: String?
 )
 
 

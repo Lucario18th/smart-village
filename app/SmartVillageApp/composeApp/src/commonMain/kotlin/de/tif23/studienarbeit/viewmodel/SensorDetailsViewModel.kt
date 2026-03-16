@@ -20,11 +20,11 @@ class SensorDetailsViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
-            MqttClientProvider.connect("192.168.23.113", 1883, 1)
+            MqttClientProvider.connect("localhost", 1883, 1)
         }
 
         viewModelScope.launch {
-            mqttSensorRepository.observeSensorData(1,1)
+            mqttSensorRepository.observeSensorData(3,1)
                 .collect { sensorUpdate ->
                     println("SensorUpdate: $sensorUpdate")
                     stateFlow.value = stateFlow.value.copy(sensorData = sensorUpdate)

@@ -31,7 +31,7 @@ object MqttClientProvider {
         )
         client?.subscribe(
             listOf(
-                Subscription("app/village/$villageId/sensors/#", SubscriptionOptions(Qos.AT_LEAST_ONCE))
+                Subscription("/api/app/village/$villageId/sensors/#", SubscriptionOptions(Qos.AT_LEAST_ONCE))
             )
         )
         println("MQTT-Client verbunden mit $brokerHost:$brokerPort, abonniert: app/village/$villageId/sensors/#")

@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 class MqttSensorRepository {
     fun observeSensorData(villageId: Int, sensorId: Int): Flow<SensorUpdate> {
         return MqttClientProvider.messages
-            .filter { (topic, _) -> topic == "app/village/$villageId/sensors/$sensorId" }
+            .filter { (topic, _) -> topic == "api/app/village/$villageId/sensors" }
             .map { (_, payload) -> Json.decodeFromString<SensorUpdate>(payload) }
     }
 }

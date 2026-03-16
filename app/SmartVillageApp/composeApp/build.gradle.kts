@@ -27,7 +27,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -37,7 +37,7 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
@@ -109,6 +109,23 @@ dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
 
+fun String.toKotlinStringLiteral(): String =
+    buildString {
+        append('"')
+        for (ch in this@toKotlinStringLiteral) {
+            when (ch) {
+                '\\' -> append("\\\\")
+                '"' -> append("\\\"")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                '$' -> append("\\$")
+                else -> append(ch)
+            }
+        }
+        append('"')
+    }
+
 buildkonfig {
     packageName = "de.tif23.studienarbeit"
 
@@ -118,16 +135,21 @@ buildkonfig {
         localProperties.load(localPropertiesFile.inputStream())
     }
 
+    val dbClientId = localProperties.getProperty("db-client-id")
+        ?: error("Property 'db-client-id' is missing in local.properties")
+    val dbClientSecret = localProperties.getProperty("db-client-secret")
+        ?: error("Property 'db-client-secret' is missing in local.properties")
+
     defaultConfigs {
         buildConfigField(
             STRING,
             "DB_CLIENT_ID",
-            localProperties.getProperty("db-client-id")
+            dbClientId.toKotlinStringLiteral()
         )
         buildConfigField(
             STRING,
             "DB_CLIENT_SECRET",
-            localProperties.getProperty("db-client-secret")
+            dbClientSecret.toKotlinStringLiteral()
         )
     }
 }

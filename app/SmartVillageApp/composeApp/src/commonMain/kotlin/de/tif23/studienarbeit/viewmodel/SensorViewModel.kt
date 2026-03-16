@@ -30,11 +30,10 @@ class SensorViewModel(
             stateFlow.value = stateFlow.value.copy(isLoading = true, errorMessage = null)
 
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
-            println(villageId)
             if (villageId == null) {
                 stateFlow.value = stateFlow.value.copy(
                     isLoading = false,
-                    errorMessage = "Kein Dorf ausgewaehlt."
+                    errorMessage = "Kein Dorf ausgewählt."
                 )
                 return@launch
             }

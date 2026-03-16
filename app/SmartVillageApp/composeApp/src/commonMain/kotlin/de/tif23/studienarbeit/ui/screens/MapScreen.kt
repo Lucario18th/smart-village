@@ -62,6 +62,8 @@ fun MapScreen(
         RequestLocationPermission {
             viewModel.startLocationTracking()
         }
+    } else if (getPlatform().name == "Ios") {
+        viewModel.startLocationTracking()
     }
 
     Scaffold(
