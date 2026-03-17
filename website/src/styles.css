@@ -372,8 +372,13 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .helper-text{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
 .devices-settings{display:grid;gap:10px}
 .sensors-list{display:grid;gap:12px;margin:0}
-.gateway-group{display:grid;gap:10px}
+.sensors-list--gateways{grid-template-columns:repeat(auto-fit,minmax(500px,1fr));align-items:start}
+.gateway-group{display:grid;gap:10px;align-content:start}
 .gateway-sensors-list{display:grid;gap:10px;padding-left:22px}
+.sensors-search-wrap{position:relative;max-width:520px}
+.sensors-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--md-sys-color-on-surface-variant);pointer-events:none}
+.sensors-search-input{width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 52%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
+.sensors-search-input:focus{outline:none;border-color:var(--md-sys-color-primary)}
 .sensor-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:flex-start;padding:16px 18px;border-radius:14px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent);box-shadow:0 1px 2px color-mix(in srgb, var(--md-sys-color-shadow) 14%, transparent)}
 .sensor-row--inactive{filter:saturate(.82)}
 .inactive-sensors-section{display:grid;gap:10px;margin-top:4px}
@@ -533,6 +538,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 
 @media (max-width: 900px){
 	.sensors-settings{max-width:none}
+	.sensors-list--gateways{grid-template-columns:1fr}
 	.sensor-row{grid-template-columns:1fr;align-items:flex-start}
 	.gateway-sensors-list{padding-left:12px}
 	.sensor-actions{justify-content:flex-start}
