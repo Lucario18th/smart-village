@@ -562,6 +562,7 @@ export default function SensorsSettingsForm({
   onUpdateSensor,
   onUpdateDevice,
 }) {
+  const [searchQuery, setSearchQuery] = useState('')
   const [editingSensorId, setEditingSensorId] = useState(null)
   const [editingDeviceId, setEditingDeviceId] = useState(null)
   const [expandedDeviceIds, setExpandedDeviceIds] = useState(() => new Set())
@@ -571,6 +572,13 @@ export default function SensorsSettingsForm({
     return config?.sensors || []
   }, [config?.sensors])
   const devices = useMemo(() => config?.devices || [], [config?.devices])
+  const normalizedQuery = searchQuery.trim().toLowerCase()
+
+  const sensorTypeNameById = useMemo(() => {
+    const map = new Map()
+    sensorTypes.forEach((type) => map.set(type.id, type.name || ''))
+    return map
+  }, [sensorTypes])
 
   const sensorsByDevice = useMemo(() => {
     return sensors.reduce((acc, sensor) => {
@@ -587,6 +595,44 @@ export default function SensorsSettingsForm({
     const knownDeviceIds = new Set(devices.map((device) => device.id))
     return sensors.filter((sensor) => !sensor.deviceId || !knownDeviceIds.has(sensor.deviceId))
   }, [devices, sensors])
+
+  const matchesSensor = (sensor) => {
+    if (!normalizedQuery) return true
+    const typeName = sensorTypeNameById.get(sensor.sensorTypeId) || ''
+    return [sensor.name, sensor.infoText, sensor.deviceId ? String(sensor.deviceId) : '', typeName]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(normalizedQuery))
+  }
+
+  const filteredDevices = useMemo(() => {
+    return devices
+      .map((device) => {
+        const deviceSensors = sensorsByDevice.get(device.id) || []
+        if (!normalizedQuery) {
+          return { device, sensors: deviceSensors }
+        }
+
+        const deviceMatch = [device.name, device.deviceId]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery))
+
+        const matchedSensors = deviceSensors.filter(matchesSensor)
+        if (!deviceMatch && matchedSensors.length === 0) {
+          return null
+        }
+
+        return {
+          device,
+          sensors: deviceMatch ? deviceSensors : matchedSensors,
+        }
+      })
+      .filter(Boolean)
+  }, [devices, sensorsByDevice, normalizedQuery])
+
+  const filteredUnassignedSensors = useMemo(() => {
+    if (!normalizedQuery) return unassignedSensors
+    return unassignedSensors.filter(matchesSensor)
+  }, [unassignedSensors, normalizedQuery])
 
   const handleUpdateSensor = (formData) => {
     onUpdateSensor(editingSensorId, {
@@ -655,15 +701,28 @@ export default function SensorsSettingsForm({
         </p>
       </div>
 
+      <div className="sensors-search-wrap">
+        <svg className="sensors-search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z" />
+        </svg>
+        <input
+          type="search"
+          className="sensors-search-input"
+          placeholder="Nach Gateway, Geräte-ID oder Sensor suchen..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Gateways und Sensoren durchsuchen"
+        />
+      </div>
+
       <section className="devices-settings">
-        <div className="sensors-list">
-          {devices.length === 0 ? (
+        <div className="sensors-list sensors-list--gateways">
+          {filteredDevices.length === 0 ? (
             <p className="empty-message">Noch keine Geräte hinterlegt.</p>
           ) : (
-            devices.map((device) => (
+            filteredDevices.map(({ device, sensors: deviceSensors }) => (
               <div key={device.id} className="gateway-group">
                 {(() => {
-                  const deviceSensors = sensorsByDevice.get(device.id) || []
                   const isExpanded = expandedDeviceIds.has(device.id)
                   return (
                     <>
@@ -751,7 +810,7 @@ export default function SensorsSettingsForm({
         </div>
       </section>
 
-      {unassignedSensors.length > 0 ? (
+      {filteredUnassignedSensors.length > 0 ? (
         <section className="devices-settings">
           <div className="settings-header">
             <h3>Nicht zugeordnete Sensoren</h3>
@@ -759,8 +818,8 @@ export default function SensorsSettingsForm({
           </div>
           <div className="sensors-list">
             {(() => {
-              const activeSensors = unassignedSensors.filter((s) => !isSensorInactive(s))
-              const inactiveSensors = unassignedSensors.filter((s) => isSensorInactive(s))
+              const activeSensors = filteredUnassignedSensors.filter((s) => !isSensorInactive(s))
+              const inactiveSensors = filteredUnassignedSensors.filter((s) => isSensorInactive(s))
               const inactiveSectionKey = 'unassigned'
               const inactiveExpanded = expandedInactiveSectionIds.has(inactiveSectionKey)
               return (

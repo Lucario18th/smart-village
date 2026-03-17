@@ -26,6 +26,10 @@ Die Karte zeigt farbcodierte Marker, die den aktuellen Messwert darstellen.
 Ein besonderer Sensortyp ist die Mitfahrbank.
 Dabei handelt es sich um Sitzbänke, an denen wartende Personen gezählt werden, um Mitfahrgelegenheiten zu koordinieren.
 
+Fuer oeffentliche Nutzer gibt es eine Landingpage und eine Public-User-Ansicht im Browser.
+Die Landingpage stellt Projektinformationen, Team, Rechtslinks sowie Einstiegspunkte zu User/Admin bereit.
+Zusaetzlich bietet sie einen Android-Download-Button zur App.
+
 Administratoren mit erweiterten Rechten können Konten löschen.
 Dabei werden alle zugehörigen Daten kaskadierend entfernt.
 
@@ -40,9 +44,14 @@ Außerdem empfängt es Sensordaten über MQTT.
 Die Authentifizierung erfolgt über JWT-Tokens.
 
 **Frontend (React):**
-Das Frontend ist ein Web-Dashboard, gebaut mit React und Vite.
-Es bietet eine Administrationsoberfläche mit Formularen, einer Kartenansicht und Statistiken.
+Das Frontend ist eine Webanwendung, gebaut mit React und Vite.
+Es umfasst:
+- Landingpage (`/`),
+- Public-User-Bereich (`/user`, `/village/:villageId`),
+- Admin-Bereich (`/admin/*`).
+
 Die Kommunikation mit dem Backend läuft über einen zentralen API-Client.
+Public-Ansichten nutzen die App-API (`/api/app/...`) und aktualisieren Daten via Polling.
 
 **Datenbank (PostgreSQL mit TimescaleDB):**
 Alle Daten werden in einer PostgreSQL-Datenbank gespeichert.
@@ -83,6 +92,11 @@ Das Backend validiert die Nachrichten und speichert die Daten in der Datenbank.
 Das Frontend fragt regelmäßig neue Daten ab (Polling alle 5 Sekunden).
 Neu entdeckte Geräte oder Sensoren werden dem Benutzer über eine Benachrichtigung angezeigt.
 Fuer Public-Daten werden Live-Messwerte zusaetzlich direkt per MQTT-WebSocket eingemischt.
+
+Sowohl mobile App als auch Public-Website verwenden die gleichen App-API-Kernendpunkte:
+- `GET /api/app/villages`
+- `GET /api/app/villages/:villageId/config`
+- `GET /api/app/villages/:villageId/initial-data`
 
 In der Public-Oberflaeche werden Tabs und Inhalte dynamisch aus den Village-Feature-Flags erzeugt.
 Deaktivierte Module werden nicht angezeigt.

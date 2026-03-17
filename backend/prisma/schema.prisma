@@ -35,10 +35,17 @@ enum SensorOrigin {
   AI_SERVICE  // z.B. Kamera + AI-Personenerkennung
 }
 
+enum AccountType {
+  MUNICIPAL
+  PRIVATE
+}
+
 model Account {
   id                        Int       @id @default(autoincrement())
   email                     String    @unique
   passwordHash              String
+  accountType               AccountType @default(MUNICIPAL)
+  isPublicAppApiEnabled     Boolean   @default(true)
   isAdmin                   Boolean   @default(false)
   emailVerified             Boolean   @default(false)
   verificationCode          String?
@@ -127,6 +134,8 @@ model VillageModule {
   villageId   Int
   name        String
   description String?
+  iconKey     String    @default("sensors")
+  moduleType  String    @default("Service")
   isEnabled   Boolean   @default(true)
   createdAt   DateTime  @default(now())
 

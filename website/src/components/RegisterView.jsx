@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { AUTH_HINT } from '../auth/accounts'
 import LocationAutocomplete from './LocationAutocomplete'
 
 export default function RegisterView({ onRegister, onBack, initialEmail = '' }) {
   const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [accountType, setAccountType] = useState('MUNICIPAL')
+  const [isPublicAppApiEnabled, setIsPublicAppApiEnabled] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState(null)
@@ -47,6 +48,8 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
         email,
         password,
         postalCodeId: selectedLocation.id,
+        accountType,
+        isPublicAppApiEnabled,
       })
 
       if (!result.success) {
@@ -69,7 +72,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
         <header className="auth-card-header">
           <span className="auth-kicker">Smart Village</span>
           <h1>Konto erstellen</h1>
-          <p className="auth-subtitle">Registrieren Sie einen neuen Admin-Zugang für Ihre Gemeinde.</p>
+          <p className="auth-subtitle">Registrieren Sie einen Gemeinde- oder Privat-Account.</p>
         </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -108,13 +111,46 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
             minLength="8"
           />
 
-          <LocationAutocomplete
-            label="Ihr Dorf (PLZ oder Ort)"
-            placeholder="12345 oder Musterstadt"
-            onSelect={setSelectedLocation}
-            selectedOption={selectedLocation}
-            disabled={isLoading}
-          />
+          <div className="auth-form-row">
+            <LocationAutocomplete
+              label="Ihr Dorf (PLZ oder Ort)"
+              labelClassName="auth-form-label"
+              placeholder="12345 oder Musterstadt"
+              onSelect={setSelectedLocation}
+              selectedOption={selectedLocation}
+              disabled={isLoading}
+            />
+
+            <label htmlFor="accountType" className="auth-form-select-field">
+              <span>Account-Typ</span>
+              <select
+                id="accountType"
+                value={accountType}
+                onChange={(event) => {
+                  const nextType = event.target.value
+                  setAccountType(nextType)
+                  if (nextType === 'PRIVATE') {
+                    setIsPublicAppApiEnabled(false)
+                  }
+                }}
+                disabled={isLoading}
+              >
+                <option value="MUNICIPAL">Gemeinde / Organisation</option>
+                <option value="PRIVATE">Privatperson</option>
+              </select>
+            </label>
+          </div>
+
+          <label className="checkbox-field" htmlFor="isPublicAppApiEnabled">
+            <input
+              id="isPublicAppApiEnabled"
+              type="checkbox"
+              checked={isPublicAppApiEnabled}
+              onChange={(event) => setIsPublicAppApiEnabled(event.target.checked)}
+              disabled={isLoading}
+            />
+            <span>Daten dürfen in der öffentlichen User-API sichtbar sein</span>
+          </label>
 
           {errorMessage ? <p className="auth-error" role="alert">{errorMessage}</p> : null}
 

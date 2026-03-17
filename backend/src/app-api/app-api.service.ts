@@ -1,6 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+interface ModuleInfo {
+  id: number;
+  name: string;
+  description: string;
+  iconKey: string;
+  moduleType: string;
+  sensorIds: number[];
+}
+
 interface InitialDataResponse {
   villageId: number;
   sensors?: Array<{
@@ -12,6 +21,7 @@ interface InitialDataResponse {
     longitude: number | null;
     lastReading: { value: number; ts: Date; status: string } | null;
   }>;
+  modules?: ModuleInfo[];
   messages?: Array<{
     id: number;
     text: string;
@@ -38,6 +48,11 @@ export class AppApiService {
    */
   async getVillages() {
     const villages = await this.prisma.village.findMany({
+      where: {
+        account: {
+          isPublicAppApiEnabled: true,
+        },
+      },
       include: {
         postalCode: true,
         features: true,
@@ -78,10 +93,15 @@ export class AppApiService {
       include: {
         postalCode: true,
         features: true,
+        account: {
+          select: {
+            isPublicAppApiEnabled: true,
+          },
+        },
       },
     });
 
-    if (!village) {
+    if (!village || !village.account.isPublicAppApiEnabled) {
       throw new NotFoundException(`Village with id ${villageId} not found`);
     }
 
@@ -95,6 +115,13 @@ export class AppApiService {
       },
       include: { sensorType: true },
       orderBy: { name: 'asc' },
+    });
+
+    // Aktivierte benutzerdefinierte Module mit ihren Sensoren
+    const villageModules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
     });
 
     return {
@@ -133,6 +160,14 @@ export class AppApiService {
         latitude: s.latitude,
         longitude: s.longitude,
       })),
+      modules: villageModules.map((m) => ({
+        id: m.id,
+        name: m.name,
+        description: m.description ?? '',
+        iconKey: m.iconKey,
+        moduleType: m.moduleType,
+        sensorIds: m.sensors.map((s) => s.id),
+      })),
     };
   }
 
@@ -143,10 +178,17 @@ export class AppApiService {
   async getInitialData(villageId: number): Promise<InitialDataResponse> {
     const village = await this.prisma.village.findUnique({
       where: { id: villageId },
-      include: { features: true },
+      include: {
+        features: true,
+        account: {
+          select: {
+            isPublicAppApiEnabled: true,
+          },
+        },
+      },
     });
 
-    if (!village) {
+    if (!village || !village.account.isPublicAppApiEnabled) {
       throw new NotFoundException(`Village with id ${villageId} not found`);
     }
 
@@ -228,6 +270,55 @@ export class AppApiService {
       }));
     }
 
+    // Benutzerdefinierte Module immer laden (sofern aktiviert)
+    const villageModules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    result.modules = villageModules.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description ?? '',
+      iconKey: m.iconKey,
+      moduleType: m.moduleType,
+      sensorIds: m.sensors.map((s) => s.id),
+    }));
+
     return result;
+  }
+
+  /**
+   * Aktivierte benutzerdefinierte Module einer Gemeinde fuer die oeffentliche App-API.
+   */
+  async getVillageModules(villageId: number): Promise<ModuleInfo[]> {
+    const village = await this.prisma.village.findUnique({
+      where: { id: villageId },
+      include: {
+        account: {
+          select: {
+            isPublicAppApiEnabled: true,
+          },
+        },
+      },
+    });
+    if (!village || !village.account.isPublicAppApiEnabled) {
+      throw new NotFoundException(`Village with id ${villageId} not found`);
+    }
+
+    const modules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return modules.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description ?? '',
+      iconKey: m.iconKey,
+      moduleType: m.moduleType,
+      sensorIds: m.sensors.map((s) => s.id),
+    }));
   }
 }

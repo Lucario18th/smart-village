@@ -5,6 +5,7 @@ import LoginView from './components/LoginView'
 import RegisterView from './components/RegisterView'
 import EmailVerificationPending from './components/EmailVerificationPending'
 import EmailVerifiedView from './components/EmailVerifiedView'
+import LandingPage from './components/LandingPage'
 import PublicLayout from './components/public/PublicLayout'
 import PublicDashboardView from './components/public/PublicDashboardView'
 import { useAdminAuth } from './hooks/useAdminAuth'
@@ -65,9 +66,15 @@ function AdminArea() {
     return result
   }
 
-  const handleRegister = async ({ email, password, postalCodeId }) => {
+  const handleRegister = async ({ email, password, postalCodeId, accountType, isPublicAppApiEnabled }) => {
     try {
-      await apiClient.auth.register({ email, password, postalCodeId })
+      await apiClient.auth.register({
+        email,
+        password,
+        postalCodeId,
+        accountType,
+        isPublicAppApiEnabled,
+      })
       setPendingVerificationEmail(email)
       setVerificationResult(null)
       return { success: true }
@@ -159,15 +166,19 @@ function PublicDashboardRoute() {
 
 /**
  * Top‑level application with split routing:
- *   /                      – Public landing page (village list)
+ *   /                      – Public project landing page
+ *   /user                  – Public user dashboard
  *   /village/:villageId    – Public village detail view
  *   /admin/*               – Admin area (login, dashboard, configuration)
  */
 export default function App() {
   return (
     <Routes>
-      {/* --- Public routes (read‑only, no auth) --- */}
-      <Route path="/" element={<PublicDashboardRoute />} />
+      {/* --- Public landing page --- */}
+      <Route path="/" element={<LandingPage />} />
+
+      {/* --- Public user routes (read‑only, no auth) --- */}
+      <Route path="/user" element={<PublicDashboardRoute />} />
       <Route path="/village/:villageId" element={<PublicDashboardRoute />} />
 
       {/* --- Admin routes (existing UI under /admin) --- */}

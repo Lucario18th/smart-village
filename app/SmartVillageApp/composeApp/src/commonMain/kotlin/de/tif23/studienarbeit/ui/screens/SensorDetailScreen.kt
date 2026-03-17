@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,10 @@ fun SensorDetailScreen(
     viewModel: SensorDetailsViewModel = viewModel()
 ) {
     val state by viewModel.viewState.collectAsState()
+
+    LaunchedEffect(sensorId) {
+        viewModel.startPolling(sensorId)
+    }
 
     Scaffold(
         topBar = {
@@ -65,14 +70,12 @@ fun SensorDetailScreen(
             val sensorData = state.sensorData
 
             if (sensorData == null) {
-                // Ladezustand – noch keine Daten vom MQTT-Broker
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Warte auf Sensordaten…")
+                Text("Warte auf Sensordaten...")
             } else {
-                // Daten darstellen
                 Text(
-                    text = sensorData.sensorName,
+                    text = sensorData.name,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -86,7 +89,7 @@ fun SensorDetailScreen(
                             style = MaterialTheme.typography.labelMedium
                         )
                         Text(
-                            text = "${sensorData.value} ${sensorData.unit}",
+                            text = "${sensorData.lastReading?.value ?: "-"} ${sensorData.unit}",
                             style = MaterialTheme.typography.displaySmall
                         )
                     }
@@ -98,9 +101,9 @@ fun SensorDetailScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        DetailRow("Sensor-ID", sensorData.sensorId.toString())
-                        DetailRow("Status", sensorData.status)
-                        DetailRow("Zeitstempel", sensorData.timestamp)
+                        DetailRow("Sensor-ID", sensorData.id.toString())
+                        DetailRow("Status", sensorData.lastReading?.status ?: "-")
+                        DetailRow("Zeitstempel", sensorData.lastReading?.timestamp?.toString() ?: "-")
                     }
                 }
             }

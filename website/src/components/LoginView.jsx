@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { AUTH_HINT } from '../auth/accounts'
 
 export default function LoginView({ onLogin, onRegister, noticeMessage = null }) {
@@ -128,6 +129,11 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
               <br />
             </>
           ) : null}
+          <Link className="link-button" to="/">
+            Zur Startseite
+          </Link>
+          <br />
+          <br />
           {AUTH_HINT}
         </p>
       </section>

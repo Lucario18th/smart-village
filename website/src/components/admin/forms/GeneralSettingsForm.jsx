@@ -178,6 +178,37 @@ export default function GeneralSettingsForm({
         </label>
 
         <label className="general-outlined-field">
+          <span className="general-field-label">Account-Typ</span>
+          <select
+            value={values.accountType || 'MUNICIPAL'}
+            onChange={(event) => {
+              const nextType = event.target.value
+              onChange('accountType', nextType)
+              if (nextType === 'PRIVATE') {
+                onChange('isPublicAppApiEnabled', false)
+              }
+            }}
+            disabled={!isEditing}
+          >
+            <option value="MUNICIPAL">Gemeinde / Organisation</option>
+            <option value="PRIVATE">Privatperson</option>
+          </select>
+        </label>
+
+        <label className="general-outlined-field">
+          <span className="general-field-label">Öffentliche User-API</span>
+          <div className="toggle-switch" style={{ marginTop: '8px' }}>
+            <input
+              type="checkbox"
+              checked={values.isPublicAppApiEnabled ?? true}
+              onChange={(event) => onChange('isPublicAppApiEnabled', event.target.checked)}
+              disabled={!isEditing}
+            />
+            <span className="slider" />
+          </div>
+        </label>
+
+        <label className="general-outlined-field">
           <span className="general-field-label">Telefon</span>
           <input
             type="tel"

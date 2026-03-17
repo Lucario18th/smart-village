@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 import { applyThemeToDOM, getThemeClass } from '../../config/themeManager'
-import { useMqttLiveReadings } from '../../hooks/useMqttLiveReadings'
 import PublicMapPanel from './PublicMapPanel'
 import AiAssistantWidget from '../common/AiAssistantWidget'
 
@@ -24,31 +24,31 @@ const I18N = {
     navAria: 'Nutzer Navigation',
     compactInfoAria: 'Dorfinformationen kompakt',
     statusLabel: 'Status',
-    chooseVillage: 'Bitte Gemeinde auswaehlen',
+    chooseVillage: 'Bitte Gemeinde auswählen',
     villagesLoadError: 'Gemeinden konnten nicht geladen werden.',
     villageDataLoadError: 'Gemeindedaten konnten nicht geladen werden.',
     villageLoading: 'Gemeindedaten werden geladen...',
-    noSensors: 'Keine Sensoren verfuegbar.',
+    noSensors: 'Keine Sensoren verfügbar.',
     noReadings: 'Keine Messwerte',
-    noWeather: 'Keine Wetterdaten verfuegbar.',
+    noWeather: 'Keine Wetterdaten verfügbar.',
     weatherValue: 'Wetterwert',
     noMessages: 'Keine Nachrichten vorhanden.',
     noRideshare: 'Keine Mitfahrbank-Daten vorhanden.',
     onePerson: 'Person',
     manyPeople: 'Personen',
     waiting: 'wartend',
-    noTextile: 'Keine Containerdaten verfuegbar.',
+    noTextile: 'Keine Containerdaten verfügbar.',
     textileFallback: 'Container',
-    noVillageFooter: 'nicht ausgewaehlt',
+    noVillageFooter: 'nicht ausgewählt',
     footerVillage: 'Gemeinde',
     settings: {
       villageTitle: 'Gemeinde',
-      villageSelectLabel: 'Gemeinde auswaehlen',
-      selectPlaceholder: 'Bitte auswaehlen',
+      villageSelectLabel: 'Gemeinde auswählen',
+      selectPlaceholder: 'Bitte auswählen',
       languageTitle: 'Sprache',
       languageLabel: 'Anzeigesprache',
       designTitle: 'Farbschema',
-      designHint: 'Wird automatisch gespeichert und beim naechsten Besuch wiederhergestellt.',
+      designHint: 'Wird automatisch gespeichert und beim nächsten Besuch wiederhergestellt.',
       themeMode: 'Theme-Modus',
       themeLight: 'Hell',
       themeDark: 'Dunkel',
@@ -58,15 +58,15 @@ const I18N = {
       currentVillage: 'Aktuelle Gemeinde',
       active: 'Aktiv',
       inactive: 'Deaktiviert',
-      supportTitle: 'Mitmachen und Unterstuetzen',
-      supportHint: 'Hilf mit durch Feedback, Reichweite oder Unterstuetzung.',
+      supportTitle: 'Mitmachen und Unterstützen',
+      supportHint: 'Hilf mit durch Feedback, Reichweite oder Unterstützung.',
     },
     sections: {
       map: { label: 'Home', title: 'Startseite', heading: 'Karte' },
       sensors: { label: 'Sensoren', title: 'Sensoren', heading: 'Sensoren' },
       weather: { label: 'Wetter', title: 'Wetter', heading: 'Wetter' },
       messages: { label: 'Nachrichten', title: 'Nachrichten', heading: 'Nachrichten' },
-      rideshare: { label: 'Mitfahrbank', title: 'Mitfahrbaenke', heading: 'Mitfahrbaenke' },
+      rideshare: { label: 'Mitfahrbank', title: 'Mitfahrbänke', heading: 'Mitfahrbänke' },
       events: { label: 'Events', title: 'Veranstaltungen', heading: 'Veranstaltungen' },
       textile: { label: 'Container', title: 'Altkleidercontainer', heading: 'Altkleidercontainer' },
       settings: { label: 'Einstellungen', title: 'Einstellungen', heading: 'Einstellungen' },
@@ -76,12 +76,12 @@ const I18N = {
       sensorData: 'Sensordaten',
       weather: 'Wetter',
       messages: 'Nachrichten',
-      rideShare: 'Mitfahrbaenke',
+      rideShare: 'Mitfahrbänke',
       events: 'Events',
       textileContainers: 'Altkleidercontainer',
     },
     community: {
-      support: 'Uns unterstuetzen',
+      support: 'Uns unterstützen',
       feedback: 'Feedback senden',
       newsletter: 'Newsletter',
       volunteer: 'Mitmachen',
@@ -168,20 +168,20 @@ const I18N = {
     statusLabel: 'Statut',
     chooseVillage: 'Veuillez choisir une commune',
     villagesLoadError: 'Impossible de charger les communes.',
-    villageDataLoadError: 'Impossible de charger les donnees de la commune.',
-    villageLoading: 'Chargement des donnees de la commune...',
+    villageDataLoadError: 'Impossible de charger les données de la commune.',
+    villageLoading: 'Chargement des données de la commune...',
     noSensors: 'Aucun capteur disponible.',
     noReadings: 'Aucune mesure',
-    noWeather: 'Aucune donnee meteo disponible.',
-    weatherValue: 'Valeur meteo',
+    noWeather: 'Aucune donnée météo disponible.',
+    weatherValue: 'Valeur météo',
     noMessages: 'Aucun message disponible.',
-    noRideshare: 'Aucune donnee de covoiturage disponible.',
+    noRideshare: 'Aucune donnée de covoiturage disponible.',
     onePerson: 'personne',
     manyPeople: 'personnes',
     waiting: 'en attente',
-    noTextile: 'Aucune donnee de conteneur disponible.',
+    noTextile: 'Aucune donnée de conteneur disponible.',
     textileFallback: 'Conteneur',
-    noVillageFooter: 'non selectionnee',
+    noVillageFooter: 'non sélectionnée',
     footerVillage: 'Commune',
     settings: {
       villageTitle: 'Commune',
@@ -189,37 +189,37 @@ const I18N = {
       selectPlaceholder: 'Veuillez choisir',
       languageTitle: 'Langue',
       languageLabel: "Langue d'affichage",
-      designTitle: 'Theme visuel',
-      designHint: 'Enregistre automatiquement et restaure a la prochaine visite.',
-      themeMode: 'Mode du theme',
+      designTitle: 'Thème visuel',
+      designHint: 'Enregistre automatiquement et restaure à la prochaine visite.',
+      themeMode: 'Mode du thème',
       themeLight: 'Clair',
       themeDark: 'Sombre',
       contrast: 'Contraste',
       contrastStandard: 'Standard',
-      contrastHigh: 'Eleve',
+      contrastHigh: 'Élevé',
       currentVillage: 'Commune active',
       active: 'Actif',
-      inactive: 'Desactive',
+      inactive: 'Désactivé',
       supportTitle: 'Participer et soutenir',
-      supportHint: 'Aidez via vos retours, votre reseau ou votre soutien.',
+      supportHint: 'Aidez via vos retours, votre réseau ou votre soutien.',
     },
     sections: {
       map: { label: 'Accueil', title: 'Accueil', heading: 'Carte' },
       sensors: { label: 'Capteurs', title: 'Capteurs', heading: 'Capteurs' },
-      weather: { label: 'Meteo', title: 'Meteo', heading: 'Meteo' },
+      weather: { label: 'Météo', title: 'Météo', heading: 'Météo' },
       messages: { label: 'Messages', title: 'Messages', heading: 'Messages' },
       rideshare: { label: 'Covoiturage', title: 'Bancs de covoiturage', heading: 'Bancs de covoiturage' },
-      events: { label: 'Evenements', title: 'Evenements', heading: 'Evenements' },
+      events: { label: 'Événements', title: 'Événements', heading: 'Événements' },
       textile: { label: 'Conteneurs', title: 'Conteneurs textiles', heading: 'Conteneurs textiles' },
-      settings: { label: 'Parametres', title: 'Parametres', heading: 'Parametres' },
+      settings: { label: 'Paramètres', title: 'Paramètres', heading: 'Paramètres' },
     },
     modules: {
       map: 'Carte',
-      sensorData: 'Donnees capteurs',
-      weather: 'Meteo',
+      sensorData: 'Données capteurs',
+      weather: 'Météo',
       messages: 'Messages',
       rideShare: 'Bancs de covoiturage',
-      events: 'Evenements',
+      events: 'Événements',
       textileContainers: 'Conteneurs textiles',
     },
     community: {
@@ -227,7 +227,7 @@ const I18N = {
       feedback: 'Envoyer un retour',
       newsletter: 'Newsletter',
       volunteer: 'Participer',
-      pendingSuffix: 'bientot',
+      pendingSuffix: 'bientôt',
     },
   },
 }
@@ -272,7 +272,7 @@ function PublicCommunityLink({ href, label, pendingSuffix }) {
 
 const DEFAULT_PREFS = {
   language: 'de',
-  themeMode: 'light',
+  themeMode: 'dark',
   contrast: 'standard',
   iconSet: 'default',
 }
@@ -333,7 +333,7 @@ function persistLastVillageId(villageId) {
   }
 }
 
-function UserNavIcon({ sectionId }) {
+function UserNavIcon({ sectionId, iconKey }) {
   const icons = {
     map: 'M3 6.6 9 4l6 2.4L21 4v13.4L15 20l-6-2.4L3 20V6.6Zm12 11.2V8.2l-6-2.4v9.6l6 2.4Z',
     sensors: 'M12 2a6 6 0 0 1 6 6h-2a4 4 0 1 0-8 0H6a6 6 0 0 1 6-6Zm0 5a1.5 1.5 0 0 1 1.5 1.5h2a3.5 3.5 0 1 0-7 0h2A1.5 1.5 0 0 1 12 7Zm0 4.5a3 3 0 0 1 3 3V20h-6v-5.5a3 3 0 0 1 3-3Z',
@@ -342,12 +342,17 @@ function UserNavIcon({ sectionId }) {
     rideshare: 'M3 15.5 8 12l4 3 9-6v4.5L12 20l-9-4.5v-0Z',
     events: 'M4 20V10h3v10H4Zm6 0V4h3v16h-3Zm6 0v-7h3v7h-3Z',
     textile: 'M5 4h14v16H5V4Zm3 3v10h8V7H8Zm2 2h4v2h-4V9Z',
+    tree: 'M12 3 7 10h3v3H8l4 5 4-5h-2v-3h3L12 3ZM11 18h2v3h-2v-3Z',
+    water: 'M12 3c3 3.3 5 5.6 5 8a5 5 0 1 1-10 0c0-2.4 2-4.7 5-8Zm0 4.4c-1.6 2-2.5 3.1-2.5 4.6a2.5 2.5 0 0 0 5 0c0-1.5-.9-2.6-2.5-4.6Z',
+    camera: 'M4 7h3l1.4-2h5.2L15 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm7 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
+    energy: 'M13 2 6 13h4l-1 9 7-11h-4l1-9Z',
     settings: 'm12 3 2 3.5 4 .8-2.8 2.7.7 4-3.9-2-3.8 2 .7-4L6 7.3l4-.8L12 3Zm-7 14h14v2H5v-2Z',
   }
+  const resolvedIconKey = sectionId.startsWith('module-') ? (iconKey || 'sensors') : sectionId
 
   return (
     <svg className="admin-nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path fill="currentColor" d={icons[sectionId] || icons.settings} />
+      <path fill="currentColor" d={icons[resolvedIconKey] || icons.settings} />
     </svg>
   )
 }
@@ -358,11 +363,19 @@ function buildUserSections(text) {
     { id: 'sensors', label: text.sections.sensors.label, title: text.sections.sensors.title },
     { id: 'weather', label: text.sections.weather.label, title: text.sections.weather.title },
     { id: 'messages', label: text.sections.messages.label, title: text.sections.messages.title },
-    { id: 'rideshare', label: text.sections.rideshare.label, title: text.sections.rideshare.title },
     { id: 'events', label: text.sections.events.label, title: text.sections.events.title },
-    { id: 'textile', label: text.sections.textile.label, title: text.sections.textile.title },
     { id: 'settings', label: text.sections.settings.label, title: text.sections.settings.title },
   ]
+}
+
+function buildModuleSection(module) {
+  return {
+    id: `module-${module.id}`,
+    label: module.name,
+    title: module.name,
+    moduleId: module.id,
+    iconKey: module.iconKey || 'sensors',
+  }
 }
 
 export default function PublicDashboardView({ initialVillageId = null }) {
@@ -387,7 +400,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const [prefs, setPrefs] = useState(() => loadPublicPrefs())
   const locale = DATE_LOCALES[prefs.language] ? prefs.language : 'de'
   const text = I18N[locale]
-  const userSections = useMemo(() => buildUserSections(text), [text])
+  const baseSections = useMemo(() => buildUserSections(text), [text])
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -522,24 +535,20 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const features = config?.features || {}
   const visibility = config?.sensorDetailVisibility || {}
   const sensors = initialData?.sensors || []
+  const customModules = initialData?.modules || config?.modules || []
   const messages = initialData?.messages || []
-  const rideshares = initialData?.rideshares || []
   const weatherEntries = initialData?.weather || []
   const events = initialData?.events || []
-  const textileContainers = initialData?.textileContainers || []
 
-  // Live-MQTT: direkt vom Broker, ohne Backend-Polling
-  const liveReadings = useMqttLiveReadings(!!selectedVillageId)
-
-  // Überschreibt lastReading mit dem jeweils neuesten MQTT-Wert
-  const liveSensors = useMemo(
-    () =>
-      sensors.map((sensor) => {
-        const live = liveReadings[sensor.id]
-        return live ? { ...sensor, lastReading: live } : sensor
-      }),
-    [sensors, liveReadings]
-  )
+  const userSections = useMemo(() => {
+    const moduleSections = customModules.map(buildModuleSection)
+    return baseSections.flatMap((section) => {
+      if (section.id === 'sensors') {
+        return [section, ...moduleSections]
+      }
+      return [section]
+    })
+  }, [baseSections, customModules])
 
   const enabledSections = useMemo(() => {
     if (!selectedVillageId || !config) {
@@ -551,9 +560,8 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       if (section.id === 'sensors') return features.sensorData !== false
       if (section.id === 'weather') return features.weather === true
       if (section.id === 'messages') return features.messages !== false
-      if (section.id === 'rideshare') return features.rideShare !== false
       if (section.id === 'events') return features.events === true
-      if (section.id === 'textile') return features.textileContainers === true
+      if (section.id.startsWith('module-')) return features.sensorData !== false
       return true
     })
   }, [selectedVillageId, config, features, userSections])
@@ -602,15 +610,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       villageName: selectedVillage?.name || config?.name || '',
       statusText: villageStatusText,
       infoText: villageInfoText,
-      sensors: liveSensors,
+      sensors,
       modules: {
         map: features.map !== false,
         sensorData: features.sensorData !== false,
         weather: features.weather === true,
         messages: features.messages !== false,
-        rideShare: features.rideShare !== false,
         events: features.events === true,
-        textileContainers: features.textileContainers === true,
       },
       activeSectionId,
     }),
@@ -619,7 +625,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       config,
       villageStatusText,
       villageInfoText,
-      liveSensors,
+      sensors,
       features,
       activeSectionId,
     ]
@@ -659,8 +665,8 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <PublicMapPanel
             zipCode={config?.postalCode?.zipCode}
             city={config?.postalCode?.city}
-            sensors={liveSensors}
-            rideshares={rideshares}
+            sensors={sensors}
+            rideshares={[]}
             locale={locale}
           />
         </section>
@@ -671,11 +677,52 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       return (
         <section className="village-section">
           <h3>{text.sections.sensors.heading}</h3>
-          {liveSensors.length === 0 ? (
+          {sensors.length === 0 ? (
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
-              {liveSensors.map((sensor) => (
+              {sensors.map((sensor) => (
+                <div key={sensor.id} className="sensor-card">
+                  {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
+                  {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
+                  {sensor.lastReading ? (
+                    <div className="sensor-card-reading">
+                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
+                      <span className="sensor-card-unit">{sensor.unit}</span>
+                    </div>
+                  ) : (
+                    <p className="sensor-card-no-data">{text.noReadings}</p>
+                  )}
+                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+                    <p className="sensor-card-coords">
+                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )
+    }
+
+    if (activeSection.id.startsWith('module-')) {
+      const moduleInfo = customModules.find((module) => module.id === activeSection.moduleId)
+      const moduleSensorIds = new Set(moduleInfo?.sensorIds || [])
+      const moduleSensors = sensors.filter((sensor) => moduleSensorIds.has(sensor.id))
+
+      return (
+        <section className="village-section village-module-section">
+          <h3>{activeSection.title}</h3>
+          {moduleInfo?.description ? (
+            <p className="village-module-description">{moduleInfo.description}</p>
+          ) : null}
+
+          {moduleSensors.length === 0 ? (
+            <p className="village-section-empty">{text.noSensors}</p>
+          ) : (
+            <div className="sensor-card-grid">
+              {moduleSensors.map((sensor) => (
                 <div key={sensor.id} className="sensor-card">
                   {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
                   {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
@@ -743,30 +790,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       )
     }
 
-    if (activeSection.id === 'rideshare') {
-      return (
-        <section className="village-section">
-          <h3>{text.sections.rideshare.heading}</h3>
-          {rideshares.length === 0 ? (
-            <p className="village-section-empty">{text.noRideshare}</p>
-          ) : (
-            <div className="rideshare-card-grid">
-              {rideshares.map((rs) => (
-                <div key={rs.id} className="rideshare-card">
-                  <h4 className="rideshare-card-name">{rs.name}</h4>
-                  {rs.description ? <p className="rideshare-card-description">{rs.description}</p> : null}
-                  <p className="rideshare-card-count">
-                    {rs.personCount} {rs.personCount === 1 ? text.onePerson : text.manyPeople} {text.waiting}
-                    {rs.maxCapacity != null ? ` (max. ${rs.maxCapacity})` : ''}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      )
-    }
-
     if (activeSection.id === 'events') {
       return (
         <section className="village-section public-events-panel">
@@ -793,26 +816,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
-      )
-    }
-
-    if (activeSection.id === 'textile') {
-      return (
-        <section className="village-section">
-          <h3>{text.sections.textile.heading}</h3>
-          {textileContainers.length === 0 ? (
-            <p className="village-section-empty">{text.noTextile}</p>
-          ) : (
-            <div className="rideshare-card-grid">
-              {textileContainers.map((container) => (
-                <div key={container.id} className="rideshare-card">
-                  <h4 className="rideshare-card-name">{container.name || text.textileFallback}</h4>
-                  {container.description ? <p className="rideshare-card-description">{container.description}</p> : null}
-                </div>
-              ))}
-            </div>
           )}
         </section>
       )
@@ -857,7 +860,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               >
                 <option value="de">Deutsch</option>
                 <option value="en">English</option>
-                <option value="fr">Francais</option>
+                <option value="fr">Français</option>
               </select>
             </div>
           </section>
@@ -972,6 +975,12 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <div className="admin-header-title-row">
             <h1>{text.appTitle}</h1>
             <div className="admin-header-actions-right">
+              <Link className="admin-header-link" to="/">
+                Startseite
+              </Link>
+              <Link className="admin-header-link admin-header-link--secondary" to="/admin">
+                Admin
+              </Link>
               <AiAssistantWidget
                 audience="user"
                 contextData={assistantContext}
@@ -1026,7 +1035,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                 aria-pressed={activeSection.id === section.id}
               >
                 <span className="admin-nav-button-content">
-                  <UserNavIcon sectionId={section.id} />
+                  <UserNavIcon sectionId={section.id} iconKey={section.iconKey} />
                   <span>{section.label}</span>
                 </span>
               </button>

@@ -192,6 +192,26 @@ export class MobileService {
   }
 
   /**
+   * Hole aktivierte Custom-Module fuer ein Village
+   */
+  async getModulesForVillage(villageId: number) {
+    const modules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return modules.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description ?? '',
+      iconKey: m.iconKey,
+      moduleType: m.moduleType,
+      sensorIds: m.sensors.map((s) => s.id),
+    }));
+  }
+
+  /**
    * Hole RideShares für ein Village mit Mock-Daten
    * Generiert 1-2 Mock-Einträge wenn keine echten vorhanden
    */

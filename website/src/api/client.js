@@ -59,13 +59,26 @@ export const apiClient = {
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         const enrichedError = new Error(error.message || `HTTP ${response.status}`);
+        enrichedError.status = response.status;
         if (error.code) {
           enrichedError.code = error.code;
         }
         throw enrichedError;
       }
 
-      return await response.json();
+      // 204/205 haben keinen Body; json() würde hier mit "Unexpected end of JSON input" fehlschlagen.
+      if (response.status === 204 || response.status === 205) {
+        return null;
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const raw = await response.text();
+        return raw || null;
+      }
+
+      const raw = await response.text();
+      return raw ? JSON.parse(raw) : null;
     } catch (error) {
       console.error(`API Error [${method} ${endpoint}]:`, error);
       throw error;
@@ -91,6 +104,12 @@ export const apiClient = {
     },
     changePassword(currentPassword, newPassword) {
       return apiClient.request('POST', '/auth/change-password', { currentPassword, newPassword });
+    },
+    updateAccountSettings(accountType, isPublicAppApiEnabled) {
+      return apiClient.request('POST', '/auth/account-settings', {
+        accountType,
+        isPublicAppApiEnabled,
+      });
     },
   },
 
@@ -230,6 +249,9 @@ export const apiClient = {
     },
     getVillageInitialData(villageId) {
       return apiClient.request('GET', `/app/villages/${villageId}/initial-data`);
+    },
+    getVillageModules(villageId) {
+      return apiClient.request('GET', `/app/villages/${villageId}/modules`);
     },
   },
 

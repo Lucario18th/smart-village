@@ -5,7 +5,7 @@ Sie richtet sich an Entwickler, die neu in das Projekt einsteigen oder bestehend
 
 Alle Dokumente sind in deutscher Sprache verfasst.
 
-## Aktueller Stand (2026-03-15)
+## Aktueller Stand (2026-03-17)
 
 Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand ab:
 
@@ -13,8 +13,14 @@ Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand a
 - Sensoren werden nach ca. 60 Sekunden ohne neue Messwerte als `dataStale` gekennzeichnet.
 - Gemeinde-Status kann als `Village.statusText` persistiert und ueber API/App-API ausgeliefert werden.
 - Public-Ansichten verwenden modulbasierte Sichtbarkeit (Feature-Flags), ohne deaktivierte Platzhalter.
-- Browser-MQTT-Liveupdates laufen direkt ueber WebSocket (`/mqtt` via Nginx, Mosquitto WS-Port 9001).
+- Website und App aktualisieren Nutzdaten einheitlich ueber Polling auf der App-API (`/api/app/...`).
 - Kartenfilter im Adminbereich werden pro Nutzer/Gemeinde in der Session persistiert und nicht durch Polling zurueckgesetzt.
+- Oeffentliche Startseite (`/`) ist als Projekt-Landingpage mit Team-, Rechts- und Projektinformationen umgesetzt.
+- Public-User-Dashboard ist unter `/user` erreichbar; Admin bleibt unter `/admin`.
+- Navigation ist wechselseitig verlinkt: Landingpage <-> User <-> Admin.
+- Darkmode ist systemweit als Standard gesetzt (Website-Initialzustand, Theme-Fallback, Default-Konfiguration).
+- Android-Download-Button auf der Landingpage fuehrt zum konfigurierbaren App-Link (`VITE_ANDROID_APP_URL`) mit Play-Store-Fallback.
+- Teamdaten und Projektbetreuung sind auf der Landingpage gepflegt (Leon Kühn, Nico Röcker, Manuel Keßler, Alexander Shimaylo; Betreuung: Herr Schenk).
 
 ## Hinweis zur Mobile API
 
@@ -28,7 +34,8 @@ Die Dokumentation ist in folgende Bereiche aufgeteilt:
 ```
 docs/
 ├── README.md                              ← Dieses Dokument (Navigation)
-├── aenderungen-2026-03-15.md              ← Letzte umgesetzte Änderungen (Snapshot)
+├── aenderungen-2026-03-15.md              ← Aelterer Snapshot
+├── aenderungen-2026-03-17.md              ← Letzte umgesetzte Änderungen (aktueller Snapshot)
 ├── uebersicht.md                          ← Projektübersicht
 ├── architektur/
 │   ├── system-uebersicht.md               ← Systemarchitektur
@@ -40,7 +47,7 @@ docs/
 │   ├── sensoren.md                        ← Sensorverwaltung und Messwerte
 │   ├── geraete.md                         ← Geräteverwaltung (Devices)
 │   ├── mqtt-integration.md                ← MQTT-Anbindung und Discovery
-│   ├── app-api.md                         ← App-API (REST + MQTT für die mobile App)
+│   ├── app-api.md                         ← App-API (REST + Polling fuer Website und App)
 │   ├── admin-verwaltung.md                ← Admin-Modul (Kontolöschung)
 │   └── standortsuche.md                   ← PLZ-Suche (Locations)
 ├── frontend/
@@ -54,7 +61,7 @@ docs/
 │   └── sicherheit.md                      ← Sicherheitskonzept
 └── prozesse/
     ├── registrierung-und-login.md         ← Ablauf: Registrierung und Login
-    ├── sensor-datenfluss.md               ← Ablauf: Sensordaten über REST und MQTT
+    ├── sensor-datenfluss.md               ← Ablauf: Sensordaten ueber REST und Polling
     └── auto-discovery.md                  ← Ablauf: Automatische Geräteerkennung
 ```
 
@@ -62,7 +69,8 @@ docs/
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, MQTT und Infrastruktur. |
+| [Aenderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration. |
+| [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen. |
 | [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten. |
 | [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten. |
 | [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk. |
@@ -72,7 +80,7 @@ docs/
 | [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte. |
 | [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller). |
 | [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung. |
-| [App-API](backend/app-api.md) | REST-Endpunkte und MQTT-Topics für die mobile App. |
+| [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert). |
 | [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen. |
 | [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche. |
 | [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
@@ -82,7 +90,7 @@ docs/
 | [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker. |
 | [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise. |
 | [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung. |
-| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten über REST und MQTT in das System gelangen. |
+| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden. |
 | [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT. |
 
 ## Zuordnung bestehender Dokumente

@@ -1,0 +1,2 @@
+ALTER TABLE "VillageModule"
+ADD COLUMN IF NOT EXISTS "iconKey" TEXT NOT NULL DEFAULT 'sensors';

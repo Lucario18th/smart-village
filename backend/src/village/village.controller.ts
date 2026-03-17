@@ -17,6 +17,22 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { PrismaService } from '../prisma/prisma.service'
 import { SensorService } from '../sensor/sensor.service'
 
+const MODULE_ICON_KEYS = new Set([
+  'sensors',
+  'weather',
+  'messages',
+  'map',
+  'rideshare',
+  'events',
+  'textile',
+  'tree',
+  'water',
+  'camera',
+  'energy',
+])
+
+const MODULE_TYPES = new Set(['Mobilitaet', 'Info', 'Service', 'Umwelt', 'Sicherheit', 'Energie', 'Community'])
+
 @Controller('villages')
 export class VillageController {
   constructor(
@@ -230,6 +246,8 @@ export class VillageController {
       id: m.id,
       name: m.name,
       description: m.description ?? '',
+      iconKey: m.iconKey,
+      moduleType: m.moduleType,
       isEnabled: m.isEnabled,
       sensorIds: m.sensors.map((s) => s.id),
     }))
@@ -239,20 +257,33 @@ export class VillageController {
   @UseGuards(JwtAuthGuard)
   async createModule(
     @Param('villageId', ParseIntPipe) villageId: number,
-    @Body() body: { name: string; description?: string; sensorIds?: number[] },
+    @Body() body: { name: string; description?: string; iconKey?: string; moduleType?: string; sensorIds?: number[] },
   ) {
     if (!body.name?.trim()) throw new BadRequestException('Name ist erforderlich')
+    if (body.iconKey !== undefined && !MODULE_ICON_KEYS.has(body.iconKey)) {
+      throw new BadRequestException('Ungültiges Modul-Icon')
+    }
+    if (body.moduleType !== undefined && !MODULE_TYPES.has(body.moduleType)) {
+      throw new BadRequestException('Ungültiger Modultyp')
+    }
 
     const village = await this.prisma.village.findUnique({ where: { id: villageId } })
     if (!village) throw new NotFoundException('Village not found')
 
-    const sensorIds = (body.sensorIds ?? []).map(Number)
+    // Nur gültige, in dieser Village vorhandene Sensoren connecten
+    const rawIds = (body.sensorIds ?? []).map(Number).filter((id) => Number.isFinite(id) && id > 0)
+    const validSensors = rawIds.length > 0
+      ? await this.prisma.sensor.findMany({ where: { id: { in: rawIds }, villageId }, select: { id: true } })
+      : []
+    const sensorIds = validSensors.map((s) => s.id)
 
     const created = await this.prisma.villageModule.create({
       data: {
         villageId,
         name: body.name.trim(),
         description: body.description?.trim() ?? null,
+        iconKey: body.iconKey ?? 'sensors',
+        moduleType: body.moduleType ?? 'Service',
         sensors: sensorIds.length > 0 ? { connect: sensorIds.map((id) => ({ id })) } : undefined,
       },
       include: { sensors: { select: { id: true } } },
@@ -262,6 +293,8 @@ export class VillageController {
       id: created.id,
       name: created.name,
       description: created.description ?? '',
+      iconKey: created.iconKey,
+      moduleType: created.moduleType,
       isEnabled: created.isEnabled,
       sensorIds: created.sensors.map((s) => s.id),
     }
@@ -272,23 +305,39 @@ export class VillageController {
   async updateModule(
     @Param('villageId', ParseIntPipe) villageId: number,
     @Param('moduleId', ParseIntPipe) moduleId: number,
-    @Body() body: { name?: string; description?: string; isEnabled?: boolean; sensorIds?: number[] },
+    @Body() body: { name?: string; description?: string; iconKey?: string; moduleType?: string; isEnabled?: boolean; sensorIds?: number[] },
   ) {
     const existing = await this.prisma.villageModule.findFirst({
       where: { id: moduleId, villageId },
     })
     if (!existing) throw new NotFoundException('Modul nicht gefunden')
+    if (body.iconKey !== undefined && !MODULE_ICON_KEYS.has(body.iconKey)) {
+      throw new BadRequestException('Ungültiges Modul-Icon')
+    }
+    if (body.moduleType !== undefined && !MODULE_TYPES.has(body.moduleType)) {
+      throw new BadRequestException('Ungültiger Modultyp')
+    }
 
-    const sensorIds = body.sensorIds?.map(Number)
+    // Nur gültige, in dieser Village vorhandene Sensoren setzen
+    let validatedSensorIds: number[] | undefined
+    if (body.sensorIds !== undefined) {
+      const rawIds = body.sensorIds.map(Number).filter((id) => Number.isFinite(id) && id > 0)
+      const validSensors = rawIds.length > 0
+        ? await this.prisma.sensor.findMany({ where: { id: { in: rawIds }, villageId }, select: { id: true } })
+        : []
+      validatedSensorIds = validSensors.map((s) => s.id)
+    }
 
     const updated = await this.prisma.villageModule.update({
       where: { id: moduleId },
       data: {
         ...(body.name !== undefined && { name: body.name.trim() }),
         ...(body.description !== undefined && { description: body.description.trim() || null }),
+        ...(body.iconKey !== undefined && { iconKey: body.iconKey }),
+        ...(body.moduleType !== undefined && { moduleType: body.moduleType }),
         ...(body.isEnabled !== undefined && { isEnabled: body.isEnabled }),
-        ...(sensorIds !== undefined && {
-          sensors: { set: sensorIds.map((id) => ({ id })) },
+        ...(validatedSensorIds !== undefined && {
+          sensors: { set: validatedSensorIds.map((id) => ({ id })) },
         }),
       },
       include: { sensors: { select: { id: true } } },
@@ -298,6 +347,8 @@ export class VillageController {
       id: updated.id,
       name: updated.name,
       description: updated.description ?? '',
+      iconKey: updated.iconKey,
+      moduleType: updated.moduleType,
       isEnabled: updated.isEnabled,
       sensorIds: updated.sensors.map((s) => s.id),
     }

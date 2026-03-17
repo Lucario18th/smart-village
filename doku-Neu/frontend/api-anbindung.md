@@ -24,27 +24,32 @@ Er ist ein einzelnes Objekt (`apiClient`), das alle HTTP-Anfragen an das Backend
 | Auth | `auth.register(data)` | POST /api/auth/register |
 | Auth | `auth.verifyCode(email, code)` | POST /api/auth/verify-code |
 | Auth | `auth.resendVerification(email)` | POST /api/auth/resend-verification |
-| Auth | `auth.me()` | GET /api/auth/me |
+| Auth | `auth.getMe()` | GET /api/auth/me |
+| Auth | `auth.changePassword(currentPassword, newPassword)` | POST /api/auth/change-password |
+| App-API (public) | `appApi.getVillages()` | GET /api/app/villages |
+| App-API (public) | `appApi.getVillageConfig(villageId)` | GET /api/app/villages/:id/config |
+| App-API (public) | `appApi.getVillageInitialData(villageId)` | GET /api/app/villages/:id/initial-data |
+| App-API (public) | `appApi.getVillageModules(villageId)` | GET /api/app/villages/:id/modules |
 | Villages | `villages.get(villageId)` | GET /api/villages/:id |
 | Villages | `villages.update(villageId, data)` | PUT /api/villages/:id |
 | Villages | `villages.getFeatures(villageId)` | GET /api/villages/:id/features |
 | Villages | `villages.updateFeatures(villageId, data)` | PATCH /api/villages/:id/features |
-| Sensors | `sensors.list(villageId)` | GET /api/sensors/village/:id |
+| Sensors | `sensors.listByVillage(villageId)` | GET /api/sensors/village/:id |
 | Sensors | `sensors.create(villageId, data)` | POST /api/sensors/village/:id |
 | Sensors | `sensors.get(sensorId)` | GET /api/sensors/:id |
 | Sensors | `sensors.update(sensorId, data)` | PATCH /api/sensors/:id |
 | Sensors | `sensors.delete(sensorId)` | DELETE /api/sensors/:id |
-| Devices | `devices.list(villageId)` | GET /api/devices/village/:id |
+| Devices | `devices.listByVillage(villageId)` | GET /api/devices/village/:id |
 | Devices | `devices.create(villageId, data)` | POST /api/devices/village/:id |
 | Devices | `devices.update(deviceId, data)` | PATCH /api/devices/:id |
 | SensorTypes | `sensorTypes.list()` | GET /api/sensor-types |
 | Readings | `sensorReadings.list(sensorId, params)` | GET /api/sensor-readings/:id |
 | Readings | `sensorReadings.create(sensorId, data)` | POST /api/sensor-readings/:id |
-| Readings | `sensorReadings.timeseries(sensorId, params)` | GET /api/sensor-readings/:id/timeseries |
-| Readings | `sensorReadings.summary(sensorId, params)` | GET /api/sensor-readings/:id/summary |
+| Readings | `sensorReadings.getTimeseries(sensorId, from, to, bucket)` | GET /api/sensor-readings/:id/timeseries |
+| Readings | `sensorReadings.getSummary(sensorId, from, to)` | GET /api/sensor-readings/:id/summary |
 | Locations | `locations.search(query)` | GET /api/locations/search?query=... |
 | Admin | `admin.deleteAccount(accountId)` | DELETE /api/admin/accounts/:id |
-| Health | `health.check()` | GET /api/health |
+| Health | `health()` | GET /api/health |
 
 ## Session-Verwaltung
 
@@ -61,13 +66,13 @@ Die Session-Verwaltung befindet sich in `website/src/auth/session.js`.
 
 **LocalStorage-Schlüssel:**
 - `smart-village-admin-session` – Session-Daten (Account-ID, E-Mail)
-- `smart-village-admin-token` – JWT-Token
+- `access_token` – Legacy-Token-Key (wird bei abgelaufener Session bereinigt)
 
 ### Token-Dekodierung
 
 Der JWT-Token wird im Frontend dekodiert, um die Account-ID (`sub`) zu extrahieren.
 Die Dekodierung erfolgt durch einfaches Base64-Parsen des Token-Payloads.
-Die Account-ID wird als `villageId` verwendet, da jeder Account genau eine Gemeinde hat.
+Die Session enthaelt zusaetzlich ein Ablaufdatum (`idleExpiresAt`) und wird bei Ablauf aktiv invalidiert.
 
 ## Hook: useAdminAuth
 
@@ -165,6 +170,19 @@ Die Sensor-Anzeigeoptionen werden auf die showSensor*-Felder abgebildet:
 | description | showSensorDescription |
 | coordinates | showSensorCoordinates |
 
+## Public-User-Ansicht und App-API
+
+Die Public-User-Ansicht (`/user`) verwendet ausschliesslich die App-API-Endpunkte (ohne Auth):
+
+1. `GET /api/app/villages`
+2. `GET /api/app/villages/:villageId/config`
+3. `GET /api/app/villages/:villageId/initial-data`
+
+Die Daten fuer Konfiguration und Initialwerte werden parallel geladen (`Promise.all`).
+Danach erfolgt ein zyklisches Polling (Standard: 5000 ms, konfigurierbar ueber `VITE_PUBLIC_REFRESH_INTERVAL_MS`).
+
+Optional steht ausserdem `GET /api/app/villages/:villageId/modules` zur Verfuegung.
+
 ### Auto-Refresh und Discovery
 
 Der Hook fragt regelmäßig die Gemeindedaten ab (Standard: alle 5 Sekunden).
@@ -222,9 +240,9 @@ Das Frontend speichert folgende Daten im LocalStorage:
 | Schlüssel | Inhalt |
 |-----------|--------|
 | `smart-village-admin-session` | Session-Daten (Account-ID, E-Mail) |
-| `smart-village-admin-token` | JWT-Token |
 | `smart-village-config:{villageId}` | Gemeinde-Konfiguration |
-| `smart-village-public-selected-village` | Letztgewaehlte Gemeinde im Public-Bereich |
+| `smart-village-public-preferences` | Sprache/Theme/Contrast fuer Public-Ansicht |
+| `smart-village-public-last-village-id` | Letztgewaehlte Gemeinde im Public-Bereich |
 
 Zusatzlich werden Kartenfilter im Adminbereich je Nutzer/Gemeinde in der Session gespeichert.
 Diese Filter werden nur durch explizite Benutzeraktionen geaendert und nicht durch Polling-Updates ueberschrieben.
@@ -237,3 +255,13 @@ Dadurch erscheinen neue Messwerte sofort, auch zwischen zwei Polling-Zyklen.
 
 Beim Abmelden werden Session und Token gelöscht.
 Die Konfiguration bleibt erhalten, damit sie beim nächsten Login schneller geladen werden kann.
+
+## Darkmode-Standard
+
+Im aktuellen Stand startet die Website standardmaessig im Darkmode.
+Das gilt fuer:
+
+- Initialklasse in `main.jsx`,
+- Theme-Fallback in `themeManager.js`,
+- Default-Design in `configModel.js`,
+- Public-Default-Praeferenzen.
