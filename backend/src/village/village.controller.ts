@@ -246,7 +246,12 @@ export class VillageController {
     const village = await this.prisma.village.findUnique({ where: { id: villageId } })
     if (!village) throw new NotFoundException('Village not found')
 
-    const sensorIds = (body.sensorIds ?? []).map(Number)
+    // Nur gültige, in dieser Village vorhandene Sensoren connecten
+    const rawIds = (body.sensorIds ?? []).map(Number).filter((id) => Number.isFinite(id) && id > 0)
+    const validSensors = rawIds.length > 0
+      ? await this.prisma.sensor.findMany({ where: { id: { in: rawIds }, villageId }, select: { id: true } })
+      : []
+    const sensorIds = validSensors.map((s) => s.id)
 
     const created = await this.prisma.villageModule.create({
       data: {
@@ -279,7 +284,15 @@ export class VillageController {
     })
     if (!existing) throw new NotFoundException('Modul nicht gefunden')
 
-    const sensorIds = body.sensorIds?.map(Number)
+    // Nur gültige, in dieser Village vorhandene Sensoren setzen
+    let validatedSensorIds: number[] | undefined
+    if (body.sensorIds !== undefined) {
+      const rawIds = body.sensorIds.map(Number).filter((id) => Number.isFinite(id) && id > 0)
+      const validSensors = rawIds.length > 0
+        ? await this.prisma.sensor.findMany({ where: { id: { in: rawIds }, villageId }, select: { id: true } })
+        : []
+      validatedSensorIds = validSensors.map((s) => s.id)
+    }
 
     const updated = await this.prisma.villageModule.update({
       where: { id: moduleId },
@@ -287,8 +300,8 @@ export class VillageController {
         ...(body.name !== undefined && { name: body.name.trim() }),
         ...(body.description !== undefined && { description: body.description.trim() || null }),
         ...(body.isEnabled !== undefined && { isEnabled: body.isEnabled }),
-        ...(sensorIds !== undefined && {
-          sensors: { set: sensorIds.map((id) => ({ id })) },
+        ...(validatedSensorIds !== undefined && {
+          sensors: { set: validatedSensorIds.map((id) => ({ id })) },
         }),
       },
       include: { sensors: { select: { id: true } } },
