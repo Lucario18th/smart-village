@@ -7,6 +7,8 @@ const BASE_CONFIG = {
     municipalityCode: '',
     contactEmail: '',
     contactPhone: '',
+    accountType: 'MUNICIPAL',
+    isPublicAppApiEnabled: true,
     statusText: '',
     infoText: '',
     zipCode: '',

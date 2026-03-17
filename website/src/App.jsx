@@ -65,9 +65,15 @@ function AdminArea() {
     return result
   }
 
-  const handleRegister = async ({ email, password, postalCodeId }) => {
+  const handleRegister = async ({ email, password, postalCodeId, accountType, isPublicAppApiEnabled }) => {
     try {
-      await apiClient.auth.register({ email, password, postalCodeId })
+      await apiClient.auth.register({
+        email,
+        password,
+        postalCodeId,
+        accountType,
+        isPublicAppApiEnabled,
+      })
       setPendingVerificationEmail(email)
       setVerificationResult(null)
       return { success: true }

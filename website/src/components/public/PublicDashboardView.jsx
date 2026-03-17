@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { apiClient } from '../../api/client'
 import { applyThemeToDOM, getThemeClass } from '../../config/themeManager'
-import { useMqttLiveReadings } from '../../hooks/useMqttLiveReadings'
 import PublicMapPanel from './PublicMapPanel'
 import AiAssistantWidget from '../common/AiAssistantWidget'
 
@@ -550,19 +549,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     })
   }, [baseSections, customModules])
 
-  // Live-MQTT: direkt vom Broker, ohne Backend-Polling
-  const liveReadings = useMqttLiveReadings(!!selectedVillageId)
-
-  // Überschreibt lastReading mit dem jeweils neuesten MQTT-Wert
-  const liveSensors = useMemo(
-    () =>
-      sensors.map((sensor) => {
-        const live = liveReadings[sensor.id]
-        return live ? { ...sensor, lastReading: live } : sensor
-      }),
-    [sensors, liveReadings]
-  )
-
   const enabledSections = useMemo(() => {
     if (!selectedVillageId || !config) {
       return userSections
@@ -623,7 +609,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       villageName: selectedVillage?.name || config?.name || '',
       statusText: villageStatusText,
       infoText: villageInfoText,
-      sensors: liveSensors,
+      sensors,
       modules: {
         map: features.map !== false,
         sensorData: features.sensorData !== false,
@@ -638,7 +624,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       config,
       villageStatusText,
       villageInfoText,
-      liveSensors,
+      sensors,
       features,
       activeSectionId,
     ]
@@ -678,7 +664,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <PublicMapPanel
             zipCode={config?.postalCode?.zipCode}
             city={config?.postalCode?.city}
-            sensors={liveSensors}
+            sensors={sensors}
             rideshares={[]}
             locale={locale}
           />
@@ -690,11 +676,11 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       return (
         <section className="village-section">
           <h3>{text.sections.sensors.heading}</h3>
-          {liveSensors.length === 0 ? (
+          {sensors.length === 0 ? (
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
-              {liveSensors.map((sensor) => (
+              {sensors.map((sensor) => (
                 <div key={sensor.id} className="sensor-card">
                   {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
                   {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
@@ -722,7 +708,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     if (activeSection.id.startsWith('module-')) {
       const moduleInfo = customModules.find((module) => module.id === activeSection.moduleId)
       const moduleSensorIds = new Set(moduleInfo?.sensorIds || [])
-      const moduleSensors = liveSensors.filter((sensor) => moduleSensorIds.has(sensor.id))
+      const moduleSensors = sensors.filter((sensor) => moduleSensorIds.has(sensor.id))
 
       return (
         <section className="village-section village-module-section">

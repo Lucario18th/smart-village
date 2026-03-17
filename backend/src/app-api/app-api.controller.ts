@@ -49,7 +49,7 @@ export class AppApiController {
   /**
    * GET /app/villages/:villageId/initial-data
    * Initiale Daten fuer die App (letzte Messwerte, Nachrichten, Mitfahrbaenke, Module).
-   * Optimierung fuer den ersten Ladevorgang; Live-Updates kommen ueber MQTT.
+    * Optimierung fuer den ersten Ladevorgang; Clients aktualisieren diese Daten per Polling.
    */
   @Get('villages/:villageId/initial-data')
   async getInitialData(

@@ -13,7 +13,7 @@ Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand a
 - Sensoren werden nach ca. 60 Sekunden ohne neue Messwerte als `dataStale` gekennzeichnet.
 - Gemeinde-Status kann als `Village.statusText` persistiert und ueber API/App-API ausgeliefert werden.
 - Public-Ansichten verwenden modulbasierte Sichtbarkeit (Feature-Flags), ohne deaktivierte Platzhalter.
-- Browser-MQTT-Liveupdates laufen direkt ueber WebSocket (`/mqtt` via Nginx, Mosquitto WS-Port 9001).
+- Website und App aktualisieren Nutzdaten einheitlich ueber Polling auf der App-API (`/api/app/...`).
 - Kartenfilter im Adminbereich werden pro Nutzer/Gemeinde in der Session persistiert und nicht durch Polling zurueckgesetzt.
 
 ## Hinweis zur Mobile API
@@ -40,7 +40,7 @@ docs/
 │   ├── sensoren.md                        ← Sensorverwaltung und Messwerte
 │   ├── geraete.md                         ← Geräteverwaltung (Devices)
 │   ├── mqtt-integration.md                ← MQTT-Anbindung und Discovery
-│   ├── app-api.md                         ← App-API (REST + MQTT für die mobile App)
+│   ├── app-api.md                         ← App-API (REST + Polling fuer Website und App)
 │   ├── admin-verwaltung.md                ← Admin-Modul (Kontolöschung)
 │   └── standortsuche.md                   ← PLZ-Suche (Locations)
 ├── frontend/
@@ -54,7 +54,7 @@ docs/
 │   └── sicherheit.md                      ← Sicherheitskonzept
 └── prozesse/
     ├── registrierung-und-login.md         ← Ablauf: Registrierung und Login
-    ├── sensor-datenfluss.md               ← Ablauf: Sensordaten über REST und MQTT
+    ├── sensor-datenfluss.md               ← Ablauf: Sensordaten ueber REST und Polling
     └── auto-discovery.md                  ← Ablauf: Automatische Geräteerkennung
 ```
 
@@ -72,7 +72,7 @@ docs/
 | [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte. |
 | [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller). |
 | [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung. |
-| [App-API](backend/app-api.md) | REST-Endpunkte und MQTT-Topics für die mobile App. |
+| [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert). |
 | [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen. |
 | [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche. |
 | [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
@@ -82,7 +82,7 @@ docs/
 | [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker. |
 | [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise. |
 | [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung. |
-| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten über REST und MQTT in das System gelangen. |
+| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden. |
 | [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT. |
 
 ## Zuordnung bestehender Dokumente

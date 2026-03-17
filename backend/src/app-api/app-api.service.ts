@@ -48,6 +48,11 @@ export class AppApiService {
    */
   async getVillages() {
     const villages = await this.prisma.village.findMany({
+      where: {
+        account: {
+          isPublicAppApiEnabled: true,
+        },
+      },
       include: {
         postalCode: true,
         features: true,
@@ -88,10 +93,15 @@ export class AppApiService {
       include: {
         postalCode: true,
         features: true,
+        account: {
+          select: {
+            isPublicAppApiEnabled: true,
+          },
+        },
       },
     });
 
-    if (!village) {
+    if (!village || !village.account.isPublicAppApiEnabled) {
       throw new NotFoundException(`Village with id ${villageId} not found`);
     }
 
@@ -168,10 +178,17 @@ export class AppApiService {
   async getInitialData(villageId: number): Promise<InitialDataResponse> {
     const village = await this.prisma.village.findUnique({
       where: { id: villageId },
-      include: { features: true },
+      include: {
+        features: true,
+        account: {
+          select: {
+            isPublicAppApiEnabled: true,
+          },
+        },
+      },
     });
 
-    if (!village) {
+    if (!village || !village.account.isPublicAppApiEnabled) {
       throw new NotFoundException(`Village with id ${villageId} not found`);
     }
 
@@ -275,8 +292,17 @@ export class AppApiService {
    * Aktivierte benutzerdefinierte Module einer Gemeinde fuer die oeffentliche App-API.
    */
   async getVillageModules(villageId: number): Promise<ModuleInfo[]> {
-    const village = await this.prisma.village.findUnique({ where: { id: villageId } });
-    if (!village) {
+    const village = await this.prisma.village.findUnique({
+      where: { id: villageId },
+      include: {
+        account: {
+          select: {
+            isPublicAppApiEnabled: true,
+          },
+        },
+      },
+    });
+    if (!village || !village.account.isPublicAppApiEnabled) {
       throw new NotFoundException(`Village with id ${villageId} not found`);
     }
 

@@ -2,38 +2,57 @@ package de.tif23.studienarbeit.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.tif23.studienarbeit.model.repository.MqttSensorRepository
-import de.tif23.studienarbeit.provider.MqttClientProvider
+import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
+import de.tif23.studienarbeit.model.usecase.GetSensorDataUseCase
 import de.tif23.studienarbeit.viewmodel.data.state.SensorDetailViewModelState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class SensorDetailsViewModel(
-    private val mqttSensorRepository: MqttSensorRepository = MqttSensorRepository()
+    private val getSensorDataUseCase: GetSensorDataUseCase = GetSensorDataUseCase(),
+    private val selectedVillageStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore()
 ) : ViewModel() {
 
     private val stateFlow = MutableStateFlow(SensorDetailViewModelState())
+    private var pollingJob: Job? = null
+    private var activeSensorId: Int? = null
 
     val viewState = stateFlow.asStateFlow()
 
-    init {
-        viewModelScope.launch(Dispatchers.Default) {
-            MqttClientProvider.connect("192.168.23.113", 1883, 1)
+    fun startPolling(sensorId: Int) {
+        if (pollingJob?.isActive == true && activeSensorId == sensorId) {
+            return
         }
 
-        viewModelScope.launch {
-            mqttSensorRepository.observeSensorData(3,1)
-                .collect { sensorUpdate ->
-                    println("SensorUpdate: $sensorUpdate")
-                    stateFlow.value = stateFlow.value.copy(sensorData = sensorUpdate)
+        pollingJob?.cancel()
+        activeSensorId = sensorId
+
+        pollingJob = viewModelScope.launch(Dispatchers.Default) {
+            val villageId = selectedVillageStore.getSelectedVillageId() ?: return@launch
+
+            while (isActive) {
+                runCatching {
+                    getSensorDataUseCase.getSensorById(villageId, sensorId)
+                }.onSuccess { sensor ->
+                    stateFlow.value = stateFlow.value.copy(sensorData = sensor)
                 }
+
+                delay(POLLING_INTERVAL_MS)
+            }
         }
     }
 
     override fun onCleared() {
-        MqttClientProvider.disconnect()
+        pollingJob?.cancel()
         super.onCleared()
+    }
+
+    private companion object {
+        const val POLLING_INTERVAL_MS = 5000L
     }
 }

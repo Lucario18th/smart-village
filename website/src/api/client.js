@@ -105,6 +105,12 @@ export const apiClient = {
     changePassword(currentPassword, newPassword) {
       return apiClient.request('POST', '/auth/change-password', { currentPassword, newPassword });
     },
+    updateAccountSettings(accountType, isPublicAppApiEnabled) {
+      return apiClient.request('POST', '/auth/account-settings', {
+        accountType,
+        isPublicAppApiEnabled,
+      });
+    },
   },
 
   // Sensor Endpoints

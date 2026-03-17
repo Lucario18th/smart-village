@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
-import { useMqttLiveReadings } from '../../hooks/useMqttLiveReadings'
 import PublicMapPanel from './PublicMapPanel'
 
 function SensorCard({ sensor, visibility }) {
@@ -106,18 +105,6 @@ export default function VillageDetailView({ villageId }) {
   const canShowMessages = features.messages !== false
   const canShowRideShare = features.rideShare !== false
 
-  // Live-MQTT: direkt vom Broker, ohne Backend-Polling
-  const liveReadings = useMqttLiveReadings(true)
-
-  const liveSensors = useMemo(
-    () =>
-      sensors.map((sensor) => {
-        const live = liveReadings[sensor.id]
-        return live ? { ...sensor, lastReading: live } : sensor
-      }),
-    [sensors, liveReadings]
-  )
-
   // Sensor-IDs, die einem Custom-Modul zugeordnet sind
   const moduleSensorIds = useMemo(
     () => new Set(customModules.flatMap((m) => m.sensorIds)),
@@ -126,8 +113,8 @@ export default function VillageDetailView({ villageId }) {
 
   // Sensoren ohne Modul-Zuordnung (allgemeiner Bereich)
   const unassignedSensors = useMemo(
-    () => liveSensors.filter((s) => !moduleSensorIds.has(s.id)),
-    [liveSensors, moduleSensorIds]
+    () => sensors.filter((s) => !moduleSensorIds.has(s.id)),
+    [sensors, moduleSensorIds]
   )
 
   return (
@@ -152,7 +139,7 @@ export default function VillageDetailView({ villageId }) {
           <PublicMapPanel
             zipCode={config.postalCode?.zipCode}
             city={config.postalCode?.city}
-            sensors={liveSensors}
+            sensors={sensors}
             rideshares={rideshares}
           />
         </section>
@@ -161,7 +148,7 @@ export default function VillageDetailView({ villageId }) {
       {canShowSensors ? (
         <>
           {customModules.map((mod) => {
-            const modSensors = liveSensors.filter((s) => mod.sensorIds.includes(s.id))
+            const modSensors = sensors.filter((s) => mod.sensorIds.includes(s.id))
             return (
               <section key={mod.id} className="village-section village-module-section">
                 <h3 className="village-module-title">{mod.name}</h3>
@@ -190,7 +177,7 @@ export default function VillageDetailView({ villageId }) {
                 ))}
               </div>
             </section>
-          ) : liveSensors.length === 0 ? (
+          ) : sensors.length === 0 ? (
             <section className="village-section">
               <h3>Sensoren</h3>
               <p className="village-section-empty">Keine Sensoren verfügbar.</p>

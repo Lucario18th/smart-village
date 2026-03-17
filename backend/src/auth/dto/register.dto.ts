@@ -5,7 +5,10 @@ import {
   IsOptional,
   IsInt,
   IsPositive,
+  IsBoolean,
+  IsEnum,
 } from 'class-validator';
+import { AccountType } from '@prisma/client';
 
 export class RegisterDto {
   @IsEmail()
@@ -14,6 +17,14 @@ export class RegisterDto {
   @IsString()
   @MinLength(8)
   password!: string;
+
+  @IsOptional()
+  @IsEnum(AccountType)
+  accountType?: AccountType;
+
+  @IsOptional()
+  @IsBoolean()
+  isPublicAppApiEnabled?: boolean;
 
   @IsInt()
   @IsPositive()

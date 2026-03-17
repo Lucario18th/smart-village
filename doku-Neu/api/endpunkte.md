@@ -46,6 +46,7 @@ Der Token wird über den Login-Endpunkt erhalten.
 | POST | `/api/auth/verify-code` | Nein | E-Mail-Verifizierungscode prüfen |
 | POST | `/api/auth/resend-verification` | Nein | Verifizierungscode erneut senden |
 | GET | `/api/auth/me` | Ja | Eigene Kontodaten abrufen |
+| POST | `/api/auth/account-settings` | Ja | Account-Typ und Public-App-API-Freigabe aktualisieren |
 
 **Register – Eingabe:**
 ```json
@@ -53,6 +54,8 @@ Der Token wird über den Login-Endpunkt erhalten.
   "email": "beispiel@test.de",
   "password": "sicheresPasswort123",
   "postalCodeId": 42,
+  "accountType": "MUNICIPAL",
+  "isPublicAppApiEnabled": true,
   "villageName": "Musterdorf"
 }
 ```
@@ -280,6 +283,8 @@ Sie erfordern keine Authentifizierung.
 | GET | `/app/villages` | Nein | Liste aller Gemeinden mit Feature-Flags und PLZ |
 | GET | `/app/villages/:villageId/config` | Nein | Konfiguration einer Gemeinde (Features + freigegebene Sensoren) |
 | GET | `/app/villages/:villageId/initial-data` | Nein | Initiale Daten fuer den ersten Ladevorgang |
+
+Hinweis: Nur Accounts mit `isPublicAppApiEnabled = true` erscheinen in `/app/villages`.
 
 Ausfuehrliche Dokumentation: [App-API](../backend/app-api.md)
 

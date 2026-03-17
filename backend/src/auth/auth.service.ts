@@ -5,8 +5,9 @@ import { JwtService } from "@nestjs/jwt";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { EmailService } from "./email.service";
-import { Account } from "@prisma/client";
+import { Account, AccountType } from "@prisma/client";
 import { randomInt } from "crypto";
+import { UpdateAccountSettingsDto } from "./dto/update-account-settings.dto";
 
 @Injectable()
 export class AuthService {
@@ -82,11 +83,16 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const verificationCode = this.generateVerificationCode();
     const verificationCodeExpiresAt = this.getVerificationExpiry();
+    const accountType = dto.accountType ?? AccountType.MUNICIPAL;
+    const isPublicAppApiEnabled =
+      dto.isPublicAppApiEnabled ?? accountType === AccountType.MUNICIPAL;
 
     const account = await this.prisma.account.create({
       data: {
         email: dto.email,
         passwordHash,
+        accountType,
+        isPublicAppApiEnabled,
         emailVerified: false,
         verificationCode,
         verificationCodeExpiresAt,
@@ -166,7 +172,7 @@ export class AuthService {
   }
 
   async getMe(accountId: number) {
-    return this.prisma.account.findUnique({
+    const account = await this.prisma.account.findUnique({
       where: { id: accountId },
       include: {
         villages: {
@@ -176,6 +182,33 @@ export class AuthService {
         },
       },
     });
+
+    if (!account) {
+      throw new UnauthorizedException("User does not exist");
+    }
+
+    const { passwordHash, ...safeAccount } = account;
+    return safeAccount;
+  }
+
+  async updateAccountSettings(accountId: number, dto: UpdateAccountSettingsDto) {
+    const updated = await this.prisma.account.update({
+      where: { id: accountId },
+      data: {
+        accountType: dto.accountType,
+        isPublicAppApiEnabled: dto.isPublicAppApiEnabled,
+      },
+      include: {
+        villages: {
+          include: {
+            postalCode: true,
+          },
+        },
+      },
+    });
+
+    const { passwordHash, ...safeAccount } = updated;
+    return safeAccount;
   }
 
   private async sendOrResendVerificationCode(account: Account) {

@@ -3,40 +3,38 @@
 ## Zweck dieses Dokuments
 
 Dieses Dokument beschreibt die neue App-API-Schicht des Smart-Village-Backends.
-Die App-API stellt REST-Endpunkte und MQTT-Topics bereit, über die eine mobile App Daten empfängt.
+Die App-API stellt REST-Endpunkte bereit, ueber die mobile App und Website Daten empfangen.
 Sie ist unabhängig von der bestehenden Mobile API (`/mobile-api/`) und ersetzt diese nicht.
 
 ## Architekturübersicht
 
-Die mobile App kommuniziert mit dem Backend über zwei Kanäle:
+Mobile App und Website kommunizieren mit dem Backend ueber die REST-App-API und aktualisieren Daten in festen Polling-Intervallen.
 
-1. **REST-API** (`/app/...`) – Die App ruft Konfigurationsdaten und initiale Datensätze über HTTP ab.
-2. **MQTT** (`app/village/{villageId}/...`) – Die App abonniert Topics für Live-Updates.
+Wichtig: Die App-API liefert nur Gemeinden, deren Account die Freigabe `isPublicAppApiEnabled = true` gesetzt hat.
+Private oder nicht freigegebene Accounts tauchen in `/app/villages` nicht auf und ihre Dorf-Endpunkte liefern `404`.
 
 Der typische Ablauf ist:
 
 1. Die App startet und ruft `GET /app/villages` auf, um die Liste der verfügbaren Gemeinden zu laden.
 2. Der Nutzer wählt eine Gemeinde.
 3. Die App ruft `GET /app/villages/:villageId/config` auf, um die Feature-Flags und die Liste der freigegebenen Sensoren zu erhalten.
-4. Die App ruft optional `GET /app/villages/:villageId/initial-data` auf, um sofort Daten anzuzeigen.
-5. Die App abonniert die passenden MQTT-Topics für die aktivierten Module.
-6. Live-Updates werden über MQTT empfangen und in der App angezeigt.
+4. Die App ruft `GET /app/villages/:villageId/initial-data` auf, um sofort Daten anzuzeigen.
+5. App und Website rufen die App-API periodisch erneut auf (Polling), um aktualisierte Werte zu laden.
 
 ```
 ┌────────────┐       REST (HTTP)        ┌─────────────┐
 │            │ ──────────────────────▶   │             │
 │  Mobile    │                           │   Backend   │
 │  App       │ ◀──────────────────────   │  (NestJS)   │
-│            │       MQTT (Subscribe)    │             │
-│            │ ◀──────────────────────   │             │
+│            │                           │             │
 └────────────┘                           └─────────────┘
-                                              │
-                                              ▼
-                                         ┌──────────┐
-                                         │ Mosquitto │
-                                         │ (MQTT     │
-                                         │  Broker)  │
-                                         └──────────┘
+
+┌────────────┐       REST (HTTP)        ┌─────────────┐
+│            │ ──────────────────────▶   │             │
+│  Website   │                           │   Backend   │
+│  Public    │ ◀──────────────────────   │  (NestJS)   │
+│            │                           │             │
+└────────────┘                           └─────────────┘
 ```
 
 ## Warum Feature-Flags pro Gemeinde?
@@ -222,9 +220,9 @@ Hinweis:
 
 ### GET /app/villages/:villageId/initial-data
 
-Gibt einen initialen Datensatz zurück, damit die App sofort Inhalte anzeigen kann.
-Dieser Endpunkt ist eine Optimierung für den ersten Ladevorgang.
-Live-Updates werden anschließend über MQTT empfangen.
+Gibt einen initialen Datensatz zurueck, damit die App sofort Inhalte anzeigen kann.
+Dieser Endpunkt ist eine Optimierung fuer den ersten Ladevorgang.
+Aktualisierte Werte werden anschliessend ueber wiederholte REST-Abfragen (Polling) geladen.
 
 Es werden nur Daten für aktivierte Module zurückgegeben:
 - `sensors` – Nur wenn `enableSensorData = true`. Enthält den letzten Messwert pro Sensor.

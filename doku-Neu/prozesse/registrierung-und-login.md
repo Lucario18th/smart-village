@@ -19,6 +19,8 @@ Ein Gemeindeverantwortlicher erstellt ein Konto, um seine Gemeinde im System ver
 3. Der Benutzer gibt folgende Daten ein:
    - E-Mail-Adresse
    - Passwort
+   - Account-Typ (Gemeinde/Organisation oder Privatperson)
+   - Public-App-API-Freigabe (ob Daten in der User-Ansicht verfuegbar sind)
    - Name der Gemeinde
    - Standort (über die PLZ-Autovervollständigung)
 4. Die LocationAutocomplete-Komponente ruft `GET /api/locations/search?query=<eingabe>` auf, um passende Postleitzahlen anzuzeigen.
@@ -29,6 +31,8 @@ Ein Gemeindeverantwortlicher erstellt ein Konto, um seine Gemeinde im System ver
      "email": "benutzer@gemeinde.de",
      "password": "sicheresPasswort",
      "postalCodeId": 42,
+       "accountType": "MUNICIPAL",
+       "isPublicAppApiEnabled": true,
      "villageName": "Musterdorf"
    }
    ```
@@ -42,6 +46,7 @@ Ein Gemeindeverantwortlicher erstellt ein Konto, um seine Gemeinde im System ver
 ### Beteiligte Komponenten
 
 - Frontend: RegisterView, LocationAutocomplete
+- Frontend: RegisterView, LocationAutocomplete, GeneralSettingsForm (spätere Änderung im Admin)
 - Backend: AuthController, AuthService, EmailService
 - Datenbank: Account, Village, PostalCode
 - E-Mail: Nodemailer → SMTP (MailHog in der Entwicklung)

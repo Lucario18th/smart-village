@@ -274,14 +274,16 @@ export function useVillageConfig(session) {
           return
         }
 
-        setVillageId(accountId)
+        const me = await apiClient.auth.getMe()
+        const managedVillageId = me?.villages?.[0]?.id ?? accountId
+        setVillageId(managedVillageId)
 
         // Load sensor types
         const types = await apiClient.sensorTypes.list()
         setSensorTypes(mapSensorTypes(types))
 
         // Load village data
-        const village = await apiClient.villages.get(accountId)
+        const village = await apiClient.villages.get(managedVillageId)
 
         // Build config from API response
         const storedDesign = loadStoredDesign(accountId)
@@ -304,6 +306,8 @@ export function useVillageConfig(session) {
             zipCode: village.postalCode?.zipCode || '',
             city: village.postalCode?.city || '',
             postalCodeId: village.postalCodeId || village.postalCode?.id || null,
+            accountType: me?.accountType || 'MUNICIPAL',
+            isPublicAppApiEnabled: me?.isPublicAppApiEnabled ?? true,
           },
           modules: {
             sensors: {
@@ -594,6 +598,11 @@ export function useVillageConfig(session) {
         postalCodeId: config.general.postalCodeId,
       })
 
+      await apiClient.auth.updateAccountSettings(
+        config.general.accountType || 'MUNICIPAL',
+        config.general.isPublicAppApiEnabled ?? true,
+      )
+
       // Update village features (module flags and sensor detail visibility)
       const modules = config.modules || {}
       await apiClient.villages.updateFeatures(villageId, {
@@ -713,6 +722,8 @@ export function useVillageConfig(session) {
           zipCode: village.postalCode?.zipCode || '',
           city: village.postalCode?.city || '',
           postalCodeId: village.postalCodeId || village.postalCode?.id || null,
+          accountType: config.general.accountType || 'MUNICIPAL',
+          isPublicAppApiEnabled: config.general.isPublicAppApiEnabled ?? true,
         },
         sensors: mapSensors(village.sensors),
         devices: mapDevices(village.devices),
