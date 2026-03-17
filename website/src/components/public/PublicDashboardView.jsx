@@ -333,7 +333,7 @@ function persistLastVillageId(villageId) {
   }
 }
 
-function UserNavIcon({ sectionId }) {
+function UserNavIcon({ sectionId, iconKey }) {
   const icons = {
     map: 'M3 6.6 9 4l6 2.4L21 4v13.4L15 20l-6-2.4L3 20V6.6Zm12 11.2V8.2l-6-2.4v9.6l6 2.4Z',
     sensors: 'M12 2a6 6 0 0 1 6 6h-2a4 4 0 1 0-8 0H6a6 6 0 0 1 6-6Zm0 5a1.5 1.5 0 0 1 1.5 1.5h2a3.5 3.5 0 1 0-7 0h2A1.5 1.5 0 0 1 12 7Zm0 4.5a3 3 0 0 1 3 3V20h-6v-5.5a3 3 0 0 1 3-3Z',
@@ -342,13 +342,17 @@ function UserNavIcon({ sectionId }) {
     rideshare: 'M3 15.5 8 12l4 3 9-6v4.5L12 20l-9-4.5v-0Z',
     events: 'M4 20V10h3v10H4Zm6 0V4h3v16h-3Zm6 0v-7h3v7h-3Z',
     textile: 'M5 4h14v16H5V4Zm3 3v10h8V7H8Zm2 2h4v2h-4V9Z',
+    tree: 'M12 3 7 10h3v3H8l4 5 4-5h-2v-3h3L12 3ZM11 18h2v3h-2v-3Z',
+    water: 'M12 3c3 3.3 5 5.6 5 8a5 5 0 1 1-10 0c0-2.4 2-4.7 5-8Zm0 4.4c-1.6 2-2.5 3.1-2.5 4.6a2.5 2.5 0 0 0 5 0c0-1.5-.9-2.6-2.5-4.6Z',
+    camera: 'M4 7h3l1.4-2h5.2L15 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm7 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
+    energy: 'M13 2 6 13h4l-1 9 7-11h-4l1-9Z',
     settings: 'm12 3 2 3.5 4 .8-2.8 2.7.7 4-3.9-2-3.8 2 .7-4L6 7.3l4-.8L12 3Zm-7 14h14v2H5v-2Z',
   }
-  const iconKey = sectionId.startsWith('module-') ? 'sensors' : sectionId
+  const resolvedIconKey = sectionId.startsWith('module-') ? (iconKey || 'sensors') : sectionId
 
   return (
     <svg className="admin-nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path fill="currentColor" d={icons[iconKey] || icons.settings} />
+      <path fill="currentColor" d={icons[resolvedIconKey] || icons.settings} />
     </svg>
   )
 }
@@ -372,6 +376,7 @@ function buildModuleSection(module) {
     label: module.name,
     title: module.name,
     moduleId: module.id,
+    iconKey: module.iconKey || 'sensors',
   }
 }
 
@@ -1089,7 +1094,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                 aria-pressed={activeSection.id === section.id}
               >
                 <span className="admin-nav-button-content">
-                  <UserNavIcon sectionId={section.id} />
+                  <UserNavIcon sectionId={section.id} iconKey={section.iconKey} />
                   <span>{section.label}</span>
                 </span>
               </button>

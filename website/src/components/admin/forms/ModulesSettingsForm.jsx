@@ -19,6 +19,24 @@ const DEFAULT_SENSOR_FIELDS = {
   status: true,
 }
 
+const MODULE_ICON_OPTIONS = [
+  { key: 'sensors', label: 'Sensor' },
+  { key: 'weather', label: 'Wetter' },
+  { key: 'messages', label: 'Nachrichten' },
+  { key: 'map', label: 'Karte' },
+  { key: 'rideshare', label: 'Mobilitaet' },
+  { key: 'events', label: 'Events' },
+  { key: 'textile', label: 'Container' },
+  { key: 'tree', label: 'Baeume' },
+  { key: 'water', label: 'Wasser' },
+  { key: 'camera', label: 'Kamera' },
+  { key: 'energy', label: 'Energie' },
+]
+
+function getModuleIconLabel(iconKey) {
+  return MODULE_ICON_OPTIONS.find((option) => option.key === iconKey)?.label || 'Sensor'
+}
+
 function ServiceCard({
   title,
   description,
@@ -85,7 +103,7 @@ export default function ModulesSettingsForm({
   const [modulesLoading, setModulesLoading] = useState(false)
   const [showModuleForm, setShowModuleForm] = useState(false)
   const [editingModule, setEditingModule] = useState(null) // null = new, object = edit
-  const [moduleForm, setModuleForm] = useState({ name: '', description: '', sensorIds: [] })
+  const [moduleForm, setModuleForm] = useState({ name: '', description: '', iconKey: 'sensors', sensorIds: [] })
   const [moduleFormError, setModuleFormError] = useState('')
   const [moduleFormSaving, setModuleFormSaving] = useState(false)
   const [deletingModuleId, setDeletingModuleId] = useState(null)
@@ -110,14 +128,19 @@ export default function ModulesSettingsForm({
 
   const openCreateForm = () => {
     setEditingModule(null)
-    setModuleForm({ name: '', description: '', sensorIds: [] })
+    setModuleForm({ name: '', description: '', iconKey: 'sensors', sensorIds: [] })
     setModuleFormError('')
     setShowModuleForm(true)
   }
 
   const openEditForm = (mod) => {
     setEditingModule(mod)
-    setModuleForm({ name: mod.name, description: mod.description, sensorIds: [...mod.sensorIds] })
+    setModuleForm({
+      name: mod.name,
+      description: mod.description,
+      iconKey: mod.iconKey || 'sensors',
+      sensorIds: [...mod.sensorIds],
+    })
     setModuleFormError('')
     setShowModuleForm(true)
   }
@@ -141,6 +164,7 @@ export default function ModulesSettingsForm({
         const updated = await apiClient.villageModules.update(villageId, editingModule.id, {
           name: moduleForm.name.trim(),
           description: moduleForm.description.trim(),
+          iconKey: moduleForm.iconKey,
           sensorIds: moduleForm.sensorIds,
         })
         setCustomModules((prev) => prev.map((m) => (m.id === updated.id ? updated : m)))
@@ -148,6 +172,7 @@ export default function ModulesSettingsForm({
         const created = await apiClient.villageModules.create(villageId, {
           name: moduleForm.name.trim(),
           description: moduleForm.description.trim(),
+          iconKey: moduleForm.iconKey,
           sensorIds: moduleForm.sensorIds,
         })
         setCustomModules((prev) => [...prev, created])
@@ -433,6 +458,7 @@ export default function ModulesSettingsForm({
                     <div className="cm-item-info">
                       <strong className="cm-item-name">{mod.name}</strong>
                       {mod.description && <span className="cm-item-desc">{mod.description}</span>}
+                      <span className="cm-item-sensors">Icon: {getModuleIconLabel(mod.iconKey)}</span>
                       <span className="cm-item-sensors">
                         {mod.sensorIds.length === 0
                           ? 'Keine Sensoren zugeordnet'
@@ -507,6 +533,19 @@ export default function ModulesSettingsForm({
                       placeholder="Optional"
                       maxLength={200}
                     />
+                  </label>
+
+                  <label className="cm-form-label">
+                    Icon
+                    <select
+                      className="cm-form-input"
+                      value={moduleForm.iconKey}
+                      onChange={(e) => setModuleForm((p) => ({ ...p, iconKey: e.target.value }))}
+                    >
+                      {MODULE_ICON_OPTIONS.map((option) => (
+                        <option key={option.key} value={option.key}>{option.label}</option>
+                      ))}
+                    </select>
                   </label>
                 </div>
 
