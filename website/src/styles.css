@@ -12,8 +12,11 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .auth-card .auth-subtitle{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:16px;line-height:1.45}
 .auth-form{display:grid;gap:12px;margin-top:2px}
 .auth-form label{font-size:13px;font-weight:700;letter-spacing:.01em;color:var(--md-sys-color-on-surface)}
-.auth-form input{padding:12px 13px;border-radius:11px;border:1px solid color-mix(in srgb, #fff 24%, var(--md-sys-color-outline));background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 42%, transparent);color:var(--md-sys-color-on-surface);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
-.auth-form input:focus{outline:none;border-color:var(--md-sys-color-primary);background:var(--md-sys-color-surface);box-shadow:0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent)}
+.auth-form input,.auth-form select{padding:12px 13px;border-radius:11px;border:1px solid color-mix(in srgb, #fff 24%, var(--md-sys-color-outline));background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 42%, transparent);color:var(--md-sys-color-on-surface);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.auth-form input:focus,.auth-form select:focus{outline:none;border-color:var(--md-sys-color-primary);background:var(--md-sys-color-surface);box-shadow:0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent)}
+.auth-form-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;align-items:end}
+.auth-form-label{font-size:13px;font-weight:700;letter-spacing:.01em;color:var(--md-sys-color-on-surface)}
+.auth-form-select-field{display:grid;gap:6px}
 .auth-code-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .auth-code-input{padding:10px 0!important;text-align:center;font-size:22px;font-weight:800;letter-spacing:.02em;border-radius:10px}
 .auth-submit-button{margin-top:8px;padding:12px 15px;border:none;border-radius:12px;background:linear-gradient(110deg, color-mix(in srgb, var(--md-sys-color-primary) 92%, #000) 0%, var(--md-sys-color-primary) 52%, color-mix(in srgb, var(--md-sys-color-secondary) 88%, #000) 100%);color:var(--md-sys-color-on-primary);font-weight:800;font-size:15px;letter-spacing:.02em;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
@@ -36,6 +39,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 	.auth-card{padding:22px 18px 20px;border-radius:18px}
 	.auth-card h1{font-size:32px}
 	.auth-card .auth-subtitle{font-size:15px}
+	.auth-form-row{grid-template-columns:1fr}
 	.auth-code-grid{gap:6px}
 	.auth-code-input{font-size:20px}
 	.auth-actions{flex-direction:column}

@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { AUTH_HINT } from '../auth/accounts'
 import LocationAutocomplete from './LocationAutocomplete'
 
 export default function RegisterView({ onRegister, onBack, initialEmail = '' }) {
@@ -112,30 +111,35 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
             minLength="8"
           />
 
-          <LocationAutocomplete
-            label="Ihr Dorf (PLZ oder Ort)"
-            placeholder="12345 oder Musterstadt"
-            onSelect={setSelectedLocation}
-            selectedOption={selectedLocation}
-            disabled={isLoading}
-          />
+          <div className="auth-form-row">
+            <LocationAutocomplete
+              label="Ihr Dorf (PLZ oder Ort)"
+              labelClassName="auth-form-label"
+              placeholder="12345 oder Musterstadt"
+              onSelect={setSelectedLocation}
+              selectedOption={selectedLocation}
+              disabled={isLoading}
+            />
 
-          <label htmlFor="accountType">Account-Typ</label>
-          <select
-            id="accountType"
-            value={accountType}
-            onChange={(event) => {
-              const nextType = event.target.value
-              setAccountType(nextType)
-              if (nextType === 'PRIVATE') {
-                setIsPublicAppApiEnabled(false)
-              }
-            }}
-            disabled={isLoading}
-          >
-            <option value="MUNICIPAL">Gemeinde / Organisation</option>
-            <option value="PRIVATE">Privatperson</option>
-          </select>
+            <label htmlFor="accountType" className="auth-form-select-field">
+              <span>Account-Typ</span>
+              <select
+                id="accountType"
+                value={accountType}
+                onChange={(event) => {
+                  const nextType = event.target.value
+                  setAccountType(nextType)
+                  if (nextType === 'PRIVATE') {
+                    setIsPublicAppApiEnabled(false)
+                  }
+                }}
+                disabled={isLoading}
+              >
+                <option value="MUNICIPAL">Gemeinde / Organisation</option>
+                <option value="PRIVATE">Privatperson</option>
+              </select>
+            </label>
+          </div>
 
           <label className="checkbox-field" htmlFor="isPublicAppApiEnabled">
             <input
