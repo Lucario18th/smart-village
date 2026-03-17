@@ -206,6 +206,7 @@ export class MobileService {
       name: m.name,
       description: m.description ?? '',
       iconKey: m.iconKey,
+      moduleType: m.moduleType,
       sensorIds: m.sensors.map((s) => s.id),
     }));
   }

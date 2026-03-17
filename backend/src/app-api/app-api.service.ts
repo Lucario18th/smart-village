@@ -6,6 +6,7 @@ interface ModuleInfo {
   name: string;
   description: string;
   iconKey: string;
+  moduleType: string;
   sensorIds: number[];
 }
 
@@ -154,6 +155,7 @@ export class AppApiService {
         name: m.name,
         description: m.description ?? '',
         iconKey: m.iconKey,
+        moduleType: m.moduleType,
         sensorIds: m.sensors.map((s) => s.id),
       })),
     };
@@ -262,6 +264,7 @@ export class AppApiService {
       name: m.name,
       description: m.description ?? '',
       iconKey: m.iconKey,
+      moduleType: m.moduleType,
       sensorIds: m.sensors.map((s) => s.id),
     }));
 
@@ -288,6 +291,7 @@ export class AppApiService {
       name: m.name,
       description: m.description ?? '',
       iconKey: m.iconKey,
+      moduleType: m.moduleType,
       sensorIds: m.sensors.map((s) => s.id),
     }));
   }

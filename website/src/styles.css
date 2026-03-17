@@ -272,6 +272,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .service-meta-row{margin-top:8px}
 .service-card .service-meta{margin:0;font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface)}
 .service-card-controls{display:grid;gap:8px;justify-items:end;align-content:start;justify-self:end}
+.service-grid--custom{grid-auto-rows:minmax(132px,auto)}
+.service-card-side-actions{display:flex;align-items:center;gap:6px}
 .service-module-details{margin-top:10px;display:grid;gap:8px;width:100%;max-width:none}
 .service-module-expand{justify-self:start;padding:7px 10px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
 .service-module-expand:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}

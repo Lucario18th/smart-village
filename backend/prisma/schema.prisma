@@ -128,6 +128,7 @@ model VillageModule {
   name        String
   description String?
   iconKey     String    @default("sensors")
+  moduleType  String    @default("Service")
   isEnabled   Boolean   @default(true)
   createdAt   DateTime  @default(now())
 

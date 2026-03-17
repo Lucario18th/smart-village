@@ -5,6 +5,7 @@ CREATE TABLE "VillageModule" (
     "name" TEXT NOT NULL,
     "description" TEXT,
     "iconKey" TEXT NOT NULL DEFAULT 'sensors',
+    "moduleType" TEXT NOT NULL DEFAULT 'Service',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "VillageModule_pkey" PRIMARY KEY ("id")

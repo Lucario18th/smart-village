@@ -33,6 +33,16 @@ const MODULE_ICON_OPTIONS = [
   { key: 'energy', label: 'Energie' },
 ]
 
+const MODULE_TYPE_OPTIONS = [
+  'Mobilitaet',
+  'Info',
+  'Service',
+  'Umwelt',
+  'Sicherheit',
+  'Energie',
+  'Community',
+]
+
 function getModuleIconLabel(iconKey) {
   return MODULE_ICON_OPTIONS.find((option) => option.key === iconKey)?.label || 'Sensor'
 }
@@ -103,7 +113,13 @@ export default function ModulesSettingsForm({
   const [modulesLoading, setModulesLoading] = useState(false)
   const [showModuleForm, setShowModuleForm] = useState(false)
   const [editingModule, setEditingModule] = useState(null) // null = new, object = edit
-  const [moduleForm, setModuleForm] = useState({ name: '', description: '', iconKey: 'sensors', sensorIds: [] })
+  const [moduleForm, setModuleForm] = useState({
+    name: '',
+    description: '',
+    iconKey: 'sensors',
+    moduleType: 'Service',
+    sensorIds: [],
+  })
   const [moduleFormError, setModuleFormError] = useState('')
   const [moduleFormSaving, setModuleFormSaving] = useState(false)
   const [deletingModuleId, setDeletingModuleId] = useState(null)
@@ -128,7 +144,7 @@ export default function ModulesSettingsForm({
 
   const openCreateForm = () => {
     setEditingModule(null)
-    setModuleForm({ name: '', description: '', iconKey: 'sensors', sensorIds: [] })
+    setModuleForm({ name: '', description: '', iconKey: 'sensors', moduleType: 'Service', sensorIds: [] })
     setModuleFormError('')
     setShowModuleForm(true)
   }
@@ -139,6 +155,7 @@ export default function ModulesSettingsForm({
       name: mod.name,
       description: mod.description,
       iconKey: mod.iconKey || 'sensors',
+      moduleType: mod.moduleType || 'Service',
       sensorIds: [...mod.sensorIds],
     })
     setModuleFormError('')
@@ -165,6 +182,7 @@ export default function ModulesSettingsForm({
           name: moduleForm.name.trim(),
           description: moduleForm.description.trim(),
           iconKey: moduleForm.iconKey,
+          moduleType: moduleForm.moduleType,
           sensorIds: moduleForm.sensorIds,
         })
         setCustomModules((prev) => prev.map((m) => (m.id === updated.id ? updated : m)))
@@ -173,6 +191,7 @@ export default function ModulesSettingsForm({
           name: moduleForm.name.trim(),
           description: moduleForm.description.trim(),
           iconKey: moduleForm.iconKey,
+          moduleType: moduleForm.moduleType,
           sensorIds: moduleForm.sensorIds,
         })
         setCustomModules((prev) => [...prev, created])
@@ -246,20 +265,6 @@ export default function ModulesSettingsForm({
       description: 'Interaktive Karte mit Orten, Sensoren und relevanten Punkten',
       placement: 'Tab-Navigation und Detailseiten',
       category: 'Navigation',
-    },
-    {
-      id: 'rideSharingBench',
-      title: 'Mitfahrbank',
-      description: 'Digitale Anzeige und Status zur Mitfahrbank im Ort',
-      placement: 'Startseite und Mobilitaetsbereich',
-      category: 'Mobilitaet',
-    },
-    {
-      id: 'oldClothesContainer',
-      title: 'Altkleidercontainer',
-      description: 'Standorte, Fuellstand und Hinweise zu Sammelstellen',
-      placement: 'Karte und Service-Bereich',
-      category: 'Service',
     },
   ]
 
@@ -451,30 +456,19 @@ export default function ModulesSettingsForm({
           )}
 
           {!modulesLoading && customModules.length > 0 && (
-            <ul className="cm-list">
+            <div className="service-grid service-grid--custom">
               {customModules.map((mod) => (
-                <li key={mod.id} className="cm-item">
-                  <div className="cm-item-main">
-                    <div className="cm-item-info">
-                      <strong className="cm-item-name">{mod.name}</strong>
-                      {mod.description && <span className="cm-item-desc">{mod.description}</span>}
-                      <span className="cm-item-sensors">Icon: {getModuleIconLabel(mod.iconKey)}</span>
-                      <span className="cm-item-sensors">
-                        {mod.sensorIds.length === 0
-                          ? 'Keine Sensoren zugeordnet'
-                          : `${mod.sensorIds.length} Sensor${mod.sensorIds.length === 1 ? '' : 'en'} zugeordnet`}
-                      </span>
-                    </div>
-                    <div className="cm-item-actions">
-                      <label className="switch-control" title={mod.isEnabled ? 'Aktiv' : 'Inaktiv'}>
-                        <input
-                          type="checkbox"
-                          checked={mod.isEnabled}
-                          onChange={() => handleToggleModuleEnabled(mod)}
-                          aria-label={`${mod.name} aktivieren`}
-                        />
-                        <span className="switch-slider" aria-hidden="true" />
-                      </label>
+                <ServiceCard
+                  key={mod.id}
+                  title={mod.name}
+                  description={mod.description || 'Benutzerdefiniertes Modul'}
+                  placement="Nutzer-Navigation und Detailansicht"
+                  category={mod.moduleType || 'Service'}
+                  isEnabled={mod.isEnabled}
+                  onEnabledChange={() => handleToggleModuleEnabled(mod)}
+                  isEditing={true}
+                  secondaryControl={(
+                    <div className="service-card-side-actions">
                       <button
                         type="button"
                         className="cm-icon-btn cm-edit-btn"
@@ -497,10 +491,21 @@ export default function ModulesSettingsForm({
                         </svg>
                       </button>
                     </div>
+                  )}
+                >
+                  <div className="service-meta-row">
+                    <p className="service-meta">Icon: {getModuleIconLabel(mod.iconKey)}</p>
                   </div>
-                </li>
+                  <div className="service-meta-row">
+                    <p className="service-meta">
+                      {mod.sensorIds.length === 0
+                        ? 'Keine Sensoren zugeordnet'
+                        : `${mod.sensorIds.length} Sensor${mod.sensorIds.length === 1 ? '' : 'en'} zugeordnet`}
+                    </p>
+                  </div>
+                </ServiceCard>
               ))}
-            </ul>
+            </div>
           )}
 
           {/* Modul-Formular (Erstellen / Bearbeiten) */}
@@ -544,6 +549,19 @@ export default function ModulesSettingsForm({
                     >
                       {MODULE_ICON_OPTIONS.map((option) => (
                         <option key={option.key} value={option.key}>{option.label}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="cm-form-label">
+                    Typ
+                    <select
+                      className="cm-form-input"
+                      value={moduleForm.moduleType}
+                      onChange={(e) => setModuleForm((p) => ({ ...p, moduleType: e.target.value }))}
+                    >
+                      {MODULE_TYPE_OPTIONS.map((type) => (
+                        <option key={type} value={type}>{type}</option>
                       ))}
                     </select>
                   </label>
