@@ -187,10 +187,11 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .cm-delete-btn:disabled{opacity:.4;cursor:default}
 /* Modul-Formular Overlay */
 .cm-form-overlay{position:fixed;inset:0;background:color-mix(in srgb, var(--md-sys-color-scrim) 50%, transparent);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
-.cm-form-card{background:var(--md-sys-color-surface);border-radius:16px;padding:24px;width:100%;max-width:500px;height:min(580px,90dvh);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent)}
+.cm-form-card{background:var(--md-sys-color-surface);border-radius:16px;padding:24px;width:100%;max-width:560px;height:min(660px,92dvh);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent)}
 .cm-form-title{font-size:16px;font-weight:700;color:var(--md-sys-color-on-surface);margin:0 0 18px;flex-shrink:0}
 .cm-form-static{flex-shrink:0}
 .cm-form-label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:var(--md-sys-color-on-surface-variant);margin-bottom:14px}
+.cm-form-two-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
 .cm-form-input{padding:9px 12px;border-radius:8px;border:1px solid var(--md-sys-color-outline);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font:inherit;font-size:14px;outline:none;transition:border-color .15s ease}
 .cm-form-input:focus{border-color:var(--md-sys-color-primary)}
 .cm-sensor-fieldset{border:1px solid var(--md-sys-color-outline-variant);border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden}
@@ -240,6 +241,10 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 @media (max-width: 1200px){
 	.general-settings{gap:8px}
 	.general-form-header{justify-content:flex-start}
+}
+
+@media (max-width: 640px){
+	.cm-form-two-cols{grid-template-columns:1fr;gap:0}
 }
 .module-settings{display:grid;gap:14px;margin-top:6px}
 .module-settings-hint{margin:0;font-size:14px;color:var(--md-sys-color-on-surface-variant)}

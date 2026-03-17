@@ -543,31 +543,33 @@ export default function ModulesSettingsForm({
                     />
                   </label>
 
-                  <label className="cm-form-label">
-                    Icon
-                    <select
-                      className="cm-form-input"
-                      value={moduleForm.iconKey}
-                      onChange={(e) => setModuleForm((p) => ({ ...p, iconKey: e.target.value }))}
-                    >
-                      {MODULE_ICON_OPTIONS.map((option) => (
-                        <option key={option.key} value={option.key}>{option.label}</option>
-                      ))}
-                    </select>
-                  </label>
+                  <div className="cm-form-two-cols">
+                    <label className="cm-form-label">
+                      Icon
+                      <select
+                        className="cm-form-input"
+                        value={moduleForm.iconKey}
+                        onChange={(e) => setModuleForm((p) => ({ ...p, iconKey: e.target.value }))}
+                      >
+                        {MODULE_ICON_OPTIONS.map((option) => (
+                          <option key={option.key} value={option.key}>{option.label}</option>
+                        ))}
+                      </select>
+                    </label>
 
-                  <label className="cm-form-label">
-                    Typ
-                    <select
-                      className="cm-form-input"
-                      value={moduleForm.moduleType}
-                      onChange={(e) => setModuleForm((p) => ({ ...p, moduleType: e.target.value }))}
-                    >
-                      {MODULE_TYPE_OPTIONS.map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
-                    </select>
-                  </label>
+                    <label className="cm-form-label">
+                      Typ
+                      <select
+                        className="cm-form-input"
+                        value={moduleForm.moduleType}
+                        onChange={(e) => setModuleForm((p) => ({ ...p, moduleType: e.target.value }))}
+                      >
+                        {MODULE_TYPE_OPTIONS.map((type) => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                 </div>
 
                 {sensors.length > 0 && (
