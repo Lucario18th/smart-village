@@ -1,6 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+interface ModuleInfo {
+  id: number;
+  name: string;
+  description: string;
+  sensorIds: number[];
+}
+
 interface InitialDataResponse {
   villageId: number;
   sensors?: Array<{
@@ -12,6 +19,7 @@ interface InitialDataResponse {
     longitude: number | null;
     lastReading: { value: number; ts: Date; status: string } | null;
   }>;
+  modules?: ModuleInfo[];
   messages?: Array<{
     id: number;
     text: string;
@@ -97,6 +105,13 @@ export class AppApiService {
       orderBy: { name: 'asc' },
     });
 
+    // Aktivierte benutzerdefinierte Module mit ihren Sensoren
+    const villageModules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
     return {
       villageId: village.id,
       name: village.name,
@@ -132,6 +147,12 @@ export class AppApiService {
         unit: s.sensorType.unit,
         latitude: s.latitude,
         longitude: s.longitude,
+      })),
+      modules: villageModules.map((m) => ({
+        id: m.id,
+        name: m.name,
+        description: m.description ?? '',
+        sensorIds: m.sensors.map((s) => s.id),
       })),
     };
   }
@@ -228,6 +249,42 @@ export class AppApiService {
       }));
     }
 
+    // Benutzerdefinierte Module immer laden (sofern aktiviert)
+    const villageModules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    result.modules = villageModules.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description ?? '',
+      sensorIds: m.sensors.map((s) => s.id),
+    }));
+
     return result;
+  }
+
+  /**
+   * Aktivierte benutzerdefinierte Module einer Gemeinde fuer die oeffentliche App-API.
+   */
+  async getVillageModules(villageId: number): Promise<ModuleInfo[]> {
+    const village = await this.prisma.village.findUnique({ where: { id: villageId } });
+    if (!village) {
+      throw new NotFoundException(`Village with id ${villageId} not found`);
+    }
+
+    const modules = await this.prisma.villageModule.findMany({
+      where: { villageId, isEnabled: true },
+      include: { sensors: { select: { id: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return modules.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description ?? '',
+      sensorIds: m.sensors.map((s) => s.id),
+    }));
   }
 }

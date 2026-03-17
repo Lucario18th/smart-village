@@ -792,6 +792,11 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 .sensor-card-no-data{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant);font-style:italic}
 .sensor-card-coords{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
 
+/* Custom module sections */
+.village-module-section{border-left:3px solid var(--md-sys-color-primary)}
+.village-module-title{margin:0 0 4px;font-size:18px;color:var(--md-sys-color-on-surface)}
+.village-module-description{margin:0 0 12px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
+
 /* Messages */
 .message-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .message-item{padding:12px 14px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 72%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 14%, transparent)}

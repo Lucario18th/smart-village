@@ -4,6 +4,35 @@ import { apiClient } from '../../api/client'
 import { useMqttLiveReadings } from '../../hooks/useMqttLiveReadings'
 import PublicMapPanel from './PublicMapPanel'
 
+function SensorCard({ sensor, visibility }) {
+  return (
+    <div className="sensor-card">
+      {visibility.name !== false ? (
+        <h4 className="sensor-card-name">{sensor.name}</h4>
+      ) : null}
+      {visibility.type !== false ? (
+        <p className="sensor-card-type">{sensor.type}</p>
+      ) : null}
+      {visibility.description !== false && sensor.description ? (
+        <p className="sensor-card-description">{sensor.description}</p>
+      ) : null}
+      {sensor.lastReading ? (
+        <div className="sensor-card-reading">
+          <span className="sensor-card-value">{sensor.lastReading.value}</span>
+          <span className="sensor-card-unit">{sensor.unit}</span>
+        </div>
+      ) : (
+        <p className="sensor-card-no-data">Keine Messwerte</p>
+      )}
+      {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+        <p className="sensor-card-coords">
+          {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
 export default function VillageDetailView({ villageId }) {
   const [config, setConfig] = useState(null)
   const [initialData, setInitialData] = useState(null)
@@ -69,6 +98,7 @@ export default function VillageDetailView({ villageId }) {
   const features = config.features || {}
   const visibility = config.sensorDetailVisibility || {}
   const sensors = initialData?.sensors || config.sensors || []
+  const customModules = initialData?.modules || config.modules || []
   const messages = initialData?.messages || []
   const rideshares = initialData?.rideshares || []
   const canShowMap = features.map !== false
@@ -86,6 +116,18 @@ export default function VillageDetailView({ villageId }) {
         return live ? { ...sensor, lastReading: live } : sensor
       }),
     [sensors, liveReadings]
+  )
+
+  // Sensor-IDs, die einem Custom-Modul zugeordnet sind
+  const moduleSensorIds = useMemo(
+    () => new Set(customModules.flatMap((m) => m.sensorIds)),
+    [customModules]
+  )
+
+  // Sensoren ohne Modul-Zuordnung (allgemeiner Bereich)
+  const unassignedSensors = useMemo(
+    () => liveSensors.filter((s) => !moduleSensorIds.has(s.id)),
+    [liveSensors, moduleSensorIds]
   )
 
   return (
@@ -117,41 +159,44 @@ export default function VillageDetailView({ villageId }) {
       ) : null}
 
       {canShowSensors ? (
-        <section className="village-section">
-          <h3>Sensoren</h3>
-          {liveSensors.length === 0 ? (
-            <p className="village-section-empty">Keine Sensoren verfügbar.</p>
-          ) : (
-            <div className="sensor-card-grid">
-              {liveSensors.map((sensor) => (
-                <div key={sensor.id} className="sensor-card">
-                  {visibility.name !== false ? (
-                    <h4 className="sensor-card-name">{sensor.name}</h4>
-                  ) : null}
-                  {visibility.type !== false ? (
-                    <p className="sensor-card-type">{sensor.type}</p>
-                  ) : null}
-                  {visibility.description !== false && sensor.description ? (
-                    <p className="sensor-card-description">{sensor.description}</p>
-                  ) : null}
-                  {sensor.lastReading ? (
-                    <div className="sensor-card-reading">
-                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
-                      <span className="sensor-card-unit">{sensor.unit}</span>
-                    </div>
-                  ) : (
-                    <p className="sensor-card-no-data">Keine Messwerte</p>
-                  )}
-                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
-                    <p className="sensor-card-coords">
-                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+        <>
+          {customModules.map((mod) => {
+            const modSensors = liveSensors.filter((s) => mod.sensorIds.includes(s.id))
+            return (
+              <section key={mod.id} className="village-section village-module-section">
+                <h3 className="village-module-title">{mod.name}</h3>
+                {mod.description ? (
+                  <p className="village-module-description">{mod.description}</p>
+                ) : null}
+                {modSensors.length === 0 ? (
+                  <p className="village-section-empty">Keine Sensoren für dieses Modul verfügbar.</p>
+                ) : (
+                  <div className="sensor-card-grid">
+                    {modSensors.map((sensor) => (
+                      <SensorCard key={sensor.id} sensor={sensor} visibility={visibility} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )
+          })}
+
+          {unassignedSensors.length > 0 ? (
+            <section className="village-section">
+              <h3>Sensoren</h3>
+              <div className="sensor-card-grid">
+                {unassignedSensors.map((sensor) => (
+                  <SensorCard key={sensor.id} sensor={sensor} visibility={visibility} />
+                ))}
+              </div>
+            </section>
+          ) : liveSensors.length === 0 ? (
+            <section className="village-section">
+              <h3>Sensoren</h3>
+              <p className="village-section-empty">Keine Sensoren verfügbar.</p>
+            </section>
+          ) : null}
+        </>
       ) : null}
 
       {canShowMessages ? (

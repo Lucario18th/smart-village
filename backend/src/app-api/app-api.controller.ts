@@ -48,7 +48,7 @@ export class AppApiController {
 
   /**
    * GET /app/villages/:villageId/initial-data
-   * Initiale Daten fuer die App (letzte Messwerte, Nachrichten, Mitfahrbaenke).
+   * Initiale Daten fuer die App (letzte Messwerte, Nachrichten, Mitfahrbaenke, Module).
    * Optimierung fuer den ersten Ladevorgang; Live-Updates kommen ueber MQTT.
    */
   @Get('villages/:villageId/initial-data')
@@ -59,6 +59,23 @@ export class AppApiController {
     return {
       success: true,
       data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * GET /app/villages/:villageId/modules
+   * Aktivierte benutzerdefinierte Module einer Gemeinde (ohne Auth).
+   * Gibt Module mit den zugeordneten Sensor-IDs zurueck.
+   */
+  @Get('villages/:villageId/modules')
+  async getVillageModules(
+    @Param('villageId', ParseIntPipe) villageId: number,
+  ): Promise<ApiResponse<any>> {
+    const modules = await this.appApiService.getVillageModules(villageId);
+    return {
+      success: true,
+      data: modules,
       timestamp: new Date().toISOString(),
     };
   }

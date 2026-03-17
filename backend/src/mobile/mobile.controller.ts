@@ -136,4 +136,20 @@ export class MobileController {
       throw new BadRequestException('Failed to create message');
     }
   }
+
+  /**
+   * GET /mobile-api/villages/:id/modules
+   * Aktivierte Custom-Module einer Gemeinde (fuer mobile App)
+   */
+  @Get('villages/:id/modules')
+  async getModules(
+    @Param('id', ParseIntPipe) villageId: number,
+  ): Promise<ApiResponse<any>> {
+    const modules = await this.mobileService.getModulesForVillage(villageId);
+    return {
+      success: true,
+      data: modules,
+      timestamp: new Date().toISOString(),
+    };
+  }
 }

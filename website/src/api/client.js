@@ -231,6 +231,9 @@ export const apiClient = {
     getVillageInitialData(villageId) {
       return apiClient.request('GET', `/app/villages/${villageId}/initial-data`);
     },
+    getVillageModules(villageId) {
+      return apiClient.request('GET', `/app/villages/${villageId}/modules`);
+    },
   },
 
   // Health check
