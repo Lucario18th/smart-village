@@ -344,10 +344,11 @@ function UserNavIcon({ sectionId }) {
     textile: 'M5 4h14v16H5V4Zm3 3v10h8V7H8Zm2 2h4v2h-4V9Z',
     settings: 'm12 3 2 3.5 4 .8-2.8 2.7.7 4-3.9-2-3.8 2 .7-4L6 7.3l4-.8L12 3Zm-7 14h14v2H5v-2Z',
   }
+  const iconKey = sectionId.startsWith('module-') ? 'sensors' : sectionId
 
   return (
     <svg className="admin-nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path fill="currentColor" d={icons[sectionId] || icons.settings} />
+      <path fill="currentColor" d={icons[iconKey] || icons.settings} />
     </svg>
   )
 }
@@ -363,6 +364,15 @@ function buildUserSections(text) {
     { id: 'textile', label: text.sections.textile.label, title: text.sections.textile.title },
     { id: 'settings', label: text.sections.settings.label, title: text.sections.settings.title },
   ]
+}
+
+function buildModuleSection(module) {
+  return {
+    id: `module-${module.id}`,
+    label: module.name,
+    title: module.name,
+    moduleId: module.id,
+  }
 }
 
 export default function PublicDashboardView({ initialVillageId = null }) {
@@ -387,7 +397,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const [prefs, setPrefs] = useState(() => loadPublicPrefs())
   const locale = DATE_LOCALES[prefs.language] ? prefs.language : 'de'
   const text = I18N[locale]
-  const userSections = useMemo(() => buildUserSections(text), [text])
+  const baseSections = useMemo(() => buildUserSections(text), [text])
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -522,11 +532,22 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const features = config?.features || {}
   const visibility = config?.sensorDetailVisibility || {}
   const sensors = initialData?.sensors || []
+  const customModules = initialData?.modules || config?.modules || []
   const messages = initialData?.messages || []
   const rideshares = initialData?.rideshares || []
   const weatherEntries = initialData?.weather || []
   const events = initialData?.events || []
   const textileContainers = initialData?.textileContainers || []
+
+  const userSections = useMemo(() => {
+    const moduleSections = customModules.map(buildModuleSection)
+    return baseSections.flatMap((section) => {
+      if (section.id === 'sensors') {
+        return [section, ...moduleSections]
+      }
+      return [section]
+    })
+  }, [baseSections, customModules])
 
   // Live-MQTT: direkt vom Broker, ohne Backend-Polling
   const liveReadings = useMqttLiveReadings(!!selectedVillageId)
@@ -554,6 +575,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       if (section.id === 'rideshare') return features.rideShare !== false
       if (section.id === 'events') return features.events === true
       if (section.id === 'textile') return features.textileContainers === true
+      if (section.id.startsWith('module-')) return features.sensorData !== false
       return true
     })
   }, [selectedVillageId, config, features, userSections])
@@ -676,6 +698,47 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           ) : (
             <div className="sensor-card-grid">
               {liveSensors.map((sensor) => (
+                <div key={sensor.id} className="sensor-card">
+                  {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
+                  {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
+                  {sensor.lastReading ? (
+                    <div className="sensor-card-reading">
+                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
+                      <span className="sensor-card-unit">{sensor.unit}</span>
+                    </div>
+                  ) : (
+                    <p className="sensor-card-no-data">{text.noReadings}</p>
+                  )}
+                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+                    <p className="sensor-card-coords">
+                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )
+    }
+
+    if (activeSection.id.startsWith('module-')) {
+      const moduleInfo = customModules.find((module) => module.id === activeSection.moduleId)
+      const moduleSensorIds = new Set(moduleInfo?.sensorIds || [])
+      const moduleSensors = liveSensors.filter((sensor) => moduleSensorIds.has(sensor.id))
+
+      return (
+        <section className="village-section village-module-section">
+          <h3>{activeSection.title}</h3>
+          {moduleInfo?.description ? (
+            <p className="village-module-description">{moduleInfo.description}</p>
+          ) : null}
+
+          {moduleSensors.length === 0 ? (
+            <p className="village-section-empty">{text.noSensors}</p>
+          ) : (
+            <div className="sensor-card-grid">
+              {moduleSensors.map((sensor) => (
                 <div key={sensor.id} className="sensor-card">
                   {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
                   {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
