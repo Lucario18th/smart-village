@@ -30,8 +30,8 @@ ADD CONSTRAINT "VillageModule_villageId_fkey" FOREIGN KEY ("villageId") REFERENC
 
 -- AddForeignKey
 ALTER TABLE "_VillageModuleSensors"
-ADD CONSTRAINT "_VillageModuleSensors_A_fkey" FOREIGN KEY ("A") REFERENCES "VillageModule" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT "_VillageModuleSensors_A_fkey" FOREIGN KEY ("A") REFERENCES "Sensor" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_VillageModuleSensors"
-ADD CONSTRAINT "_VillageModuleSensors_B_fkey" FOREIGN KEY ("B") REFERENCES "Sensor" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT "_VillageModuleSensors_B_fkey" FOREIGN KEY ("B") REFERENCES "VillageModule" ("id") ON DELETE CASCADE ON UPDATE CASCADE;
