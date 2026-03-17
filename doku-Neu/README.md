@@ -5,7 +5,7 @@ Sie richtet sich an Entwickler, die neu in das Projekt einsteigen oder bestehend
 
 Alle Dokumente sind in deutscher Sprache verfasst.
 
-## Aktueller Stand (2026-03-15)
+## Aktueller Stand (2026-03-17)
 
 Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand ab:
 
@@ -15,6 +15,12 @@ Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand a
 - Public-Ansichten verwenden modulbasierte Sichtbarkeit (Feature-Flags), ohne deaktivierte Platzhalter.
 - Website und App aktualisieren Nutzdaten einheitlich ueber Polling auf der App-API (`/api/app/...`).
 - Kartenfilter im Adminbereich werden pro Nutzer/Gemeinde in der Session persistiert und nicht durch Polling zurueckgesetzt.
+- Oeffentliche Startseite (`/`) ist als Projekt-Landingpage mit Team-, Rechts- und Projektinformationen umgesetzt.
+- Public-User-Dashboard ist unter `/user` erreichbar; Admin bleibt unter `/admin`.
+- Navigation ist wechselseitig verlinkt: Landingpage <-> User <-> Admin.
+- Darkmode ist systemweit als Standard gesetzt (Website-Initialzustand, Theme-Fallback, Default-Konfiguration).
+- Android-Download-Button auf der Landingpage fuehrt zum konfigurierbaren App-Link (`VITE_ANDROID_APP_URL`) mit Play-Store-Fallback.
+- Teamdaten und Projektbetreuung sind auf der Landingpage gepflegt (Leon Kühn, Nico Röcker, Manuel Keßler, Alexander Shimaylo; Betreuung: Herr Schenk).
 
 ## Hinweis zur Mobile API
 
@@ -28,7 +34,8 @@ Die Dokumentation ist in folgende Bereiche aufgeteilt:
 ```
 docs/
 ├── README.md                              ← Dieses Dokument (Navigation)
-├── aenderungen-2026-03-15.md              ← Letzte umgesetzte Änderungen (Snapshot)
+├── aenderungen-2026-03-15.md              ← Aelterer Snapshot
+├── aenderungen-2026-03-17.md              ← Letzte umgesetzte Änderungen (aktueller Snapshot)
 ├── uebersicht.md                          ← Projektübersicht
 ├── architektur/
 │   ├── system-uebersicht.md               ← Systemarchitektur
@@ -62,7 +69,8 @@ docs/
 
 | Dokument | Beschreibung |
 |----------|-------------|
-| [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, MQTT und Infrastruktur. |
+| [Aenderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration. |
+| [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen. |
 | [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten. |
 | [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten. |
 | [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk. |

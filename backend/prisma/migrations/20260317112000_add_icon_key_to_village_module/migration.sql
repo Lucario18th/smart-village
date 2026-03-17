@@ -1,2 +1,2 @@
 ALTER TABLE "VillageModule"
-ADD COLUMN "iconKey" TEXT NOT NULL DEFAULT 'sensors';
+ADD COLUMN IF NOT EXISTS "iconKey" TEXT NOT NULL DEFAULT 'sensors';

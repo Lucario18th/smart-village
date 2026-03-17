@@ -2,11 +2,14 @@
 
 ## Überblick
 
-Das Frontend ist ein Web-Dashboard zur Verwaltung von Gemeinden, Sensoren und Geräten.
-Es ist als Single-Page-Application (SPA) mit React 18 und Vite gebaut.
+Das Frontend ist eine Single-Page-Application (SPA) mit zwei Hauptbereichen:
+- oeffentliche Seiten (Landingpage und Public-User-Ansicht),
+- administrativer Bereich fuer registrierte Konten.
+
+Es ist mit React 18 und Vite gebaut.
 Der Quellcode befindet sich im Verzeichnis `website/`.
 
-Das Dashboard richtet sich an Gemeindeverantwortliche, die ihre IoT-Infrastruktur verwalten möchten.
+Die Anwendung richtet sich sowohl an Oeffentlichkeit/Nutzer (Public-Ansicht) als auch an Gemeindeverantwortliche (Admin).
 
 ## Technologie-Stack
 
@@ -41,6 +44,7 @@ website/
 │   │   ├── useVillageConfig.js ← Haupthook für Gemeindedaten
 │   │   └── useMqttLiveReadings.js ← Live-Messwerte per MQTT im Browser
 │   ├── components/
+│   │   ├── LandingPage.jsx        ← Oeffentliche Startseite (/)
 │   │   ├── LoginView.jsx           ← Anmeldeformular
 │   │   ├── RegisterView.jsx        ← Registrierungsformular
 │   │   ├── EmailVerificationPending.jsx ← E-Mail-Verifizierung
@@ -74,19 +78,29 @@ website/
 └── vite.config.js
 ```
 
-## Anwendungszustände
+## Routing und Anwendungszustaende
 
-Die App.jsx-Komponente steuert, welche Ansicht angezeigt wird.
-Es gibt keinen traditionellen Router (wie React Router).
-Stattdessen wird der Zustand über eine Zustandsvariable (`view`) verwaltet.
+Die Anwendung nutzt `react-router-dom` fuer die Top-Level-Navigation.
+Die Routen sind zentral in `App.jsx` definiert.
 
-| Zustand | Ansicht | Bedingung |
-|---------|---------|-----------|
-| Nicht angemeldet | LoginView | Kein gültiger Token |
-| Registrierung | RegisterView | Benutzer klickt auf "Registrieren" |
-| E-Mail-Verifizierung | EmailVerificationPending | E-Mail noch nicht verifiziert |
-| Verifiziert | EmailVerifiedView | E-Mail erfolgreich verifiziert |
-| Angemeldet | AdminView | Gültiger Token vorhanden |
+Top-Level-Routen:
+
+| Route | Ansicht | Zweck |
+|-------|---------|-------|
+| `/` | LandingPage | Oeffentliche Projekt-Startseite |
+| `/user` | PublicDashboardView | Public-User-Ansicht mit Gemeinde-/Sensordaten |
+| `/village/:villageId` | PublicDashboardView | Direkte Public-Ansicht fuer eine Gemeinde |
+| `/admin/*` | Login/Verifizierung/AdminView | Admin-Flow |
+
+Innerhalb der Admin-Route steuert der Auth-Status die Unteransichten:
+
+| Zustand | Ansicht |
+|---------|---------|
+| Nicht angemeldet | LoginView |
+| Registrierung aktiv | RegisterView |
+| Verifizierung ausstehend | EmailVerificationPending |
+| Verifizierung erfolgreich | EmailVerifiedView |
+| Angemeldet | AdminView |
 
 Im Public-/User-Bereich werden angezeigte Tabs dynamisch aus den Village-Feature-Flags erzeugt.
 Deaktivierte Module (z. B. Karte, Wetter, Events) werden komplett ausgeblendet.
@@ -110,6 +124,24 @@ Das Frontend unterstützt sechs Theme-Varianten:
 Das Theme wird über CSS-Klassen auf dem `<html>`-Element gesteuert.
 Der ThemeManager in `config/themeManager.js` sorgt dafür, dass die richtige Klasse gesetzt wird.
 Die Theme-Auswahl wird in der Gemeinde-Konfiguration gespeichert.
+
+Aktueller Standard:
+- Anwendung startet im Darkmode (`dark`).
+- Theme-Fallbacks (z. B. bei unbekannter Kombination) zeigen ebenfalls auf `dark`.
+- Public-Defaults und neue Village-Defaults verwenden Darkmode.
+
+## Landingpage (neu)
+
+Die Landingpage unter `/` dient als oeffentliche Einstiegsseite und enthaelt:
+
+- Projektueberblick und Studienarbeitskontext,
+- Team-Bereich mit Bildplaetzen und gepflegten Namen,
+- Rechts-/Kontaktlinks (Datenschutz, AGB, Cookies, Impressum, Social, E-Mail),
+- direkte Navigation zur User- und Admin-Seite,
+- Android-Download-Button fuer die App.
+
+Der Android-Link ist konfigurierbar ueber `VITE_ANDROID_APP_URL`.
+Fallback ist der Play-Store-Link mit App-ID `de.tif23.studienarbeit`.
 
 ## Entwicklung
 
@@ -144,9 +176,9 @@ Führt die Vitest-Tests aus.
 
 ## Entwurfsentscheidungen
 
-**Warum kein React Router?**
-Die Anwendung hat eine relativ einfache Navigationsstruktur.
-Vermutlich wurde auf einen Router verzichtet, weil die zustandsbasierte Steuerung für die vorhandenen Ansichten ausreichend ist.
+**Warum React Router?**
+Mit Landingpage (`/`), Public-Ansicht (`/user`, `/village/:villageId`) und Admin-Bereich (`/admin/*`) ist eine klare URL-basierte Navigation sinnvoll.
+Sie erlaubt Deep-Links, Browser-History und eine saubere Trennung der Zielgruppen.
 
 **Warum MSW statt eines separaten Mock-Servers?**
 MSW fängt Anfragen direkt im Browser ab, ohne dass ein zusätzlicher Server laufen muss.

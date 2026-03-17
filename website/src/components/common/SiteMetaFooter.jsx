@@ -11,7 +11,7 @@ const DEFAULT_LINKS = {
   },
   github: {
     label: 'GitHub',
-    href: import.meta.env?.VITE_GITHUB_URL || '#',
+    href: import.meta.env?.VITE_GITHUB_URL || 'https://github.com/Lucario18th/smart-village',
   },
   linkedin: {
     label: 'LinkedIn',
@@ -32,7 +32,7 @@ function FooterLink({ href, label }) {
 
   if (isPlaceholder) {
     return (
-      <span className="site-meta-link site-meta-link--pending" title="Link wird spaeter hinterlegt">
+      <span className="site-meta-link site-meta-link--pending" title="Link wird später hinterlegt">
         {label} (bald)
       </span>
     )

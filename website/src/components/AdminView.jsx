@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AdminNavigation from './admin/AdminNavigation'
 import AdminSectionPanel from './admin/AdminSectionPanel'
 import { ADMIN_SECTIONS } from '../config/adminSections'
@@ -140,6 +141,12 @@ export default function AdminView({ session, onLogout }) {
               </button>
             </h1>
             <div className="admin-header-actions-right">
+              <Link className="admin-header-link" to="/">
+                Startseite
+              </Link>
+              <Link className="admin-header-link admin-header-link--secondary" to="/user">
+                User-Seite
+              </Link>
               <AiAssistantWidget audience="admin" contextData={assistantContext} placement="header" />
               <button
                 type="button"

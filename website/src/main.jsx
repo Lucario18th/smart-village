@@ -36,7 +36,7 @@ async function initializeMocks() {
 const container = document.getElementById('root')
 const root = createRoot(container)
 
-document.documentElement.classList.add('light')
+document.documentElement.classList.add('dark')
 
 // Start mocks before rendering the app (dev mode only).
 // Ensure the app still renders even if MSW initialization fails.

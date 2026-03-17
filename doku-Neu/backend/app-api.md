@@ -10,15 +10,19 @@ Sie ist unabhängig von der bestehenden Mobile API (`/mobile-api/`) und ersetzt 
 
 Mobile App und Website kommunizieren mit dem Backend ueber die REST-App-API und aktualisieren Daten in festen Polling-Intervallen.
 
+Wichtige Pfadkonvention:
+- Im Backend ist der Controller unter `@Controller('app')` registriert.
+- Extern sind die Endpunkte ueber den API-Prefix erreichbar: `/api/app/...`.
+
 Wichtig: Die App-API liefert nur Gemeinden, deren Account die Freigabe `isPublicAppApiEnabled = true` gesetzt hat.
-Private oder nicht freigegebene Accounts tauchen in `/app/villages` nicht auf und ihre Dorf-Endpunkte liefern `404`.
+Private oder nicht freigegebene Accounts tauchen in `/api/app/villages` nicht auf und ihre Dorf-Endpunkte liefern `404`.
 
 Der typische Ablauf ist:
 
-1. Die App startet und ruft `GET /app/villages` auf, um die Liste der verfügbaren Gemeinden zu laden.
+1. Die App startet und ruft `GET /api/app/villages` auf, um die Liste der verfügbaren Gemeinden zu laden.
 2. Der Nutzer wählt eine Gemeinde.
-3. Die App ruft `GET /app/villages/:villageId/config` auf, um die Feature-Flags und die Liste der freigegebenen Sensoren zu erhalten.
-4. Die App ruft `GET /app/villages/:villageId/initial-data` auf, um sofort Daten anzuzeigen.
+3. Die App ruft `GET /api/app/villages/:villageId/config` auf, um die Feature-Flags und die Liste der freigegebenen Sensoren zu erhalten.
+4. Die App ruft `GET /api/app/villages/:villageId/initial-data` auf, um sofort Daten anzuzeigen.
 5. App und Website rufen die App-API periodisch erneut auf (Polling), um aktualisierte Werte zu laden.
 
 ```
@@ -88,7 +92,7 @@ Zusätzlich zu den Modul-Flags enthält `VillageFeatures` vier Felder, die steue
 | showSensorDescription | Boolean | true | Sensorbeschreibung in der App-Detailansicht anzeigen |
 | showSensorCoordinates | Boolean | true | Sensorkoordinaten in der App-Detailansicht anzeigen |
 
-Diese Flags werden im Endpunkt `GET /app/villages/:villageId/config` als `sensorDetailVisibility`-Objekt bereitgestellt.
+Diese Flags werden im Endpunkt `GET /api/app/villages/:villageId/config` als `sensorDetailVisibility`-Objekt bereitgestellt.
 Die mobile App entscheidet basierend auf diesen Flags, welche Felder in der Sensordetailansicht angezeigt werden.
 
 ### Sensor – neues Feld `exposeToApp`
@@ -130,7 +134,7 @@ Migrationsschritte:
 Alle App-Endpunkte sind unter dem Prefix `/app` erreichbar.
 Sie erfordern keine Authentifizierung, da sie öffentliche Informationen bereitstellen.
 
-### GET /app/villages
+### GET /api/app/villages
 
 Gibt eine Liste aller verfügbaren Gemeinden zurück.
 
@@ -160,7 +164,7 @@ Gibt eine Liste aller verfügbaren Gemeinden zurück.
 }
 ```
 
-### GET /app/villages/:villageId/config
+### GET /api/app/villages/:villageId/config
 
 Gibt die vollständige Konfiguration einer Gemeinde zurück.
 Enthält die Feature-Flags und eine Liste aller für die App freigegebenen Sensoren.
@@ -218,7 +222,7 @@ Hinweis:
 - `statusText` ist als eigenes Feld in `Village` persistiert.
 - `infoText` bleibt weiterhin als Informationstext der Gemeinde verfuegbar.
 
-### GET /app/villages/:villageId/initial-data
+### GET /api/app/villages/:villageId/initial-data
 
 Gibt einen initialen Datensatz zurueck, damit die App sofort Inhalte anzeigen kann.
 Dieser Endpunkt ist eine Optimierung fuer den ersten Ladevorgang.
@@ -274,32 +278,46 @@ Es werden nur Daten für aktivierte Module zurückgegeben:
 }
 ```
 
+### GET /api/app/villages/:villageId/modules
+
+Gibt aktivierte benutzerdefinierte Village-Module zurueck.
+
+Antwortstruktur:
+- `id`
+- `name`
+- `description`
+- `iconKey`
+- `moduleType`
+- `sensorIds`
+
 ### Typische Aufrufreihenfolge in der App
 
-1. `GET /app/villages` – Gemeindeliste laden und dem Nutzer anzeigen.
+1. `GET /api/app/villages` – Gemeindeliste laden und dem Nutzer anzeigen.
 2. Nutzer wählt eine Gemeinde.
-3. `GET /app/villages/:villageId/config` – Feature-Flags und Sensorliste laden.
-4. `GET /app/villages/:villageId/initial-data` – Initiale Daten laden.
-5. MQTT-Topics abonnieren (siehe nächster Abschnitt).
+3. `GET /api/app/villages/:villageId/config` – Feature-Flags und Sensorliste laden.
+4. `GET /api/app/villages/:villageId/initial-data` – Initiale Daten laden.
+5. Optional: `GET /api/app/villages/:villageId/modules` – Custom-Module laden.
+6. MQTT-Topic abonnieren (siehe nächster Abschnitt).
+
+### Typische Aufrufreihenfolge in der Public-Website
+
+1. `GET /api/app/villages`
+2. `GET /api/app/villages/:villageId/config` + `GET /api/app/villages/:villageId/initial-data` parallel
+3. Polling im Intervall (Standard 5 Sekunden)
 
 ## MQTT-Topics und Regeln
 
 ### Topic-Struktur
 
-Für die App werden folgende Topics verwendet:
+Aktuell im App-Client verwendet:
 
 | Topic | Beschreibung |
 |-------|-------------|
-| `app/village/{villageId}/sensors` | Sensordaten (einzelne Messwerte) |
-| `app/village/{villageId}/weather` | Wetterdaten |
-| `app/village/{villageId}/messages` | Nachrichten der Gemeinde |
-| `app/village/{villageId}/events` | Veranstaltungen |
-| `app/village/{villageId}/map` | Kartendaten |
-| `app/village/{villageId}/rideshare` | Mitfahrbank-Daten |
-| `app/village/{villageId}/textile-containers` | Altkleider-Container |
+| `/api/app/village/{villageId}/sensors/#` | Sensordaten-Updates fuer die App |
 
-Die App abonniert nur Topics für Module, die in der Konfiguration als aktiviert markiert sind.
-Beispiel: Wenn `enableWeather = false`, abonniert die App das Topic `app/village/{villageId}/weather` nicht.
+Hinweis:
+- Weitere App-Topics koennen kuenftig eingefuehrt werden.
+- In der aktuellen Version ist im produktiven Datenfluss der Sensor-Topic relevant.
 
 ### Publishing-Regeln
 
@@ -354,62 +372,45 @@ Payload:
 ### Aktuell implementiert
 
 In der aktuellen Version ist die MQTT-Weiterleitung für **Sensordaten** implementiert.
-Wenn ein Messwert über das bestehende MQTT-Topic (`sv/{accountId}/{deviceId}/sensors/{sensorId}`) empfangen wird, prüft das Backend automatisch die Feature- und Sensor-Flags und publiziert den Wert bei Bedarf auf `app/village/{villageId}/sensors`.
+Wenn ein Messwert über das bestehende MQTT-Topic (`sv/{accountId}/{deviceId}/sensors/{sensorId}`) empfangen wird, prüft das Backend automatisch die Feature- und Sensor-Flags und publiziert den Wert bei Bedarf auf ein app-spezifisches Topic.
 
 Die anderen Topics sind als Platzhalter definiert und können in zukünftigen Versionen implementiert werden.
 
-## Beispiel-Flow
+## Beispiel-Flow (aktueller Stand)
 
-### Schritt 1: App startet und lädt Gemeindeliste
-
-```
-GET /app/villages
-```
-
-Die App erhält eine Liste mit zwei Gemeinden: Freiburg und Lörrach.
-Freiburg hat `sensorData: true`, `messages: true`, `rideShare: true`.
-Lörrach hat `sensorData: true`, `messages: true`, `rideShare: false`.
-
-### Schritt 2: Nutzer wählt Freiburg
-
-Die App merkt sich `villageId = 1`.
-
-### Schritt 3: App lädt Konfiguration
+### Schritt 1: Gemeindeliste laden
 
 ```
-GET /app/villages/1/config
+GET /api/app/villages
 ```
 
-Die App erhält die Feature-Flags und sieht, dass Sensordaten, Nachrichten und Mitfahrbänke aktiviert sind.
-Die Sensorliste enthält zwei Sensoren: Temperatur Rathaus (ID 1) und Luftfeuchtigkeit Rathaus (ID 2).
-
-### Schritt 4: App lädt initiale Daten
+### Schritt 2: Konfiguration und Initialdaten laden
 
 ```
-GET /app/villages/1/initial-data
+GET /api/app/villages/1/config
+GET /api/app/villages/1/initial-data
 ```
 
-Die App erhält die letzten Messwerte beider Sensoren, die aktuellen Nachrichten und die aktiven Mitfahrbänke.
-Die App zeigt diese Daten sofort an.
+In der Website geschieht das parallel per `Promise.all`.
 
-### Schritt 5: App abonniert MQTT-Topics
+### Schritt 3: Optional benutzerdefinierte Module laden
 
-Basierend auf den Feature-Flags abonniert die App:
-- `app/village/1/sensors` (da `sensorData = true`)
-- `app/village/1/messages` (da `messages = true`)
-- `app/village/1/rideshare` (da `rideShare = true`)
+```
+GET /api/app/villages/1/modules
+```
 
-Die App abonniert nicht:
-- `app/village/1/events` (da `events = false`)
-- `app/village/1/textile-containers` (da `textileContainers = false`)
+### Schritt 4: Polling
 
-### Schritt 6: Live-Updates
+Website und App aktualisieren Daten periodisch ueber die App-API.
+In der Website ist der Standardwert 5 Sekunden (`VITE_PUBLIC_REFRESH_INTERVAL_MS`).
 
-Ein neuer Messwert wird vom Temperatursensor gesendet.
-Das Backend empfängt ihn über `sv/1/weather-01/sensors/1`.
-Das Backend prüft: Sensor hat `exposeToApp = true`, Village hat `enableSensorData = true`.
-Das Backend publiziert den Wert auf `app/village/1/sensors`.
-Die App empfängt den Wert und aktualisiert die Anzeige.
+### Schritt 5: MQTT-Livewerte (App)
+
+Der App-Client abonniert aktuell:
+
+- `/api/app/village/{villageId}/sensors/#`
+
+Eingehende Sensordaten werden als Live-Updates verarbeitet.
 
 ## Implementierungsdetails
 
@@ -420,15 +421,16 @@ Die App empfängt den Wert und aktualisiert die Anzeige.
 | `backend/prisma/schema.prisma` | Prisma-Schema mit VillageFeatures und exposeToApp |
 | `backend/prisma/seed.js` | Seed-Skript erstellt VillageFeatures für bestehende Gemeinden |
 | `backend/src/app-api/app-api.module.ts` | NestJS-Modul für die App-API |
-| `backend/src/app-api/app-api.controller.ts` | REST-Controller mit den drei Endpunkten |
+| `backend/src/app-api/app-api.controller.ts` | REST-Controller mit vier Endpunkten |
 | `backend/src/app-api/app-api.service.ts` | Service-Logik für Datenbankabfragen |
-| `backend/src/mqtt/mqtt.service.ts` | Erweitert um App-seitige MQTT-Weiterleitung |
 
-### Abhängigkeiten
+### Wichtige Consumer-Dateien
 
-Das AppApiModule importiert:
-- `PrismaModule` – Datenbankzugriff über Prisma.
-
-Das MqttModule nutzt:
-- `PrismaService` – Zum Prüfen der Feature-Flags und Sensor-Flags.
-- `mqtt`-Bibliothek – Zum Publizieren auf App-Topics.
+| Datei | Beschreibung |
+|-------|-------------|
+| `website/src/api/client.js` | App-API-Aufrufe der Website (`/api/app/...`) |
+| `website/src/components/public/PublicDashboardView.jsx` | Public-Flow inkl. Polling |
+| `app/SmartVillageApp/composeApp/src/commonMain/kotlin/de/tif23/studienarbeit/model/constants/Url.kt` | SERVER_URL der App |
+| `app/SmartVillageApp/composeApp/src/commonMain/kotlin/de/tif23/studienarbeit/model/repository/VillagesRepository.kt` | App-Aufrufe: villages + config |
+| `app/SmartVillageApp/composeApp/src/commonMain/kotlin/de/tif23/studienarbeit/model/repository/SensorRepository.kt` | App-Aufruf: initial-data |
+| `app/SmartVillageApp/composeApp/src/commonMain/kotlin/de/tif23/studienarbeit/provider/MqttClientProvider.kt` | App-MQTT-Subscription |

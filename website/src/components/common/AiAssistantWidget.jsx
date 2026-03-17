@@ -10,7 +10,7 @@ const PROJECT_KNOWLEDGE = [
   'Sensor-Semantik: isActive (technisch), receiveData (Datenerfassung), exposeToApp (Sichtbarkeit App/Public).',
   'Sensoren ohne neue Werte werden nach ca. 60 Sekunden als dataStale markiert.',
   'Public UI ist feature-flag-basiert: deaktivierte Module werden nicht gezeigt.',
-  'Gemeinde-Status ist als statusText persistiert und in API/App-API verfuegbar.',
+  'Gemeinde-Status ist als statusText persistiert und in API/App-API verfügbar.',
 ].join(' ')
 
 const LOCALE_MAP = {
@@ -22,7 +22,7 @@ const LOCALE_MAP = {
 const LANGUAGE_LABEL = {
   de: 'Deutsch',
   en: 'English',
-  fr: 'Francais',
+  fr: 'Français',
 }
 
 const UI_TEXT = {
@@ -30,26 +30,26 @@ const UI_TEXT = {
     welcome: 'Hi! Ich helfe bei Fragen zum Projekt, zu Sensoren und zur Konfiguration.',
     title: 'KI-Assistent',
     connected: 'Perplexity verbunden',
-    pending: 'API folgt in Kuerze',
-    closeAria: 'Assistent schliessen',
+    pending: 'API folgt in Kürze',
+    closeAria: 'Assistent schließen',
     thinking: 'Denke nach...',
     inputPlaceholder: 'Frage stellen oder Daten analysieren lassen...',
     inputAria: 'Frage an den KI-Assistenten',
     send: 'Senden',
-    launcherAria: 'KI-Assistent oeffnen',
+    launcherAria: 'KI-Assistent öffnen',
     launcherTitle: 'KI-Assistent',
     launcherText: 'KI Hilfe',
     fallbackNotConnected: 'Der externe KI-Dienst wird bald angeschlossen.',
     fallbackLocalKnowledge: 'Bis dahin arbeite ich mit lokalem Projektwissen.',
-    fallbackPrompt: 'Frag mich z. B. nach Sensorstatus, Modulen oder naechsten Schritten.',
-    apiUnavailable: (message) => `Der KI-Dienst ist aktuell nicht erreichbar (${message}). Bitte spaeter erneut versuchen.`,
-    analyticsTitle: (villageName) => `Kurzanalyse fuer ${villageName || 'die aktuelle Gemeinde'}:`,
+    fallbackPrompt: 'Frag mich z. B. nach Sensorstatus, Modulen oder nächsten Schritten.',
+    apiUnavailable: (message) => `Der KI-Dienst ist aktuell nicht erreichbar (${message}). Bitte später erneut versuchen.`,
+    analyticsTitle: (villageName) => `Kurzanalyse für ${villageName || 'die aktuelle Gemeinde'}:`,
     analyticsSensors: (count) => `- Sensoren gesamt: ${count}`,
     analyticsMissing: (count) => `- Sensoren ohne aktuelle Werte: ${count}`,
     analyticsStale: (count) => `- Sensoren als inaktiv/veraltet (dataStale): ${count}`,
     analyticsDisabled: (modules) => `- Deaktivierte Module: ${modules}`,
     analyticsAllEnabled: '- Alle bekannten Module sind aktiv.',
-    systemPrompt: (audience) => `Du bist ein Smart-Village-Assistent fuer ${audience}. Antworte auf Deutsch, kurz, fachlich und mit klaren Schritten. Nutze dieses Projektwissen: ${PROJECT_KNOWLEDGE}`,
+    systemPrompt: (audience) => `Du bist ein Smart-Village-Assistent für ${audience}. Antworte auf Deutsch, kurz, fachlich und mit klaren Schritten. Nutze dieses Projektwissen: ${PROJECT_KNOWLEDGE}`,
   },
   en: {
     welcome: 'Hi! I can help with questions about the project, sensors, and configuration.',
@@ -79,27 +79,27 @@ const UI_TEXT = {
   fr: {
     welcome: 'Bonjour! Je peux aider avec des questions sur le projet, les capteurs et la configuration.',
     title: 'Assistant IA',
-    connected: 'Perplexity connecte',
-    pending: 'API bientot disponible',
+    connected: 'Perplexity connecté',
+    pending: 'API bientôt disponible',
     closeAria: "Fermer l'assistant",
     thinking: 'Analyse en cours...',
-    inputPlaceholder: 'Posez une question ou demandez une analyse de donnees...',
+    inputPlaceholder: 'Posez une question ou demandez une analyse de données...',
     inputAria: "Question pour l'assistant IA",
     send: 'Envoyer',
     launcherAria: "Ouvrir l'assistant IA",
     launcherTitle: 'Assistant IA',
     launcherText: 'Aide IA',
-    fallbackNotConnected: "Le service IA externe sera connecte bientot.",
+    fallbackNotConnected: "Le service IA externe sera connecté bientôt.",
     fallbackLocalKnowledge: "En attendant, j'utilise les connaissances locales du projet.",
-    fallbackPrompt: 'Demandez par exemple le statut des capteurs, les modules ou les prochaines etapes.',
-    apiUnavailable: (message) => `Le service IA est actuellement indisponible (${message}). Veuillez reessayer plus tard.`,
+    fallbackPrompt: 'Demandez par exemple le statut des capteurs, les modules ou les prochaines étapes.',
+    apiUnavailable: (message) => `Le service IA est actuellement indisponible (${message}). Veuillez réessayer plus tard.`,
     analyticsTitle: (villageName) => `Analyse rapide pour ${villageName || 'la commune active'} :`,
     analyticsSensors: (count) => `- Capteurs au total : ${count}`,
-    analyticsMissing: (count) => `- Capteurs sans valeur recente : ${count}`,
-    analyticsStale: (count) => `- Capteurs inactifs/obsoletes (dataStale) : ${count}`,
-    analyticsDisabled: (modules) => `- Modules desactives : ${modules}`,
+    analyticsMissing: (count) => `- Capteurs sans valeur récente : ${count}`,
+    analyticsStale: (count) => `- Capteurs inactifs/obsolètes (dataStale) : ${count}`,
+    analyticsDisabled: (modules) => `- Modules désactivés : ${modules}`,
     analyticsAllEnabled: '- Tous les modules connus sont actifs.',
-    systemPrompt: (audience) => `Tu es un assistant Smart Village pour ${audience}. Reponds en francais, de facon concise et avec des etapes claires. Utilise ces connaissances du projet : ${PROJECT_KNOWLEDGE}`,
+    systemPrompt: (audience) => `Tu es un assistant Smart Village pour ${audience}. Réponds en français, de façon concise et avec des étapes claires. Utilise ces connaissances du projet : ${PROJECT_KNOWLEDGE}`,
   },
 }
 
@@ -124,7 +124,7 @@ function createLocalAnalytics(contextData, text) {
 }
 
 function buildContextSummary(contextData) {
-  if (!contextData) return 'Kein Laufzeitkontext uebergeben.'
+  if (!contextData) return 'Kein Laufzeitkontext übergeben.'
   return JSON.stringify(
     {
       view: contextData.view || 'unknown',
@@ -220,7 +220,7 @@ export default function AiAssistantWidget({
     setMessages((prev) => [...prev, userMessage])
     setInput('')
 
-    const isAnalysisRequest = /analyse|analysis|auswertung|donnees|data|daten|stale|obsolet|capteur|sensor/i.test(question)
+    const isAnalysisRequest = /analyse|analysis|auswertung|donnees|données|data|daten|stale|obsolet|capteur|sensor/i.test(question)
 
     if (!apiConnected) {
       const fallbackText = [

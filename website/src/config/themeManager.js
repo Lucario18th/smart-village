@@ -9,7 +9,7 @@ export const THEME_COMBINATIONS = {
 
 export function getThemeClass(themeMode, contrast) {
   const key = `${themeMode}_${contrast}`
-  return THEME_COMBINATIONS[key] ?? 'light'
+  return THEME_COMBINATIONS[key] ?? 'dark'
 }
 
 export function applyThemeToDOM(themeClass) {
@@ -31,5 +31,5 @@ export function getCurrentThemeFromDOM() {
     }
   }
 
-  return 'light'
+  return 'dark'
 }

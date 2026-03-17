@@ -126,7 +126,7 @@ Nach erfolgreicher Anmeldung kann der Benutzer seine Gemeinde verwalten.
 12. Das Frontend dekodiert den Token, um die Account-ID (`sub`) zu extrahieren.
 13. Die Session wird im LocalStorage gespeichert:
     - `smart-village-admin-session`: Session-Daten
-    - `smart-village-admin-token`: JWT-Token
+   - `access_token`: Legacy-Token-Key (wird bei Session-Checks bereinigt)
 14. Das Frontend wechselt zur AdminView.
 15. Der Hook `useVillageConfig` lädt die Gemeindedaten über `GET /api/villages/:villageId`.
 

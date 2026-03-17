@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiClient } from '../../api/client'
 import { applyThemeToDOM, getThemeClass } from '../../config/themeManager'
 import PublicMapPanel from './PublicMapPanel'
@@ -23,31 +24,31 @@ const I18N = {
     navAria: 'Nutzer Navigation',
     compactInfoAria: 'Dorfinformationen kompakt',
     statusLabel: 'Status',
-    chooseVillage: 'Bitte Gemeinde auswaehlen',
+    chooseVillage: 'Bitte Gemeinde auswählen',
     villagesLoadError: 'Gemeinden konnten nicht geladen werden.',
     villageDataLoadError: 'Gemeindedaten konnten nicht geladen werden.',
     villageLoading: 'Gemeindedaten werden geladen...',
-    noSensors: 'Keine Sensoren verfuegbar.',
+    noSensors: 'Keine Sensoren verfügbar.',
     noReadings: 'Keine Messwerte',
-    noWeather: 'Keine Wetterdaten verfuegbar.',
+    noWeather: 'Keine Wetterdaten verfügbar.',
     weatherValue: 'Wetterwert',
     noMessages: 'Keine Nachrichten vorhanden.',
     noRideshare: 'Keine Mitfahrbank-Daten vorhanden.',
     onePerson: 'Person',
     manyPeople: 'Personen',
     waiting: 'wartend',
-    noTextile: 'Keine Containerdaten verfuegbar.',
+    noTextile: 'Keine Containerdaten verfügbar.',
     textileFallback: 'Container',
-    noVillageFooter: 'nicht ausgewaehlt',
+    noVillageFooter: 'nicht ausgewählt',
     footerVillage: 'Gemeinde',
     settings: {
       villageTitle: 'Gemeinde',
-      villageSelectLabel: 'Gemeinde auswaehlen',
-      selectPlaceholder: 'Bitte auswaehlen',
+      villageSelectLabel: 'Gemeinde auswählen',
+      selectPlaceholder: 'Bitte auswählen',
       languageTitle: 'Sprache',
       languageLabel: 'Anzeigesprache',
       designTitle: 'Farbschema',
-      designHint: 'Wird automatisch gespeichert und beim naechsten Besuch wiederhergestellt.',
+      designHint: 'Wird automatisch gespeichert und beim nächsten Besuch wiederhergestellt.',
       themeMode: 'Theme-Modus',
       themeLight: 'Hell',
       themeDark: 'Dunkel',
@@ -57,15 +58,15 @@ const I18N = {
       currentVillage: 'Aktuelle Gemeinde',
       active: 'Aktiv',
       inactive: 'Deaktiviert',
-      supportTitle: 'Mitmachen und Unterstuetzen',
-      supportHint: 'Hilf mit durch Feedback, Reichweite oder Unterstuetzung.',
+      supportTitle: 'Mitmachen und Unterstützen',
+      supportHint: 'Hilf mit durch Feedback, Reichweite oder Unterstützung.',
     },
     sections: {
       map: { label: 'Home', title: 'Startseite', heading: 'Karte' },
       sensors: { label: 'Sensoren', title: 'Sensoren', heading: 'Sensoren' },
       weather: { label: 'Wetter', title: 'Wetter', heading: 'Wetter' },
       messages: { label: 'Nachrichten', title: 'Nachrichten', heading: 'Nachrichten' },
-      rideshare: { label: 'Mitfahrbank', title: 'Mitfahrbaenke', heading: 'Mitfahrbaenke' },
+      rideshare: { label: 'Mitfahrbank', title: 'Mitfahrbänke', heading: 'Mitfahrbänke' },
       events: { label: 'Events', title: 'Veranstaltungen', heading: 'Veranstaltungen' },
       textile: { label: 'Container', title: 'Altkleidercontainer', heading: 'Altkleidercontainer' },
       settings: { label: 'Einstellungen', title: 'Einstellungen', heading: 'Einstellungen' },
@@ -75,12 +76,12 @@ const I18N = {
       sensorData: 'Sensordaten',
       weather: 'Wetter',
       messages: 'Nachrichten',
-      rideShare: 'Mitfahrbaenke',
+      rideShare: 'Mitfahrbänke',
       events: 'Events',
       textileContainers: 'Altkleidercontainer',
     },
     community: {
-      support: 'Uns unterstuetzen',
+      support: 'Uns unterstützen',
       feedback: 'Feedback senden',
       newsletter: 'Newsletter',
       volunteer: 'Mitmachen',
@@ -167,20 +168,20 @@ const I18N = {
     statusLabel: 'Statut',
     chooseVillage: 'Veuillez choisir une commune',
     villagesLoadError: 'Impossible de charger les communes.',
-    villageDataLoadError: 'Impossible de charger les donnees de la commune.',
-    villageLoading: 'Chargement des donnees de la commune...',
+    villageDataLoadError: 'Impossible de charger les données de la commune.',
+    villageLoading: 'Chargement des données de la commune...',
     noSensors: 'Aucun capteur disponible.',
     noReadings: 'Aucune mesure',
-    noWeather: 'Aucune donnee meteo disponible.',
-    weatherValue: 'Valeur meteo',
+    noWeather: 'Aucune donnée météo disponible.',
+    weatherValue: 'Valeur météo',
     noMessages: 'Aucun message disponible.',
-    noRideshare: 'Aucune donnee de covoiturage disponible.',
+    noRideshare: 'Aucune donnée de covoiturage disponible.',
     onePerson: 'personne',
     manyPeople: 'personnes',
     waiting: 'en attente',
-    noTextile: 'Aucune donnee de conteneur disponible.',
+    noTextile: 'Aucune donnée de conteneur disponible.',
     textileFallback: 'Conteneur',
-    noVillageFooter: 'non selectionnee',
+    noVillageFooter: 'non sélectionnée',
     footerVillage: 'Commune',
     settings: {
       villageTitle: 'Commune',
@@ -188,37 +189,37 @@ const I18N = {
       selectPlaceholder: 'Veuillez choisir',
       languageTitle: 'Langue',
       languageLabel: "Langue d'affichage",
-      designTitle: 'Theme visuel',
-      designHint: 'Enregistre automatiquement et restaure a la prochaine visite.',
-      themeMode: 'Mode du theme',
+      designTitle: 'Thème visuel',
+      designHint: 'Enregistre automatiquement et restaure à la prochaine visite.',
+      themeMode: 'Mode du thème',
       themeLight: 'Clair',
       themeDark: 'Sombre',
       contrast: 'Contraste',
       contrastStandard: 'Standard',
-      contrastHigh: 'Eleve',
+      contrastHigh: 'Élevé',
       currentVillage: 'Commune active',
       active: 'Actif',
-      inactive: 'Desactive',
+      inactive: 'Désactivé',
       supportTitle: 'Participer et soutenir',
-      supportHint: 'Aidez via vos retours, votre reseau ou votre soutien.',
+      supportHint: 'Aidez via vos retours, votre réseau ou votre soutien.',
     },
     sections: {
       map: { label: 'Accueil', title: 'Accueil', heading: 'Carte' },
       sensors: { label: 'Capteurs', title: 'Capteurs', heading: 'Capteurs' },
-      weather: { label: 'Meteo', title: 'Meteo', heading: 'Meteo' },
+      weather: { label: 'Météo', title: 'Météo', heading: 'Météo' },
       messages: { label: 'Messages', title: 'Messages', heading: 'Messages' },
       rideshare: { label: 'Covoiturage', title: 'Bancs de covoiturage', heading: 'Bancs de covoiturage' },
-      events: { label: 'Evenements', title: 'Evenements', heading: 'Evenements' },
+      events: { label: 'Événements', title: 'Événements', heading: 'Événements' },
       textile: { label: 'Conteneurs', title: 'Conteneurs textiles', heading: 'Conteneurs textiles' },
-      settings: { label: 'Parametres', title: 'Parametres', heading: 'Parametres' },
+      settings: { label: 'Paramètres', title: 'Paramètres', heading: 'Paramètres' },
     },
     modules: {
       map: 'Carte',
-      sensorData: 'Donnees capteurs',
-      weather: 'Meteo',
+      sensorData: 'Données capteurs',
+      weather: 'Météo',
       messages: 'Messages',
       rideShare: 'Bancs de covoiturage',
-      events: 'Evenements',
+      events: 'Événements',
       textileContainers: 'Conteneurs textiles',
     },
     community: {
@@ -226,7 +227,7 @@ const I18N = {
       feedback: 'Envoyer un retour',
       newsletter: 'Newsletter',
       volunteer: 'Participer',
-      pendingSuffix: 'bientot',
+      pendingSuffix: 'bientôt',
     },
   },
 }
@@ -271,7 +272,7 @@ function PublicCommunityLink({ href, label, pendingSuffix }) {
 
 const DEFAULT_PREFS = {
   language: 'de',
-  themeMode: 'light',
+  themeMode: 'dark',
   contrast: 'standard',
   iconSet: 'default',
 }
@@ -859,7 +860,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               >
                 <option value="de">Deutsch</option>
                 <option value="en">English</option>
-                <option value="fr">Francais</option>
+                <option value="fr">Français</option>
               </select>
             </div>
           </section>
@@ -974,6 +975,12 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <div className="admin-header-title-row">
             <h1>{text.appTitle}</h1>
             <div className="admin-header-actions-right">
+              <Link className="admin-header-link" to="/">
+                Startseite
+              </Link>
+              <Link className="admin-header-link admin-header-link--secondary" to="/admin">
+                Admin
+              </Link>
               <AiAssistantWidget
                 audience="user"
                 contextData={assistantContext}

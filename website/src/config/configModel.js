@@ -26,7 +26,7 @@ const BASE_CONFIG = {
     oldClothesContainer: { enabled: false, sensors: [] },
   },
   design: {
-    themeMode: 'light',
+    themeMode: 'dark',
     contrast: 'standard',
     iconSet: 'default',
   },
@@ -40,7 +40,7 @@ const VILLAGE_OVERRIDES = {
       contactEmail: 'verwaltung@dorf1.local',
     },
     design: {
-      themeMode: 'light',
+      themeMode: 'dark',
       contrast: 'standard',
     },
   },

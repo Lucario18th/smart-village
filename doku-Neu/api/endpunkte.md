@@ -6,7 +6,7 @@ Diese Referenz listet alle REST-API-Endpunkte des Smart-Village-Backends auf.
 Alle Endpunkte sind unter dem Prefix `/api` erreichbar.
 Die Base-URL ist `https://localhost:8000` (direkt) oder `https://localhost/api` (über Nginx).
 
-Die neue App-API fuer die mobile App ist unter dem Prefix `/app` erreichbar (ohne `/api`).
+Die App-API fuer Website und mobile App ist extern unter dem Prefix `/api/app` erreichbar.
 Eine ausfuehrliche Beschreibung der App-API befindet sich in der [App-API-Dokumentation](../backend/app-api.md).
 
 Die Mobile API (`/mobile-api/`) ist in dieser Referenz nicht enthalten, da sie außerhalb des Geltungsbereichs liegt.
@@ -273,18 +273,21 @@ Zusatzfeld in Sensor-Listen:
 
 Dieser Endpunkt erfordert ein Konto mit `isAdmin: true`.
 
-### App-API (fuer die mobile App)
+### App-API (fuer Website und mobile App)
 
-Diese Endpunkte sind unter dem Prefix `/app` erreichbar (ohne `/api`).
+Diese Endpunkte sind unter dem Prefix `/api/app` erreichbar.
 Sie erfordern keine Authentifizierung.
 
 | Methode | Route | Auth | Beschreibung |
 |---------|-------|------|-------------|
-| GET | `/app/villages` | Nein | Liste aller Gemeinden mit Feature-Flags und PLZ |
-| GET | `/app/villages/:villageId/config` | Nein | Konfiguration einer Gemeinde (Features + freigegebene Sensoren) |
-| GET | `/app/villages/:villageId/initial-data` | Nein | Initiale Daten fuer den ersten Ladevorgang |
+| GET | `/api/app/villages` | Nein | Liste aller Gemeinden mit Feature-Flags und PLZ |
+| GET | `/api/app/villages/:villageId/config` | Nein | Konfiguration einer Gemeinde (Features + freigegebene Sensoren) |
+| GET | `/api/app/villages/:villageId/initial-data` | Nein | Initiale Daten fuer den ersten Ladevorgang |
+| GET | `/api/app/villages/:villageId/modules` | Nein | Aktivierte benutzerdefinierte Module einer Gemeinde |
 
-Hinweis: Nur Accounts mit `isPublicAppApiEnabled = true` erscheinen in `/app/villages`.
+Hinweis: Nur Accounts mit `isPublicAppApiEnabled = true` erscheinen in `/api/app/villages`.
+
+Der Public-User-Bereich der Website (`/user`) nutzt die gleichen App-API-Endpunkte wie die mobile App.
 
 Ausfuehrliche Dokumentation: [App-API](../backend/app-api.md)
 

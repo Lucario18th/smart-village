@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-labelledby="t3 d3">
+  <title id="t3">Teammitglied 3 Platzhalter</title>
+  <desc id="d3">Platzhalterbild für Teammitglied 3</desc>
+  <defs>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#255f68" />
+      <stop offset="100%" stop-color="#89b05a" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="500" fill="url(#g3)" />
+  <circle cx="200" cy="170" r="72" fill="#effff5" opacity="0.92" />
+  <path d="M95 390c19-64 58-96 105-96s86 32 105 96" fill="#effff5" opacity="0.92" />
+  <text x="200" y="455" text-anchor="middle" fill="#effff5" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Teammitglied 3</text>
+</svg>

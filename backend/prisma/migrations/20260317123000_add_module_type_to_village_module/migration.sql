@@ -1,2 +1,2 @@
 ALTER TABLE "VillageModule"
-ADD COLUMN "moduleType" TEXT NOT NULL DEFAULT 'Service';
+ADD COLUMN IF NOT EXISTS "moduleType" TEXT NOT NULL DEFAULT 'Service';

@@ -135,7 +135,7 @@ Mit `POST /api/auth/account-settings` kann ein eingeloggter Account den Typ und 
 - `accountType` (`MUNICIPAL` | `PRIVATE`)
 - `isPublicAppApiEnabled` (Boolean)
 
-Diese Einstellungen wirken sich direkt auf die Auslieferung der oeffentlichen App-API (`/app/...`) aus.
+Diese Einstellungen wirken sich direkt auf die Auslieferung der oeffentlichen App-API (`/api/app/...`) aus.
 
 ## E-Mail-Versand
 
