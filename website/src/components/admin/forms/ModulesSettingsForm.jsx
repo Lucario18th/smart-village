@@ -209,8 +209,11 @@ export default function ModulesSettingsForm({
     try {
       await apiClient.villageModules.delete(villageId, moduleId)
       setCustomModules((prev) => prev.filter((m) => m.id !== moduleId))
-    } catch {
-      /* ignore */
+    } catch (err) {
+      // Falls das Modul serverseitig bereits weg ist, UI trotzdem synchronisieren.
+      if (err?.status === 404 || err?.message?.includes('nicht gefunden')) {
+        setCustomModules((prev) => prev.filter((m) => m.id !== moduleId))
+      }
     } finally {
       setDeletingModuleId(null)
     }
