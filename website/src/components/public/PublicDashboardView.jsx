@@ -363,9 +363,7 @@ function buildUserSections(text) {
     { id: 'sensors', label: text.sections.sensors.label, title: text.sections.sensors.title },
     { id: 'weather', label: text.sections.weather.label, title: text.sections.weather.title },
     { id: 'messages', label: text.sections.messages.label, title: text.sections.messages.title },
-    { id: 'rideshare', label: text.sections.rideshare.label, title: text.sections.rideshare.title },
     { id: 'events', label: text.sections.events.label, title: text.sections.events.title },
-    { id: 'textile', label: text.sections.textile.label, title: text.sections.textile.title },
     { id: 'settings', label: text.sections.settings.label, title: text.sections.settings.title },
   ]
 }
@@ -539,10 +537,8 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const sensors = initialData?.sensors || []
   const customModules = initialData?.modules || config?.modules || []
   const messages = initialData?.messages || []
-  const rideshares = initialData?.rideshares || []
   const weatherEntries = initialData?.weather || []
   const events = initialData?.events || []
-  const textileContainers = initialData?.textileContainers || []
 
   const userSections = useMemo(() => {
     const moduleSections = customModules.map(buildModuleSection)
@@ -577,9 +573,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       if (section.id === 'sensors') return features.sensorData !== false
       if (section.id === 'weather') return features.weather === true
       if (section.id === 'messages') return features.messages !== false
-      if (section.id === 'rideshare') return features.rideShare !== false
       if (section.id === 'events') return features.events === true
-      if (section.id === 'textile') return features.textileContainers === true
       if (section.id.startsWith('module-')) return features.sensorData !== false
       return true
     })
@@ -635,9 +629,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
         sensorData: features.sensorData !== false,
         weather: features.weather === true,
         messages: features.messages !== false,
-        rideShare: features.rideShare !== false,
         events: features.events === true,
-        textileContainers: features.textileContainers === true,
       },
       activeSectionId,
     }),
@@ -687,7 +679,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             zipCode={config?.postalCode?.zipCode}
             city={config?.postalCode?.city}
             sensors={liveSensors}
-            rideshares={rideshares}
+            rideshares={[]}
             locale={locale}
           />
         </section>
@@ -811,30 +803,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       )
     }
 
-    if (activeSection.id === 'rideshare') {
-      return (
-        <section className="village-section">
-          <h3>{text.sections.rideshare.heading}</h3>
-          {rideshares.length === 0 ? (
-            <p className="village-section-empty">{text.noRideshare}</p>
-          ) : (
-            <div className="rideshare-card-grid">
-              {rideshares.map((rs) => (
-                <div key={rs.id} className="rideshare-card">
-                  <h4 className="rideshare-card-name">{rs.name}</h4>
-                  {rs.description ? <p className="rideshare-card-description">{rs.description}</p> : null}
-                  <p className="rideshare-card-count">
-                    {rs.personCount} {rs.personCount === 1 ? text.onePerson : text.manyPeople} {text.waiting}
-                    {rs.maxCapacity != null ? ` (max. ${rs.maxCapacity})` : ''}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      )
-    }
-
     if (activeSection.id === 'events') {
       return (
         <section className="village-section public-events-panel">
@@ -861,26 +829,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
-      )
-    }
-
-    if (activeSection.id === 'textile') {
-      return (
-        <section className="village-section">
-          <h3>{text.sections.textile.heading}</h3>
-          {textileContainers.length === 0 ? (
-            <p className="village-section-empty">{text.noTextile}</p>
-          ) : (
-            <div className="rideshare-card-grid">
-              {textileContainers.map((container) => (
-                <div key={container.id} className="rideshare-card">
-                  <h4 className="rideshare-card-name">{container.name || text.textileFallback}</h4>
-                  {container.description ? <p className="rideshare-card-description">{container.description}</p> : null}
-                </div>
-              ))}
-            </div>
           )}
         </section>
       )
