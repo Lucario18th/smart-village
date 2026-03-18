@@ -37,7 +37,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
     }
 
     if (!selectedLocation?.id) {
-      setErrorMessage('Bitte wähle ein gültiges Dorf (PLZ oder Ort) aus')
+      setErrorMessage('Bitte wähle ein gültiges Dorf (PLZ und Ort) aus')
       return
     }
 
@@ -113,7 +113,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
 
           <div className="auth-form-row">
             <LocationAutocomplete
-              label="Ihr Dorf (PLZ oder Ort)"
+              label="Ihr Dorf (PLZ und Ort)"
               labelClassName="auth-form-label"
               placeholder="12345 oder Musterstadt"
               onSelect={setSelectedLocation}

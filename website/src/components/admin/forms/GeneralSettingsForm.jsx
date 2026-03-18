@@ -109,121 +109,120 @@ export default function GeneralSettingsForm({
         </div>
       </div>
 
-      <div className="admin-form-grid general-form-grid">
-        <label className="general-outlined-field">
-          <span className="general-field-label">Interne ID</span>
-          <input type="text" value={internalVillageId} disabled readOnly />
-        </label>
+      <div className="admin-form-grid general-form-grid general-form-grid-grouped">
+        <div className="general-field-stack">
+          <label className="general-outlined-field">
+            <span className="general-field-label">Interne ID</span>
+            <input type="text" value={internalVillageId} disabled readOnly />
+          </label>
 
-        <LocationAutocomplete
-          key={locationResetKey}
-          className="general-outlined-field"
-          labelClassName="general-field-label"
-          label="PLZ oder Ort"
-          placeholder="z. B. 10115 oder Berlin"
-          disabled={!isEditing}
-          selectedOption={
-            values.postalCodeId
-              ? {
-                  id: values.postalCodeId,
-                  zipCode: values.zipCode,
-                  city: values.city,
-                }
-              : null
-          }
-          onSelect={(option) => {
-            if (!option) {
-              onChange('postalCodeId', null)
-              onChange('zipCode', '')
-              onChange('city', '')
-              return
-            }
-            onChange('postalCodeId', option.id)
-            onChange('zipCode', option.zipCode)
-            onChange('city', option.city)
-          }}
-        />
-
-        <label className="general-outlined-field">
-          <span className="general-field-label">Ortsname</span>
-          <input
-            type="text"
-            value={values.villageName}
-            onChange={(event) => onChange('villageName', event.target.value)}
-            placeholder="z. B. Musterhausen"
-            disabled={!isEditing}
-          />
-        </label>
-
-        <label className="general-outlined-field">
-          <span className="general-field-label">Gemeinde-ID</span>
-          <input
-            type="text"
-            value={values.municipalityCode}
-            onChange={(event) => onChange('municipalityCode', event.target.value)}
-            placeholder="z. B. SV-MH"
-            disabled={!isEditing}
-          />
-        </label>
-
-        <label className="general-outlined-field">
-          <span className="general-field-label">E-Mail</span>
-          <input
-            type="email"
-            value={values.contactEmail}
-            onChange={(event) => onChange('contactEmail', event.target.value)}
-            placeholder="verwaltung@gemeinde.de"
-            disabled={!isEditing}
-          />
-        </label>
-
-        <label className="general-outlined-field">
-          <span className="general-field-label">Account-Typ</span>
-          <select
-            value={values.accountType || 'MUNICIPAL'}
-            onChange={(event) => {
-              const nextType = event.target.value
-              onChange('accountType', nextType)
-              if (nextType === 'PRIVATE') {
-                onChange('isPublicAppApiEnabled', false)
-              }
-            }}
-            disabled={!isEditing}
-          >
-            <option value="MUNICIPAL">Gemeinde / Organisation</option>
-            <option value="PRIVATE">Privatperson</option>
-          </select>
-        </label>
-
-        <label className="general-outlined-field">
-          <span className="general-field-label">Öffentliche User-API</span>
-          <div className="toggle-switch" style={{ marginTop: '8px' }}>
+          <label className="general-outlined-field">
+            <span className="general-field-label">Gemeinde-ID</span>
             <input
-              type="checkbox"
-              checked={values.isPublicAppApiEnabled ?? true}
-              onChange={(event) => onChange('isPublicAppApiEnabled', event.target.checked)}
+              type="text"
+              value={values.municipalityCode}
+              onChange={(event) => onChange('municipalityCode', event.target.value)}
+              placeholder="z. B. SV-MH"
               disabled={!isEditing}
             />
-            <span className="slider" />
-          </div>
-        </label>
+          </label>
+        </div>
 
-        <label className="general-outlined-field">
-          <span className="general-field-label">Telefon</span>
-          <input
-            type="tel"
-            value={values.contactPhone}
-            onChange={(event) => onChange('contactPhone', sanitizePhoneInput(event.target.value))}
-            placeholder="+49 ... (mind. 10 Ziffern)"
+        <div className="general-field-stack">
+          <LocationAutocomplete
+            key={locationResetKey}
+            className="general-outlined-field"
+            labelClassName="general-field-label"
+            label="Standort (PLZ und Ort)"
+            placeholder="z. B. 10115 Berlin"
             disabled={!isEditing}
-            inputMode="tel"
-            autoComplete="tel"
-            pattern="^\+?[0-9\s\-()]+$"
-            className={isEditing && values.contactPhone && !isValidPhone(values.contactPhone) ? 'input-invalid' : ''}
+            selectedOption={
+              values.postalCodeId
+                ? {
+                    id: values.postalCodeId,
+                    zipCode: values.zipCode,
+                    city: values.city,
+                  }
+                : null
+            }
+            onSelect={(option) => {
+              if (!option) {
+                onChange('postalCodeId', null)
+                onChange('zipCode', '')
+                onChange('city', '')
+                return
+              }
+              onChange('postalCodeId', option.id)
+              onChange('zipCode', option.zipCode)
+              onChange('city', option.city)
+            }}
           />
-          {isEditing && values.contactPhone && !isValidPhone(values.contactPhone) ? (
-            <small className="field-error">Ungültige Telefonnummer</small>
-          ) : null}
+
+          <label className="general-outlined-field">
+            <span className="general-field-label">Ortsname</span>
+            <input
+              type="text"
+              value={values.villageName}
+              onChange={(event) => onChange('villageName', event.target.value)}
+              placeholder="z. B. Musterhausen"
+              disabled={!isEditing}
+            />
+          </label>
+        </div>
+
+        <div className="general-field-stack">
+          <label className="general-outlined-field">
+            <span className="general-field-label">E-Mail</span>
+            <input
+              type="email"
+              value={values.contactEmail}
+              onChange={(event) => onChange('contactEmail', event.target.value)}
+              placeholder="verwaltung@gemeinde.de"
+              disabled={!isEditing}
+            />
+          </label>
+
+          <label className="general-outlined-field">
+            <span className="general-field-label">Telefon</span>
+            <input
+              type="tel"
+              value={values.contactPhone}
+              onChange={(event) => onChange('contactPhone', sanitizePhoneInput(event.target.value))}
+              placeholder="+49 ... (mind. 10 Ziffern)"
+              disabled={!isEditing}
+              inputMode="tel"
+              autoComplete="tel"
+              pattern="^\+?[0-9\s\-()]+$"
+              className={isEditing && values.contactPhone && !isValidPhone(values.contactPhone) ? 'input-invalid' : ''}
+            />
+            {isEditing && values.contactPhone && !isValidPhone(values.contactPhone) ? (
+              <small className="field-error">Ungültige Telefonnummer</small>
+            ) : null}
+          </label>
+        </div>
+
+        <label className="general-outlined-field general-api-field">
+          <span className="general-field-label">Bürger-API</span>
+          <div className="general-status-segment" role="group" aria-label="Sichtbarkeit der User-API">
+            <button
+              type="button"
+              className={`general-status-option ${(values.isPublicAppApiEnabled ?? true) ? 'is-active is-public' : ''}`}
+              onClick={() => onChange('isPublicAppApiEnabled', true)}
+              disabled={!isEditing}
+              aria-pressed={values.isPublicAppApiEnabled ?? true}
+            >
+              Öffentlich
+            </button>
+            <button
+              type="button"
+              className={`general-status-option ${!(values.isPublicAppApiEnabled ?? true) ? 'is-active is-protected' : ''}`}
+              onClick={() => onChange('isPublicAppApiEnabled', false)}
+              disabled={!isEditing}
+              aria-pressed={!(values.isPublicAppApiEnabled ?? true)}
+            >
+              Geschützt
+            </button>
+          </div>
         </label>
 
         <label className="full-width general-outlined-field">
