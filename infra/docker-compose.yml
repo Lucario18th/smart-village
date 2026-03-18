@@ -89,16 +89,16 @@ services:
     networks:
       - smartvillage-net
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: smartvillage-ollama
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama-data:/root/.ollama
-    networks:
-      - smartvillage-net
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: smartvillage-ollama
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   networks:
+  #     - smartvillage-net
 
 networks:
   smartvillage-net:
