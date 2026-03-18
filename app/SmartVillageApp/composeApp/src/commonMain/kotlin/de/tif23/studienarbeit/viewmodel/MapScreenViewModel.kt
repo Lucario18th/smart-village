@@ -136,7 +136,7 @@ class MapScreenViewModel(
             stateFlow.update { it.copy(village = village, isLoading = false) }
             moveToInitialPosition(village)
             loadMarkers(village)
-            addClickListeners()
+            addClickListeners(village.village.name)
         }
     }
 
@@ -210,10 +210,10 @@ class MapScreenViewModel(
         }
     }
 
-    private fun addClickListeners() {
+    private fun addClickListeners(villageName: String) {
         mapState.onMarkerClick { id, _, _ ->
             when {
-                id.startsWith("station_") -> onStationSelected(id.removePrefix("station_"))
+                id.startsWith("station_") -> onStationSelected(id.removePrefix("station_"), villageName)
                 id.startsWith("sensor_") -> onSensorSelected(id.removePrefix("sensor_"))
                 id.startsWith("container_") -> onContainerSelected(id.removePrefix("container_"))
             }
@@ -243,16 +243,18 @@ class MapScreenViewModel(
         }
     }
 
-    private fun onStationSelected(evaNo: String) {
-        val stationName = stationsByEva[evaNo]?.name ?: "Bahnhof"
-        stateFlow.update {
-            it.copy(
-                sheetContent = MapSheetContent.Station(
-                    evaNo = evaNo,
-                    stationName = stationName,
-                    isLoading = true
+    private fun onStationSelected(evaNo: String, villageName: String) {
+        viewModelScope.launch {
+            val stationName = getVillageTrainStationsUseCase.getAllStationsForVillage(villageName).find { it.eva.toString() == evaNo }?.name?: "Bahnhof"
+            stateFlow.update {
+                it.copy(
+                    sheetContent = MapSheetContent.Station(
+                        evaNo = evaNo,
+                        stationName = stationName,
+                        isLoading = true
+                    )
                 )
-            )
+            }
         }
 
         viewModelScope.launch {
