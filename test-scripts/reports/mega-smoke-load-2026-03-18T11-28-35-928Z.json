@@ -1,0 +1,482 @@
+{
+  "generatedAt": "2026-03-18T11:26:11.015Z",
+  "config": {
+    "nginxBaseUrl": "https://localhost",
+    "backendBaseUrl": "http://localhost:8000",
+    "readDurationSec": 8,
+    "writeDurationSec": 8,
+    "loginDurationSec": 8,
+    "readConcurrency": [
+      10,
+      30,
+      60,
+      100,
+      150
+    ],
+    "writeConcurrency": [
+      5,
+      15,
+      30,
+      50
+    ],
+    "loginConcurrency": [
+      10,
+      30,
+      60,
+      100
+    ],
+    "p95DegradedMs": 1000,
+    "errorRateDegradedPercent": 1
+  },
+  "scenarios": [
+    {
+      "name": "Read: Health endpoint through Nginx",
+      "results": [
+        {
+          "scenarioName": "Read: Health endpoint through Nginx",
+          "stageName": "load-c10",
+          "concurrency": 10,
+          "durationSec": 8,
+          "totalRequests": 4404,
+          "failedRequests": 1246,
+          "errorRate": 28.29246139872843,
+          "rps": 550.5,
+          "latencyMs": {
+            "min": 7.9338,
+            "max": 48.5798,
+            "avg": 18.16192504541325,
+            "p50": 17.6801,
+            "p95": 22.4133,
+            "p99": 25.7985
+          },
+          "statusCounts": {
+            "200": 3158,
+            "429": 1246
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: Health endpoint through Nginx",
+          "stageName": "load-c30",
+          "concurrency": 30,
+          "durationSec": 8,
+          "totalRequests": 4950,
+          "failedRequests": 2346,
+          "errorRate": 47.39393939393939,
+          "rps": 618.75,
+          "latencyMs": {
+            "min": 20.1145,
+            "max": 91.1375,
+            "avg": 48.48466468686867,
+            "p50": 47.9318,
+            "p95": 54.4485,
+            "p99": 60.9763
+          },
+          "statusCounts": {
+            "200": 2604,
+            "429": 2346
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: Health endpoint through Nginx",
+          "stageName": "load-c60",
+          "concurrency": 60,
+          "durationSec": 8,
+          "totalRequests": 5160,
+          "failedRequests": 2551,
+          "errorRate": 49.43798449612403,
+          "rps": 645,
+          "latencyMs": {
+            "min": 41.3619,
+            "max": 147.7695,
+            "avg": 93.09268579457365,
+            "p50": 91.6241,
+            "p95": 103.8008,
+            "p99": 141.9137
+          },
+          "statusCounts": {
+            "200": 2609,
+            "429": 2551
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: Health endpoint through Nginx",
+          "stageName": "load-c100",
+          "concurrency": 100,
+          "durationSec": 8,
+          "totalRequests": 5160,
+          "failedRequests": 2640,
+          "errorRate": 51.162790697674424,
+          "rps": 645,
+          "latencyMs": {
+            "min": 68.6583,
+            "max": 240.4203,
+            "avg": 155.67673133720962,
+            "p50": 153.1155,
+            "p95": 185.1163,
+            "p99": 207.9958
+          },
+          "statusCounts": {
+            "200": 2520,
+            "429": 2640
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: Health endpoint through Nginx",
+          "stageName": "load-c150",
+          "concurrency": 150,
+          "durationSec": 8,
+          "totalRequests": 5158,
+          "failedRequests": 2609,
+          "errorRate": 50.58162078324933,
+          "rps": 644.75,
+          "latencyMs": {
+            "min": 106.9688,
+            "max": 311.3401,
+            "avg": 233.6047041876691,
+            "p50": 231.4375,
+            "p95": 266.7074,
+            "p99": 274.0716
+          },
+          "statusCounts": {
+            "200": 2549,
+            "429": 2609
+          },
+          "degraded": true
+        }
+      ],
+      "breakpoint": {
+        "found": true,
+        "atConcurrency": 10,
+        "reason": "p95=22.4ms, errorRate=28.29%"
+      }
+    },
+    {
+      "name": "Read: App villages through Nginx",
+      "results": [
+        {
+          "scenarioName": "Read: App villages through Nginx",
+          "stageName": "load-c10",
+          "concurrency": 10,
+          "durationSec": 8,
+          "totalRequests": 3521,
+          "failedRequests": 965,
+          "errorRate": 27.406986651519453,
+          "rps": 440.125,
+          "latencyMs": {
+            "min": 4.5744,
+            "max": 72.6032,
+            "avg": 22.718754302754895,
+            "p50": 22.8659,
+            "p95": 36.5539,
+            "p99": 45.563
+          },
+          "statusCounts": {
+            "200": 2556,
+            "429": 965
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: App villages through Nginx",
+          "stageName": "load-c30",
+          "concurrency": 30,
+          "durationSec": 8,
+          "totalRequests": 3786,
+          "failedRequests": 1246,
+          "errorRate": 32.910723718964604,
+          "rps": 473.25,
+          "latencyMs": {
+            "min": 8.2106,
+            "max": 170.3679,
+            "avg": 63.41354735868995,
+            "p50": 60.5439,
+            "p95": 98.4394,
+            "p99": 117.9871
+          },
+          "statusCounts": {
+            "200": 2540,
+            "429": 1246
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: App villages through Nginx",
+          "stageName": "load-c60",
+          "concurrency": 60,
+          "durationSec": 8,
+          "totalRequests": 4043,
+          "failedRequests": 1440,
+          "errorRate": 35.61711600296809,
+          "rps": 505.375,
+          "latencyMs": {
+            "min": 10.9497,
+            "max": 214.798,
+            "avg": 119.09322824635136,
+            "p50": 118.9169,
+            "p95": 164.4152,
+            "p99": 188.8925
+          },
+          "statusCounts": {
+            "200": 2603,
+            "429": 1440
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: App villages through Nginx",
+          "stageName": "load-c100",
+          "concurrency": 100,
+          "durationSec": 8,
+          "totalRequests": 4138,
+          "failedRequests": 1534,
+          "errorRate": 37.07104881585307,
+          "rps": 517.25,
+          "latencyMs": {
+            "min": 73.1993,
+            "max": 315.4847,
+            "avg": 194.3666156839052,
+            "p50": 187.9655,
+            "p95": 262.5836,
+            "p99": 287.0949
+          },
+          "statusCounts": {
+            "200": 2604,
+            "429": 1534
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Read: App villages through Nginx",
+          "stageName": "load-c150",
+          "concurrency": 150,
+          "durationSec": 8,
+          "totalRequests": 4283,
+          "failedRequests": 1686,
+          "errorRate": 39.36493112304459,
+          "rps": 535.375,
+          "latencyMs": {
+            "min": 139.7921,
+            "max": 495.9287,
+            "avg": 283.4343283212711,
+            "p50": 273.4244,
+            "p95": 377.6786,
+            "p99": 433.5423
+          },
+          "statusCounts": {
+            "200": 2597,
+            "429": 1686
+          },
+          "degraded": true
+        }
+      ],
+      "breakpoint": {
+        "found": true,
+        "atConcurrency": 10,
+        "reason": "p95=36.6ms, errorRate=27.41%"
+      }
+    },
+    {
+      "name": "Auth flood simulation: Login through Nginx",
+      "results": [
+        {
+          "scenarioName": "Auth flood simulation: Login through Nginx",
+          "stageName": "load-c10",
+          "concurrency": 10,
+          "durationSec": 8,
+          "totalRequests": 4400,
+          "failedRequests": 4293,
+          "errorRate": 97.56818181818183,
+          "rps": 550,
+          "latencyMs": {
+            "min": 5.5131,
+            "max": 151.5409,
+            "avg": 18.17677238636366,
+            "p50": 16.555,
+            "p95": 20.9459,
+            "p99": 67.469
+          },
+          "statusCounts": {
+            "200": 107,
+            "429": 4293
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Auth flood simulation: Login through Nginx",
+          "stageName": "load-c30",
+          "concurrency": 30,
+          "durationSec": 8,
+          "totalRequests": 4900,
+          "failedRequests": 4812,
+          "errorRate": 98.20408163265306,
+          "rps": 612.5,
+          "latencyMs": {
+            "min": 20.1521,
+            "max": 130.9935,
+            "avg": 49.01262157142872,
+            "p50": 47.2818,
+            "p95": 58.3431,
+            "p99": 96.448
+          },
+          "statusCounts": {
+            "200": 88,
+            "429": 4812
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Auth flood simulation: Login through Nginx",
+          "stageName": "load-c60",
+          "concurrency": 60,
+          "durationSec": 8,
+          "totalRequests": 5107,
+          "failedRequests": 5018,
+          "errorRate": 98.25729391031916,
+          "rps": 638.375,
+          "latencyMs": {
+            "min": 57.46,
+            "max": 181.8242,
+            "avg": 94.34436982572926,
+            "p50": 92.6423,
+            "p95": 107.6117,
+            "p99": 140.3486
+          },
+          "statusCounts": {
+            "200": 89,
+            "429": 5018
+          },
+          "degraded": true
+        },
+        {
+          "scenarioName": "Auth flood simulation: Login through Nginx",
+          "stageName": "load-c100",
+          "concurrency": 100,
+          "durationSec": 8,
+          "totalRequests": 4975,
+          "failedRequests": 4886,
+          "errorRate": 98.21105527638191,
+          "rps": 621.875,
+          "latencyMs": {
+            "min": 80.2215,
+            "max": 264.7139,
+            "avg": 161.5498745728643,
+            "p50": 158.8209,
+            "p95": 193.5174,
+            "p99": 212.7374
+          },
+          "statusCounts": {
+            "200": 89,
+            "429": 4886
+          },
+          "degraded": true
+        }
+      ],
+      "breakpoint": {
+        "found": true,
+        "atConcurrency": 10,
+        "reason": "p95=20.9ms, errorRate=97.57%"
+      }
+    },
+    {
+      "name": "DB write path: Sensor readings",
+      "results": [
+        {
+          "scenarioName": "DB write path: Sensor readings",
+          "stageName": "load-c5",
+          "concurrency": 5,
+          "durationSec": 8,
+          "totalRequests": 10030,
+          "failedRequests": 0,
+          "errorRate": 0,
+          "rps": 1253.75,
+          "latencyMs": {
+            "min": 2.2735,
+            "max": 12.288,
+            "avg": 3.9453474077766524,
+            "p50": 3.7914,
+            "p95": 5.4901,
+            "p99": 7.2659
+          },
+          "statusCounts": {
+            "201": 10030
+          },
+          "degraded": false
+        },
+        {
+          "scenarioName": "DB write path: Sensor readings",
+          "stageName": "load-c15",
+          "concurrency": 15,
+          "durationSec": 8,
+          "totalRequests": 9234,
+          "failedRequests": 0,
+          "errorRate": 0,
+          "rps": 1154.25,
+          "latencyMs": {
+            "min": 4.5084,
+            "max": 287.3533,
+            "avg": 12.973295646523757,
+            "p50": 11.5317,
+            "p95": 19.2578,
+            "p99": 24.9515
+          },
+          "statusCounts": {
+            "201": 9234
+          },
+          "degraded": false
+        },
+        {
+          "scenarioName": "DB write path: Sensor readings",
+          "stageName": "load-c30",
+          "concurrency": 30,
+          "durationSec": 8,
+          "totalRequests": 11522,
+          "failedRequests": 0,
+          "errorRate": 0,
+          "rps": 1440.25,
+          "latencyMs": {
+            "min": 7.5364,
+            "max": 319.717,
+            "avg": 20.80747787710461,
+            "p50": 17.6848,
+            "p95": 31.1135,
+            "p99": 38.5378
+          },
+          "statusCounts": {
+            "201": 11522
+          },
+          "degraded": false
+        },
+        {
+          "scenarioName": "DB write path: Sensor readings",
+          "stageName": "load-c50",
+          "concurrency": 50,
+          "durationSec": 8,
+          "totalRequests": 15065,
+          "failedRequests": 0,
+          "errorRate": 0,
+          "rps": 1883.125,
+          "latencyMs": {
+            "min": 4.0074,
+            "max": 256.1212,
+            "avg": 26.574946359110573,
+            "p50": 25.601,
+            "p95": 34.163,
+            "p99": 46.3914
+          },
+          "statusCounts": {
+            "201": 15065
+          },
+          "degraded": false
+        }
+      ],
+      "breakpoint": {
+        "found": false,
+        "message": "No degradation breakpoint reached in tested concurrency range."
+      }
+    }
+  ]
+}

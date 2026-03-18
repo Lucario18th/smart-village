@@ -1,0 +1,23 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#132034"/>
+  <rect x="120" y="210" width="250" height="480" rx="22" fill="#264869"/>
+  <rect x="170" y="280" width="150" height="120" rx="14" fill="#A6F0FF"/>
+  <rect x="170" y="430" width="150" height="200" rx="14" fill="#5EB9FF"/>
+  <text x="148" y="740" fill="#DDF6FF" font-family="Verdana, sans-serif" font-size="34" font-weight="700">Sensor</text>
+  <rect x="520" y="250" width="300" height="380" rx="24" fill="#2D6B64"/>
+  <rect x="570" y="310" width="200" height="130" rx="16" fill="#B8F3D6"/>
+  <rect x="570" y="470" width="200" height="110" rx="16" fill="#66D7AE"/>
+  <text x="566" y="710" fill="#DCFDED" font-family="Verdana, sans-serif" font-size="34" font-weight="700">MQTT Broker</text>
+  <rect x="970" y="220" width="500" height="470" rx="24" fill="#3A3564"/>
+  <rect x="1020" y="300" width="400" height="80" rx="12" fill="#8A8CFF"/>
+  <rect x="1020" y="400" width="400" height="80" rx="12" fill="#BB9DFF"/>
+  <rect x="1020" y="500" width="240" height="80" rx="12" fill="#8A8CFF"/>
+  <text x="1040" y="740" fill="#EEE8FF" font-family="Verdana, sans-serif" font-size="34" font-weight="700">Backend und API</text>
+  <path d="M380 430H510" stroke="#9ED9FF" stroke-width="14" stroke-linecap="round"/>
+  <path d="M830 430H960" stroke="#B7F1D9" stroke-width="14" stroke-linecap="round"/>
+  <path d="M506 430L468 402" stroke="#9ED9FF" stroke-width="14" stroke-linecap="round"/>
+  <path d="M506 430L468 458" stroke="#9ED9FF" stroke-width="14" stroke-linecap="round"/>
+  <path d="M956 430L918 402" stroke="#B7F1D9" stroke-width="14" stroke-linecap="round"/>
+  <path d="M956 430L918 458" stroke="#B7F1D9" stroke-width="14" stroke-linecap="round"/>
+  <text x="120" y="120" fill="#E3F1FF" font-family="Verdana, sans-serif" font-size="56" font-weight="700">MQTT Datenfluss Live Demo</text>
+</svg>

@@ -24,6 +24,7 @@ const BASE_CONFIG = {
     map: { enabled: true, sensors: [] },
     rideSharingBench: { enabled: true, sensors: [] },
     oldClothesContainer: { enabled: false, sensors: [] },
+    userAssistantAi: { enabled: true, sensors: [] },
   },
   design: {
     themeMode: 'dark',

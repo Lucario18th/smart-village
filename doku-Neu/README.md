@@ -5,9 +5,17 @@ Sie richtet sich an Entwickler, die neu in das Projekt einsteigen oder bestehend
 
 Alle Dokumente sind in deutscher Sprache verfasst.
 
-## Aktueller Stand (2026-03-17)
+## Aktueller Stand (2026-03-18)
 
 Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand ab:
+
+- Backend- und Website-Abhaengigkeiten wurden umfassend auf aktuelle Versionen angehoben (u. a. Nest 11, React 19, Vite 8).
+- Sicherheits-Hardening umgesetzt: sichere SQL-Ausfuehrung ohne `$queryRawUnsafe`, strengere Request-Validierung, Helmet, restriktiveres CORS, sichere JWT-Secret-Erzwingung.
+- Nginx-Sicherheitsheader wurden erweitert (HSTS, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy).
+- Container-Hardening umgesetzt (Backend-Image mit `npm ci`, `--omit=dev`, Non-Root-User).
+- Offene produktive Geheimnisse in `infra/smartvillage.env` durch Platzhalter ersetzt.
+- Lokale Verifikation erfolgreich: Backend- und Website-Build sowie Tests laufen grün.
+- Docker-Compose-Endtest ist vorbereitet, auf diesem Host aber blockiert solange Docker Desktop/Daemon nicht gestartet ist.
 
 - Sensorfreigabe fuer App/Public erfolgt ueber `Sensor.exposeToApp` (nicht ueber `isActive`).
 - Sensoren werden nach ca. 60 Sekunden ohne neue Messwerte als `dataStale` gekennzeichnet.
@@ -34,8 +42,9 @@ Die Dokumentation ist in folgende Bereiche aufgeteilt:
 ```
 docs/
 ├── README.md                              ← Dieses Dokument (Navigation)
+├── aenderungen-2026-03-18.md              ← Letzte umgesetzte Änderungen (aktueller Snapshot)
 ├── aenderungen-2026-03-15.md              ← Aelterer Snapshot
-├── aenderungen-2026-03-17.md              ← Letzte umgesetzte Änderungen (aktueller Snapshot)
+├── aenderungen-2026-03-17.md              ← Vorheriger Snapshot
 ├── uebersicht.md                          ← Projektübersicht
 ├── architektur/
 │   ├── system-uebersicht.md               ← Systemarchitektur
@@ -69,6 +78,7 @@ docs/
 
 | Dokument | Beschreibung |
 |----------|-------------|
+| [Aenderungsprotokoll 2026-03-18](aenderungen-2026-03-18.md) | Security- und Versionsupdate ueber Backend, Frontend und Infrastruktur inkl. Test- und Audit-Ergebnisse. |
 | [Aenderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration. |
 | [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen. |
 | [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten. |

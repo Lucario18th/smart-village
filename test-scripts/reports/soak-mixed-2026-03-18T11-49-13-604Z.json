@@ -1,0 +1,331 @@
+{
+  "generatedAt": "2026-03-18T11:49:13.589Z",
+  "config": {
+    "nginxBaseUrl": "https://localhost",
+    "backendBaseUrl": "http://localhost:8000",
+    "durationSec": 900,
+    "workers": 35,
+    "reportEverySec": 30,
+    "testUserEmail": "freiburg@smart-village.local",
+    "testUserPassword": "test1234",
+    "sloP95Ms": 500,
+    "sloErrorRatePercent": 1
+  },
+  "overall": {
+    "total": 166645,
+    "failed": 9908,
+    "errorRate": 5.9455729244801825,
+    "rps": 185.1611111111111,
+    "tooManyRequests": 9908,
+    "serverErrors": 0,
+    "latencyMs": {
+      "p50": 134.0671,
+      "p95": 722.0537,
+      "p99": 1310.478,
+      "avg": 189.02786453179013,
+      "min": 4.0889,
+      "max": 2501.679
+    },
+    "statusCounts": {
+      "200": 144977,
+      "201": 11760,
+      "429": 9908
+    },
+    "slo": {
+      "p95MsThreshold": 500,
+      "errorRatePercentThreshold": 1,
+      "pass": false
+    }
+  },
+  "routes": {
+    "auth-me": {
+      "total": 20109,
+      "failed": 0,
+      "errorRate": 0,
+      "latencyMs": {
+        "p50": 48.1072,
+        "p95": 206.1619,
+        "p99": 343.2779,
+        "avg": 71.29249733452687,
+        "min": 7.5299,
+        "max": 948.6994
+      },
+      "statusCounts": {
+        "200": 20109
+      }
+    },
+    "health": {
+      "total": 41460,
+      "failed": 0,
+      "errorRate": 0,
+      "latencyMs": {
+        "p50": 120.6047,
+        "p95": 220.8167,
+        "p99": 273.7828,
+        "avg": 121.12960982151442,
+        "min": 5.847,
+        "max": 541.6355
+      },
+      "statusCounts": {
+        "200": 41460
+      }
+    },
+    "app-villages": {
+      "total": 33247,
+      "failed": 0,
+      "errorRate": 0,
+      "latencyMs": {
+        "p50": 170.5922,
+        "p95": 324.3563,
+        "p99": 438.9918,
+        "avg": 182.8077222065138,
+        "min": 44.0157,
+        "max": 1074.4269
+      },
+      "statusCounts": {
+        "200": 33247
+      }
+    },
+    "sensor-list": {
+      "total": 18487,
+      "failed": 0,
+      "errorRate": 0,
+      "latencyMs": {
+        "p50": 625.1331,
+        "p95": 1413.7149,
+        "p99": 1643.9808,
+        "avg": 652.6559196191918,
+        "min": 12.8553,
+        "max": 2501.679
+      },
+      "statusCounts": {
+        "200": 18487
+      }
+    },
+    "mobile-villages": {
+      "total": 25074,
+      "failed": 0,
+      "errorRate": 0,
+      "latencyMs": {
+        "p50": 156.6317,
+        "p95": 302.9242,
+        "p99": 417.8267,
+        "avg": 169.1180786591682,
+        "min": 21.2377,
+        "max": 1013.4654
+      },
+      "statusCounts": {
+        "200": 25074
+      }
+    },
+    "sensor-write": {
+      "total": 11760,
+      "failed": 0,
+      "errorRate": 0,
+      "latencyMs": {
+        "p50": 30.7868,
+        "p95": 196.6734,
+        "p99": 333.3578,
+        "avg": 59.709973647958925,
+        "min": 6.2669,
+        "max": 987.3595
+      },
+      "statusCounts": {
+        "201": 11760
+      }
+    },
+    "auth-login": {
+      "total": 16508,
+      "failed": 9908,
+      "errorRate": 60.01938454082869,
+      "latencyMs": {
+        "p50": 16.0328,
+        "p95": 375.0051,
+        "p99": 497.7423,
+        "avg": 118.65639157984047,
+        "min": 4.0889,
+        "max": 1080.006
+      },
+      "statusCounts": {
+        "200": 6600,
+        "429": 9908
+      }
+    }
+  },
+  "perMinute": [
+    {
+      "minute": 0,
+      "total": 27882,
+      "failed": 2641,
+      "errorRate": 9.472060827774191,
+      "statusCounts": {
+        "200": 23257,
+        "201": 1984,
+        "429": 2641
+      }
+    },
+    {
+      "minute": 1,
+      "total": 18068,
+      "failed": 1684,
+      "errorRate": 9.320345361965906,
+      "statusCounts": {
+        "200": 15088,
+        "201": 1296,
+        "429": 1684
+      }
+    },
+    {
+      "minute": 2,
+      "total": 14976,
+      "failed": 1340,
+      "errorRate": 8.947649572649572,
+      "statusCounts": {
+        "200": 12590,
+        "201": 1046,
+        "429": 1340
+      }
+    },
+    {
+      "minute": 3,
+      "total": 12534,
+      "failed": 983,
+      "errorRate": 7.8426679431945105,
+      "statusCounts": {
+        "200": 10704,
+        "201": 847,
+        "429": 983
+      }
+    },
+    {
+      "minute": 4,
+      "total": 11290,
+      "failed": 717,
+      "errorRate": 6.350752878653676,
+      "statusCounts": {
+        "200": 9807,
+        "201": 766,
+        "429": 717
+      }
+    },
+    {
+      "minute": 5,
+      "total": 10533,
+      "failed": 592,
+      "errorRate": 5.6204310262983,
+      "statusCounts": {
+        "200": 9175,
+        "201": 766,
+        "429": 592
+      }
+    },
+    {
+      "minute": 6,
+      "total": 9076,
+      "failed": 347,
+      "errorRate": 3.8232701630674306,
+      "statusCounts": {
+        "200": 8079,
+        "201": 650,
+        "429": 347
+      }
+    },
+    {
+      "minute": 7,
+      "total": 9306,
+      "failed": 425,
+      "errorRate": 4.566946056307759,
+      "statusCounts": {
+        "200": 8245,
+        "201": 636,
+        "429": 425
+      }
+    },
+    {
+      "minute": 8,
+      "total": 8766,
+      "failed": 290,
+      "errorRate": 3.3082363677846227,
+      "statusCounts": {
+        "200": 7875,
+        "201": 601,
+        "429": 290
+      }
+    },
+    {
+      "minute": 9,
+      "total": 8223,
+      "failed": 242,
+      "errorRate": 2.942964854675909,
+      "statusCounts": {
+        "200": 7372,
+        "201": 609,
+        "429": 242
+      }
+    },
+    {
+      "minute": 10,
+      "total": 8042,
+      "failed": 259,
+      "errorRate": 3.220591892564039,
+      "statusCounts": {
+        "200": 7166,
+        "201": 617,
+        "429": 259
+      }
+    },
+    {
+      "minute": 11,
+      "total": 7772,
+      "failed": 169,
+      "errorRate": 2.1744724652599072,
+      "statusCounts": {
+        "200": 7085,
+        "201": 518,
+        "429": 169
+      }
+    },
+    {
+      "minute": 12,
+      "total": 6951,
+      "failed": 107,
+      "errorRate": 1.5393468565674004,
+      "statusCounts": {
+        "200": 6321,
+        "201": 523,
+        "429": 107
+      }
+    },
+    {
+      "minute": 13,
+      "total": 6755,
+      "failed": 58,
+      "errorRate": 0.8586232420429312,
+      "statusCounts": {
+        "200": 6240,
+        "201": 457,
+        "429": 58
+      }
+    },
+    {
+      "minute": 14,
+      "total": 6436,
+      "failed": 54,
+      "errorRate": 0.8390304536979489,
+      "statusCounts": {
+        "200": 5938,
+        "201": 444,
+        "429": 54
+      }
+    },
+    {
+      "minute": 15,
+      "total": 35,
+      "failed": 0,
+      "errorRate": 0,
+      "statusCounts": {
+        "200": 35
+      }
+    }
+  ]
+}

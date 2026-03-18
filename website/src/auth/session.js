@@ -66,6 +66,7 @@ export async function validateCredentials(email, password) {
     email,
     token: result.accessToken,
     sub: decoded?.sub,
+    adminSessionExpiresAt: result.adminSessionExpiresAt || null,
     loginTime: new Date().toISOString(),
   }
 }

@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Code + Prisma-Schema (inkl. prisma/)
 COPY . .
@@ -24,7 +24,7 @@ RUN apk add --no-cache \
     openssl
 
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm ci --omit=dev
 
 # Prisma-Client + Schema + dist aus der Build-Stage
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
@@ -35,5 +35,7 @@ COPY --from=builder /app/dist ./dist
 # Entrypoint-Script
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
+
+USER node
 
 CMD ["./docker-entrypoint.sh"]

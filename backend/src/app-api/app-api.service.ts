@@ -78,6 +78,7 @@ export class AppApiService {
             map: v.features.enableMap,
             rideShare: v.features.enableRideShare,
             textileContainers: v.features.enableTextileContainers,
+            userAssistant: v.features.enableUserAssistant,
           }
         : null,
     }));
@@ -142,6 +143,7 @@ export class AppApiService {
             map: village.features.enableMap,
             rideShare: village.features.enableRideShare,
             textileContainers: village.features.enableTextileContainers,
+            userAssistant: village.features.enableUserAssistant,
           }
         : null,
       sensorDetailVisibility: village.features

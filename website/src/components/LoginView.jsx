@@ -7,6 +7,8 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [errorCode, setErrorCode] = useState(null)
+  const [retryAt, setRetryAt] = useState(null)
+  const [nowMs, setNowMs] = useState(() => Date.now())
   const [isLoading, setIsLoading] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [registerEmail, setRegisterEmail] = useState('')
@@ -18,11 +20,42 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
     }
   }, [onRegister])
 
+  React.useEffect(() => {
+    if (!retryAt) {
+      return undefined
+    }
+
+    const timerId = window.setInterval(() => {
+      setNowMs(Date.now())
+    }, 1000)
+
+    return () => {
+      window.clearInterval(timerId)
+    }
+  }, [retryAt])
+
+  const retryAtMs = retryAt ? Date.parse(retryAt) : Number.NaN
+  const hasValidRetryAt = Number.isFinite(retryAtMs)
+  const isTemporarilyBlocked = hasValidRetryAt && retryAtMs > nowMs
+
+  const formatRemainingTime = (targetMs) => {
+    const remainingMs = Math.max(0, targetMs - nowMs)
+    const totalSeconds = Math.ceil(remainingMs / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (isTemporarilyBlocked) {
+      return
+    }
+
     setIsLoading(true)
     setErrorMessage('')
     setErrorCode(null)
+    setRetryAt(null)
 
     try {
       const result = await onLogin({ email, password })
@@ -30,6 +63,7 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
       if (!result.success) {
         setErrorMessage(result.error)
         setErrorCode(result.code || null)
+        setRetryAt(result.retryAt || null)
 
         if (result.code === 'USER_NOT_FOUND' && onRegister) {
           setRegisterEmail(email)
@@ -40,6 +74,7 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
       setPassword('')
       setErrorMessage('')
       setErrorCode(null)
+      setRetryAt(null)
       setRegisterEmail('')
     } finally {
       setIsLoading(false)
@@ -103,10 +138,20 @@ export default function LoginView({ onLogin, onRegister, noticeMessage = null })
                   Konto erstellen
                 </button>
               ) : null}
+              {(errorCode === 'ADMIN_ACCOUNT_LOCKED' || errorCode === 'ADMIN_SESSION_ACTIVE') &&
+              isTemporarilyBlocked ? (
+                <p>
+                  Bitte in {formatRemainingTime(retryAtMs)} erneut versuchen.
+                </p>
+              ) : null}
             </div>
           ) : null}
 
-          <button type="submit" className="auth-submit-button" disabled={isLoading}>
+          <button
+            type="submit"
+            className="auth-submit-button"
+            disabled={isLoading || isTemporarilyBlocked}
+          >
             {isLoading ? 'Wird angemeldet...' : 'Anmelden'}
           </button>
         </form>

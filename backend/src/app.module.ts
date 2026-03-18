@@ -11,6 +11,7 @@ import { AdminModule } from "./admin/admin.module";
 import { DeviceModule } from "./device/device.module";
 import { MqttModule } from "./mqtt/mqtt.module";
 import { AppApiModule } from "./app-api/app-api.module";
+import { AssistantModule } from "./assistant/assistant.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AppApiModule } from "./app-api/app-api.module";
     DeviceModule,
     MqttModule,
     AppApiModule,
+    AssistantModule,
   ],
   controllers: [AppController],
 })

@@ -21,6 +21,25 @@ import { UpdateAccountSettingsDto } from "./dto/update-account-settings.dto";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private getClientIp(req: Request): string | undefined {
+    const xForwardedFor = req.headers["x-forwarded-for"];
+    if (Array.isArray(xForwardedFor) && xForwardedFor.length > 0) {
+      return xForwardedFor[0].split(",")[0].trim();
+    }
+    if (typeof xForwardedFor === "string" && xForwardedFor.length > 0) {
+      return xForwardedFor.split(",")[0].trim();
+    }
+    return req.ip;
+  }
+
+  private getUserAgent(req: Request): string | undefined {
+    const userAgent = req.headers["user-agent"];
+    if (Array.isArray(userAgent)) {
+      return userAgent[0];
+    }
+    return userAgent;
+  }
+
   @Post("register")
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
@@ -28,8 +47,22 @@ export class AuthController {
 
   @Post("login")
   @HttpCode(200)
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  login(@Req() req: Request, @Body() dto: LoginDto) {
+    return this.authService.login(dto, {
+      ipAddress: this.getClientIp(req),
+      userAgent: this.getUserAgent(req),
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("logout")
+  @HttpCode(200)
+  logout(@Req() req: Request) {
+    const user = req.user as { sub: number };
+    return this.authService.logout(user.sub, {
+      ipAddress: this.getClientIp(req),
+      userAgent: this.getUserAgent(req),
+    });
   }
 
   @UseGuards(JwtAuthGuard)
