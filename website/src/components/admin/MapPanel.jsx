@@ -700,7 +700,7 @@ export default function MapPanel({ general, sensors = [], devices = [], villageI
                 <p>Auto-include: {String(debugState.autoIncludeNew)}</p>
               </div>
             ) : null}
-            <div className="map-legend-overlay" aria-label="Legende">
+            <div className="map-legend-overlay map-legend-overlay--admin" aria-label="Legende">
               <h4>Legende</h4>
               <ul>
                 <li>

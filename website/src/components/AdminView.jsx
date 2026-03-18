@@ -177,7 +177,7 @@ export default function AdminView({ session, onLogout }) {
               <div className="admin-header-links-stack">
                 <div className="admin-header-links-row">
                   <Link className="admin-header-link" to="/">
-                    Startseite
+                    Projekt Info
                   </Link>
                   <Link className="admin-header-link admin-header-link--secondary" to="/user">
                     User-Seite
