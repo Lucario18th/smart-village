@@ -89,6 +89,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-header-content{display:grid;grid-template-columns:minmax(0,1fr);row-gap:8px;min-width:0}
 .admin-header-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px}
 .admin-header-actions-right{display:flex;align-items:center;gap:10px}
+.admin-header-links-stack{position:relative;display:block;min-width:max-content}
+.admin-header-links-row{display:flex;align-items:center;gap:10px}
 .admin-header-content h1{margin:0;color:var(--md-sys-color-primary);font-size:clamp(28px,2.9vw,40px);line-height:1.04;letter-spacing:-0.02em}
 .admin-home-button{border:none;background:transparent;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;line-height:inherit;letter-spacing:inherit}
 .admin-home-button:focus-visible{outline:2px solid color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent);outline-offset:4px;border-radius:4px}
@@ -633,7 +635,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 	.statistics-filters{grid-template-columns:1fr}
 }
 
-.admin-header-toast-slot{position:absolute;top:2px;right:18px;z-index:2;max-width:clamp(240px,42vw,760px);pointer-events:none}
+.admin-header-toast-slot{position:absolute;top:calc(100% + 6px);right:0;z-index:2;width:max-content;max-width:clamp(240px,42vw,760px);pointer-events:none}
 .toast-notification{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);border:1px solid color-mix(in srgb, var(--md-sys-color-secondary) 30%, transparent);box-shadow:0 3px 10px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);pointer-events:auto}
 .toast-notification button{border:none;background:transparent;color:inherit;font-size:18px;line-height:1;cursor:pointer;font-weight:700;padding:0}
 .badge-new{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font-size:12px;font-weight:700;letter-spacing:0.3px}
@@ -747,7 +749,11 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 	.map-panel{display:grid;grid-template-rows:auto auto auto auto;height:auto}
 	.map-layout{height:auto}
 	.map-panel-header{align-items:flex-start;flex-direction:column}
-	.admin-header-toast-slot{top:48px;right:0;left:0;max-width:none}
+	.admin-header-actions-right{align-items:center}
+	.admin-header-links-stack{min-width:0;width:auto}
+	.admin-header-links-row{justify-content:flex-end;flex-wrap:wrap}
+	.admin-header-toast-slot{top:calc(100% + 6px);right:0;left:auto;width:min(88vw,420px);max-width:88vw}
+	.toast-notification{width:100%}
 	.map-toggle-button{align-self:flex-end}
 	.map-toggle-button--in-map{top:8px;right:8px;align-self:auto}
   .map-layout--split{grid-template-columns:1fr}

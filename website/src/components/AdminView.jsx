@@ -174,12 +174,26 @@ export default function AdminView({ session, onLogout }) {
               </button>
             </h1>
             <div className="admin-header-actions-right">
-              <Link className="admin-header-link" to="/">
-                Startseite
-              </Link>
-              <Link className="admin-header-link admin-header-link--secondary" to="/user">
-                User-Seite
-              </Link>
+              <div className="admin-header-links-stack">
+                <div className="admin-header-links-row">
+                  <Link className="admin-header-link" to="/">
+                    Startseite
+                  </Link>
+                  <Link className="admin-header-link admin-header-link--secondary" to="/user">
+                    User-Seite
+                  </Link>
+                </div>
+                {toast && (
+                  <div className="admin-header-toast-slot" role="status" aria-live="polite">
+                    <div className="toast-notification">
+                      <span>{toast.message}</span>
+                      <button type="button" aria-label="Hinweis schließen" onClick={dismissToast}>
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
               <AiAssistantWidget audience="admin" contextData={assistantContext} placement="header" />
               <button
                 type="button"
@@ -202,16 +216,6 @@ export default function AdminView({ session, onLogout }) {
             Simulation öffnen: <strong>Strg + Umschalt + S</strong> oder <strong>Shift + Alt + Klick</strong> auf den Titel
           </p>
         </div>
-        {toast && (
-          <div className="admin-header-toast-slot" role="status" aria-live="polite">
-            <div className="toast-notification">
-              <span>{toast.message}</span>
-              <button type="button" aria-label="Hinweis schließen" onClick={dismissToast}>
-                ×
-              </button>
-            </div>
-          </div>
-        )}
       </header>
 
       <div className="admin-layout" style={{ '--mobile-header-height': `${mobileHeaderHeight}px` }}>
