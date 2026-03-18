@@ -164,6 +164,7 @@ export default function AiAssistantWidget({
 
   const apiConnected = useMemo(() => serviceOnline, [serviceOnline])
   const isCompactLauncher = launcherVariant === 'compact'
+  const launcherClassName = `ai-assistant-launcher${isCompactLauncher ? ' ai-assistant-launcher--compact' : ''}`
 
   React.useEffect(() => {
     setMessages((prev) => {
@@ -278,18 +279,23 @@ export default function AiAssistantWidget({
 
       <button
         type="button"
-        className={`ai-assistant-launcher${isCompactLauncher ? ' ai-assistant-launcher--compact' : ''}`}
+        className={launcherClassName}
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label={text.launcherAria}
         title={text.launcherTitle}
       >
-        {isCompactLauncher ? (
-          <span className="ai-assistant-launcher-icon" aria-hidden="true">
-            AI
-          </span>
-        ) : (
-          text.launcherText
-        )}
+        <span className="ai-assistant-launcher-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <line x1="12" y1="2" x2="12" y2="4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            <circle cx="12" cy="1.6" r="1.2" fill="currentColor" />
+            <rect x="5" y="6" width="14" height="11" rx="4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+            <circle cx="9.2" cy="11.2" r="1.2" fill="currentColor" />
+            <circle cx="14.8" cy="11.2" r="1.2" fill="currentColor" />
+            <rect x="9" y="14" width="6" height="1.8" rx="0.9" fill="currentColor" />
+            <rect x="3.2" y="9.5" width="1.8" height="4" rx="0.9" fill="currentColor" />
+            <rect x="19" y="9.5" width="1.8" height="4" rx="0.9" fill="currentColor" />
+          </svg>
+        </span>
       </button>
     </section>
   )

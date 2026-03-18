@@ -991,7 +991,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
                 <AiAssistantWidget
                   audience="user"
                   contextData={assistantContext}
-                  placement="header"
+                  placement="floating"
                   launcherVariant="compact"
                   locale={locale}
                 />

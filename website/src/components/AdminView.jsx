@@ -194,7 +194,12 @@ export default function AdminView({ session, onLogout }) {
                   </div>
                 )}
               </div>
-              <AiAssistantWidget audience="admin" contextData={assistantContext} placement="header" />
+              <AiAssistantWidget
+                audience="admin"
+                contextData={assistantContext}
+                placement="floating"
+                launcherVariant="compact"
+              />
               <button
                 type="button"
                 className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}
