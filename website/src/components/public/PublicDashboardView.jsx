@@ -18,7 +18,7 @@ const DATE_LOCALES = {
 
 const I18N = {
   de: {
-    appTitle: 'Smart Village User',
+    appTitle: 'Smart Village Bürgerportal',
     navOpen: 'Navigation öffnen',
     navClose: 'Navigation schließen',
     navAria: 'Nutzer Navigation',
@@ -89,7 +89,7 @@ const I18N = {
     },
   },
   en: {
-    appTitle: 'Smart Village User',
+    appTitle: 'Smart Village Bürgerportal',
     navOpen: 'Open navigation',
     navClose: 'Close navigation',
     navAria: 'User navigation',
@@ -160,7 +160,7 @@ const I18N = {
     },
   },
   fr: {
-    appTitle: 'Smart Village User',
+    appTitle: 'Smart Village Bürgerportal',
     navOpen: 'Ouvrir la navigation',
     navClose: 'Fermer la navigation',
     navAria: 'Navigation utilisateur',
@@ -982,10 +982,10 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             <h1>{text.appTitle}</h1>
             <div className="admin-header-actions-right">
               <Link className="admin-header-link" to="/">
-                Startseite
+                Projektübersicht
               </Link>
               <Link className="admin-header-link admin-header-link--secondary" to="/admin">
-                Admin
+                Dorf Administration
               </Link>
               {features.userAssistant !== false ? (
                 <AiAssistantWidget

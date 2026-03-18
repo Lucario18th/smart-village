@@ -185,10 +185,10 @@ export default function LandingPage() {
 
         <div className="landing-actions" role="navigation" aria-label="Hauptnavigation">
           <Link to="/user" className="landing-action landing-action--primary">
-            Zur User-Seite
+            Bürgerportal
           </Link>
           <Link to="/admin" className="landing-action landing-action--secondary">
-            Zur Admin-Seite
+            Dorf Administration
           </Link>
           <a
             className="landing-action landing-action--android"
