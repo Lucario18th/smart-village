@@ -327,6 +327,7 @@ export function useVillageConfig(session) {
             map: { enabled: village.features?.enableMap ?? true },
             rideSharingBench: { enabled: village.features?.enableRideShare ?? true },
             oldClothesContainer: { enabled: village.features?.enableTextileContainers ?? false },
+            userAssistantAi: { enabled: village.features?.enableUserAssistant ?? true },
           },
           design: {
             themeMode: storedDesign?.themeMode || 'light',
@@ -613,6 +614,7 @@ export function useVillageConfig(session) {
         enableMap: modules.map?.enabled ?? true,
         enableRideShare: modules.rideSharingBench?.enabled ?? true,
         enableTextileContainers: modules.oldClothesContainer?.enabled ?? false,
+        enableUserAssistant: modules.userAssistantAi?.enabled ?? true,
         showSensorName: modules.sensors?.fields?.name ?? true,
         showSensorType: modules.sensors?.fields?.type ?? true,
         showSensorDescription: modules.sensors?.fields?.description ?? true,

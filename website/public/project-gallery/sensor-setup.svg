@@ -1,0 +1,20 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#0F2D2C"/>
+  <rect x="0" y="530" width="1600" height="370" fill="#1F5A4E"/>
+  <circle cx="240" cy="160" r="110" fill="#F5C56A" opacity="0.9"/>
+  <rect x="170" y="250" width="220" height="260" rx="26" fill="#D7E7E0"/>
+  <rect x="205" y="286" width="148" height="62" rx="12" fill="#1F5A4E"/>
+  <rect x="205" y="364" width="68" height="124" rx="10" fill="#5AA78A"/>
+  <rect x="285" y="364" width="68" height="124" rx="10" fill="#5AA78A"/>
+  <rect x="620" y="210" width="340" height="200" rx="18" fill="#E5EFEA"/>
+  <rect x="650" y="250" width="280" height="108" rx="10" fill="#234F4D"/>
+  <path d="M696 338C742 292 802 292 848 338" stroke="#86E1D3" stroke-width="10" stroke-linecap="round"/>
+  <path d="M724 338C756 306 788 306 820 338" stroke="#86E1D3" stroke-width="10" stroke-linecap="round"/>
+  <rect x="1060" y="110" width="300" height="330" rx="24" fill="#DCE8E2"/>
+  <rect x="1115" y="170" width="190" height="190" rx="95" fill="#4AAE9A"/>
+  <circle cx="1210" cy="265" r="42" fill="#0F2D2C"/>
+  <rect x="1098" y="470" width="450" height="280" rx="20" fill="#224E46"/>
+  <rect x="1140" y="520" width="160" height="180" rx="16" fill="#86E1D3"/>
+  <rect x="1324" y="520" width="160" height="180" rx="16" fill="#5AA78A"/>
+  <text x="80" y="830" fill="#E6F4EE" font-family="Verdana, sans-serif" font-size="56" font-weight="700">Sensor Setup Vorfuehrung</text>
+</svg>

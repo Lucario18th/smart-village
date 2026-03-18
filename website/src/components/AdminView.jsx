@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AdminNavigation from './admin/AdminNavigation'
 import AdminSectionPanel from './admin/AdminSectionPanel'
+import AdminSimulationLab from './admin/AdminSimulationLab'
 import { ADMIN_SECTIONS } from '../config/adminSections'
 import { useVillageConfig } from '../hooks/useVillageConfig'
 import DeleteAccountDialog from './DeleteAccountDialog'
@@ -34,6 +35,7 @@ export default function AdminView({ session, onLogout }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [isSimulationLabOpen, setIsSimulationLabOpen] = useState(false)
 
   const handleSectionChange = useCallback((sectionId) => {
     setActiveSectionId(sectionId)
@@ -73,6 +75,30 @@ export default function AdminView({ session, onLogout }) {
     }
   }, [])
 
+  useEffect(() => {
+    const handleShortcut = (event) => {
+      const tagName = event.target?.tagName?.toLowerCase()
+      if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
+        return
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 's') {
+        event.preventDefault()
+        setIsSimulationLabOpen(true)
+        return
+      }
+
+      if (event.key === 'Escape') {
+        setIsSimulationLabOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleShortcut)
+    return () => {
+      window.removeEventListener('keydown', handleShortcut)
+    }
+  }, [])
+
   const activeSection = useMemo(() => {
     return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
   }, [activeSectionId])
@@ -83,6 +109,7 @@ export default function AdminView({ session, onLogout }) {
 
   const userEmail = session?.email || 'Unbekannt'
   const internalVillageId = config.meta?.id ?? '—'
+  const simulationStorageKey = `smart-village-admin-simulation:${session?.sub ?? 'unknown'}:${internalVillageId}`
 
   const assistantContext = useMemo(() => {
     const sensorList = config?.modules?.sensors?.sensors || []
@@ -131,11 +158,17 @@ export default function AdminView({ session, onLogout }) {
               <button
                 type="button"
                 className="admin-home-button"
-                onClick={() => {
+                onClick={(event) => {
+                  if (event.shiftKey && (event.altKey || event.ctrlKey || event.metaKey)) {
+                    setIsSimulationLabOpen(true)
+                    return
+                  }
+
                   setActiveSectionId('map')
                   setIsMobileSidebarOpen(false)
                 }}
                 aria-label="Zum Start-Tab wechseln"
+                title="Start-Tab öffnen · Shift+Alt+Klick: Simulation"
               >
                 Smart Village Admin
               </button>
@@ -164,6 +197,9 @@ export default function AdminView({ session, onLogout }) {
           </div>
           <p className="admin-header-user">
             Angemeldet als <strong>{userEmail}</strong>
+          </p>
+          <p className="admin-shortcut-hint">
+            Simulation öffnen: <strong>Strg + Umschalt + S</strong> oder <strong>Shift + Alt + Klick</strong> auf den Titel
           </p>
         </div>
         {toast && (
@@ -269,6 +305,19 @@ export default function AdminView({ session, onLogout }) {
         onConfirm={handleDeleteAccount}
         isLoading={deleteLoading}
         error={deleteError}
+      />
+
+      <AdminSimulationLab
+        isOpen={isSimulationLabOpen}
+        onClose={() => setIsSimulationLabOpen(false)}
+        storageKey={simulationStorageKey}
+        villageName={config.general?.villageName}
+        authToken={session?.token ?? ''}
+        accountId={session?.sub ?? null}
+        villageId={config.meta?.id ?? null}
+        sourceGateways={config.devices}
+        sourceSensors={config.sensors}
+        sensorTypes={sensorTypes}
       />
     </main>
   )

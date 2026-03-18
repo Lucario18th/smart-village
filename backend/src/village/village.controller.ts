@@ -140,6 +140,7 @@ export class VillageController {
         enableMap: true,
         enableRideShare: true,
         enableTextileContainers: false,
+        enableUserAssistant: true,
         showSensorName: true,
         showSensorType: true,
         showSensorDescription: true,
@@ -156,6 +157,7 @@ export class VillageController {
       enableMap: features.enableMap,
       enableRideShare: features.enableRideShare,
       enableTextileContainers: features.enableTextileContainers,
+      enableUserAssistant: features.enableUserAssistant,
       showSensorName: features.showSensorName,
       showSensorType: features.showSensorType,
       showSensorDescription: features.showSensorDescription,
@@ -176,6 +178,7 @@ export class VillageController {
       enableMap?: boolean
       enableRideShare?: boolean
       enableTextileContainers?: boolean
+      enableUserAssistant?: boolean
       showSensorName?: boolean
       showSensorType?: boolean
       showSensorDescription?: boolean
@@ -198,6 +201,7 @@ export class VillageController {
     if (body.enableMap !== undefined) data.enableMap = body.enableMap
     if (body.enableRideShare !== undefined) data.enableRideShare = body.enableRideShare
     if (body.enableTextileContainers !== undefined) data.enableTextileContainers = body.enableTextileContainers
+    if (body.enableUserAssistant !== undefined) data.enableUserAssistant = body.enableUserAssistant
     if (body.showSensorName !== undefined) data.showSensorName = body.showSensorName
     if (body.showSensorType !== undefined) data.showSensorType = body.showSensorType
     if (body.showSensorDescription !== undefined) data.showSensorDescription = body.showSensorDescription
@@ -221,6 +225,7 @@ export class VillageController {
       enableMap: features.enableMap,
       enableRideShare: features.enableRideShare,
       enableTextileContainers: features.enableTextileContainers,
+      enableUserAssistant: features.enableUserAssistant,
       showSensorName: features.showSensorName,
       showSensorType: features.showSensorType,
       showSensorDescription: features.showSensorDescription,

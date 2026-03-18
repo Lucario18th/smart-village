@@ -40,6 +40,15 @@ enum AccountType {
   PRIVATE
 }
 
+enum SecurityIncidentType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  LOGIN_BLOCKED
+  ADMIN_SESSION_BLOCKED
+  SESSION_REJECTED
+  LOGOUT
+}
+
 model Account {
   id                        Int       @id @default(autoincrement())
   email                     String    @unique
@@ -50,10 +59,34 @@ model Account {
   emailVerified             Boolean   @default(false)
   verificationCode          String?
   verificationCodeExpiresAt DateTime?
+  failedLoginAttempts       Int       @default(0)
+  lockUntil                 DateTime?
+  activeAdminSessionId      String?
+  activeAdminSessionExpiresAt DateTime?
+  activeAdminSessionIp      String?
   createdAt                 DateTime  @default(now())
   lastLoginAt               DateTime?
 
   villages                  Village[]
+  securityIncidents         SecurityIncident[]
+}
+
+model SecurityIncident {
+  id         Int                  @id @default(autoincrement())
+  accountId  Int?
+  email      String?
+  ipAddress  String?
+  userAgent  String?
+  type       SecurityIncidentType
+  success    Boolean
+  reason     String?
+  createdAt  DateTime             @default(now())
+
+  account    Account?             @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([accountId, createdAt])
+  @@index([email, createdAt])
+  @@index([type, createdAt])
 }
 
 model Village {
@@ -112,6 +145,9 @@ model VillageFeatures {
 
   /// Altkleider-Container-Standorte in der App anzeigen
   enableTextileContainers Boolean @default(false)
+
+  /// Lokalen KI-Assistenten fuer die User-App anzeigen/erlauben
+  enableUserAssistant     Boolean @default(true)
 
   /// Sensordetail: Name in der App anzeigen
   showSensorName          Boolean @default(true)

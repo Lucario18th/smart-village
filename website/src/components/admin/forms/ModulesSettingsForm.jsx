@@ -269,6 +269,13 @@ export default function ModulesSettingsForm({
       placement: 'Tab-Navigation und Detailseiten',
       category: 'Navigation',
     },
+    {
+      id: 'userAssistantAi',
+      title: 'KI-Hilfe (User)',
+      description: 'Lokalen KI-Assistenten fuer die User-Seite ein- oder ausschalten',
+      placement: 'Header der User-Seite',
+      category: 'Service',
+    },
   ]
 
   const toggleEditing = () => {

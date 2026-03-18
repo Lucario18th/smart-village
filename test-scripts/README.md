@@ -7,6 +7,8 @@ Automatisierte Test-Scripts zum Testen der Smart Village API über HTTPS mit Sel
 Dieses Package enthält:
 - `e2e-test.js` - Haupttest-Script (Node.js)
 - `e2e-test.sh` - Bash Wrapper zum Starten
+- `mobile-api-test.js` - Mobile-API End-to-End Test
+- `mega-smoke-load-test.js` - Gestufter Last-/Stabilitaetstest mit Breakpoint-Analyse
 
 ## 🚀 Starten
 
@@ -15,6 +17,31 @@ Dieses Package enthält:
 cd /home/leon/smart-village/test-scripts
 node e2e-test.js
 ```
+
+### Mega Load Test (Performance + DDoS-Verhalten)
+
+```bash
+cd /home/leon/smart-village
+node test-scripts/mega-smoke-load-test.js
+```
+
+Optional mit kuerzeren Stufen:
+
+```bash
+READ_DURATION_SEC=8 WRITE_DURATION_SEC=8 LOGIN_DURATION_SEC=8 node test-scripts/mega-smoke-load-test.js
+```
+
+### Langer Soak-Test (Stabilitaet ueber Zeit)
+
+```bash
+cd /home/leon/smart-village
+SOAK_DURATION_SEC=900 SOAK_WORKERS=35 node test-scripts/soak-mixed-test.js
+```
+
+Ausgabe:
+- JSON/Markdown-Report unter `test-scripts/reports/`
+- Minute-fuer-Minute Fehler-/Statusverteilung
+- p50/p95/p99 Latenzen und SLO-Pass/Fail
 
 ### Option 2: Mit Bash Wrapper
 ```bash
@@ -28,7 +55,7 @@ bash e2e-test.sh
 
 Das Script verwendet automatisch:
 ```
-Email:    test@test.de
+Email:    freiburg@smart-village.local
 Password: test1234
 ```
 
@@ -110,9 +137,9 @@ Das ist notwendig weil das Backend mit selbstsigniertem Cert läuft.
 Änderungen in der Config-Section des Scripts:
 ```javascript
 const CONFIG = {
-  API_URL: 'https://localhost:8000',
+   API_URL: 'https://localhost',
   TEST_USER: {
-    email: 'test@test.de',
+      email: 'freiburg@smart-village.local',
     password: 'test1234',
   },
 };

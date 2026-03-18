@@ -23,6 +23,9 @@ describe('AppApiService', () => {
     rideShare: {
       findMany: jest.fn(),
     },
+    villageModule: {
+      findMany: jest.fn(),
+    },
     villageFeatures: {
       findUnique: jest.fn(),
     },
@@ -44,6 +47,10 @@ describe('AppApiService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  beforeEach(() => {
+    mockPrismaService.villageModule.findMany.mockResolvedValue([]);
   });
 
   describe('getVillages', () => {
@@ -112,6 +119,7 @@ describe('AppApiService', () => {
         name: 'Freiburg',
         locationName: '79098 Freiburg',
         postalCode: { zipCode: '79098', city: 'Freiburg im Breisgau' },
+        account: { isPublicAppApiEnabled: true },
         features: {
           enableSensorData: true,
           enableWeather: false,
@@ -174,6 +182,7 @@ describe('AppApiService', () => {
         name: 'Test Village',
         locationName: 'Test',
         postalCode: null,
+        account: { isPublicAppApiEnabled: true },
         features: null,
       };
       mockPrismaService.village.findUnique.mockResolvedValue(mockVillage);
@@ -190,6 +199,7 @@ describe('AppApiService', () => {
     it('should return sensor data when enableSensorData is true', async () => {
       const mockVillage = {
         id: 1,
+        account: { isPublicAppApiEnabled: true },
         features: {
           enableSensorData: true,
           enableMessages: false,
@@ -225,6 +235,7 @@ describe('AppApiService', () => {
     it('should return messages when enableMessages is true', async () => {
       const mockVillage = {
         id: 1,
+        account: { isPublicAppApiEnabled: true },
         features: {
           enableSensorData: false,
           enableMessages: true,
@@ -247,6 +258,7 @@ describe('AppApiService', () => {
     it('should return rideshares when enableRideShare is true', async () => {
       const mockVillage = {
         id: 1,
+        account: { isPublicAppApiEnabled: true },
         features: {
           enableSensorData: false,
           enableMessages: false,
@@ -282,6 +294,7 @@ describe('AppApiService', () => {
     it('should return only villageId when no features are configured', async () => {
       const mockVillage = {
         id: 1,
+        account: { isPublicAppApiEnabled: true },
         features: null,
       };
       mockPrismaService.village.findUnique.mockResolvedValue(mockVillage);

@@ -1,17 +1,7 @@
 import React, { useMemo, useState } from 'react'
-
-const PERPLEXITY_ENDPOINT = import.meta.env?.VITE_PERPLEXITY_ENDPOINT || 'https://api.perplexity.ai/chat/completions'
-const PERPLEXITY_MODEL = import.meta.env?.VITE_PERPLEXITY_MODEL || 'sonar'
-const PERPLEXITY_API_KEY = import.meta.env?.VITE_PERPLEXITY_API_KEY || ''
-
-const PROJECT_KNOWLEDGE = [
-  'Projekt: Smart Village (React Frontend, NestJS Backend, Prisma, MQTT, PostgreSQL).',
-  'Realtime: Browser nutzt MQTT via WebSocket-Pfad /mqtt (Nginx -> Mosquitto).',
-  'Sensor-Semantik: isActive (technisch), receiveData (Datenerfassung), exposeToApp (Sichtbarkeit App/Public).',
-  'Sensoren ohne neue Werte werden nach ca. 60 Sekunden als dataStale markiert.',
-  'Public UI ist feature-flag-basiert: deaktivierte Module werden nicht gezeigt.',
-  'Gemeinde-Status ist als statusText persistiert und in API/App-API verfügbar.',
-].join(' ')
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { apiClient } from '../../api/client'
 
 const LOCALE_MAP = {
   de: 'de-DE',
@@ -29,8 +19,8 @@ const UI_TEXT = {
   de: {
     welcome: 'Hi! Ich helfe bei Fragen zum Projekt, zu Sensoren und zur Konfiguration.',
     title: 'KI-Assistent',
-    connected: 'Perplexity verbunden',
-    pending: 'API folgt in Kürze',
+    connected: 'Lokal verbunden (API-Kontext)',
+    pending: 'Lokaler KI-Dienst nicht erreichbar',
     closeAria: 'Assistent schließen',
     thinking: 'Denke nach...',
     inputPlaceholder: 'Frage stellen oder Daten analysieren lassen...',
@@ -39,8 +29,8 @@ const UI_TEXT = {
     launcherAria: 'KI-Assistent öffnen',
     launcherTitle: 'KI-Assistent',
     launcherText: 'KI Hilfe',
-    fallbackNotConnected: 'Der externe KI-Dienst wird bald angeschlossen.',
-    fallbackLocalKnowledge: 'Bis dahin arbeite ich mit lokalem Projektwissen.',
+    fallbackNotConnected: 'Der lokale KI-Dienst ist aktuell offline.',
+    fallbackLocalKnowledge: 'Ich antworte voruebergehend nur mit lokaler Kontextanalyse.',
     fallbackPrompt: 'Frag mich z. B. nach Sensorstatus, Modulen oder nächsten Schritten.',
     apiUnavailable: (message) => `Der KI-Dienst ist aktuell nicht erreichbar (${message}). Bitte später erneut versuchen.`,
     analyticsTitle: (villageName) => `Kurzanalyse für ${villageName || 'die aktuelle Gemeinde'}:`,
@@ -49,13 +39,13 @@ const UI_TEXT = {
     analyticsStale: (count) => `- Sensoren als inaktiv/veraltet (dataStale): ${count}`,
     analyticsDisabled: (modules) => `- Deaktivierte Module: ${modules}`,
     analyticsAllEnabled: '- Alle bekannten Module sind aktiv.',
-    systemPrompt: (audience) => `Du bist ein Smart-Village-Assistent für ${audience}. Antworte auf Deutsch, kurz, fachlich und mit klaren Schritten. Nutze dieses Projektwissen: ${PROJECT_KNOWLEDGE}`,
+    contextBadge: ({ language, sensors, village }) => `Kontext: ${language} · ${sensors} Sensoren · ${village}`,
   },
   en: {
     welcome: 'Hi! I can help with questions about the project, sensors, and configuration.',
     title: 'AI Assistant',
-    connected: 'Perplexity connected',
-    pending: 'API coming soon',
+    connected: 'Local service connected (API context)',
+    pending: 'Local AI service unavailable',
     closeAria: 'Close assistant',
     thinking: 'Thinking...',
     inputPlaceholder: 'Ask a question or request a data analysis...',
@@ -64,8 +54,8 @@ const UI_TEXT = {
     launcherAria: 'Open AI assistant',
     launcherTitle: 'AI assistant',
     launcherText: 'AI Help',
-    fallbackNotConnected: 'The external AI service will be connected soon.',
-    fallbackLocalKnowledge: 'Until then, I use local project knowledge.',
+    fallbackNotConnected: 'The local AI service is currently offline.',
+    fallbackLocalKnowledge: 'I will temporarily answer using only local context analytics.',
     fallbackPrompt: 'Ask about sensor status, modules, or suggested next steps.',
     apiUnavailable: (message) => `The AI service is currently unavailable (${message}). Please try again later.`,
     analyticsTitle: (villageName) => `Quick analysis for ${villageName || 'the current village'}:`,
@@ -74,13 +64,13 @@ const UI_TEXT = {
     analyticsStale: (count) => `- Stale/inactive sensors (dataStale): ${count}`,
     analyticsDisabled: (modules) => `- Disabled modules: ${modules}`,
     analyticsAllEnabled: '- All known modules are enabled.',
-    systemPrompt: (audience) => `You are a Smart Village assistant for ${audience}. Respond in concise English with clear technical steps. Use this project knowledge: ${PROJECT_KNOWLEDGE}`,
+    contextBadge: ({ language, sensors, village }) => `Context: ${language} · ${sensors} sensors · ${village}`,
   },
   fr: {
     welcome: 'Bonjour! Je peux aider avec des questions sur le projet, les capteurs et la configuration.',
     title: 'Assistant IA',
-    connected: 'Perplexity connecté',
-    pending: 'API bientôt disponible',
+    connected: 'Service local connecté (contexte API)',
+    pending: 'Service IA local indisponible',
     closeAria: "Fermer l'assistant",
     thinking: 'Analyse en cours...',
     inputPlaceholder: 'Posez une question ou demandez une analyse de données...',
@@ -89,8 +79,8 @@ const UI_TEXT = {
     launcherAria: "Ouvrir l'assistant IA",
     launcherTitle: 'Assistant IA',
     launcherText: 'Aide IA',
-    fallbackNotConnected: "Le service IA externe sera connecté bientôt.",
-    fallbackLocalKnowledge: "En attendant, j'utilise les connaissances locales du projet.",
+    fallbackNotConnected: "Le service IA local est actuellement hors ligne.",
+    fallbackLocalKnowledge: "Je reponds temporairement uniquement avec l'analyse de contexte locale.",
     fallbackPrompt: 'Demandez par exemple le statut des capteurs, les modules ou les prochaines étapes.',
     apiUnavailable: (message) => `Le service IA est actuellement indisponible (${message}). Veuillez réessayer plus tard.`,
     analyticsTitle: (villageName) => `Analyse rapide pour ${villageName || 'la commune active'} :`,
@@ -99,7 +89,7 @@ const UI_TEXT = {
     analyticsStale: (count) => `- Capteurs inactifs/obsolètes (dataStale) : ${count}`,
     analyticsDisabled: (modules) => `- Modules désactivés : ${modules}`,
     analyticsAllEnabled: '- Tous les modules connus sont actifs.',
-    systemPrompt: (audience) => `Tu es un assistant Smart Village pour ${audience}. Réponds en français, de façon concise et avec des étapes claires. Utilise ces connaissances du projet : ${PROJECT_KNOWLEDGE}`,
+    contextBadge: ({ language, sensors, village }) => `Contexte : ${language} · ${sensors} capteurs · ${village}`,
   },
 }
 
@@ -123,55 +113,14 @@ function createLocalAnalytics(contextData, text) {
   ].join('\n')
 }
 
-function buildContextSummary(contextData) {
-  if (!contextData) return 'Kein Laufzeitkontext übergeben.'
-  return JSON.stringify(
-    {
-      view: contextData.view || 'unknown',
-      villageName: contextData.villageName || null,
-      sensorCount: Array.isArray(contextData.sensors) ? contextData.sensors.length : 0,
-      modules: contextData.modules || null,
-      statusText: contextData.statusText || null,
-      infoText: contextData.infoText || null,
-    },
-    null,
-    2
-  )
-}
-
-async function askPerplexity({ question, contextData, audience, text }) {
-  const response = await fetch(PERPLEXITY_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: PERPLEXITY_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: text.systemPrompt(audience),
-        },
-        {
-          role: 'system',
-          content: `Aktueller Laufzeitkontext:\n${buildContextSummary(contextData)}`,
-        },
-        {
-          role: 'user',
-          content: question,
-        },
-      ],
-      temperature: 0.2,
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`API-Fehler ${response.status}`)
+async function askLocalAssistant({ question, contextData, audience }) {
+  if (audience === 'admin') {
+    const result = await apiClient.assistant.askAdmin(question, contextData)
+    return result?.answer || 'Keine Antwort vom lokalen KI-Dienst.'
   }
 
-  const payload = await response.json()
-  return payload?.choices?.[0]?.message?.content?.trim() || 'Keine Antwort vom KI-Dienst.'
+  const result = await apiClient.assistant.askPublic(question, contextData)
+  return result?.answer || 'Keine Antwort vom lokalen KI-Dienst.'
 }
 
 export default function AiAssistantWidget({
@@ -183,9 +132,28 @@ export default function AiAssistantWidget({
 }) {
   const normalizedLocale = LOCALE_MAP[locale] ? locale : 'de'
   const text = UI_TEXT[normalizedLocale]
+  const normalizedContextLocale = LOCALE_MAP[contextData?.locale] ? contextData.locale : normalizedLocale
+  const contextLanguage = LANGUAGE_LABEL[normalizedContextLocale] || LANGUAGE_LABEL[normalizedLocale]
+
+  const requestContextData = useMemo(
+    () => ({
+      ...(contextData || {}),
+      locale: normalizedContextLocale,
+      language: contextLanguage,
+    }),
+    [contextData, normalizedContextLocale, contextLanguage]
+  )
+
+  const contextBadgeText = useMemo(() => {
+    const sensorCount = Array.isArray(requestContextData?.sensors) ? requestContextData.sensors.length : 0
+    const village = requestContextData?.villageName || '-'
+    return text.contextBadge({ language: contextLanguage, sensors: sensorCount, village })
+  }, [requestContextData, text, contextLanguage])
+
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [serviceOnline, setServiceOnline] = useState(true)
   const [messages, setMessages] = useState([
     {
       id: 'welcome',
@@ -194,7 +162,7 @@ export default function AiAssistantWidget({
     },
   ])
 
-  const apiConnected = useMemo(() => Boolean(PERPLEXITY_API_KEY), [])
+  const apiConnected = useMemo(() => serviceOnline, [serviceOnline])
   const isCompactLauncher = launcherVariant === 'compact'
 
   React.useEffect(() => {
@@ -222,29 +190,12 @@ export default function AiAssistantWidget({
 
     const isAnalysisRequest = /analyse|analysis|auswertung|donnees|données|data|daten|stale|obsolet|capteur|sensor/i.test(question)
 
-    if (!apiConnected) {
-      const fallbackText = [
-        text.fallbackNotConnected,
-        text.fallbackLocalKnowledge,
-        isAnalysisRequest ? createLocalAnalytics(contextData, text) : text.fallbackPrompt,
-      ].join('\n\n')
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          text: fallbackText,
-        },
-      ])
-      return
-    }
-
     setIsLoading(true)
     try {
-      const answer = await askPerplexity({ question, contextData, audience, text })
+      const answer = await askLocalAssistant({ question, contextData: requestContextData, audience })
+      setServiceOnline(true)
       const enrichedAnswer = isAnalysisRequest
-        ? `${createLocalAnalytics(contextData, text)}\n\n${answer}`
+        ? `${createLocalAnalytics(requestContextData, text)}\n\n${answer}`
         : answer
 
       setMessages((prev) => [
@@ -256,12 +207,20 @@ export default function AiAssistantWidget({
         },
       ])
     } catch (error) {
+      setServiceOnline(false)
+      const fallbackText = [
+        text.fallbackNotConnected,
+        text.fallbackLocalKnowledge,
+        isAnalysisRequest ? createLocalAnalytics(requestContextData, text) : text.fallbackPrompt,
+        text.apiUnavailable(error.message),
+      ].join('\n\n')
+
       setMessages((prev) => [
         ...prev,
         {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          text: text.apiUnavailable(error.message),
+          text: fallbackText,
         },
       ])
     } finally {
@@ -277,6 +236,7 @@ export default function AiAssistantWidget({
             <div>
               <h3>{text.title}</h3>
               <p>{apiConnected ? text.connected : text.pending}</p>
+              <p className="ai-assistant-context-badge">{contextBadgeText}</p>
             </div>
             <button
               type="button"
@@ -291,12 +251,12 @@ export default function AiAssistantWidget({
           <div className="ai-assistant-messages" role="log" aria-live="polite">
             {messages.map((message) => (
               <article key={message.id} className={`ai-bubble ai-bubble--${message.role}`}>
-                <p>{message.text}</p>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
               </article>
             ))}
             {isLoading ? (
               <article className="ai-bubble ai-bubble--assistant">
-                <p>{text.thinking}</p>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{text.thinking}</ReactMarkdown>
               </article>
             ) : null}
           </div>

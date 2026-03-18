@@ -71,12 +71,12 @@ describe('marker building and positioning', () => {
     }
     const selection = { controllers: new Set(), sensors: new Set([mitfahrbank.id]) }
     const markers = buildMarkers({ sensors: [mitfahrbank], devices: baseDevices, selection })
-    expect(markers[0].color).toBe('#c62828')
+    expect(markers[0].color).toBe('#d90429')
 
     const lowColor = deriveMarkerColor({ lastValue: 1, kind: 'sensor' }, { min: 0, max: 30 })
     const midColor = deriveMarkerColor({ lastValue: 15, kind: 'sensor' }, { min: 0, max: 30 })
     const highColor = deriveMarkerColor({ lastValue: 28, kind: 'sensor' }, { min: 0, max: 30 })
-    expect([lowColor, midColor, highColor]).toEqual(['#42a5f5', '#ffb300', '#ef5350'])
+    expect([lowColor, midColor, highColor]).toEqual(['#0077ff', '#ff9f1a', '#d90429'])
   })
 
   it('projects coordinates to stable map points', () => {

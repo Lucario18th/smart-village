@@ -63,6 +63,7 @@ export const apiClient = {
         if (error.code) {
           enrichedError.code = error.code;
         }
+        enrichedError.details = error;
         throw enrichedError;
       }
 
@@ -92,6 +93,9 @@ export const apiClient = {
     },
     login(email, password) {
       return apiClient.request('POST', '/auth/login', { email, password });
+    },
+    logout() {
+      return apiClient.request('POST', '/auth/logout');
     },
     verifyCode(email, code) {
       return apiClient.request('POST', '/auth/verify-code', { email, code });
@@ -252,6 +256,15 @@ export const apiClient = {
     },
     getVillageModules(villageId) {
       return apiClient.request('GET', `/app/villages/${villageId}/modules`);
+    },
+  },
+
+  assistant: {
+    askPublic(question, contextData = null) {
+      return apiClient.request('POST', '/assistant/public/ask', { question, contextData });
+    },
+    askAdmin(question, contextData = null) {
+      return apiClient.request('POST', '/assistant/admin/ask', { question, contextData });
     },
   },
 
