@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -170,6 +173,39 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
+                    if (state.village?.statusText != null || state.village?.infoText != null) {
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 12.dp
+                                    ),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = state.village?.statusText ?: "Status",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = state.village?.infoText ?: "",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+                        }
+                    }
                     if (state.messages.isNotEmpty()) {
                         item {
                             Text(
@@ -177,7 +213,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(
                                     start = 16.dp,
-                                    top = 4.dp,
+                                    top = 12.dp,
                                     bottom = 8.dp
                                 )
                             )
@@ -188,8 +224,8 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
                             ) {
-                                Column {
-                                    state.messages.forEachIndexed { index, message ->
+                                LazyColumn {
+                                    itemsIndexed(state.messages) { index, message ->
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()

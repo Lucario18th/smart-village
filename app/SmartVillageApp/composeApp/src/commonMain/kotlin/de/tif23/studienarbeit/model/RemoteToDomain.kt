@@ -104,7 +104,9 @@ fun RemoteVillageConfig.toDomain(): VillageConfig {
             description = this.sensorDetailVisibility.description,
             coordinates = this.sensorDetailVisibility.coordinates
         ),
-        sensors = this.sensors.map { it.toDomain() }
+        sensors = this.sensors.map { it.toDomain() },
+        statusText = this.statusText,
+        infoText = this.infoText
     )
 }
 
