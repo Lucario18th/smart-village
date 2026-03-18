@@ -294,15 +294,19 @@ export default function AdminView({ session, onLogout }) {
               <p className="storage-status">
                 Status: {storageMessage || '—'} {hasUnsavedChanges ? '· Ungespeicherte Änderungen vorhanden' : ''}
               </p>
-
-              <footer className="app-footer">
-                Smart Village Admin · Letzte Änderung:{' '}
-                {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
-              </footer>
             </>
           ) : null}
         </section>
       </div>
+
+      <footer className="app-footer app-page-footer">
+        Smart Village Admin · Letzte Änderung:{' '}
+        {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
+        <br />
+        <span className="app-footer-copy">
+          © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach
+        </span>
+      </footer>
 
       <DeleteAccountDialog
         accountEmail={userEmail}

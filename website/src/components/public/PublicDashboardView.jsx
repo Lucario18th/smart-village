@@ -1066,13 +1066,16 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
           {renderTabContent()}
 
-          {activeSection.id !== 'map' ? (
-            <footer className="app-footer public-user-footer">
-              {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
-            </footer>
-          ) : null}
         </section>
       </div>
+
+      <footer className="app-footer app-page-footer public-user-footer">
+        {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
+        <br />
+        <span className="app-footer-copy">
+          © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach
+        </span>
+      </footer>
     </main>
   )
 }
