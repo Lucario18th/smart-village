@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from 'react'
 import mqtt from 'mqtt'
+import CoordinatePicker from './forms/CoordinatePicker'
 
 const FALLBACK_SENSOR_TYPES = [
   { id: 1, name: 'temperature' },
@@ -370,6 +371,28 @@ function SimulationSwitch({ checked, onChange, label }) {
   )
 }
 
+function CoordinateModal({ isOpen, latitude, longitude, onPick, onClose }) {
+  if (!isOpen) {
+    return null
+  }
+
+  return (
+    <div className="sim-lab-modal-overlay" onClick={onClose}>
+      <div className="sim-lab-modal-card" onClick={(event) => event.stopPropagation()}>
+        <header className="sim-lab-modal-header">
+          <h3>Koordinaten auswählen</h3>
+          <button type="button" className="sim-lab-modal-close" onClick={onClose}>
+            X
+          </button>
+        </header>
+        <div className="sim-lab-modal-map-container">
+          <CoordinatePicker latitude={latitude} longitude={longitude} onChange={onPick} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminSimulationLab({
   isOpen,
   onClose,
@@ -394,6 +417,9 @@ export default function AdminSimulationLab({
   const [mqttConnected, setMqttConnected] = useState(false)
   const [mqttError, setMqttError] = useState('')
   const [backendConfirmations, setBackendConfirmations] = useState({})
+  const [isGatewayFormOpen, setIsGatewayFormOpen] = useState(true)
+  const [isSensorFormOpen, setIsSensorFormOpen] = useState(true)
+  const [coordinateModalTarget, setCoordinateModalTarget] = useState(null)
 
   const resolvedSensorTypes = useMemo(() => {
     if (Array.isArray(sensorTypes) && sensorTypes.length > 0) {
@@ -510,6 +536,9 @@ export default function AdminSimulationLab({
     })
     setEditingGatewayId(null)
     setEditingSensorId(null)
+    setIsGatewayFormOpen(true)
+    setIsSensorFormOpen(true)
+    setCoordinateModalTarget(null)
     lastPublishedRef.current = new Map()
     publishMetaRef.current = new Map()
     setBackendConfirmations({})
@@ -599,7 +628,7 @@ export default function AdminSimulationLab({
                   status: 'confirmed',
                   latest,
                   latencyMs: Math.max(0, Date.now() - publishedMeta.publishedAtMs),
-                  message: 'Backend-Bestaetigung erhalten',
+                  message: 'Backend-Bestätigung erhalten',
                 },
               ]
             }
@@ -844,10 +873,12 @@ export default function AdminSimulationLab({
 
     setGatewayForm(EMPTY_GATEWAY_FORM)
     setEditingGatewayId(null)
+    setIsGatewayFormOpen(true)
   }
 
   const editGateway = (gateway) => {
     setEditingGatewayId(gateway.id)
+    setIsGatewayFormOpen(true)
     setGatewayForm({
       name: gateway.name,
       code: gateway.code || '',
@@ -926,10 +957,12 @@ export default function AdminSimulationLab({
       sensorTypeId: String(resolvedSensorTypes[0]?.id ?? 1),
     })
     setEditingSensorId(null)
+    setIsSensorFormOpen(true)
   }
 
   const editSensor = (sensor) => {
     setEditingSensorId(sensor.id)
+    setIsSensorFormOpen(true)
     setSensorForm({
       gatewayId: sensor.gatewayId || '',
       name: sensor.name,
@@ -991,7 +1024,7 @@ export default function AdminSimulationLab({
             </p>
           </div>
           <button type="button" className="sim-lab-close" onClick={onClose}>
-            Schliessen
+            Schließen
           </button>
         </header>
 
@@ -1064,6 +1097,11 @@ export default function AdminSimulationLab({
           <span className={`sim-lab-mqtt-status ${mqttConnected ? 'is-online' : 'is-offline'}`}>
             MQTT: {mqttConnected ? 'verbunden' : 'getrennt'}
           </span>
+          <div className="sim-lab-stats sim-lab-stats--inline">
+            <span>{simState.gateways.length} Gateways</span>
+            <span>{simState.sensors.length} Sensoren</span>
+            <span>{simState.sensors.filter((sensor) => sensor.enabled).length} aktiv</span>
+          </div>
           {mqttError ? <span className="sim-lab-mqtt-error">{mqttError}</span> : null}
         </div>
 
@@ -1164,16 +1202,18 @@ export default function AdminSimulationLab({
           </label>
         </div>
 
-        <div className="sim-lab-stats">
-          <span>{simState.gateways.length} Gateways</span>
-          <span>{simState.sensors.length} Sensoren</span>
-          <span>{simState.sensors.filter((sensor) => sensor.enabled).length} aktiv</span>
-        </div>
-
         <div className="sim-lab-grid">
           <section className="sim-lab-panel">
-            <h3>{editingGatewayId ? 'Gateway bearbeiten' : 'Gateway anlegen'}</h3>
-            <form className="sim-lab-form" onSubmit={saveGateway}>
+            <button
+              type="button"
+              className="sim-lab-panel-toggle"
+              onClick={() => setIsGatewayFormOpen((prev) => !prev)}
+              aria-expanded={isGatewayFormOpen}
+            >
+              <span className="sim-lab-panel-toggle-icon">{isGatewayFormOpen ? 'v' : '>'}</span>
+              <h3>{editingGatewayId ? 'Gateway bearbeiten' : 'Gateway anlegen'}</h3>
+            </button>
+            {isGatewayFormOpen ? <form className="sim-lab-form" onSubmit={saveGateway}>
               <label>
                 Name
                 <input
@@ -1204,7 +1244,7 @@ export default function AdminSimulationLab({
                   />
                 </label>
                 <label>
-                  Laengengrad
+                  Längengrad
                   <input
                     type="number"
                     step="0.000001"
@@ -1213,6 +1253,13 @@ export default function AdminSimulationLab({
                   />
                 </label>
               </div>
+              <button
+                type="button"
+                className="sim-lab-action sim-lab-map-button"
+                onClick={() => setCoordinateModalTarget('gateway')}
+              >
+                Karte öffnen
+              </button>
               <div className="sim-lab-toggle-wrap sim-lab-inline-toggle">
                 <span>Gateway aktiv</span>
                 <SimulationSwitch
@@ -1223,7 +1270,7 @@ export default function AdminSimulationLab({
               </div>
               <div className="sim-lab-form-actions">
                 <button type="submit" className="sim-lab-action sim-lab-action--primary">
-                  {editingGatewayId ? 'Gateway speichern' : 'Gateway hinzufuegen'}
+                  {editingGatewayId ? 'Gateway speichern' : 'Gateway hinzufügen'}
                 </button>
                 {editingGatewayId ? (
                   <button
@@ -1238,7 +1285,7 @@ export default function AdminSimulationLab({
                   </button>
                 ) : null}
               </div>
-            </form>
+            </form> : null}
 
             <ul className="sim-lab-list">
               {simState.gateways.map((gateway) => (
@@ -1261,7 +1308,7 @@ export default function AdminSimulationLab({
                         Bearbeiten
                       </button>
                       <button type="button" className="sim-lab-link sim-lab-link--danger" onClick={() => deleteGateway(gateway.id)}>
-                        Loeschen
+                        Löschen
                       </button>
                     </div>
                   </article>
@@ -1272,8 +1319,16 @@ export default function AdminSimulationLab({
           </section>
 
           <section className="sim-lab-panel">
-            <h3>{editingSensorId ? 'Sensor bearbeiten' : 'Sensor anlegen'}</h3>
-            <form className="sim-lab-form" onSubmit={saveSensor}>
+            <button
+              type="button"
+              className="sim-lab-panel-toggle"
+              onClick={() => setIsSensorFormOpen((prev) => !prev)}
+              aria-expanded={isSensorFormOpen}
+            >
+              <span className="sim-lab-panel-toggle-icon">{isSensorFormOpen ? 'v' : '>'}</span>
+              <h3>{editingSensorId ? 'Sensor bearbeiten' : 'Sensor anlegen'}</h3>
+            </button>
+            {isSensorFormOpen ? <form className="sim-lab-form" onSubmit={saveSensor}>
               <label>
                 Sensorname
                 <input
@@ -1347,7 +1402,7 @@ export default function AdminSimulationLab({
                   />
                 </label>
                 <label>
-                  Laengengrad
+                  Längengrad
                   <input
                     type="number"
                     step="0.000001"
@@ -1356,6 +1411,13 @@ export default function AdminSimulationLab({
                   />
                 </label>
               </div>
+              <button
+                type="button"
+                className="sim-lab-action sim-lab-map-button"
+                onClick={() => setCoordinateModalTarget('sensor')}
+              >
+                Karte öffnen
+              </button>
               <div className="sim-lab-toggle-wrap sim-lab-inline-toggle">
                 <span>Sensor aktiv</span>
                 <SimulationSwitch
@@ -1366,7 +1428,7 @@ export default function AdminSimulationLab({
               </div>
               <div className="sim-lab-form-actions">
                 <button type="submit" className="sim-lab-action sim-lab-action--primary">
-                  {editingSensorId ? 'Sensor speichern' : 'Sensor hinzufuegen'}
+                  {editingSensorId ? 'Sensor speichern' : 'Sensor hinzufügen'}
                 </button>
                 {editingSensorId ? (
                   <button
@@ -1384,7 +1446,7 @@ export default function AdminSimulationLab({
                   </button>
                 ) : null}
               </div>
-            </form>
+            </form> : null}
 
             <ul className="sim-lab-list">
               {simState.sensors.map((sensor) => (
@@ -1409,9 +1471,9 @@ export default function AdminSimulationLab({
                         className={`sim-lab-verify-status sim-lab-verify-status--${backendConfirmations[sensor.id]?.status || 'idle'}`}
                       >
                         {backendConfirmations[sensor.id]?.status === 'confirmed'
-                          ? `Backend: bestaetigt (${backendConfirmations[sensor.id]?.latencyMs} ms)`
+                          ? `Backend: bestätigt (${backendConfirmations[sensor.id]?.latencyMs} ms)`
                           : backendConfirmations[sensor.id]?.status === 'pending'
-                          ? 'Backend: warte auf Bestaetigung'
+                          ? 'Backend: warte auf Bestätigung'
                           : backendConfirmations[sensor.id]?.status === 'waiting'
                           ? 'Backend: noch keine Daten'
                           : backendConfirmations[sensor.id]?.status === 'error'
@@ -1429,7 +1491,7 @@ export default function AdminSimulationLab({
                         Bearbeiten
                       </button>
                       <button type="button" className="sim-lab-link sim-lab-link--danger" onClick={() => deleteSensor(sensor.id)}>
-                        Loeschen
+                        Löschen
                       </button>
                     </div>
                   </article>
@@ -1439,6 +1501,20 @@ export default function AdminSimulationLab({
             </ul>
           </section>
         </div>
+
+        <CoordinateModal
+          isOpen={coordinateModalTarget === 'gateway' || coordinateModalTarget === 'sensor'}
+          latitude={coordinateModalTarget === 'gateway' ? gatewayForm.latitude : sensorForm.latitude}
+          longitude={coordinateModalTarget === 'gateway' ? gatewayForm.longitude : sensorForm.longitude}
+          onPick={(lat, lng) => {
+            if (coordinateModalTarget === 'gateway') {
+              setGatewayForm((prev) => ({ ...prev, latitude: lat.toFixed(6), longitude: lng.toFixed(6) }))
+              return
+            }
+            setSensorForm((prev) => ({ ...prev, latitude: lat.toFixed(6), longitude: lng.toFixed(6) }))
+          }}
+          onClose={() => setCoordinateModalTarget(null)}
+        />
       </section>
     </div>
   )

@@ -331,14 +331,14 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .admin-main-content:not(.is-map-home) .app-footer{margin-top:auto;padding-top:16px}
 
 .sim-lab-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb, #000 55%, transparent)}
-.sim-lab-card{width:min(1280px,100%);max-height:92dvh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:14px;padding:20px;border-radius:16px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);box-shadow:0 20px 40px color-mix(in srgb, var(--md-sys-color-shadow) 45%, transparent)}
+.sim-lab-card{width:min(1320px,100%);max-height:94dvh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:16px;padding:24px;border-radius:16px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);box-shadow:0 20px 40px color-mix(in srgb, var(--md-sys-color-shadow) 45%, transparent)}
 .sim-lab-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .sim-lab-kicker{margin:0 0 4px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--md-sys-color-primary)}
 .sim-lab-header h2{margin:0;color:var(--md-sys-color-primary);font-size:28px;line-height:1.1}
 .sim-lab-header p{margin:5px 0 0;color:var(--md-sys-color-on-surface-variant);font-size:13px}
 .sim-lab-close{padding:8px 12px;border-radius:9px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 54%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
 .sim-lab-close:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
-.sim-lab-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sim-lab-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0}
 .sim-lab-toggle-wrap{display:inline-flex;align-items:center;gap:10px;padding:7px 12px;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 34%, transparent);font-size:13px;font-weight:700}
 .sim-lab-inline-toggle{width:fit-content}
 .sim-lab-mqtt-status-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -346,7 +346,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .sim-lab-mqtt-status.is-online{background:color-mix(in srgb, #2e7d32 28%, transparent);color:#1b5e20}
 .sim-lab-mqtt-status.is-offline{background:color-mix(in srgb, #c62828 24%, transparent);color:#8e0000}
 .sim-lab-mqtt-error{font-size:12px;color:var(--md-sys-color-error)}
-.sim-lab-config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.sim-lab-config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
 .sim-lab-config-grid label{display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--md-sys-color-on-surface)}
 .sim-lab-config-grid input,.sim-lab-config-grid select{width:100%;padding:8px 9px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 52%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
 .sim-lab-action{padding:8px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
@@ -355,13 +355,20 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .sim-lab-action--primary:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);border-color:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000)}
 .sim-lab-stats{display:flex;gap:8px;flex-wrap:wrap}
 .sim-lab-stats span{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 70%, transparent);color:var(--md-sys-color-on-primary-container);font-size:12px;font-weight:700}
-.sim-lab-grid{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sim-lab-stats--inline{gap:6px}
+.sim-lab-stats--inline span{padding:5px 9px}
+.sim-lab-grid{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .sim-lab-panel{min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;padding:12px;border-radius:12px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent)}
 .sim-lab-panel h3{margin:0;color:var(--md-sys-color-primary)}
+.sim-lab-panel-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:4px 0;border:none;background:transparent;color:var(--md-sys-color-primary);cursor:pointer;text-align:left}
+.sim-lab-panel-toggle h3{margin:0;line-height:1.2}
+.sim-lab-panel-toggle-icon{font-size:14px;color:var(--md-sys-color-on-surface-variant)}
 .sim-lab-form{display:grid;gap:8px}
 .sim-lab-form label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface)}
 .sim-lab-form input,.sim-lab-form select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 55%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
 .sim-lab-coords{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sim-lab-coords-wrapper{display:grid;gap:8px}
+.sim-lab-map-button{justify-self:flex-start}
 .sim-lab-form-actions{display:flex;gap:8px;flex-wrap:wrap}
 .sim-lab-list{list-style:none;padding:0;margin:0;display:grid;gap:8px;overflow:auto}
 .sim-lab-item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 34%, transparent);background:var(--md-sys-color-surface)}
@@ -375,6 +382,18 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .sim-lab-link{padding:0;border:none;background:transparent;color:var(--md-sys-color-primary);font:inherit;font-weight:700;cursor:pointer}
 .sim-lab-link--danger{color:var(--md-sys-color-error)}
 .sim-lab-empty{padding:10px;border-radius:8px;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface-variant);font-size:13px}
+
+.sim-lab-modal-overlay{position:fixed;inset:0;z-index:560;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb, #000 60%, transparent)}
+.sim-lab-modal-card{width:min(760px,100%);max-height:90dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;padding:16px;border-radius:14px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent);box-shadow:0 16px 36px color-mix(in srgb, var(--md-sys-color-shadow) 40%, transparent)}
+.sim-lab-modal-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sim-lab-modal-header h3{margin:0;color:var(--md-sys-color-primary)}
+.sim-lab-modal-close{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 50%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
+.sim-lab-modal-map-container{display:grid;gap:8px;min-height:0}
+.sim-lab-coordinate-map{height:48dvh;min-height:280px;border-radius:10px;overflow:hidden;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent)}
+.sim-lab-map-hint{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
+.sim-lab-modal-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sim-lab-coord-display{margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
+.sim-lab-modal-actions{display:flex;gap:8px;flex-wrap:wrap}
 
 @media (min-width: 901px){
 	.admin-page{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}

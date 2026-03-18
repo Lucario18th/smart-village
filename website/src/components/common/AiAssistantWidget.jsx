@@ -30,7 +30,7 @@ const UI_TEXT = {
     launcherTitle: 'KI-Assistent',
     launcherText: 'KI Hilfe',
     fallbackNotConnected: 'Der lokale KI-Dienst ist aktuell offline.',
-    fallbackLocalKnowledge: 'Ich antworte voruebergehend nur mit lokaler Kontextanalyse.',
+    fallbackLocalKnowledge: 'Ich antworte vorübergehend nur mit lokaler Kontextanalyse.',
     fallbackPrompt: 'Frag mich z. B. nach Sensorstatus, Modulen oder nächsten Schritten.',
     apiUnavailable: (message) => `Der KI-Dienst ist aktuell nicht erreichbar (${message}). Bitte später erneut versuchen.`,
     analyticsTitle: (villageName) => `Kurzanalyse für ${villageName || 'die aktuelle Gemeinde'}:`,

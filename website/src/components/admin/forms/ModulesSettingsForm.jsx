@@ -272,7 +272,7 @@ export default function ModulesSettingsForm({
     {
       id: 'userAssistantAi',
       title: 'KI-Hilfe (User)',
-      description: 'Lokalen KI-Assistenten fuer die User-Seite ein- oder ausschalten',
+      description: 'Lokalen KI-Assistenten für die User-Seite ein- oder ausschalten',
       placement: 'Header der User-Seite',
       category: 'Service',
     },

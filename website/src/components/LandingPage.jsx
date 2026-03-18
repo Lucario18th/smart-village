@@ -73,39 +73,39 @@ const PROJECT_SHOWCASE_SLIDES = [
     title: 'Sensor-Setup im Feld',
     category: 'Praxis',
     image: '/project-gallery/sensor-setup.svg',
-    alt: 'Illustration eines Sensor-Setups vor Ort mit Team und Messgeraeten',
+    alt: 'Illustration eines Sensor-Setups vor Ort mit Team und Messgeräten',
     description:
-      'Vorfuehrung, wie Gateways und Sensoren vor Ort montiert, verbunden und in der Admin-Oberflaeche sichtbar gemacht werden.',
-    highlights: ['Gateway registrieren', 'Sensorposition pruefen', 'Erste Live-Messung bestaetigen'],
+      'Vorführung, wie Gateways und Sensoren vor Ort montiert, verbunden und in der Admin-Oberfläche sichtbar gemacht werden.',
+    highlights: ['Gateway registrieren', 'Sensorposition prüfen', 'Erste Live-Messung bestätigen'],
   },
   {
     id: 'admin-configuration',
     title: 'Admin-Konfiguration live',
     category: 'Software',
     image: '/project-gallery/admin-workflow.svg',
-    alt: 'Illustration einer Admin-Oberflaeche mit Modulen und Kartenansicht',
+    alt: 'Illustration einer Admin-Oberfläche mit Modulen und Kartenansicht',
     description:
-      'Schritt-fuer-Schritt Konfiguration von Modulen, Sensorfeldern und Gemeinde-Features direkt im Dashboard.',
-    highlights: ['Module ein-/ausschalten', 'Sichtbarkeit fuer User steuern', 'Aenderungen sofort deployen'],
+      'Schritt-für-Schritt Konfiguration von Modulen, Sensorfeldern und Gemeinde-Features direkt im Dashboard.',
+    highlights: ['Module ein-/ausschalten', 'Sichtbarkeit für User steuern', 'Änderungen sofort deployen'],
   },
   {
     id: 'mqtt-demo',
     title: 'MQTT-Datenfluss',
     category: 'Infrastruktur',
     image: '/project-gallery/mqtt-pipeline.svg',
-    alt: 'Illustration eines Datenflusses von Sensoren ueber MQTT ins Backend',
+    alt: 'Illustration eines Datenflusses von Sensoren über MQTT ins Backend',
     description:
-      'Demonstration der Datenpipeline von echten Sensorwerten ueber Broker und Backend bis in die App-Ansichten.',
-    highlights: ['Topic-Publish ueber Mosquitto', 'Backend-Ingestion pruefen', 'Latenz in der UI verfolgen'],
+      'Demonstration der Datenpipeline von echten Sensorwerten über Broker und Backend bis in die App-Ansichten.',
+    highlights: ['Topic-Publish über Mosquitto', 'Backend-Ingestion prüfen', 'Latenz in der UI verfolgen'],
   },
   {
     id: 'community-demo',
-    title: 'Buergernahe Vorfuehrungen',
+    title: 'Bürgernahe Vorführungen',
     category: 'Community',
     image: '/project-gallery/community-demo.svg',
-    alt: 'Illustration einer Projektvorfuehrung mit Gemeinde und Team',
+    alt: 'Illustration einer Projektvorführung mit Gemeinde und Team',
     description:
-      'Vor-Ort Sessions mit Gemeinde und Interessierten: Sensorik erklaeren, Daten nutzen und Funktionen ausprobieren.',
+      'Vor-Ort Sessions mit Gemeinde und Interessierten: Sensorik erklären, Daten nutzen und Funktionen ausprobieren.',
     highlights: ['User-Seite live zeigen', 'Use Cases sammeln', 'Feedback direkt aufnehmen'],
   },
 ]
@@ -204,15 +204,15 @@ export default function LandingPage() {
 
       <section
         className="landing-carousel"
-        aria-label="Projektgalerie und Vorfuehrungen"
+        aria-label="Projektgalerie und Vorführungen"
         onMouseEnter={() => setIsCarouselPaused(true)}
         onMouseLeave={() => setIsCarouselPaused(false)}
       >
         <header className="landing-carousel-header">
           <p className="landing-kicker">Projektgalerie</p>
-          <h2>Echte Einblicke in Sensorik und Vorfuehrungen</h2>
+          <h2>Echte Einblicke in Sensorik und Vorführungen</h2>
           <p>
-            Hier koennt ihr vollstaendig eure echten Projektbilder einpflegen. Ersetzt dafuer einfach die Dateien unter
+            Hier könnt ihr vollständig eure echten Projektbilder einpflegen. Ersetzt dafür einfach die Dateien unter
             <strong> /public/project-gallery</strong> und passt bei Bedarf die Texte in dieser Komponente an.
           </p>
         </header>
