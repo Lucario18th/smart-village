@@ -32,8 +32,8 @@ services:
         condition: service_healthy
       mailhog:
         condition: service_started
-      ollama:
-        condition: service_started
+      # ollama:
+      #   condition: service_started
     env_file:
       - ./smartvillage.env
     ports:
