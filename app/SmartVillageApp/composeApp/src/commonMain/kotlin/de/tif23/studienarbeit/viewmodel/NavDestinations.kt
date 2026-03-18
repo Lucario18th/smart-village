@@ -27,7 +27,9 @@ object NavDestinations {
     data object SettingsScreen : NavKey
 
     @Serializable
-    data object NotificationsScreen : NavKey
+    data class MessagesScreen(
+        val villageId: Int
+    ) : NavKey
 
     @Serializable
     data class RideDetailsScreen(val rideId: String) : NavKey

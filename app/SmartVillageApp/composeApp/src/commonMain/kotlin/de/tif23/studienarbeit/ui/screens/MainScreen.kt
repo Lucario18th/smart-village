@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -116,7 +117,11 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
             Scaffold(
                 containerColor = Color.Transparent,
                 topBar = {
-                    TopBar(villageName = state.village?.village?.name!!)
+                    TopBar(
+                        backStack = backStack,
+                        villageId = state.village?.village?.id!!,
+                        villageName = state.village?.village?.name!!
+                    )
                 },
                 bottomBar = {
                     NavBar(backStack, NavBarTabs.MAIN)
@@ -310,7 +315,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(villageName: String) {
+private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName: String) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -323,11 +328,13 @@ private fun TopBar(villageName: String) {
             }
         },
         actions = {
-            Icon(
-                painter = painterResource(Res.drawable.notifications),
-                contentDescription = "Benachrichtigungen",
-                modifier = Modifier.padding(end = 12.dp)
-            )
+            IconButton(onClick = { backStack.add(NavDestinations.MessagesScreen(villageId)) }) {
+                Icon(
+                    painter = painterResource(Res.drawable.notifications),
+                    contentDescription = "Benachrichtigungen",
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+            }
             Icon(
                 painter = painterResource(Res.drawable.account_circle),
                 contentDescription = "Profil",
