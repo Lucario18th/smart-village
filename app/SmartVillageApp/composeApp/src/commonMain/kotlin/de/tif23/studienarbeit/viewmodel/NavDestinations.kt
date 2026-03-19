@@ -21,7 +21,7 @@ object NavDestinations {
     data class SensorDetailScreen(val sensorId: Int) : NavKey
 
     @Serializable
-    data object PinboardScreen : NavKey
+    data object ModulesScreen : NavKey
 
     @Serializable
     data object SettingsScreen : NavKey

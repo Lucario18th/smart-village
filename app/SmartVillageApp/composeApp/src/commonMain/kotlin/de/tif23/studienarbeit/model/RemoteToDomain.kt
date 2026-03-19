@@ -1,6 +1,7 @@
 package de.tif23.studienarbeit.model
 
 import de.tif23.studienarbeit.model.data.RemoteMessage
+import de.tif23.studienarbeit.model.data.RemoteModule
 import de.tif23.studienarbeit.model.data.RemoteRidesharePoint
 import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorData
@@ -10,6 +11,7 @@ import de.tif23.studienarbeit.model.data.responses.TimeTableChange
 import de.tif23.studienarbeit.model.data.responses.TimeTableEntry
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
+import de.tif23.studienarbeit.viewmodel.data.Module
 import de.tif23.studienarbeit.viewmodel.data.RidesharePoint
 import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
@@ -192,5 +194,15 @@ fun TimeTableEntry.toDomain(
             "SWE" -> TrainType.S
             else -> TrainType.LONG_DISTANCE
         },
+    )
+}
+
+fun RemoteModule.toDomain(remoteSensors: List<RemoteSensorData>): Module {
+    return Module(
+        id = this.id,
+        name = this.name,
+        description = this.description,
+        iconKey = this.iconKey,
+        sensors = remoteSensors.map { it.toDomain() }
     )
 }

@@ -12,7 +12,7 @@ import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.commute
 import smartvillageapp.composeapp.generated.resources.home
-import smartvillageapp.composeapp.generated.resources.pinboard
+import smartvillageapp.composeapp.generated.resources.modules
 import smartvillageapp.composeapp.generated.resources.settings
 import smartvillageapp.composeapp.generated.resources.thermometer
 
@@ -40,12 +40,12 @@ fun NavBar(backStack: NavBackStack<NavKey>, currentTab: NavBarTabs) {
             },
         )
         NavigationBarItem(
-            selected = currentTab == NavBarTabs.PINBOARD,
-            onClick = { },
+            selected = currentTab == NavBarTabs.MODULES,
+            onClick = { backStack.add(NavDestinations.ModulesScreen) },
             icon = {
                 Icon(
-                    painterResource(Res.drawable.pinboard),
-                    contentDescription = "Pinboard"
+                    painterResource(Res.drawable.modules),
+                    contentDescription = "Module"
                 )
             },
         )

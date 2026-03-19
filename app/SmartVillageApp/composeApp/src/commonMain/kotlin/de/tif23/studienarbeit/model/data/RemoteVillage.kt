@@ -22,7 +22,8 @@ data class RemoteVillageFeatures(
     val events: Boolean,
     val map: Boolean,
     val rideShare: Boolean,
-    val textileContainers: Boolean
+    val textileContainers: Boolean,
+    val userAssistant: Boolean
 )
 
 @Serializable

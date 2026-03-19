@@ -15,6 +15,7 @@ import de.tif23.studienarbeit.ui.screens.MainScreen
 import de.tif23.studienarbeit.ui.screens.MapScreen
 import de.tif23.studienarbeit.ui.screens.MessagesScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
+import de.tif23.studienarbeit.ui.screens.ModulesScreen
 import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
 import de.tif23.studienarbeit.ui.screens.RideOfferScreen
 import de.tif23.studienarbeit.ui.screens.RidesharePointDetailScreen
@@ -38,7 +39,7 @@ private val config = SavedStateConfiguration {
             subclass(NavDestinations.MobilityScreen::class, NavDestinations.MobilityScreen.serializer())
             subclass(NavDestinations.SensorScreen::class, NavDestinations.SensorScreen.serializer())
             subclass(NavDestinations.SensorDetailScreen::class, NavDestinations.SensorDetailScreen.serializer())
-            subclass(NavDestinations.PinboardScreen::class, NavDestinations.PinboardScreen.serializer())
+            subclass(NavDestinations.ModulesScreen::class, NavDestinations.ModulesScreen.serializer())
             subclass(NavDestinations.SettingsScreen::class, NavDestinations.SettingsScreen.serializer())
             subclass(NavDestinations.MessagesScreen::class, NavDestinations.MessagesScreen.serializer())
             subclass(NavDestinations.RideDetailsScreen::class, NavDestinations.RideDetailsScreen.serializer())
@@ -95,8 +96,10 @@ fun App() {
                     )
                 }
 
-                entry<NavDestinations.PinboardScreen> {
-
+                entry<NavDestinations.ModulesScreen> {
+                    ModulesScreen(
+                        backStack = backStack,
+                    )
                 }
 
                 entry<NavDestinations.SettingsScreen> {
