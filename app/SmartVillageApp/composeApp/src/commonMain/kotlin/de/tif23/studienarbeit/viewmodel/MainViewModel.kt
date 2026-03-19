@@ -119,7 +119,7 @@ class MainViewModel(
                 val village = getVillageUseCase.getVillageConfig(villageId)
                 stateFlow.update { it.copy(village = village, isLoading = false) }
                 moveToInitialPosition(village)
-                loadMarkers()
+                loadMarkers(village)
                 addClickListeners(village)
                 loadEnvironmentalData(villageId)
                 viewModelScope.launch {
@@ -285,26 +285,28 @@ class MainViewModel(
         return "$displayValue $unit"
     }
 
-    private fun loadMarkers() {
+    private fun loadMarkers(village: VillageConfig) {
         viewModelScope.launch {
-            val container = Res.readBytes("files/container.json").decodeToString()
-            val containerList = JsonArray(Json.parseToJsonElement(container).jsonArray).map {
-                Json.decodeFromJsonElement<RecyclingContainer>(it)
-            }
-            containerList.forEach {
-                mapState.addMarker(
-                    id = "container_${it.id}",
-                    x = lonToX(it.coordinates.lon),
-                    y = latToY(it.coordinates.lat)
-                ) {
-                    Icon(
-                        painter = if (it.type == RecyclingType.ALTGLAS.name) painterResource(Res.drawable.altglas_location) else painterResource(
-                            Res.drawable.altkleider_location
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
-                        tint = onSurfaceLight
-                    )
+            if (village.village.features?.textileContainers!!) {
+                val container = Res.readBytes("files/container.json").decodeToString()
+                val containerList = JsonArray(Json.parseToJsonElement(container).jsonArray).map {
+                    Json.decodeFromJsonElement<RecyclingContainer>(it)
+                }
+                containerList.forEach {
+                    mapState.addMarker(
+                        id = "container_${it.id}",
+                        x = lonToX(it.coordinates.lon),
+                        y = latToY(it.coordinates.lat)
+                    ) {
+                        Icon(
+                            painter = if (it.type == RecyclingType.ALTGLAS.name) painterResource(Res.drawable.altglas_location) else painterResource(
+                                Res.drawable.altkleider_location
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = onSurfaceLight
+                        )
+                    }
                 }
             }
 
@@ -327,21 +329,23 @@ class MainViewModel(
                 }
             }
 
-            val sensors = stateFlow.value.village?.sensors!!
-            sensors.forEach {
-                mapState.addMarker(
-                    id = "sensor_${it.id}",
-                    x = lonToX(it.coordinates.lon),
-                    y = latToY(it.coordinates.lat)
-                ) {
-                    Icon(
-                        painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(
-                            Res.drawable.weather_filled
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
-                        tint = onSurfaceLight
-                    )
+            if (village.village.features.sensorData) {
+                val sensors = stateFlow.value.village?.sensors!!
+                sensors.forEach {
+                    mapState.addMarker(
+                        id = "sensor_${it.id}",
+                        x = lonToX(it.coordinates.lon),
+                        y = latToY(it.coordinates.lat)
+                    ) {
+                        Icon(
+                            painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(
+                                Res.drawable.weather_filled
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
+                            tint = onSurfaceLight
+                        )
+                    }
                 }
             }
         }

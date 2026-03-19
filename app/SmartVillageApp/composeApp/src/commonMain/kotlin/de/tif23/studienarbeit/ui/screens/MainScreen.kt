@@ -50,6 +50,7 @@ import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MainViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
+import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -120,7 +121,8 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                     TopBar(
                         backStack = backStack,
                         villageId = state.village?.village?.id!!,
-                        villageName = state.village?.village?.name!!
+                        villageName = state.village?.village?.name!!,
+                        features = state.village?.village?.features!!
                     )
                 },
                 bottomBar = {
@@ -133,47 +135,49 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                         .fillMaxWidth()
                         .padding(paddingValues)
                 ) {
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Box(
+                    if (state.village?.village?.features?.map!!) {
+                        item {
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(360.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                        shape = RectangleShape
-                                    )
+                                    .padding(16.dp),
+                                shape = RoundedCornerShape(16.dp)
                             ) {
-                                MapUI(state = viewModel.mapState)
-                                Column(
-                                    modifier = Modifier.align(Alignment.TopEnd)
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(360.dp)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.surfaceVariant,
+                                            shape = RectangleShape
+                                        )
                                 ) {
-                                    MapButton(
-                                        icon = Res.drawable.open_in_full,
-                                        contentDescription = "Vollbildkarte",
-                                        onClick = {
-                                            backStack.add(NavDestinations.MapScreen)
-                                        }
-                                    )
-                                    MapButton(
-                                        icon = Res.drawable.my_location,
-                                        contentDescription = "Auf mich zentrieren",
-                                        onClick = {
-                                            viewModel.centerOnUser()
-                                        }
-                                    )
-                                    MapButton(
-                                        icon = Res.drawable.city,
-                                        contentDescription = "Auf Dorf zentrieren",
-                                        onClick = {
-                                            viewModel.centerOnVillage()
-                                        }
-                                    )
+                                    MapUI(state = viewModel.mapState)
+                                    Column(
+                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    ) {
+                                        MapButton(
+                                            icon = Res.drawable.open_in_full,
+                                            contentDescription = "Vollbildkarte",
+                                            onClick = {
+                                                backStack.add(NavDestinations.MapScreen)
+                                            }
+                                        )
+                                        MapButton(
+                                            icon = Res.drawable.my_location,
+                                            contentDescription = "Auf mich zentrieren",
+                                            onClick = {
+                                                viewModel.centerOnUser()
+                                            }
+                                        )
+                                        MapButton(
+                                            icon = Res.drawable.city,
+                                            contentDescription = "Auf Dorf zentrieren",
+                                            onClick = {
+                                                viewModel.centerOnVillage()
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -266,42 +270,49 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    item {
-                        Text(
-                            text = "Umweltdaten",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                        )
-                    }
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            sensors.forEach { sensor ->
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(92.dp)
-                                ) {
-                                    Column(
+                    if (state.village?.village?.features?.weather == true) {
+                        item {
+                            Text(
+                                text = "Umweltdaten",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 16.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                        }
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                sensors.forEach { sensor ->
+                                    Card(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(8.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
+                                            .weight(1f)
+                                            .height(92.dp)
                                     ) {
-                                        Text(
-                                            text = sensor.value,
-                                            style = MaterialTheme.typography.titleLarge
-                                        )
-                                        Spacer(modifier = Modifier.size(16.dp))
-                                        Text(
-                                            text = sensor.label,
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(8.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            Text(
+                                                text = sensor.value,
+                                                style = MaterialTheme.typography.titleLarge
+                                            )
+                                            Spacer(modifier = Modifier.size(16.dp))
+                                            Text(
+                                                text = sensor.label,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -315,7 +326,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName: String) {
+private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName: String, features: VillageFeatures) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -328,12 +339,14 @@ private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName:
             }
         },
         actions = {
-            IconButton(onClick = { backStack.add(NavDestinations.MessagesScreen(villageId)) }) {
-                Icon(
-                    painter = painterResource(Res.drawable.notifications),
-                    contentDescription = "Benachrichtigungen",
-                    modifier = Modifier.padding(end = 12.dp)
-                )
+            if (features.messages) {
+                IconButton(onClick = { backStack.add(NavDestinations.MessagesScreen(villageId)) }) {
+                    Icon(
+                        painter = painterResource(Res.drawable.notifications),
+                        contentDescription = "Benachrichtigungen",
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                }
             }
             Icon(
                 painter = painterResource(Res.drawable.account_circle),
