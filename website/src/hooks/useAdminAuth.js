@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { apiClient } from '../api/client'
 import {
   clearSession,
   persistSession,
@@ -66,20 +67,35 @@ export function useAdminAuth() {
       const friendlyMessageByCode = {
         USER_NOT_FOUND: 'Kein Konto gefunden. Konto jetzt erstellen?',
         INVALID_PASSWORD: 'Passwort ist ungültig.',
+        ADMIN_ACCOUNT_LOCKED: 'Admin-Konto ist vorübergehend gesperrt.',
+        ADMIN_SESSION_ACTIVE: 'Dieses Admin-Konto ist bereits aktiv angemeldet.',
         EMAIL_NOT_VERIFIED:
           'Bitte bestätigen Sie zuerst Ihre E-Mail mit dem 6-stelligen Code, den wir Ihnen geschickt haben.',
       }
 
+      const retryAt =
+        err?.details?.lockedUntil ||
+        err?.details?.activeUntil ||
+        null
+
       const errorMsg =
         friendlyMessageByCode[err.code] || err.message || 'Anmeldung fehlgeschlagen'
       setError(errorMsg)
-      return { success: false, error: errorMsg, code: err.code }
+      return {
+        success: false,
+        error: errorMsg,
+        code: err.code,
+        retryAt,
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const logout = () => {
+    apiClient.auth.logout().catch(() => {
+      // Local cleanup still runs even if backend logout request fails.
+    })
     clearSession()
     setSession(null)
     setError(null)

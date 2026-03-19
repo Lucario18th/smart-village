@@ -27,10 +27,12 @@ const log = {
 // Configuration
 const CONFIG = {
   // Use HTTP_MODE env var to switch between HTTPS and HTTP for testing
-  API_URL: process.env.HTTP_MODE === 'true' ? 'http://localhost:8000' : 'https://localhost:8000',
+  API_URL:
+    process.env.API_URL ||
+    (process.env.HTTP_MODE === 'true' ? 'http://localhost:8000' : 'https://localhost'),
   TEST_USER: {
-    email: 'e2etest@test.de',
-    password: 'test1234',
+    email: process.env.TEST_USER_EMAIL || 'freiburg@smart-village.local',
+    password: process.env.TEST_USER_PASSWORD || 'test1234',
   },
 };
 

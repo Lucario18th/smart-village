@@ -1,0 +1,24 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#1B1D35"/>
+  <rect x="70" y="70" width="1460" height="760" rx="28" fill="#2B315A"/>
+  <rect x="110" y="120" width="260" height="660" rx="18" fill="#1A2345"/>
+  <rect x="140" y="170" width="200" height="32" rx="8" fill="#6D86FF"/>
+  <rect x="140" y="220" width="160" height="20" rx="6" fill="#A2B3FF"/>
+  <rect x="140" y="258" width="190" height="20" rx="6" fill="#A2B3FF"/>
+  <rect x="140" y="296" width="170" height="20" rx="6" fill="#A2B3FF"/>
+  <rect x="410" y="120" width="1080" height="160" rx="20" fill="#3A457A"/>
+  <rect x="450" y="170" width="320" height="60" rx="10" fill="#9BD2FF"/>
+  <rect x="800" y="170" width="300" height="60" rx="10" fill="#7A9AFF"/>
+  <rect x="1130" y="170" width="320" height="60" rx="10" fill="#AEE7C3"/>
+  <rect x="410" y="310" width="520" height="470" rx="20" fill="#222A52"/>
+  <rect x="450" y="360" width="440" height="320" rx="14" fill="#101937"/>
+  <circle cx="560" cy="490" r="72" fill="#65D8C6"/>
+  <circle cx="710" cy="560" r="50" fill="#F7A062"/>
+  <circle cx="770" cy="430" r="38" fill="#86A7FF"/>
+  <rect x="960" y="310" width="530" height="470" rx="20" fill="#222A52"/>
+  <rect x="1000" y="360" width="450" height="52" rx="10" fill="#637CFF"/>
+  <rect x="1000" y="430" width="450" height="52" rx="10" fill="#65D8C6"/>
+  <rect x="1000" y="500" width="450" height="52" rx="10" fill="#F7A062"/>
+  <rect x="1000" y="570" width="300" height="52" rx="10" fill="#AEE7C3"/>
+  <text x="110" y="860" fill="#E8EDFF" font-family="Verdana, sans-serif" font-size="52" font-weight="700">Admin Workflow und Module</text>
+</svg>

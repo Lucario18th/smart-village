@@ -32,6 +32,8 @@ services:
         condition: service_healthy
       mailhog:
         condition: service_started
+      # ollama:
+      #   condition: service_started
     env_file:
       - ./smartvillage.env
     ports:
@@ -87,8 +89,20 @@ services:
     networks:
       - smartvillage-net
 
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: smartvillage-ollama
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   networks:
+  #     - smartvillage-net
+
 networks:
   smartvillage-net:
 
 volumes:
   postgres-data:
+  ollama-data:

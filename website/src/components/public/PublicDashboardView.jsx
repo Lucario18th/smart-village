@@ -607,6 +607,9 @@ export default function PublicDashboardView({ initialVillageId = null }) {
   const assistantContext = useMemo(
     () => ({
       view: 'public',
+      locale,
+      language: prefs.language,
+      villageId: Number(selectedVillageId) || null,
       villageName: selectedVillage?.name || config?.name || '',
       statusText: villageStatusText,
       infoText: villageInfoText,
@@ -623,6 +626,9 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     [
       selectedVillage,
       config,
+      locale,
+      prefs.language,
+      selectedVillageId,
       villageStatusText,
       villageInfoText,
       sensors,
@@ -981,13 +987,15 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               <Link className="admin-header-link admin-header-link--secondary" to="/admin">
                 Admin
               </Link>
-              <AiAssistantWidget
-                audience="user"
-                contextData={assistantContext}
-                placement="header"
-                launcherVariant="compact"
-                locale={locale}
-              />
+              {features.userAssistant !== false ? (
+                <AiAssistantWidget
+                  audience="user"
+                  contextData={assistantContext}
+                  placement="header"
+                  launcherVariant="compact"
+                  locale={locale}
+                />
+              ) : null}
               <button
                 type="button"
                 className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}

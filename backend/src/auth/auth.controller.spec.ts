@@ -9,6 +9,7 @@ describe('AuthController', () => {
   const mockAuthService = {
     register: jest.fn(),
     login: jest.fn(),
+    logout: jest.fn(),
     getMe: jest.fn(),
     verifyEmailCode: jest.fn(),
     resendVerificationCode: jest.fn(),
@@ -54,6 +55,13 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should call authService.login', async () => {
+      const mockRequest = {
+        ip: '127.0.0.1',
+        headers: {
+          'user-agent': 'jest-agent',
+        },
+      };
+
       const loginDto = {
         email: 'test@example.com',
         password: 'password123',
@@ -61,10 +69,35 @@ describe('AuthController', () => {
 
       mockAuthService.login.mockResolvedValue({ accessToken: 'jwt_token' });
 
-      const result = await controller.login(loginDto);
+      const result = await controller.login(mockRequest as any, loginDto);
 
       expect(result.accessToken).toBe('jwt_token');
-      expect(authService.login).toHaveBeenCalledWith(loginDto);
+      expect(authService.login).toHaveBeenCalledWith(loginDto, {
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-agent',
+      });
+    });
+  });
+
+  describe('logout', () => {
+    it('should call authService.logout for authenticated user', async () => {
+      const mockRequest = {
+        ip: '127.0.0.1',
+        user: { sub: 42 },
+        headers: {
+          'user-agent': 'jest-agent',
+        },
+      };
+
+      mockAuthService.logout.mockResolvedValue({ success: true });
+
+      const result = await controller.logout(mockRequest as any);
+
+      expect(result).toEqual({ success: true });
+      expect(authService.logout).toHaveBeenCalledWith(42, {
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-agent',
+      });
     });
   });
 

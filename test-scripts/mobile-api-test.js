@@ -6,8 +6,8 @@ const http = require('http');
 // Configuration
 const BASE_URL = process.env.HTTP_MODE
   ? 'http://localhost:8000'
-  : 'https://localhost:3000';
-const API_PREFIX = '/mobile-api';
+  : 'https://localhost';
+const API_PREFIX = '/api/mobile-api';
 
 const useHttp = process.env.HTTP_MODE === 'true';
 const client = useHttp ? http : https;

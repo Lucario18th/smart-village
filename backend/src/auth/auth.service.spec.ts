@@ -23,6 +23,11 @@ describe('AuthService', () => {
     emailVerified: true,
     verificationCode: '123456',
     verificationCodeExpiresAt: new Date(now.getTime() + 5 * 60 * 1000),
+    failedLoginAttempts: 0,
+    lockUntil: null,
+    activeAdminSessionId: null,
+    activeAdminSessionExpiresAt: null,
+    activeAdminSessionIp: null,
     createdAt: now,
     lastLoginAt: null,
   };
@@ -42,6 +47,9 @@ describe('AuthService', () => {
     },
     postalCode: {
       findUnique: jest.fn(),
+    },
+    securityIncident: {
+      create: jest.fn(),
     },
   };
 
@@ -181,6 +189,13 @@ describe('AuthService', () => {
         sub: mockAccount.id,
         email: mockAccount.email,
         isAdmin: mockAccount.isAdmin,
+      });
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: mockAccount.id },
+        data: expect.objectContaining({
+          failedLoginAttempts: 0,
+          lockUntil: null,
+        }),
       });
     });
 
@@ -327,6 +342,61 @@ describe('AuthService', () => {
         }),
       });
     });
+
+    it('should lock admin account after too many failed attempts', async () => {
+      const loginDto = {
+        email: 'admin@example.com',
+        password: 'wrongpassword',
+      };
+
+      const adminAccount = {
+        ...mockAccount,
+        isAdmin: true,
+        failedLoginAttempts: 4,
+        email: loginDto.email,
+      };
+
+      mockPrismaService.account.findUnique.mockResolvedValue(adminAccount);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'ADMIN_ACCOUNT_LOCKED',
+        }),
+      });
+
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: adminAccount.id },
+        data: expect.objectContaining({
+          failedLoginAttempts: 0,
+          lockUntil: expect.any(Date),
+        }),
+      });
+    });
+
+    it('should block concurrent admin login when session is active', async () => {
+      const loginDto = {
+        email: 'admin@example.com',
+        password: 'password123',
+      };
+
+      const adminAccount = {
+        ...mockAccount,
+        isAdmin: true,
+        email: loginDto.email,
+        activeAdminSessionId: 'existing-session',
+        activeAdminSessionExpiresAt: new Date(Date.now() + 60_000),
+      };
+
+      mockPrismaService.account.findUnique.mockResolvedValue(adminAccount);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      await expect(service.login(loginDto)).rejects.toMatchObject({
+        response: expect.objectContaining({
+          code: 'ADMIN_SESSION_ACTIVE',
+        }),
+      });
+    });
   });
 
   describe('verifyEmailCode', () => {
@@ -427,10 +497,36 @@ describe('AuthService', () => {
 
       const result = await service.getMe(accountId);
 
-      expect(result).toEqual(mockAccountWithVillages);
+      const { passwordHash: _hidden, ...expected } = mockAccountWithVillages;
+      expect(result).toEqual(expected);
       expect(prismaService.account.findUnique).toHaveBeenCalledWith({
         where: { id: accountId },
         include: { villages: { include: { postalCode: true } } },
+      });
+    });
+  });
+
+  describe('logout', () => {
+    it('should clear admin session and return success', async () => {
+      const adminAccount = {
+        ...mockAccount,
+        isAdmin: true,
+        activeAdminSessionId: 'session-id',
+        activeAdminSessionExpiresAt: new Date(Date.now() + 60_000),
+      };
+
+      mockPrismaService.account.findUnique.mockResolvedValue(adminAccount);
+
+      const result = await service.logout(adminAccount.id);
+
+      expect(result).toEqual({ success: true });
+      expect(prismaService.account.update).toHaveBeenCalledWith({
+        where: { id: adminAccount.id },
+        data: {
+          activeAdminSessionId: null,
+          activeAdminSessionExpiresAt: null,
+          activeAdminSessionIp: null,
+        },
       });
     });
   });

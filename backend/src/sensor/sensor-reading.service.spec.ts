@@ -13,7 +13,7 @@ describe('SensorReadingService', () => {
       groupBy: jest.fn(),
       findFirst: jest.fn(),
     },
-    $queryRawUnsafe: jest.fn(),
+    $queryRaw: jest.fn(),
   };
 
   beforeEach(async () => {
