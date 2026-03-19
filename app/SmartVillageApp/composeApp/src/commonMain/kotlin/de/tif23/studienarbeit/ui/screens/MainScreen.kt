@@ -178,7 +178,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    if (state.village?.statusText != null || state.village?.infoText != null) {
+                    if (state.village?.statusText?.isNotEmpty() == true || state.village?.infoText?.isNotEmpty() == true) {
                         item {
                             Card(
                                 modifier = Modifier
