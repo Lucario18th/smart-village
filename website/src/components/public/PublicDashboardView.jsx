@@ -42,6 +42,8 @@ const I18N = {
     textileFallback: 'Container',
     noVillageFooter: 'nicht ausgewählt',
     footerVillage: 'Gemeinde',
+    footerEmail: 'E-Mail',
+    footerPhone: 'Telefon',
     settings: {
       villageTitle: 'Gemeinde',
       villageSelectLabel: 'Gemeinde auswählen',
@@ -114,6 +116,8 @@ const I18N = {
     textileFallback: 'Container',
     noVillageFooter: 'not selected',
     footerVillage: 'Village',
+    footerEmail: 'Email',
+    footerPhone: 'Phone',
     settings: {
       villageTitle: 'Village',
       villageSelectLabel: 'Select village',
@@ -186,6 +190,8 @@ const I18N = {
     textileFallback: 'Conteneur',
     noVillageFooter: 'non sélectionnée',
     footerVillage: 'Commune',
+    footerEmail: 'E-mail',
+    footerPhone: 'Téléphone',
     settings: {
       villageTitle: 'Commune',
       villageSelectLabel: 'Choisir une commune',
@@ -517,6 +523,8 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
   const villageStatusText = (config?.statusText || '').trim()
   const villageInfoText = (config?.infoText || '').trim()
+  const villageContactEmail = (config?.contactEmail || '').trim()
+  const villageContactPhone = (config?.contactPhone || '').trim()
 
   const features = config?.features || {}
   const visibility = config?.sensorDetailVisibility || {}
@@ -1089,6 +1097,20 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <Link to="/datenschutz" className="app-footer-link">Datenschutz</Link>
         </div>
         {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
+        {villageContactEmail || villageContactPhone ? (
+          <div className="public-footer-contact">
+            {villageContactEmail ? (
+              <p>
+                {text.footerEmail}: <a className="app-footer-link" href={`mailto:${villageContactEmail}`}>{villageContactEmail}</a>
+              </p>
+            ) : null}
+            {villageContactPhone ? (
+              <p>
+                {text.footerPhone}: <a className="app-footer-link" href={`tel:${villageContactPhone.replace(/\s+/g, '')}`}>{villageContactPhone}</a>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <br />
         <span className="app-footer-copy">
           © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach

@@ -152,38 +152,6 @@ export default function GeneralSettingsForm({
         </div>
       </div>
 
-      <div className="map-disabled-card">
-        <div className="map-disabled-card-header">
-          <h4 className="map-disabled-card-title">Alternativtext für deaktivierte Karte</h4>
-          <p className="map-disabled-card-desc">
-            Wird auf der Bürgerseite angezeigt, wenn die Kartenfunktion deaktiviert ist.
-          </p>
-        </div>
-        <div className="map-disabled-card-fields">
-          <label className="general-outlined-field">
-            <span className="general-field-label">Titel</span>
-            <input
-              type="text"
-              value={values.mapDisabledTitle || ''}
-              onChange={(event) => onChange('mapDisabledTitle', event.target.value)}
-              placeholder="z. B. Karte derzeit nicht verfügbar"
-              disabled={!isEditing}
-            />
-          </label>
-
-          <label className="full-width general-outlined-field">
-            <span className="general-field-label">Text</span>
-            <textarea
-              value={values.mapDisabledText || ''}
-              onChange={(event) => onChange('mapDisabledText', event.target.value)}
-              rows={4}
-              placeholder="Erklärungstext, der statt der Karte angezeigt wird."
-              disabled={!isEditing}
-            />
-          </label>
-        </div>
-      </div>
-
       <div className="admin-form-grid general-form-grid general-form-grid-grouped">
         <div className="general-field-stack">
           <label className="general-outlined-field">
@@ -321,6 +289,38 @@ export default function GeneralSettingsForm({
             disabled={!isEditing}
           />
         </label>
+      </div>
+
+      <div className="map-disabled-card">
+        <div className="map-disabled-card-header">
+          <h4 className="map-disabled-card-title">Alternativtext für deaktivierte Karte</h4>
+          <p className="map-disabled-card-desc">
+            Wird auf der Bürgerseite angezeigt, wenn die Kartenfunktion deaktiviert ist.
+          </p>
+        </div>
+        <div className="map-disabled-card-fields">
+          <label className="general-outlined-field">
+            <span className="general-field-label">Titel</span>
+            <input
+              type="text"
+              value={values.mapDisabledTitle || ''}
+              onChange={(event) => onChange('mapDisabledTitle', event.target.value)}
+              placeholder="z. B. Karte derzeit nicht verfügbar"
+              disabled={!isEditing}
+            />
+          </label>
+
+          <label className="full-width general-outlined-field">
+            <span className="general-field-label">Text</span>
+            <textarea
+              value={values.mapDisabledText || ''}
+              onChange={(event) => onChange('mapDisabledText', event.target.value)}
+              rows={4}
+              placeholder="Erklärungstext, der statt der Karte angezeigt wird."
+              disabled={!isEditing}
+            />
+          </label>
+        </div>
       </div>
     </section>
   )
