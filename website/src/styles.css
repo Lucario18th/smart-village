@@ -223,7 +223,6 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .cm-sensor-search:focus{border-color:var(--md-sys-color-primary)}
 .cm-sensor-search::-webkit-search-cancel-button{cursor:pointer}
 .cm-sensor-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;flex:1 1 0;min-height:0;overflow-y:auto}
-.cm-sensor-item{}
 .cm-sensor-label{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0}
 .cm-sensor-label input{accent-color:var(--md-sys-color-primary);width:15px;height:15px;flex-shrink:0}
 .cm-sensor-name{font-size:13px;color:var(--md-sys-color-on-surface);font-weight:500}
@@ -369,69 +368,81 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .app-footer-link:hover{color:var(--md-sys-color-primary);text-decoration:underline}
 
 .sim-lab-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb, #000 55%, transparent)}
-.sim-lab-card{width:min(1320px,100%);max-height:94dvh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:16px;padding:24px;border-radius:16px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);box-shadow:0 20px 40px color-mix(in srgb, var(--md-sys-color-shadow) 45%, transparent)}
-.sim-lab-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.sim-lab-kicker{margin:0 0 4px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--md-sys-color-primary)}
-.sim-lab-header h2{margin:0;color:var(--md-sys-color-primary);font-size:28px;line-height:1.1}
-.sim-lab-header p{margin:5px 0 0;color:var(--md-sys-color-on-surface-variant);font-size:13px}
-.sim-lab-close{padding:8px 12px;border-radius:9px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 54%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
-.sim-lab-close:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
-.sim-lab-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0}
-.sim-lab-toggle-wrap{display:inline-flex;align-items:center;gap:10px;padding:7px 12px;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 34%, transparent);font-size:13px;font-weight:700}
+.sim-lab-card{width:min(1400px,100%);max-height:94dvh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:20px;padding:28px;border-radius:20px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 24%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);box-shadow:0 24px 48px color-mix(in srgb, var(--md-sys-color-shadow) 42%, transparent);overflow:hidden;display:flex;flex-direction:column}
+.sim-lab-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.sim-lab-kicker{margin:0 0 6px;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--md-sys-color-primary);opacity:.85}
+.sim-lab-header h2{margin:0;color:var(--md-sys-color-primary);font-size:32px;line-height:1.08;font-weight:600;letter-spacing:-.01em}
+.sim-lab-header p{margin:6px 0 0;color:var(--md-sys-color-on-surface-variant);font-size:13px;line-height:1.4}
+.sim-lab-close{padding:10px 16px;border-radius:100px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:600;font-size:14px;cursor:pointer;transition:all .2s ease;flex-shrink:0}
+.sim-lab-close:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary);transform:translateY(-1px)}
+.sim-lab-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent)}
+.sim-lab-toggle-wrap{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:12px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 30%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);font-size:13px;font-weight:600;transition:all .15s ease}
+.sim-lab-toggle-wrap:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 45%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-outline) 42%, transparent)}
 .sim-lab-inline-toggle{width:fit-content}
-.sim-lab-mqtt-status-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.sim-lab-mqtt-status{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.02em}
-.sim-lab-mqtt-status.is-online{background:color-mix(in srgb, #2e7d32 28%, transparent);color:#1b5e20}
-.sim-lab-mqtt-status.is-offline{background:color-mix(in srgb, #c62828 24%, transparent);color:#8e0000}
-.sim-lab-mqtt-error{font-size:12px;color:var(--md-sys-color-error)}
-.sim-lab-config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.sim-lab-config-grid label{display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--md-sys-color-on-surface)}
-.sim-lab-config-grid input,.sim-lab-config-grid select{width:100%;padding:8px 9px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 52%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
-.sim-lab-action{padding:8px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
-.sim-lab-action:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
-.sim-lab-action--primary{background:var(--md-sys-color-primary);border-color:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary)}
-.sim-lab-action--primary:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000);border-color:color-mix(in srgb, var(--md-sys-color-primary) 88%, #000)}
-.sim-lab-stats{display:flex;gap:8px;flex-wrap:wrap}
-.sim-lab-stats span{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 70%, transparent);color:var(--md-sys-color-on-primary-container);font-size:12px;font-weight:700}
-.sim-lab-stats--inline{gap:6px}
-.sim-lab-stats--inline span{padding:5px 9px}
-.sim-lab-grid{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.sim-lab-panel{min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;padding:12px;border-radius:12px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent)}
-.sim-lab-panel h3{margin:0;color:var(--md-sys-color-primary)}
-.sim-lab-panel-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:4px 0;border:none;background:transparent;color:var(--md-sys-color-primary);cursor:pointer;text-align:left}
-.sim-lab-panel-toggle h3{margin:0;line-height:1.2}
-.sim-lab-panel-toggle-icon{font-size:14px;color:var(--md-sys-color-on-surface-variant)}
-.sim-lab-form{display:grid;gap:8px}
-.sim-lab-form label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface)}
-.sim-lab-form input,.sim-lab-form select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 55%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit}
-.sim-lab-coords{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.sim-lab-coords-wrapper{display:grid;gap:8px}
-.sim-lab-map-button{justify-self:flex-start}
-.sim-lab-form-actions{display:flex;gap:8px;flex-wrap:wrap}
-.sim-lab-list{list-style:none;padding:0;margin:0;display:grid;gap:8px;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}
-.sim-lab-item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 34%, transparent);background:var(--md-sys-color-surface)}
-.sim-lab-item h4{margin:0 0 3px;color:var(--md-sys-color-primary)}
-.sim-lab-item p{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:13px;line-height:1.35}
-.sim-lab-item-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-.sim-lab-verify-status{margin-top:6px;padding:4px 8px;border-radius:8px;display:inline-flex;width:fit-content;font-weight:700}
-.sim-lab-verify-status--confirmed{background:color-mix(in srgb, #2e7d32 20%, transparent);color:#1b5e20}
-.sim-lab-verify-status--pending,.sim-lab-verify-status--waiting{background:color-mix(in srgb, #f9a825 24%, transparent);color:#7a4d00}
-.sim-lab-verify-status--error{background:color-mix(in srgb, #c62828 22%, transparent);color:#8e0000}
-.sim-lab-link{padding:0;border:none;background:transparent;color:var(--md-sys-color-primary);font:inherit;font-weight:700;cursor:pointer}
+.sim-lab-mqtt-status-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0}
+.sim-lab-mqtt-status{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.01em}
+.sim-lab-mqtt-status.is-online{background:color-mix(in srgb, #2e7d32 20%, transparent);color:#0d3d0d;border:1px solid color-mix(in srgb, #2e7d32 40%, transparent)}
+.sim-lab-mqtt-status.is-offline{background:color-mix(in srgb, #c62828 18%, transparent);color:#5f0000;border:1px solid color-mix(in srgb, #c62828 45%, transparent)}
+.sim-lab-mqtt-error{font-size:12px;color:var(--md-sys-color-error);font-weight:600}
+.sim-lab-config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;padding:4px 0}
+.sim-lab-config-grid label{display:grid;gap:6px;font-size:12px;font-weight:700;color:var(--md-sys-color-on-surface)}
+.sim-lab-config-grid input,.sim-lab-config-grid select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 48%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;font-size:13px;transition:border-color .15s ease,box-shadow .15s ease}
+.sim-lab-config-grid input:focus,.sim-lab-config-grid select:focus{outline:none;border-color:var(--md-sys-color-primary);box-shadow:0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent)}
+.sim-lab-action{padding:9px 14px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 42%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:600;font-size:13px;cursor:pointer;transition:all .15s ease}
+.sim-lab-action:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary);transform:translateY(-1px)}
+.sim-lab-action--primary{background:var(--md-sys-color-primary);border-color:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);font-weight:700}
+.sim-lab-action--primary:hover{background:color-mix(in srgb, var(--md-sys-color-primary) 86%, #000);border-color:color-mix(in srgb, var(--md-sys-color-primary) 86%, #000);transform:translateY(-1px)}
+.sim-lab-stats{display:flex;gap:10px;flex-wrap:wrap}
+.sim-lab-stats span{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-primary-container) 55%, transparent);color:var(--md-sys-color-on-primary-container);font-size:12px;font-weight:700;border:1px solid color-mix(in srgb, var(--md-sys-color-primary) 28%, transparent)}
+.sim-lab-stats--inline{gap:8px}
+.sim-lab-stats--inline span{padding:6px 10px;font-size:11px}
+.sim-lab-grid{min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;overflow:hidden}
+.sim-lab-panel{min-height:0;display:flex;flex-direction:column;gap:0;padding:0;border-radius:14px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 70%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 26%, transparent);overflow:hidden}
+.sim-lab-panel h3{margin:0;color:var(--md-sys-color-primary);font-size:16px;font-weight:700;letter-spacing:-.01em;padding:18px 18px 12px;border-bottom:2px solid color-mix(in srgb, var(--md-sys-color-primary) 24%, transparent);flex-shrink:0}
+.sim-lab-panel-content{display:flex;flex-direction:column;gap:0;min-height:0;overflow-y:auto;overflow-x:hidden}
+.sim-lab-panel-content::-webkit-scrollbar{width:6px}
+.sim-lab-panel-content::-webkit-scrollbar-track{background:transparent}
+.sim-lab-panel-content::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--md-sys-color-on-surface) 18%, transparent);border-radius:4px}
+.sim-lab-panel-content::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--md-sys-color-on-surface) 32%, transparent)}
+.sim-lab-form{display:grid;gap:11px;padding:18px 18px 0;flex-shrink:0}
+.sim-lab-form label{display:grid;gap:5px;font-size:13px;font-weight:700;color:var(--md-sys-color-on-surface);letter-spacing:-.01em}
+.sim-lab-form input,.sim-lab-form select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 50%, transparent);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:inherit;font-size:13px;transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}
+.sim-lab-form input::placeholder,.sim-lab-form select::placeholder{color:var(--md-sys-color-on-surface-variant);opacity:.7}
+.sim-lab-form input:focus,.sim-lab-form select:focus{outline:none;border-color:var(--md-sys-color-primary);background:var(--md-sys-color-surface);box-shadow:0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent)}
+.sim-lab-coords{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sim-lab-coords-wrapper{display:grid;gap:10px}
+.sim-lab-map-button{justify-self:flex-start;padding:8px 12px;font-size:13px}
+.sim-lab-form-actions{display:flex;gap:10px;flex-wrap:wrap;padding-top:6px;padding-bottom:12px;padding-right:6px}
+.sim-lab-form::-webkit-scrollbar{display:none}
+.sim-lab-list{list-style:none;padding:12px 18px;margin:0;display:grid;gap:9px;flex-shrink:0}
+.sim-lab-list::-webkit-scrollbar{display:none}
+.sim-lab-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 32%, transparent);background:var(--md-sys-color-surface);transition:all .15s ease}
+.sim-lab-item:hover{border-color:color-mix(in srgb, var(--md-sys-color-outline) 52%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface) 96%, var(--md-sys-color-surface-container-low))}
+.sim-lab-item h4{margin:0 0 4px;color:var(--md-sys-color-primary);font-size:14px;font-weight:700;letter-spacing:-.01em}
+.sim-lab-item p{margin:3px 0;color:var(--md-sys-color-on-surface-variant);font-size:12px;line-height:1.4}
+.sim-lab-item-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.sim-lab-verify-status{margin-top:6px;padding:5px 10px;border-radius:8px;display:inline-flex;width:fit-content;font-weight:600;font-size:11px;letter-spacing:.01em}
+.sim-lab-verify-status--confirmed{background:color-mix(in srgb, #2e7d32 18%, transparent);color:#0d3d0d;border:1px solid color-mix(in srgb, #2e7d32 40%, transparent)}
+.sim-lab-verify-status--pending,.sim-lab-verify-status--waiting{background:color-mix(in srgb, #f9a825 20%, transparent);color:#5a4400;border:1px solid color-mix(in srgb, #f9a825 40%, transparent)}
+.sim-lab-verify-status--error{background:color-mix(in srgb, #c62828 18%, transparent);color:#5f0000;border:1px solid color-mix(in srgb, #c62828 40%, transparent)}
+.sim-lab-link{padding:0;border:none;background:transparent;color:var(--md-sys-color-primary);font:inherit;font-weight:700;font-size:12px;cursor:pointer;transition:color .15s ease,opacity .15s ease}
+.sim-lab-link:hover{color:color-mix(in srgb, var(--md-sys-color-primary) 78%, #000);opacity:.8}
 .sim-lab-link--danger{color:var(--md-sys-color-error)}
-.sim-lab-empty{padding:10px;border-radius:8px;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface-variant);font-size:13px}
+.sim-lab-link--danger:hover{color:color-mix(in srgb, var(--md-sys-color-error) 78%, #000)}
+.sim-lab-empty{padding:12px 14px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 50%, transparent);color:var(--md-sys-color-on-surface-variant);font-size:13px;text-align:center;font-weight:500}
 
 .sim-lab-modal-overlay{position:fixed;inset:0;z-index:560;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb, #000 60%, transparent)}
-.sim-lab-modal-card{width:min(760px,100%);max-height:90dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;padding:16px;border-radius:14px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent);box-shadow:0 16px 36px color-mix(in srgb, var(--md-sys-color-shadow) 40%, transparent)}
-.sim-lab-modal-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.sim-lab-modal-header h3{margin:0;color:var(--md-sys-color-primary)}
-.sim-lab-modal-close{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 50%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer}
-.sim-lab-modal-map-container{display:grid;gap:8px;min-height:0}
-.sim-lab-coordinate-map{height:48dvh;min-height:280px;border-radius:10px;overflow:hidden;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent)}
-.sim-lab-map-hint{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
-.sim-lab-modal-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.sim-lab-coord-display{margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
-.sim-lab-modal-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sim-lab-modal-card{width:min(760px,100%);max-height:90dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:14px;padding:20px;border-radius:16px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 30%, transparent);box-shadow:0 20px 40px color-mix(in srgb, var(--md-sys-color-shadow) 42%, transparent)}
+.sim-lab-modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sim-lab-modal-header h3{margin:0;color:var(--md-sys-color-primary);font-size:18px;font-weight:700}
+.sim-lab-modal-close{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:100%;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 44%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-weight:700;cursor:pointer;font-size:20px;transition:all .15s ease}
+.sim-lab-modal-close:hover{background:var(--md-sys-color-secondary-container);border-color:var(--md-sys-color-secondary)}
+.sim-lab-modal-map-container{display:grid;gap:10px;min-height:0}
+.sim-lab-coordinate-map{height:48dvh;min-height:300px;border-radius:12px;overflow:hidden;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent)}
+.sim-lab-map-hint{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant);font-weight:500}
+.sim-lab-modal-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sim-lab-coord-display{margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px;color:var(--md-sys-color-on-surface-variant);letter-spacing:.01em;padding:8px 12px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 60%, transparent);border-radius:8px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent)}
+.sim-lab-modal-actions{display:flex;gap:10px;flex-wrap:wrap}
 
 @media (min-width: 901px){
 	.admin-page{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
