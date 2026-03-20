@@ -970,8 +970,9 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 .admin-header-link--secondary{background:color-mix(in srgb, var(--md-sys-color-secondary-container) 76%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-secondary) 36%, transparent);color:var(--md-sys-color-on-secondary-container)}
 .admin-header-link--secondary:hover{background:color-mix(in srgb, var(--md-sys-color-secondary-container) 92%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-secondary) 58%, transparent)}
 
-.landing-page{min-height:100vh;padding:28px;display:grid;gap:18px;background:radial-gradient(circle at 88% 9%, color-mix(in srgb, var(--md-sys-color-secondary-container) 52%, transparent) 0%, transparent 38%),radial-gradient(circle at 10% 18%, color-mix(in srgb, var(--md-sys-color-primary-container) 56%, transparent) 0%, transparent 42%),linear-gradient(140deg, color-mix(in srgb, var(--md-sys-color-surface-container-low) 86%, var(--md-sys-color-background)) 0%, color-mix(in srgb, var(--md-sys-color-surface) 90%, var(--md-sys-color-background)) 100%)}
-.landing-hero,.landing-card,.landing-meta{background:color-mix(in srgb, var(--md-sys-color-surface) 76%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 24%, transparent);border-radius:18px;box-shadow:0 10px 24px color-mix(in srgb, var(--md-sys-color-shadow) 14%, transparent)}
+.landing-page{min-height:100vh;padding:28px;display:flex;flex-direction:column;gap:18px;background:radial-gradient(circle at 88% 9%, color-mix(in srgb, var(--md-sys-color-secondary-container) 52%, transparent) 0%, transparent 38%),radial-gradient(circle at 10% 18%, color-mix(in srgb, var(--md-sys-color-primary-container) 56%, transparent) 0%, transparent 42%),linear-gradient(140deg, color-mix(in srgb, var(--md-sys-color-surface-container-low) 86%, var(--md-sys-color-background)) 0%, color-mix(in srgb, var(--md-sys-color-surface) 90%, var(--md-sys-color-background)) 100%)}
+.landing-page > main{display:grid;gap:18px;flex:1}
+.landing-hero,.landing-card{background:color-mix(in srgb, var(--md-sys-color-surface) 76%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 24%, transparent);border-radius:18px;box-shadow:0 10px 24px color-mix(in srgb, var(--md-sys-color-shadow) 14%, transparent)}
 .landing-hero{padding:26px;display:grid;gap:10px}
 .landing-kicker{margin:0;display:inline-flex;align-items:center;justify-content:center;width:max-content;padding:4px 10px;border-radius:999px;background:color-mix(in srgb, var(--md-sys-color-tertiary-container) 76%, transparent);color:var(--md-sys-color-on-tertiary-container);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .landing-hero h1{margin:0;font-size:clamp(34px,5vw,56px);line-height:1;color:var(--md-sys-color-primary);letter-spacing:-.03em}
@@ -998,10 +999,13 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 .landing-team-card img{display:block;width:100%;max-width:180px;aspect-ratio:4/5;object-fit:cover;border-radius:10px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent)}
 .landing-team-card h3{margin:0;font-size:15px;color:var(--md-sys-color-on-surface)}
 .landing-team-card p{margin:0;font-size:13px;color:var(--md-sys-color-on-surface-variant)}
-.landing-meta{padding:20px;display:grid;gap:10px}
-.landing-meta h2{margin:0;font-size:22px;color:var(--md-sys-color-primary)}
-.landing-meta p{margin:0;color:var(--md-sys-color-on-surface-variant);line-height:1.48}
-.landing-link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.landing-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin-top:18px;border-radius:10px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 84%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 34%, transparent)}
+.landing-meta-title{margin:0;font-size:13px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--md-sys-color-on-surface-variant)}
+.landing-footer{margin-top:auto;padding:16px 28px;border-top:1px solid color-mix(in srgb, var(--md-sys-color-outline) 24%, transparent);background:var(--md-sys-color-surface);text-align:center}
+.landing-footer-content{display:grid;gap:10px}
+.landing-footer-links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.landing-footer-copy{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant);line-height:1.35;opacity:.9}
+.landing-link-grid{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
 .landing-link{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:9px;text-decoration:none;border:1px solid color-mix(in srgb, var(--md-sys-color-primary) 36%, transparent);background:color-mix(in srgb, var(--md-sys-color-primary-container) 58%, transparent);color:var(--md-sys-color-on-primary-container);font-size:13px;font-weight:700;transition:background .16s ease,border-color .16s ease}
 .landing-link:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 84%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-primary) 58%, transparent)}
 .landing-link--pending{opacity:.72;border-style:dashed;pointer-events:none}
@@ -1019,7 +1023,7 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 .landing-carousel-points{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--md-sys-color-on-surface)}
 .landing-carousel-points li{line-height:1.45}
 .landing-carousel-controls{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
-.landing-carousel-nav{width:42px;height:42px;border-radius:999px;border:1px solid color-mix(in srgb, var(--md-sys-color-primary) 40%, transparent);background:color-mix(in srgb, var(--md-sys-color-primary-container) 74%, transparent);color:var(--md-sys-color-on-primary-container);font-size:30px;line-height:1;cursor:pointer;transition:transform .16s ease,background .16s ease,border-color .16s ease}
+.landing-carousel-nav{width:42px;height:42px;border-radius:999px;border:1px solid color-mix(in srgb, var(--md-sys-color-primary) 40%, transparent);background:color-mix(in srgb, var(--md-sys-color-primary-container) 74%, transparent);color:var(--md-sys-color-on-primary-container);font-size:30px;display:flex;place-items:center;justify-content:center;cursor:pointer;transition:transform .16s ease,background .16s ease,border-color .16s ease}
 .landing-carousel-nav:hover{transform:translateY(-1px);background:color-mix(in srgb, var(--md-sys-color-primary-container) 92%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-primary) 60%, transparent)}
 .landing-carousel-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 .landing-carousel-dot{width:12px;height:12px;border-radius:999px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 40%, transparent);background:color-mix(in srgb, var(--md-sys-color-surface-container-high) 85%, transparent);cursor:pointer;transition:transform .16s ease,background .16s ease,border-color .16s ease}
@@ -1039,7 +1043,9 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 @media (max-width: 640px){
 	.admin-header-link{padding:7px 10px;font-size:12px}
 	.landing-page{padding:14px;gap:12px}
-	.landing-hero,.landing-card,.landing-meta{border-radius:14px}
+	.landing-hero,.landing-card{border-radius:14px}
+	.landing-footer{padding:12px 14px;font-size:13px}
+	.landing-footer-links{gap:6px}
 	.landing-carousel{border-radius:14px;padding:14px}
 	.landing-carousel-header h2{font-size:21px}
 	.landing-carousel-content h3{font-size:19px}

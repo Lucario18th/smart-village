@@ -30,10 +30,6 @@ const LANDING_LINKS = {
     label: 'Impressum',
     href: import.meta.env?.VITE_IMPRINT_URL || '#',
   },
-  terms: {
-    label: 'AGB',
-    href: import.meta.env?.VITE_TERMS_URL || '#',
-  },
   cookies: {
     label: 'Cookies',
     href: import.meta.env?.VITE_COOKIES_URL || '#',
@@ -173,8 +169,9 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="landing-page" aria-labelledby="landing-title">
-      <section className="landing-hero">
+    <div className="landing-page" aria-labelledby="landing-title">
+      <main>
+        <section className="landing-hero">
         <p className="landing-kicker">Studienarbeit · DHBW</p>
         <h1 id="landing-title">Smart Village</h1>
         <p className="landing-lead">
@@ -212,8 +209,7 @@ export default function LandingPage() {
           <p className="landing-kicker">Projektgalerie</p>
           <h2>Echte Einblicke in Sensorik und Vorführungen</h2>
           <p>
-            Hier könnt ihr vollständig eure echten Projektbilder einpflegen. Ersetzt dafür einfach die Dateien unter
-            <strong> /public/project-gallery</strong> und passt bei Bedarf die Texte in dieser Komponente an.
+            Erfahren Sie, wie Smart Village in der Praxis funktioniert: von der Installation der Sensoren in der Natur über die digitale Verwaltung bis hin zu den Bürgerapps. Unsere Projektgalerie zeigt alle Facetten des Systems.
           </p>
         </header>
 
@@ -253,7 +249,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <button type="button" className="landing-carousel-nav" onClick={goToNextSlide} aria-label="Naechstes Projektbild">
+          <button type="button" className="landing-carousel-nav" onClick={goToNextSlide} aria-label="Nächstes Projektbild">
             ›
           </button>
         </div>
@@ -288,10 +284,6 @@ export default function LandingPage() {
 
       <section className="landing-team" aria-label="Unser Team">
         <h2>Unser Team</h2>
-        <p>
-          Hier könnt ihr eure echten Fotos und Namen eintragen. Ersetzt dafür einfach die
-          Bilder unter /public/team und passt die Einträge in dieser Komponente an.
-        </p>
         <div className="landing-team-grid">
           {TEAM_MEMBERS.map((member) => (
             <article className="landing-team-card" key={member.id}>
@@ -302,24 +294,24 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+    </main>
 
-      <section className="landing-meta" aria-label="Rechtliches und Social Links">
-        <h2>Datenschutz, AGB und Links</h2>
-        <p>
-          Bitte beachten: Die Plattform wird zu Testzwecken betrieben. Weitere Informationen
-          zu Datenschutz, AGB, Cookies, Impressum und Kontakt finden Sie in den folgenden Links.
-        </p>
-        <div className="landing-link-grid">
+    <footer className="landing-footer" aria-label="Footer">
+      <div className="landing-footer-content">
+        <div className="landing-footer-links">
           <LandingLink {...LANDING_LINKS.privacy} />
-          <LandingLink {...LANDING_LINKS.terms} />
-          <LandingLink {...LANDING_LINKS.cookies} />
           <LandingLink {...LANDING_LINKS.imprint} />
+          <LandingLink {...LANDING_LINKS.cookies} />
           <LandingLink {...LANDING_LINKS.github} />
           <LandingLink {...LANDING_LINKS.linkedin} />
           <LandingLink {...LANDING_LINKS.instagram} />
           <LandingLink {...LANDING_LINKS.supportEmail} />
         </div>
-      </section>
-    </main>
+        <p className="landing-footer-copy">
+          © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach
+        </p>
+      </div>
+    </footer>
+    </div>
   )
 }
