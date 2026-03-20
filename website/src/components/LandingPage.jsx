@@ -18,21 +18,13 @@ const LANDING_LINKS = {
     label: 'Instagram',
     href: import.meta.env?.VITE_SOCIAL_INSTAGRAM_URL || '#',
   },
-  supportEmail: {
-    label: 'E-Mail',
-    href: import.meta.env?.VITE_SUPPORT_EMAIL ? `mailto:${import.meta.env.VITE_SUPPORT_EMAIL}` : '#',
-  },
   privacy: {
     label: 'Datenschutz',
-    href: import.meta.env?.VITE_PRIVACY_URL || '#',
+    href: '/datenschutz',
   },
   imprint: {
     label: 'Impressum',
-    href: import.meta.env?.VITE_IMPRINT_URL || '#',
-  },
-  cookies: {
-    label: 'Cookies',
-    href: import.meta.env?.VITE_COOKIES_URL || '#',
+    href: '/impressum',
   },
 }
 
@@ -182,10 +174,16 @@ export default function LandingPage() {
 
         <div className="landing-actions" role="navigation" aria-label="Hauptnavigation">
           <Link to="/user" className="landing-action landing-action--primary">
+            <svg className="landing-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7M17 7H9M17 7V15" />
+            </svg>
             Bürgerportal
           </Link>
           <Link to="/admin" className="landing-action landing-action--secondary">
-            Dorf Administration
+            <svg className="landing-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7M17 7H9M17 7V15" />
+            </svg>
+            Administration
           </Link>
           <a
             className="landing-action landing-action--android"
@@ -193,7 +191,10 @@ export default function LandingPage() {
             target="_blank"
             rel="noreferrer"
           >
-            Android App herunterladen
+            <svg className="landing-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 19v-8M12 11L9 14M12 11l3 3" />
+            </svg>
+            Android App
           </a>
           <LandingLink {...LANDING_LINKS.repo} />
         </div>
@@ -270,11 +271,9 @@ export default function LandingPage() {
         <div className="landing-footer-links">
           <LandingLink {...LANDING_LINKS.privacy} />
           <LandingLink {...LANDING_LINKS.imprint} />
-          <LandingLink {...LANDING_LINKS.cookies} />
           <LandingLink {...LANDING_LINKS.github} />
           <LandingLink {...LANDING_LINKS.linkedin} />
           <LandingLink {...LANDING_LINKS.instagram} />
-          <LandingLink {...LANDING_LINKS.supportEmail} />
         </div>
         <p className="landing-footer-copy">
           © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach

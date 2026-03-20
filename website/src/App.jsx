@@ -6,6 +6,8 @@ import RegisterView from './components/RegisterView'
 import EmailVerificationPending from './components/EmailVerificationPending'
 import EmailVerifiedView from './components/EmailVerifiedView'
 import LandingPage from './components/LandingPage'
+import ImpressumPage from './components/ImpressumPage'
+import DatenschutzPage from './components/DatenschutzPage'
 import PublicLayout from './components/public/PublicLayout'
 import PublicDashboardView from './components/public/PublicDashboardView'
 import { useAdminAuth } from './hooks/useAdminAuth'
@@ -176,6 +178,10 @@ export default function App() {
     <Routes>
       {/* --- Public landing page --- */}
       <Route path="/" element={<LandingPage />} />
+
+      {/* --- Legal pages --- */}
+      <Route path="/impressum" element={<ImpressumPage />} />
+      <Route path="/datenschutz" element={<DatenschutzPage />} />
 
       {/* --- Public user routes (read‑only, no auth) --- */}
       <Route path="/user" element={<PublicDashboardRoute />} />
