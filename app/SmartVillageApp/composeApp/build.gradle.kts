@@ -44,7 +44,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.android)
             implementation(libs.play.services.location)
-
+            implementation(libs.androidx.core.splashscreen)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -102,6 +102,15 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    sourceSets {
+        getByName("main") {
+            // Definiert explizit, wo Manifest und Ressourcen liegen
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+            res.srcDirs("src/androidMain/res")
+            // Optional: Verbindet commonMain Ressourcen
+            resources.srcDirs("src/commonMain/resources")
+        }
     }
 }
 
