@@ -13,6 +13,7 @@ import de.tif23.studienarbeit.viewmodel.data.SensorType
 import de.tif23.studienarbeit.viewmodel.data.Station
 import de.tif23.studienarbeit.viewmodel.data.state.MobilityViewModelState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,7 +95,7 @@ class MobilityViewModel(
     fun loadRidesharePoints() {
         if (ridesharePollingJob?.isActive == true) return
 
-        ridesharePollingJob = viewModelScope.launch(Dispatchers.Default) {
+        ridesharePollingJob = viewModelScope.launch(Dispatchers.IO) {
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
             if (villageId == null) {
                 stateFlow.update {

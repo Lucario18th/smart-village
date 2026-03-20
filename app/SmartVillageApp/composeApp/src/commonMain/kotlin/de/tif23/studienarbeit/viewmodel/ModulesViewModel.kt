@@ -23,7 +23,16 @@ class ModulesViewModel(
         stateFlow.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
             runCatching {
-                val villageId = villageSettingsStore.getSelectedVillageId()!!
+                val villageId = villageSettingsStore.getSelectedVillageId()
+                if (villageId == null) {
+                    stateFlow.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Kein Dorf ausgewählt."
+                        )
+                    }
+                    return@launch
+                }
                 getSensorDataUseCase.getModules(villageId)
             }.onSuccess { modules ->
                     stateFlow.update {

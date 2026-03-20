@@ -8,6 +8,7 @@ import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.state.SensorGroup
 import de.tif23.studienarbeit.viewmodel.data.state.SensorViewModelState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,7 @@ class SensorViewModel(
     fun startPolling() {
         if (pollingJob?.isActive == true) return
 
-        pollingJob = viewModelScope.launch(Dispatchers.Default) {
+        pollingJob = viewModelScope.launch(Dispatchers.IO) {
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
             if (villageId == null) {
                 stateFlow.value = stateFlow.value.copy(isLoading = false, errorMessage = "Kein Dorf ausgewählt.")

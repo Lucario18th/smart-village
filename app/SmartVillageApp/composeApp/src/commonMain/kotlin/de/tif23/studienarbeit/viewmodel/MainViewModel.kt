@@ -243,7 +243,7 @@ class MainViewModel(
 
     private fun loadMarkers(village: VillageConfig) {
         viewModelScope.launch {
-            if (village.village.features?.textileContainers!!) {
+//            if (village.village.features?.textileContainers!!) {
 //                val container = Res.readBytes("files/container.json").decodeToString()
 //                val containerList = JsonArray(Json.parseToJsonElement(container).jsonArray).map {
 //                    Json.decodeFromJsonElement<RecyclingContainer>(it)
@@ -264,7 +264,7 @@ class MainViewModel(
 //                        )
 //                    }
 //                }
-            }
+//            }
 
             val villageStations = getVillageTrainStationsUseCase.getAllStationsForVillage(
                 stateFlow.value.village?.village?.name ?: ""
@@ -285,7 +285,7 @@ class MainViewModel(
                 }
             }
 
-            if (village.village.features.sensorData) {
+            if (village.village.features?.sensorData ?: false) {
                 val sensors = stateFlow.value.village?.sensors!!
                 sensors.forEach {
                     mapState.addMarker(

@@ -103,15 +103,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    sourceSets {
-        getByName("main") {
-            // Definiert explizit, wo Manifest und Ressourcen liegen
-            manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            res.srcDirs("src/androidMain/res")
-            // Optional: Verbindet commonMain Ressourcen
-            resources.srcDirs("src/commonMain/resources")
-        }
-    }
 }
 
 dependencies {

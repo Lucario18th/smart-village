@@ -14,7 +14,6 @@ class SensorRepository {
 
     suspend fun getInitialData(villageId: Int): InitialSensorReading {
         val result = client.get("$SERVER_URL/villages/$villageId/initial-data")
-        println(result.bodyAsText())
 
         val initialDataResponse = Json.decodeFromString<InitialDataResponse>(result.bodyAsText())
 
@@ -23,7 +22,6 @@ class SensorRepository {
 
     suspend fun getModules(villageId: Int): ModulesResponse {
         val modulesResult = client.get("$SERVER_URL/villages/$villageId/modules")
-        println(modulesResult.bodyAsText())
 
         val moulesResponse = Json.decodeFromString<ModulesResponse>(modulesResult.bodyAsText())
 

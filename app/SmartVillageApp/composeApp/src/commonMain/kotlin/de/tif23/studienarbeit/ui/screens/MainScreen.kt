@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -115,8 +114,17 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                     .align(Alignment.Center)
                     .padding(24.dp)
             )
+        } else if (state.village == null) {
+            Text(
+                text = "Das Dorf mit der ID ... konnte nicht geladen werden \n Bitte löschen Sie den Speicherinhalt der App und starten Sie die App erneut",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(24.dp)
+            )
         } else {
-
             Scaffold(
                 containerColor = Color.Transparent,
                 topBar = {
@@ -235,8 +243,8 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
                             ) {
-                                LazyColumn {
-                                    itemsIndexed(state.messages) { index, message ->
+                                Column {
+                                    state.messages.forEachIndexed { index, message ->
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
