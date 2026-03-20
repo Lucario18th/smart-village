@@ -25,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -53,6 +55,14 @@ fun SensorsScreen(
     sensorViewModel: SensorViewModel = viewModel()
 ) {
     val uiState by sensorViewModel.viewState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        sensorViewModel.startPolling()
+    }
+    DisposableEffect(Unit) {
+        onDispose { sensorViewModel.stopPolling() }
+    }
+
     val backgroundPainter = painterResource(
         if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
     )
