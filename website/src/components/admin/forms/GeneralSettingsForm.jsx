@@ -1,5 +1,41 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import LocationAutocomplete from '../../LocationAutocomplete'
+
+const ADMIN_PREFS_KEY = 'smart-village-admin-preferences'
+
+const I18N = {
+  de: {
+    languageLabel: 'Sprache',
+  },
+  en: {
+    languageLabel: 'Language',
+  },
+  fr: {
+    languageLabel: 'Langue',
+  },
+}
+
+const DEFAULT_ADMIN_PREFS = {
+  language: 'de',
+}
+
+function loadAdminPrefs() {
+  try {
+    const raw = localStorage.getItem(ADMIN_PREFS_KEY)
+    if (!raw) return DEFAULT_ADMIN_PREFS
+    const parsed = JSON.parse(raw)
+    return {
+      ...DEFAULT_ADMIN_PREFS,
+      ...parsed,
+    }
+  } catch {
+    return DEFAULT_ADMIN_PREFS
+  }
+}
+
+function persistAdminPrefs(prefs) {
+  localStorage.setItem(ADMIN_PREFS_KEY, JSON.stringify(prefs))
+}
 
 export default function GeneralSettingsForm({
   values,
@@ -12,7 +48,14 @@ export default function GeneralSettingsForm({
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [locationResetKey, setLocationResetKey] = useState(0)
+  const [adminPrefs, setAdminPrefs] = useState(() => loadAdminPrefs())
   const editSnapshotRef = useRef(null)
+  const locale = adminPrefs.language || 'de'
+  const text = I18N[locale]
+
+  useEffect(() => {
+    persistAdminPrefs(adminPrefs)
+  }, [adminPrefs])
 
   const toggleEditing = () => {
     if (!isEditing) {

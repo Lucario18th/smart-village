@@ -1,6 +1,42 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
+const LANDING_PREFS_KEY = 'smart-village-landing-preferences'
+
+const I18N = {
+  de: {
+    languageLabel: 'Sprache',
+  },
+  en: {
+    languageLabel: 'Language',
+  },
+  fr: {
+    languageLabel: 'Langue',
+  },
+}
+
+const DEFAULT_LANDING_PREFS = {
+  language: 'de',
+}
+
+function loadLandingPrefs() {
+  try {
+    const raw = localStorage.getItem(LANDING_PREFS_KEY)
+    if (!raw) return DEFAULT_LANDING_PREFS
+    const parsed = JSON.parse(raw)
+    return {
+      ...DEFAULT_LANDING_PREFS,
+      ...parsed,
+    }
+  } catch {
+    return DEFAULT_LANDING_PREFS
+  }
+}
+
+function persistLandingPrefs(prefs) {
+  localStorage.setItem(LANDING_PREFS_KEY, JSON.stringify(prefs))
+}
+
 const LANDING_LINKS = {
   repo: {
     label: 'GitHub Repository',
@@ -125,6 +161,13 @@ export default function LandingPage() {
   const [activeSlide, setActiveSlide] = React.useState(0)
   const [isCarouselPaused, setIsCarouselPaused] = React.useState(false)
   const [isReducedMotion, setIsReducedMotion] = React.useState(false)
+  const [landingPrefs, setLandingPrefs] = React.useState(() => loadLandingPrefs())
+  const locale = landingPrefs.language || 'de'
+  const text = I18N[locale]
+
+  React.useEffect(() => {
+    persistLandingPrefs(landingPrefs)
+  }, [landingPrefs])
 
   React.useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
@@ -268,12 +311,31 @@ export default function LandingPage() {
 
     <footer className="landing-footer" aria-label="Footer">
       <div className="landing-footer-content">
-        <div className="landing-footer-links">
-          <LandingLink {...LANDING_LINKS.privacy} />
-          <LandingLink {...LANDING_LINKS.imprint} />
-          <LandingLink {...LANDING_LINKS.github} />
-          <LandingLink {...LANDING_LINKS.linkedin} />
-          <LandingLink {...LANDING_LINKS.instagram} />
+        <div className="landing-footer-top">
+          <div className="landing-footer-links">
+            <LandingLink {...LANDING_LINKS.privacy} />
+            <LandingLink {...LANDING_LINKS.imprint} />
+            <LandingLink {...LANDING_LINKS.github} />
+            <LandingLink {...LANDING_LINKS.linkedin} />
+            <LandingLink {...LANDING_LINKS.instagram} />
+          </div>
+          <div className="landing-language-selector">
+            <label htmlFor="landing-language-select">{text.languageLabel}</label>
+            <select
+              id="landing-language-select"
+              value={locale}
+              onChange={(event) =>
+                setLandingPrefs((current) => ({
+                  ...current,
+                  language: event.target.value,
+                }))
+              }
+            >
+              <option value="de">Deutsch</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+            </select>
+          </div>
         </div>
         <p className="landing-footer-copy">
           © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach

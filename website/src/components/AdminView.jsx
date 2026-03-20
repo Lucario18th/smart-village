@@ -9,10 +9,35 @@ import DeleteAccountDialog from './DeleteAccountDialog'
 import { apiClient } from '../api/client'
 import AiAssistantWidget from './common/AiAssistantWidget'
 
+const ADMIN_PREFS_KEY = 'smart-village-admin-preferences'
+
+const DEFAULT_ADMIN_PREFS = {
+  language: 'de',
+}
+
+function loadAdminPrefs() {
+  try {
+    const raw = localStorage.getItem(ADMIN_PREFS_KEY)
+    if (!raw) return DEFAULT_ADMIN_PREFS
+    const parsed = JSON.parse(raw)
+    return {
+      ...DEFAULT_ADMIN_PREFS,
+      ...parsed,
+    }
+  } catch {
+    return DEFAULT_ADMIN_PREFS
+  }
+}
+
+function persistAdminPrefs(prefs) {
+  localStorage.setItem(ADMIN_PREFS_KEY, JSON.stringify(prefs))
+}
+
 export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
   const [isGeneralEditing, setIsGeneralEditing] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [adminPrefs] = useState(() => loadAdminPrefs())
   const headerRef = useRef(null)
   const [mobileHeaderHeight, setMobileHeaderHeight] = useState(0)
   const {
@@ -174,26 +199,16 @@ export default function AdminView({ session, onLogout }) {
               </button>
             </h1>
             <div className="admin-header-actions-right">
-              <div className="admin-header-links-stack">
-                <div className="admin-header-links-row">
-                  <Link className="admin-header-link" to="/">
-                    Projektübersicht
-                  </Link>
-                  <Link className="admin-header-link admin-header-link--secondary" to="/user">
-                    Bürgerportal
-                  </Link>
-                </div>
-                {toast && (
-                  <div className="admin-header-toast-slot" role="status" aria-live="polite">
-                    <div className="toast-notification">
-                      <span>{toast.message}</span>
-                      <button type="button" aria-label="Hinweis schließen" onClick={dismissToast}>
-                        ×
-                      </button>
-                    </div>
+              {toast && (
+                <div className="admin-header-toast-slot" role="status" aria-live="polite">
+                  <div className="toast-notification">
+                    <span>{toast.message}</span>
+                    <button type="button" aria-label="Hinweis schließen" onClick={dismissToast}>
+                      ×
+                    </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               <AiAssistantWidget
                 audience="admin"
                 contextData={assistantContext}
@@ -238,6 +253,22 @@ export default function AdminView({ session, onLogout }) {
             activeSectionId={activeSection.id}
             onChange={handleSectionChange}
           />
+
+          <nav className="admin-nav-external" aria-label="Externe Navigation">
+            <Link to="/" className="admin-nav-external-link" title="Zur Startseite">
+              <svg className="admin-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7M17 7H9M17 7V15" />
+              </svg>
+              <span>Projektübersicht</span>
+            </Link>
+            <Link to="/user" className="admin-nav-external-link" title="Zum Bürgerportal">
+              <svg className="admin-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7M17 7H9M17 7V15" />
+              </svg>
+              <span>Bürgerportal</span>
+            </Link>
+          </nav>
+
           <div className="admin-sidebar-actions">
             <button
               type="button"
@@ -300,6 +331,10 @@ export default function AdminView({ session, onLogout }) {
       </div>
 
       <footer className="app-footer app-page-footer">
+        <div className="app-footer-links">
+          <Link to="/impressum" className="app-footer-link">Impressum</Link>
+          <Link to="/datenschutz" className="app-footer-link">Datenschutz</Link>
+        </div>
         Smart Village Admin · Letzte Änderung:{' '}
         {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
         <br />

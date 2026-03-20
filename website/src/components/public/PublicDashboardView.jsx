@@ -840,26 +840,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       return (
         <div className="public-settings-panel">
           <section className="public-settings-block">
-            <h3>{text.settings.villageTitle}</h3>
-            <div className="public-village-picker public-village-picker--settings">
-              <label htmlFor="public-village-select-settings">{text.settings.villageSelectLabel}</label>
-              <select
-                id="public-village-select-settings"
-                value={selectedVillageId}
-                onChange={(event) => setSelectedVillageId(event.target.value)}
-                disabled={isVillagesLoading}
-              >
-                <option value="">{text.settings.selectPlaceholder}</option>
-                {villages.map((village) => (
-                  <option key={village.villageId} value={String(village.villageId)}>
-                    {village.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </section>
-
-          <section className="public-settings-block">
             <h3>{text.settings.languageTitle}</h3>
             <div className="public-village-picker public-village-picker--settings">
               <label htmlFor="public-language-select">{text.settings.languageLabel}</label>
@@ -951,17 +931,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             </div>
           </section>
 
-          <div className="public-settings-summary">
-            <p>{text.settings.currentVillage}: {selectedVillage?.name || '-'}</p>
-            <p>{text.modules.map}: {features.map === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.sensorData}: {features.sensorData === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.weather}: {features.weather === true ? text.settings.active : text.settings.inactive}</p>
-            <p>{text.modules.messages}: {features.messages === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.rideShare}: {features.rideShare === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.events}: {features.events === true ? text.settings.active : text.settings.inactive}</p>
-            <p>{text.modules.textileContainers}: {features.textileContainers === true ? text.settings.active : text.settings.inactive}</p>
-          </div>
-
           <section className="public-settings-block">
             <h3>{text.settings.supportTitle}</h3>
             <p className="public-settings-hint">{text.settings.supportHint}</p>
@@ -990,12 +959,22 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <div className="admin-header-title-row">
             <h1>{text.appTitle}</h1>
             <div className="admin-header-actions-right">
-              <Link className="admin-header-link" to="/">
-                Projektübersicht
-              </Link>
-              <Link className="admin-header-link admin-header-link--secondary" to="/admin">
-                Dorf Administration
-              </Link>
+              <div className="public-village-selector-header">
+                <label htmlFor="public-village-select-header">{text.settings.villageSelectLabel}</label>
+                <select
+                  id="public-village-select-header"
+                  value={selectedVillageId}
+                  onChange={(event) => setSelectedVillageId(event.target.value)}
+                  disabled={isVillagesLoading}
+                >
+                  <option value="">{text.settings.selectPlaceholder}</option>
+                  {villages.map((village) => (
+                    <option key={village.villageId} value={String(village.villageId)}>
+                      {village.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               {features.userAssistant !== false ? (
                 <AiAssistantWidget
                   audience="user"
@@ -1058,6 +1037,20 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               </button>
             ))}
           </nav>
+
+          <nav className="public-nav-external" aria-label="Externe Navigation">
+            <Link to="/" className="public-nav-external-link" title="Zur Startseite">
+              <svg className="public-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">                <path d="M7 17L17 7M17 7H9M17 7V15" />
+              </svg>
+              <span>Projektübersicht</span>
+            </Link>
+            <Link to="/admin" className="public-nav-external-link" title="Zur Administration">
+              <svg className="public-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7M17 7H9M17 7V15" />
+              </svg>
+              <span>Dorf Administration</span>
+            </Link>
+          </nav>
         </aside>
 
         <section className={`admin-main-content public-user-main${activeSection.id === 'map' ? ' is-map-home' : ''}`}>
@@ -1079,6 +1072,10 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       </div>
 
       <footer className="app-footer app-page-footer public-user-footer">
+        <div className="app-footer-links">
+          <Link to="/impressum" className="app-footer-link">Impressum</Link>
+          <Link to="/datenschutz" className="app-footer-link">Datenschutz</Link>
+        </div>
         {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
         <br />
         <span className="app-footer-copy">
