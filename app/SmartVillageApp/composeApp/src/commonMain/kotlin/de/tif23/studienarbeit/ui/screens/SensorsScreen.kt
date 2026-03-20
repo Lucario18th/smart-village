@@ -18,6 +18,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -195,6 +196,12 @@ private fun SensorListItem(sensor: Sensor, onClick: () -> Unit) {
             .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            painter = painterResource(sensor.type.drawableResource),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = sensor.name,
@@ -203,7 +210,7 @@ private fun SensorListItem(sensor: Sensor, onClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = sensor.type,
+                text = sensor.type.name,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

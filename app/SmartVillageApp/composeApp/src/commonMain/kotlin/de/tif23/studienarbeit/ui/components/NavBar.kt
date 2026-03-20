@@ -15,8 +15,8 @@ import de.tif23.studienarbeit.viewmodel.NavDestinations
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.commute
+import smartvillageapp.composeapp.generated.resources.dashboard_customize
 import smartvillageapp.composeapp.generated.resources.home
-import smartvillageapp.composeapp.generated.resources.modules
 import smartvillageapp.composeapp.generated.resources.settings
 import smartvillageapp.composeapp.generated.resources.thermometer
 
@@ -57,7 +57,7 @@ fun NavBar(
                 onClick = { backStack.add(NavDestinations.ModulesScreen) },
                 icon = {
                     Icon(
-                        painterResource(Res.drawable.modules),
+                        painterResource(Res.drawable.dashboard_customize),
                         contentDescription = "Module"
                     )
                 },

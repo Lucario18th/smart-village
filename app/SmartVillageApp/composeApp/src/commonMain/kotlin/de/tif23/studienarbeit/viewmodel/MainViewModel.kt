@@ -35,9 +35,8 @@ import de.tif23.studienarbeit.viewmodel.constants.FREIBURG_LAT
 import de.tif23.studienarbeit.viewmodel.constants.FREIBURG_LON
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LAT
 import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
-import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
-import de.tif23.studienarbeit.viewmodel.data.RecyclingType
 import de.tif23.studienarbeit.viewmodel.data.Sensor
+import de.tif23.studienarbeit.viewmodel.data.SensorType
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.state.EnvironmentalData
 import de.tif23.studienarbeit.viewmodel.data.state.MainViewModelState
@@ -45,10 +44,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonArray
 import org.jetbrains.compose.resources.painterResource
 import ovh.plrapps.mapcompose.api.addCallout
 import ovh.plrapps.mapcompose.api.addLayer
@@ -59,12 +54,8 @@ import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
-import smartvillageapp.composeapp.generated.resources.altglas_location
-import smartvillageapp.composeapp.generated.resources.altkleider_location
 import smartvillageapp.composeapp.generated.resources.circle_full
-import smartvillageapp.composeapp.generated.resources.parkbank_location
 import smartvillageapp.composeapp.generated.resources.train_filled
-import smartvillageapp.composeapp.generated.resources.weather_filled
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -215,9 +206,9 @@ class MainViewModel(
     }
 
     private fun buildEnvironmentalData(sensors: List<Sensor>): EnvironmentalData {
-        val temperature = sensors.averageForCategory { it.matchesTemperature() }
-        val humidity = sensors.averageForCategory { it.matchesHumidity() }
-        val windSpeed = sensors.averageForCategory { it.matchesWindSpeed() }
+        val temperature = sensors.averageForCategory(SensorType.TEMPERATURE)
+        val humidity = sensors.averageForCategory(SensorType.AIR_HUMIDITY)
+        val windSpeed = sensors.averageForCategory(SensorType.WIND_SPEED)
 
         return EnvironmentalData(
             temperature = temperature?.let { formatAverage(it, "C") } ?: "-",
@@ -226,10 +217,10 @@ class MainViewModel(
         )
     }
 
-    private inline fun List<Sensor>.averageForCategory(crossinline matchesCategory: (Sensor) -> Boolean): Double? {
+    private fun List<Sensor>.averageForCategory(sensorType: SensorType): Double? {
         val values = this
             .asSequence()
-            .filter { matchesCategory(it) }
+            .filter { it.type == sensorType }
             .mapNotNull { it.lastReading?.value }
             .toList()
 
@@ -238,41 +229,6 @@ class MainViewModel(
         }
 
         return values.average()
-    }
-
-    private fun Sensor.matchesTemperature(): Boolean {
-        val normalizedType = type.lowercase()
-        val normalizedName = name.lowercase()
-        return normalizedType.contains("temperatur") ||
-                normalizedType.contains("temperature") ||
-                normalizedType.contains("temp") ||
-                normalizedName.contains("temperatur") ||
-                normalizedName.contains("temperature") ||
-                unit.equals("c", ignoreCase = true) ||
-                unit.equals("°c", ignoreCase = true)
-    }
-
-    private fun Sensor.matchesHumidity(): Boolean {
-        val normalizedType = type.lowercase()
-        val normalizedName = name.lowercase()
-        return normalizedType.contains("luftfeuchtigkeit") ||
-                normalizedType.contains("humidity") ||
-                normalizedType.contains("feuchtigkeit") ||
-                normalizedName.contains("luftfeuchtigkeit") ||
-                normalizedName.contains("humidity") ||
-                unit == "%"
-    }
-
-    private fun Sensor.matchesWindSpeed(): Boolean {
-        val normalizedType = type.lowercase()
-        val normalizedName = name.lowercase()
-        return normalizedType.contains("windgeschwindigkeit") ||
-                normalizedType.contains("wind speed") ||
-                normalizedType.contains("windspeed") ||
-                normalizedName.contains("windgeschwindigkeit") ||
-                normalizedName.contains("wind speed") ||
-                normalizedName.contains("windspeed") ||
-                unit.equals("m/s", ignoreCase = true)
     }
 
     private fun formatAverage(value: Double, unit: String): String {
@@ -288,26 +244,26 @@ class MainViewModel(
     private fun loadMarkers(village: VillageConfig) {
         viewModelScope.launch {
             if (village.village.features?.textileContainers!!) {
-                val container = Res.readBytes("files/container.json").decodeToString()
-                val containerList = JsonArray(Json.parseToJsonElement(container).jsonArray).map {
-                    Json.decodeFromJsonElement<RecyclingContainer>(it)
-                }
-                containerList.forEach {
-                    mapState.addMarker(
-                        id = "container_${it.id}",
-                        x = lonToX(it.coordinates.lon),
-                        y = latToY(it.coordinates.lat)
-                    ) {
-                        Icon(
-                            painter = if (it.type == RecyclingType.ALTGLAS.name) painterResource(Res.drawable.altglas_location) else painterResource(
-                                Res.drawable.altkleider_location
-                            ),
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp),
-                            tint = onSurfaceLight
-                        )
-                    }
-                }
+//                val container = Res.readBytes("files/container.json").decodeToString()
+//                val containerList = JsonArray(Json.parseToJsonElement(container).jsonArray).map {
+//                    Json.decodeFromJsonElement<RecyclingContainer>(it)
+//                }
+//                containerList.forEach {
+//                    mapState.addMarker(
+//                        id = "container_${it.id}",
+//                        x = lonToX(it.coordinates.lon),
+//                        y = latToY(it.coordinates.lat)
+//                    ) {
+//                        Icon(
+//                            painter = if (it.type == RecyclingType.ALTGLAS.name) painterResource(Res.drawable.altglas_location) else painterResource(
+//                                Res.drawable.altkleider_location
+//                            ),
+//                            contentDescription = null,
+//                            modifier = Modifier.size(32.dp),
+//                            tint = onSurfaceLight
+//                        )
+//                    }
+//                }
             }
 
             val villageStations = getVillageTrainStationsUseCase.getAllStationsForVillage(
@@ -338,11 +294,9 @@ class MainViewModel(
                         y = latToY(it.coordinates.lat)
                     ) {
                         Icon(
-                            painter = if (it.type == "Mitfahrbank") painterResource(Res.drawable.parkbank_location) else painterResource(
-                                Res.drawable.weather_filled
-                            ),
+                            painter = painterResource(it.type.drawableResource),
                             contentDescription = null,
-                            modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
+                            modifier = Modifier.size(if (it.type == SensorType.RIDESHARE) 32.dp else 24.dp),
                             tint = onSurfaceLight
                         )
                     }
