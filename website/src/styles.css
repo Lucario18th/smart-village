@@ -158,6 +158,17 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .design-card-title{margin:0;font-size:15px;font-weight:700;color:var(--md-sys-color-primary)}
 .design-card-hint{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
 .design-card-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:480px;gap:10px 16px}
+.map-disabled-card{padding:18px;border-radius:12px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);background:color-mix(in srgb, var(--md-sys-color-primary-container) 16%, transparent);display:grid;gap:14px;margin:0 0 16px 0}
+.map-disabled-card-header{display:grid;gap:3px;margin-bottom:4px}
+.map-disabled-card-title{margin:0;font-size:14px;font-weight:700;color:var(--md-sys-color-primary);letter-spacing:-.01em}
+.map-disabled-card-desc{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant);line-height:1.4}
+.map-disabled-card-fields{display:grid;gap:14px}
+.map-disabled-card-fields .general-outlined-field{position:relative;display:grid;gap:5px;padding:10px 12px;border-radius:10px;background:var(--md-sys-color-surface);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 50%, transparent);transition:border-color .2s ease,box-shadow .2s ease}
+.map-disabled-card-fields .general-outlined-field:focus-within{border-color:var(--md-sys-color-primary);box-shadow:0 0 0 2px color-mix(in srgb, var(--md-sys-color-primary) 22%, transparent)}
+.map-disabled-card-fields .general-field-label{position:absolute;top:-9px;left:10px;padding:0 6px;font-size:12px;line-height:1.2;font-weight:700;color:var(--md-sys-color-primary);background:color-mix(in srgb, var(--md-sys-color-primary-container) 16%, transparent);pointer-events:none}
+.map-disabled-card-fields input,.map-disabled-card-fields textarea{width:100%;border:none;background:transparent;padding:4px 2px;border-radius:0;box-shadow:none;color:var(--md-sys-color-on-surface);font:inherit;font-size:13px}
+.map-disabled-card-fields input:focus,.map-disabled-card-fields textarea:focus{outline:none}
+.map-disabled-card-fields textarea{resize:vertical;min-height:80px}
 .design-select-field{display:grid;gap:5px}
 .design-select-label{font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface-variant)}
 .design-select-field select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 36%, transparent);background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface);font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s ease,background .15s ease}
@@ -689,7 +700,7 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 	.statistics-filters{grid-template-columns:1fr}
 }
 
-.admin-header-toast-slot{position:absolute;top:calc(100% + 6px);right:0;z-index:2;width:max-content;max-width:clamp(240px,42vw,760px);pointer-events:none}
+.admin-header-toast-slot{position:absolute;top:8px;right:0;z-index:2;width:max-content;max-width:clamp(240px,42vw,760px);pointer-events:none}
 .toast-notification{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);border:1px solid color-mix(in srgb, var(--md-sys-color-secondary) 30%, transparent);box-shadow:0 3px 10px color-mix(in srgb, var(--md-sys-color-shadow) 18%, transparent);pointer-events:auto}
 .toast-notification button{border:none;background:transparent;color:inherit;font-size:18px;line-height:1;cursor:pointer;font-weight:700;padding:0}
 .badge-new{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font-size:12px;font-weight:700;letter-spacing:0.3px}
@@ -807,7 +818,7 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 	.admin-header-actions-right{align-items:center}
 	.admin-header-links-stack{min-width:0;width:auto}
 	.admin-header-links-row{justify-content:flex-end;flex-wrap:wrap}
-	.admin-header-toast-slot{top:calc(100% + 6px);right:0;left:auto;width:min(88vw,420px);max-width:88vw}
+	.admin-header-toast-slot{top:8px;right:0;left:auto;width:min(88vw,420px);max-width:88vw}
 	.toast-notification{width:100%}
 	.map-toggle-button{align-self:flex-end}
 	.map-toggle-button--in-map{top:8px;right:8px;align-self:auto}
@@ -949,6 +960,9 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 .village-section-disabled{background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 60%, transparent);border-color:color-mix(in srgb, var(--md-sys-color-outline) 18%, transparent)}
 .village-section-empty{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px}
 .disabled-message{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px;font-style:italic}
+.village-map-disabled{padding:24px 20px;border-radius:12px;background:color-mix(in srgb, var(--md-sys-color-surface-container-low) 70%, transparent);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent);min-height:280px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.map-disabled-title{margin:0 0 12px;font-size:18px;font-weight:700;color:var(--md-sys-color-primary);letter-spacing:-.01em}
+.map-disabled-text{margin:0;color:var(--md-sys-color-on-surface-variant);font-size:14px;line-height:1.5;white-space:pre-wrap}
 .village-map-section .map-panel{height:500px}
 .public-map-panel .map-tree h3{font-size:24px}
 

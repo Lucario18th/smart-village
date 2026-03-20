@@ -649,18 +649,30 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     }
 
     if (activeSection.id === 'map') {
+      const isMapEnabled = config?.modules?.map?.enabled !== false
       return (
         <div className="village-map-section">
           <h3>{text.sections.map.heading}</h3>
-          <PublicMapPanel
-            zipCode={config?.postalCode?.zipCode}
-            city={config?.postalCode?.city}
-            sensors={sensors}
-            rideshares={[]}
-            locale={locale}
-            selectedSensorId={selectedSensorId}
-            onSensorDeselect={() => setSelectedSensorId(null)}
-          />
+          {isMapEnabled ? (
+            <PublicMapPanel
+              zipCode={config?.postalCode?.zipCode}
+              city={config?.postalCode?.city}
+              sensors={sensors}
+              rideshares={[]}
+              locale={locale}
+              selectedSensorId={selectedSensorId}
+              onSensorDeselect={() => setSelectedSensorId(null)}
+            />
+          ) : (
+            <div className="village-map-disabled">
+              {config?.mapDisabledTitle ? <h4 className="map-disabled-title">{config.mapDisabledTitle}</h4> : null}
+              {config?.mapDisabledText ? (
+                <p className="map-disabled-text">{config.mapDisabledText}</p>
+              ) : (
+                <p className="map-disabled-text">{text.sections.map.heading} ist derzeit nicht verfügbar.</p>
+              )}
+            </div>
+          )}
         </div>
       )
     }
