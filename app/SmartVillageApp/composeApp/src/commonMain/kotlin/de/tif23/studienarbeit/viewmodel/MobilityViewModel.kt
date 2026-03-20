@@ -5,14 +5,21 @@ import androidx.lifecycle.viewModelScope
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.model.usecase.GetDeparturesUseCase
 import de.tif23.studienarbeit.model.usecase.GetRidesharePointUseCase
+import de.tif23.studienarbeit.model.usecase.GetSensorDataUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageTrainStationsUseCase
 import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
+import de.tif23.studienarbeit.viewmodel.data.SensorType
 import de.tif23.studienarbeit.viewmodel.data.Station
 import de.tif23.studienarbeit.viewmodel.data.state.MobilityViewModelState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -21,12 +28,14 @@ import kotlin.time.ExperimentalTime
 
 class MobilityViewModel(
     private val getRidesharePointUseCase: GetRidesharePointUseCase = GetRidesharePointUseCase(),
+    private val getSensorDataUseCase: GetSensorDataUseCase = GetSensorDataUseCase(),
     private val getDeparturesUseCase: GetDeparturesUseCase = GetDeparturesUseCase(),
     private val getVillageUseCase: GetVillageUseCase = GetVillageUseCase(),
     private val getVillageTrainStationsUseCase: GetVillageTrainStationsUseCase = GetVillageTrainStationsUseCase(),
     private val selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore()
 ) : ViewModel() {
     private val stateFlow = MutableStateFlow(MobilityViewModelState())
+    private var ridesharePollingJob: Job? = null
 
     val viewState = stateFlow.asStateFlow()
 
@@ -84,9 +93,9 @@ class MobilityViewModel(
     }
 
     fun loadRidesharePoints() {
-        viewModelScope.launch {
-            stateFlow.update { it.copy(isLoadingRidesharePoints = true, ridesharePointErrorMessage = null) }
+        if (ridesharePollingJob?.isActive == true) return
 
+        ridesharePollingJob = viewModelScope.launch(Dispatchers.IO) {
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
             if (villageId == null) {
                 stateFlow.update {
@@ -95,24 +104,58 @@ class MobilityViewModel(
                 return@launch
             }
 
-            runCatching {
-                getRidesharePointUseCase.getRidesharePoints(villageId)
-            }.onSuccess { ridesharePoints ->
-                stateFlow.update {
-                    it.copy(
-                        isLoadingRidesharePoints = false,
-                        ridesharePoints = ridesharePoints
-                    )
-                }
-            }.onFailure { error ->
-                stateFlow.update {
-                    it.copy(
-                        isLoadingRidesharePoints = false,
-                        ridesharePointErrorMessage = error.message ?: "Mitfahrgelegenheiten konnten nicht geladen werden"
-                    )
-                }
+            while (isActive) {
+                refreshRideshareData(villageId)
+                delay(POLLING_INTERVAL_MS)
             }
         }
+    }
+
+    override fun onCleared() {
+        ridesharePollingJob?.cancel()
+        super.onCleared()
+    }
+
+    private suspend fun refreshRideshareData(villageId: Int) {
+        val shouldShowLoadingState = stateFlow.value.ridesharePoints.isEmpty() && stateFlow.value.rideshareSensors.isEmpty()
+        if (shouldShowLoadingState) {
+            stateFlow.update { it.copy(isLoadingRidesharePoints = true, ridesharePointErrorMessage = null) }
+        }
+
+        runCatching {
+            val ridesharePoints = getRidesharePointUseCase.getRidesharePoints(villageId)
+            val rideshareSensorIds = getVillageUseCase.getVillageConfig(villageId)
+                .sensors
+                .filter { it.type == SensorType.RIDESHARE }
+                .map { it.id }
+
+            val liveSensorsById = this@MobilityViewModel.getSensorDataUseCase
+                .getInitialSensorData(villageId)
+                .associateBy { it.id }
+            val rideShareSensors = rideshareSensorIds.mapNotNull { liveSensorsById[it] }
+
+            ridesharePoints to rideShareSensors
+        }.onSuccess { (ridesharePoints, rideShareSensors) ->
+            stateFlow.update {
+                it.copy(
+                    isLoadingRidesharePoints = false,
+                    ridesharePointErrorMessage = null,
+                    ridesharePoints = ridesharePoints,
+                    rideshareSensors = rideShareSensors
+                )
+            }
+        }.onFailure { error ->
+            stateFlow.update {
+                it.copy(
+                    isLoadingRidesharePoints = false,
+                    ridesharePointErrorMessage = error.message ?: "Mitfahrgelegenheiten konnten nicht geladen werden"
+                )
+            }
+        }
+    }
+
+    private companion object {
+        const val POLLING_INTERVAL_MS = 5000L
     }
 }
 

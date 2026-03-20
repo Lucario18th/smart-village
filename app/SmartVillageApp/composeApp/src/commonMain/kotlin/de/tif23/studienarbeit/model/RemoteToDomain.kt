@@ -1,6 +1,7 @@
 package de.tif23.studienarbeit.model
 
 import de.tif23.studienarbeit.model.data.RemoteMessage
+import de.tif23.studienarbeit.model.data.RemoteModule
 import de.tif23.studienarbeit.model.data.RemoteRidesharePoint
 import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorData
@@ -10,10 +11,13 @@ import de.tif23.studienarbeit.model.data.responses.TimeTableChange
 import de.tif23.studienarbeit.model.data.responses.TimeTableEntry
 import de.tif23.studienarbeit.viewmodel.data.Coordinates
 import de.tif23.studienarbeit.viewmodel.data.Message
+import de.tif23.studienarbeit.viewmodel.data.Module
+import de.tif23.studienarbeit.viewmodel.data.ModuleIcon
 import de.tif23.studienarbeit.viewmodel.data.RidesharePoint
 import de.tif23.studienarbeit.viewmodel.data.Sensor
 import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
 import de.tif23.studienarbeit.viewmodel.data.SensorReading
+import de.tif23.studienarbeit.viewmodel.data.SensorType
 import de.tif23.studienarbeit.viewmodel.data.StationDeparture
 import de.tif23.studienarbeit.viewmodel.data.TrainType
 import de.tif23.studienarbeit.viewmodel.data.TripStatus
@@ -50,7 +54,7 @@ fun RemoteSensor.toDomain(): Sensor {
     return Sensor(
         id = this.id,
         name = this.name,
-        type = this.type,
+        type = getSensorType(this.type),
         unit = this.unit,
         coordinates = Coordinates(
             lat = this.latitude,
@@ -64,7 +68,7 @@ fun RemoteSensorData.toDomain(): Sensor {
     return Sensor(
         id = this.sensorId,
         name = this.name,
-        type = this.type,
+        type = getSensorType(this.type),
         unit = this.unit,
         coordinates = Coordinates(
             lat = this.latitude,
@@ -104,7 +108,9 @@ fun RemoteVillageConfig.toDomain(): VillageConfig {
             description = this.sensorDetailVisibility.description,
             coordinates = this.sensorDetailVisibility.coordinates
         ),
-        sensors = this.sensors.map { it.toDomain() }
+        sensors = this.sensors.map { it.toDomain() },
+        statusText = this.statusText,
+        infoText = this.infoText
     )
 }
 
@@ -191,4 +197,46 @@ fun TimeTableEntry.toDomain(
             else -> TrainType.LONG_DISTANCE
         },
     )
+}
+
+fun RemoteModule.toDomain(remoteSensors: List<RemoteSensorData>): Module {
+    return Module(
+        id = this.id,
+        name = this.name,
+        description = this.description,
+        iconKey = getModuleIconForIconKey(this.iconKey),
+        sensors = remoteSensors.map { it.toDomain() }
+    )
+}
+
+fun getModuleIconForIconKey(iconKey: String): ModuleIcon {
+    return when (iconKey) {
+        "sensors" -> ModuleIcon.SENSOR
+        "weather" -> ModuleIcon.WEATHER
+        "messages" -> ModuleIcon.MESSAGES
+        "map" -> ModuleIcon.MAP
+        "rideshare" -> ModuleIcon.MOBILITY
+        "events" -> ModuleIcon.EVENTS
+        "textile" -> ModuleIcon.CONTAINER
+        "tree" -> ModuleIcon.TREES
+        "water" -> ModuleIcon.WATER
+        "camera" -> ModuleIcon.CAMERA
+        "energy" -> ModuleIcon.ENERGY
+        else -> ModuleIcon.SENSOR
+    }
+}
+
+fun getSensorType(type: String): SensorType {
+    return when (type) {
+        "Temperature" -> SensorType.TEMPERATURE
+        "Humidity" -> SensorType.AIR_HUMIDITY
+        "Pressure" -> SensorType.AIR_PRESSURE
+        "Rainfall" -> SensorType.RAIN
+        "Wind Speed" -> SensorType.WIND_SPEED
+        "Solar Radiation" -> SensorType.SOLAR_RADIATION
+        "Soil Humidity" -> SensorType.SOIL_HUMIDITY
+        "CO2" -> SensorType.CO2
+        "Mitfahrbank" -> SensorType.RIDESHARE
+        else -> SensorType.TEMPERATURE
+    }
 }

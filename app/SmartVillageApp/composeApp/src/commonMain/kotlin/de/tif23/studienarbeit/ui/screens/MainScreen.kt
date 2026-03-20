@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,10 +18,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,10 +46,12 @@ import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.MapButton
 import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.ui.components.RequestLocationPermission
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MainViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
+import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -85,7 +91,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
         viewModel.startLocationTracking()
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = backgroundPainter,
             contentDescription = null,
@@ -108,12 +114,26 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                     .align(Alignment.Center)
                     .padding(24.dp)
             )
+        } else if (state.village == null) {
+            Text(
+                text = "Das Dorf mit der ID ... konnte nicht geladen werden \n Bitte löschen Sie den Speicherinhalt der App und starten Sie die App erneut",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(24.dp)
+            )
         } else {
-
             Scaffold(
                 containerColor = Color.Transparent,
                 topBar = {
-                    TopBar(villageName = state.village?.village?.name!!)
+                    TopBar(
+                        backStack = backStack,
+                        villageId = state.village?.village?.id!!,
+                        villageName = state.village?.village?.name!!,
+                        features = state.village?.village?.features!!
+                    )
                 },
                 bottomBar = {
                     NavBar(backStack, NavBarTabs.MAIN)
@@ -125,46 +145,81 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                         .fillMaxWidth()
                         .padding(paddingValues)
                 ) {
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Box(
+                    if (state.village?.village?.features?.map!!) {
+                        item {
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(360.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                        shape = RectangleShape
-                                    )
+                                    .padding(16.dp),
+                                shape = RoundedCornerShape(16.dp)
                             ) {
-                                MapUI(state = viewModel.mapState)
-                                Column(
-                                    modifier = Modifier.align(Alignment.TopEnd)
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(360.dp)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.surfaceVariant,
+                                            shape = RectangleShape
+                                        )
                                 ) {
-                                    MapButton(
-                                        icon = Res.drawable.open_in_full,
-                                        contentDescription = "Vollbildkarte",
-                                        onClick = {
-                                            backStack.add(NavDestinations.MapScreen)
-                                        }
+                                    MapUI(state = viewModel.mapState)
+                                    Column(
+                                        modifier = Modifier.align(Alignment.TopEnd)
+                                    ) {
+                                        MapButton(
+                                            icon = Res.drawable.open_in_full,
+                                            contentDescription = "Vollbildkarte",
+                                            onClick = {
+                                                backStack.add(NavDestinations.MapScreen)
+                                            }
+                                        )
+                                        MapButton(
+                                            icon = Res.drawable.my_location,
+                                            contentDescription = "Auf mich zentrieren",
+                                            onClick = {
+                                                viewModel.centerOnUser()
+                                            }
+                                        )
+                                        MapButton(
+                                            icon = Res.drawable.city,
+                                            contentDescription = "Auf Dorf zentrieren",
+                                            onClick = {
+                                                viewModel.centerOnVillage()
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (state.village?.statusText?.isNotEmpty() == true || state.village?.infoText?.isNotEmpty() == true) {
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 12.dp
+                                    ),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = state.village?.statusText ?: "Status",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        fontWeight = FontWeight.Bold
                                     )
-                                    MapButton(
-                                        icon = Res.drawable.my_location,
-                                        contentDescription = "Auf mich zentrieren",
-                                        onClick = {
-                                            viewModel.centerOnUser()
-                                        }
-                                    )
-                                    MapButton(
-                                        icon = Res.drawable.city,
-                                        contentDescription = "Auf Dorf zentrieren",
-                                        onClick = {
-                                            viewModel.centerOnVillage()
-                                        }
+                                    Text(
+                                        text = state.village?.infoText ?: "",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                             }
@@ -177,7 +232,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(
                                     start = 16.dp,
-                                    top = 4.dp,
+                                    top = 12.dp,
                                     bottom = 8.dp
                                 )
                             )
@@ -225,42 +280,50 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    item {
-                        Text(
-                            text = "Umweltdaten",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                        )
-                    }
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            sensors.forEach { sensor ->
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(92.dp)
-                                ) {
-                                    Column(
+                    if (state.village?.village?.features?.weather == true) {
+                        item {
+                            Text(
+                                text = "Umweltdaten",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 16.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                        }
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                sensors.forEach { sensor ->
+                                    Card(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(8.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
+                                            .weight(1f)
+                                            .height(92.dp)
                                     ) {
-                                        Text(
-                                            text = sensor.value,
-                                            style = MaterialTheme.typography.titleLarge
-                                        )
-                                        Spacer(modifier = Modifier.size(16.dp))
-                                        Text(
-                                            text = sensor.label,
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(8.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            Text(
+                                                text = sensor.value,
+                                                style = MaterialTheme.typography.titleLarge
+                                            )
+                                            Spacer(modifier = Modifier.size(16.dp))
+                                            Text(
+                                                text = sensor.label,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -274,7 +337,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(villageName: String) {
+private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName: String, features: VillageFeatures) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -283,15 +346,23 @@ private fun TopBar(villageName: String) {
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(villageName)
+                Text(
+                    text = villageName,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = onSurfaceLight
+                )
             }
         },
         actions = {
-            Icon(
-                painter = painterResource(Res.drawable.notifications),
-                contentDescription = "Benachrichtigungen",
-                modifier = Modifier.padding(end = 12.dp)
-            )
+            if (features.messages) {
+                IconButton(onClick = { backStack.add(NavDestinations.MessagesScreen(villageId)) }) {
+                    Icon(
+                        painter = painterResource(Res.drawable.notifications),
+                        contentDescription = "Benachrichtigungen",
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                }
+            }
             Icon(
                 painter = painterResource(Res.drawable.account_circle),
                 contentDescription = "Profil",

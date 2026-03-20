@@ -62,6 +62,10 @@ data class TrainMessage(
     val timestamp: String,
     @XmlSerialName("ts-tts")
     val ldtTimestamp: String,
+    @XmlSerialName("dp")
+	val eventChange: String?,
+	@XmlSerialName("dc")
+	val distantChange: String?,
     @XmlSerialName("pr")
     val priority: String?,
 )
@@ -91,6 +95,12 @@ data class ArrivalTrainChange(
     val cancellationTime: String?,
     @XmlSerialName("wings")
     val changedWings: String?,
+    @XmlSerialName("cde")
+    val changedDistantEndpoint: String?,
+    @XmlSerialName("dp")
+	val eventChange: String?,
+	@XmlSerialName("dc")
+	val distantChange: String?,
     @XmlElement
     @XmlSerialName("m")
     val messages: List<TrainMessage>?
@@ -121,6 +131,12 @@ data class DepartureTrainChange(
     val cancellationTime: String?,
     @XmlSerialName("wings")
     val changedWings: String?,
+    @XmlSerialName("cde")
+    val changedDistantEndpoint: String?,
+    @XmlSerialName("dp")
+	val eventChange: String?,
+	@XmlSerialName("dc")
+	val distantChange: String?,
     @XmlElement
     @XmlSerialName("m")
     val messages: List<TrainMessage>?

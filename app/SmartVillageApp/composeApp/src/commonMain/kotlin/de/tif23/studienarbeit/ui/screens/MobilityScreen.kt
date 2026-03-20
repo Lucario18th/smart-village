@@ -49,6 +49,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.DepartureRow
 import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
@@ -89,7 +90,7 @@ fun MobilityScreen(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text("Mobilität") },
+                    title = { Text(text = "Mobilität", color = onSurfaceLight) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent
@@ -156,11 +157,11 @@ private fun CarpoolTabContent(
             }
         }
 
-        if (!state.isLoadingRidesharePoints && state.ridesharePointErrorMessage == null && state.ridesharePoints.isEmpty()) {
-            item {
-                Text("Keine Mitfahrbänke verfügbar")
-            }
-        }
+//        if (!state.isLoadingRidesharePoints && state.ridesharePointErrorMessage == null && state.ridesharePoints.isEmpty()) {
+//            item {
+//                Text("Keine Mitfahrbänke verfügbar")
+//            }
+//        }
 
         items(state.ridesharePoints) { ridesharePoint ->
             Card(
@@ -205,6 +206,33 @@ private fun CarpoolTabContent(
                     ) {
                         Text("Details")
                     }
+                }
+            }
+        }
+        items(state.rideshareSensors) { rideshareSensors ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(Res.drawable.transportation),
+                            contentDescription = "Mitfahren",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = rideshareSensors.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Erkannt: ${rideshareSensors.lastReading?.value}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

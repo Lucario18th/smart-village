@@ -44,7 +44,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.android)
             implementation(libs.play.services.location)
-
+            implementation(libs.androidx.core.splashscreen)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
