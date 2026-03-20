@@ -653,6 +653,9 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .sensor-table th,.sensor-table td{padding:10px 8px;border-bottom:1px solid color-mix(in srgb, var(--md-sys-color-outline) 25%, transparent);text-align:left;vertical-align:top}
 .sensor-table th{font-size:12px;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;letter-spacing:.04em}
 .sensor-table tr.is-selected{background:color-mix(in srgb, var(--md-sys-color-primary-container) 34%, transparent)}
+.sensor-table tbody tr.is-clickable{cursor:pointer;transition:background .15s ease}
+.sensor-table tbody tr.is-clickable:hover{background:color-mix(in srgb, var(--md-sys-color-primary-container) 22%, transparent)}
+.sensor-table tbody tr.is-clickable:focus-visible{outline:2px solid color-mix(in srgb, var(--md-sys-color-primary) 58%, transparent);outline-offset:-2px}
 .sensor-link-button{border:none;padding:0;background:transparent;color:var(--md-sys-color-primary);font:inherit;font-weight:700;cursor:pointer}
 .health-pill{display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;line-height:1.2}
 .health-pill.ok{background:color-mix(in srgb, #2e7d32 24%, transparent);color:#1b5e20}
@@ -669,6 +672,9 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .stats-chart-wrap{display:grid;gap:8px}
 .stats-chart{width:100%;height:auto;display:block;border-radius:10px;background:var(--md-sys-color-surface-container-low);border:1px solid color-mix(in srgb, var(--md-sys-color-outline) 26%, transparent)}
 .stats-axis{stroke:color-mix(in srgb, var(--md-sys-color-outline) 60%, transparent);stroke-width:1}
+.stats-gridline{stroke:color-mix(in srgb, var(--md-sys-color-outline) 24%, transparent);stroke-width:1;stroke-dasharray:3 3}
+.stats-axis-label{fill:var(--md-sys-color-on-surface-variant);font-size:11px;font-weight:700}
+.stats-axis-tick{fill:var(--md-sys-color-on-surface-variant);font-size:10px}
 .stats-line{fill:none;stroke:var(--md-sys-color-primary);stroke-width:2}
 .stats-chart-scale{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
 .stats-empty{padding:14px;border-radius:10px;background:var(--md-sys-color-surface-container-low);color:var(--md-sys-color-on-surface-variant)}
