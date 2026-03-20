@@ -39,6 +39,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
+import de.tif23.studienarbeit.ui.theme.primaryLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.ModulesViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
@@ -68,7 +70,7 @@ fun ModulesScreen(backStack: NavBackStack<NavKey>, viewModel: ModulesViewModel =
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text("Module") },
+                    title = { Text("Module", color = onSurfaceLight) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent
@@ -127,13 +129,13 @@ fun ModulesScreen(backStack: NavBackStack<NavKey>, viewModel: ModulesViewModel =
                             text = "Aktive Module (${uiState.modules.size})",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = primaryLight,
                             modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
                         )
                         Text(
                             text = "Alle Module im Dorf auf einen Blick",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = onSurfaceLight,
                             modifier = Modifier.padding(
                                 start = 16.dp,
                                 top = 4.dp,

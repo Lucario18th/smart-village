@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,6 +47,7 @@ import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.MapButton
 import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.ui.components.RequestLocationPermission
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MainViewModel
@@ -90,7 +92,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
         viewModel.startLocationTracking()
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = backgroundPainter,
             contentDescription = null,
@@ -275,6 +277,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             Text(
                                 text = "Umweltdaten",
                                 style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(
                                     start = 16.dp,
                                     top = 16.dp,
@@ -335,7 +338,11 @@ private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName:
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(villageName)
+                Text(
+                    text = villageName,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = onSurfaceLight
+                )
             }
         },
         actions = {

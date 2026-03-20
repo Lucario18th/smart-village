@@ -49,6 +49,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.DepartureRow
 import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.MobilityViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
@@ -89,7 +90,7 @@ fun MobilityScreen(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text("Mobilität") },
+                    title = { Text(text = "Mobilität", color = onSurfaceLight) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent

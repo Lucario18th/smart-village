@@ -39,6 +39,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.NavBar
+import de.tif23.studienarbeit.ui.theme.onSurfaceLight
+import de.tif23.studienarbeit.ui.theme.primaryLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.SensorViewModel
@@ -79,7 +81,7 @@ fun SensorsScreen(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text("Sensoren") },
+                    title = { Text("Sensoren", color = onSurfaceLight) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent
@@ -134,13 +136,13 @@ fun SensorsScreen(
                             .fillMaxSize()
                             .padding(paddingValues)
                     ) {
-                        uiState.groupedSensors.forEach { group ->
+                        uiState.groupedSensors.forEachIndexed { index, group ->
                             item {
                                 Text(
                                     text = group.coordinatesLabel,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = if (isSystemInDarkTheme() && index == 0) primaryLight else MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(
                                         start = 16.dp,
                                         top = 16.dp,
