@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
@@ -119,12 +119,12 @@ function getPinIcon(color, variant, glyphIcon = null) {
 
 const CITY_PIN_ICON = getPinIcon('#ff2d55', 'city')
 
-function MapViewportSync({ center }) {
+function MapViewportSync({ center, zoom = BASE_MAP_ZOOM }) {
   const map = useMap()
 
   useEffect(() => {
-    map.setView([center.lat, center.lng], map.getZoom(), { animate: true })
-  }, [map, center.lat, center.lng])
+    map.setView([center.lat, center.lng], zoom, { animate: true })
+  }, [map, center.lat, center.lng, zoom])
 
   return null
 }
@@ -202,10 +202,20 @@ function SensorSelectionTree({ sensors, selection, onToggleSensor, allSelected, 
   )
 }
 
-export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares = [], locale = 'de' }) {
+export default function PublicMapPanel({
+  zipCode,
+  city,
+  sensors = [],
+  rideshares = [],
+  locale = 'de',
+  selectedSensorId = null,
+  onSensorDeselect = () => {},
+}) {
   const text = MAP_TEXT[locale] || MAP_TEXT.de
   const dateLocale = DATE_LOCALES[locale] || DATE_LOCALES.de
+  const mapRef = useRef(null)
   const [center, setCenter] = useState(FALLBACK_LOCATION)
+  const [zoom, setZoom] = useState(BASE_MAP_ZOOM)
   const [selection, setSelection] = useState(() => buildSelectionState([], []))
   const [isPanelOpen, setIsPanelOpen] = useState(false)
 
@@ -268,6 +278,19 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
     setSelection((prev) => buildSelectionState([], normalizedSensors, prev))
   }, [normalizedSensors])
 
+  useEffect(() => {
+    if (!selectedSensorId) {
+      setZoom(BASE_MAP_ZOOM)
+      return
+    }
+
+    const sensor = normalizedSensors.find((s) => s.id === selectedSensorId)
+    if (!sensor || sensor.latitude == null || sensor.longitude == null) return
+
+    setCenter({ lat: sensor.latitude, lng: sensor.longitude })
+    setZoom(16)
+  }, [selectedSensorId, normalizedSensors])
+
   const markers = useMemo(
     () => buildMarkers({ sensors: normalizedSensors, devices: [], selection, includeControllers: false }),
     [normalizedSensors, selection]
@@ -309,17 +332,18 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
         <div className="map-frame" role="region" aria-label={text.mapAria}>
           <MapContainer
             center={[center.lat, center.lng]}
-            zoom={BASE_MAP_ZOOM}
+            zoom={zoom}
             minZoom={5}
             maxZoom={19}
             scrollWheelZoom
             className="map-leaflet"
+            ref={mapRef}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <MapViewportSync center={center} />
+            <MapViewportSync center={center} zoom={zoom} />
 
             <Marker position={[center.lat, center.lng]} icon={CITY_PIN_ICON} zIndexOffset={1200}>
               <Popup>

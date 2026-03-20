@@ -33,6 +33,7 @@ const I18N = {
     noWeather: 'Keine Wetterdaten verfügbar.',
     weatherValue: 'Wetterwert',
     noMessages: 'Keine Nachrichten vorhanden.',
+    noEvents: 'Keine Veranstaltungen verfügbar.',
     noRideshare: 'Keine Mitfahrbank-Daten vorhanden.',
     onePerson: 'Person',
     manyPeople: 'Personen',
@@ -104,6 +105,7 @@ const I18N = {
     noWeather: 'No weather data available.',
     weatherValue: 'Weather value',
     noMessages: 'No messages available.',
+    noEvents: 'No events available.',
     noRideshare: 'No rideshare data available.',
     onePerson: 'person',
     manyPeople: 'people',
@@ -175,6 +177,7 @@ const I18N = {
     noWeather: 'Aucune donnée météo disponible.',
     weatherValue: 'Valeur météo',
     noMessages: 'Aucun message disponible.',
+    noEvents: 'Aucun événement disponible.',
     noRideshare: 'Aucune donnée de covoiturage disponible.',
     onePerson: 'personne',
     manyPeople: 'personnes',
@@ -277,24 +280,6 @@ const DEFAULT_PREFS = {
   iconSet: 'default',
 }
 
-const DEPARTURE_PLACEHOLDERS_BY_LOCALE = {
-  de: [
-    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'In 6 min', platform: 'Gleis 2' },
-    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'In 14 min', platform: 'Gleis 1' },
-    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'In 21 min', platform: 'Gleis 3' },
-  ],
-  en: [
-    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'In 6 min', platform: 'Platform 2' },
-    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'In 14 min', platform: 'Platform 1' },
-    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'In 21 min', platform: 'Platform 3' },
-  ],
-  fr: [
-    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'Dans 6 min', platform: 'Voie 2' },
-    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'Dans 14 min', platform: 'Voie 1' },
-    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'Dans 21 min', platform: 'Voie 3' },
-  ],
-}
-
 function loadPublicPrefs() {
   try {
     const raw = localStorage.getItem(PUBLIC_PREFS_KEY)
@@ -391,6 +376,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     initialVillageId ? String(initialVillageId) : loadLastVillageId()
   )
   const [activeSectionId, setActiveSectionId] = useState('map')
+  const [selectedSensorId, setSelectedSensorId] = useState(null)
 
   const [config, setConfig] = useState(null)
   const [initialData, setInitialData] = useState(null)
@@ -637,8 +623,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     ]
   )
 
-  const departurePlaceholders = DEPARTURE_PLACEHOLDERS_BY_LOCALE[locale] || DEPARTURE_PLACEHOLDERS_BY_LOCALE.de
-
   const renderTabContent = () => {
     if (!selectedVillageId) {
       return (
@@ -666,7 +650,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
     if (activeSection.id === 'map') {
       return (
-        <section className="village-section village-map-section">
+        <div className="village-map-section">
           <h3>{text.sections.map.heading}</h3>
           <PublicMapPanel
             zipCode={config?.postalCode?.zipCode}
@@ -674,21 +658,39 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             sensors={sensors}
             rideshares={[]}
             locale={locale}
+            selectedSensorId={selectedSensorId}
+            onSensorDeselect={() => setSelectedSensorId(null)}
           />
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'sensors') {
       return (
-        <section className="village-section">
+        <div>
           <h3>{text.sections.sensors.heading}</h3>
           {sensors.length === 0 ? (
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
               {sensors.map((sensor) => (
-                <div key={sensor.id} className="sensor-card">
+                <div
+                  key={sensor.id}
+                  className="sensor-card"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSelectedSensorId(sensor.id)
+                    setActiveSectionId('map')
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setSelectedSensorId(sensor.id)
+                      setActiveSectionId('map')
+                    }
+                  }}
+                >
                   {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
                   {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
                   {sensor.lastReading ? (
@@ -708,7 +710,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </div>
           )}
-        </section>
+        </div>
       )
     }
 
@@ -718,7 +720,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       const moduleSensors = sensors.filter((sensor) => moduleSensorIds.has(sensor.id))
 
       return (
-        <section className="village-section village-module-section">
+        <div className="village-module-section">
           <h3>{activeSection.title}</h3>
           {moduleInfo?.description ? (
             <p className="village-module-description">{moduleInfo.description}</p>
@@ -729,7 +731,23 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           ) : (
             <div className="sensor-card-grid">
               {moduleSensors.map((sensor) => (
-                <div key={sensor.id} className="sensor-card">
+                <div
+                  key={sensor.id}
+                  className="sensor-card"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSelectedSensorId(sensor.id)
+                    setActiveSectionId('map')
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setSelectedSensorId(sensor.id)
+                      setActiveSectionId('map')
+                    }
+                  }}
+                >
                   {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
                   {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
                   {sensor.lastReading ? (
@@ -749,13 +767,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </div>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'weather') {
       return (
-        <section className="village-section">
+        <div>
           <h3>{text.sections.weather.heading}</h3>
           {weatherEntries.length === 0 ? (
             <p className="village-section-empty">{text.noWeather}</p>
@@ -772,13 +790,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </div>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'messages') {
       return (
-        <section className="village-section">
+        <div>
           <h3>{text.sections.messages.heading}</h3>
           {messages.length === 0 ? (
             <p className="village-section-empty">{text.noMessages}</p>
@@ -792,25 +810,16 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </ul>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'events') {
       return (
-        <section className="village-section public-events-panel">
+        <div className="public-events-panel">
           <h3>{text.sections.events.heading}</h3>
           {events.length === 0 ? (
-            <div className="public-departure-grid">
-              {departurePlaceholders.map((departure) => (
-                <article key={departure.id} className="public-departure-card">
-                  <span className="public-departure-line">{departure.line}</span>
-                  <h4>{departure.destination}</h4>
-                  <p>{departure.time}</p>
-                  <small>{departure.platform}</small>
-                </article>
-              ))}
-            </div>
+            <p className="village-section-empty">{text.noEvents}</p>
           ) : (
             <ul className="message-list">
               {events.map((event) => (
@@ -823,13 +832,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </ul>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'settings') {
       return (
-        <section className="village-section public-settings-panel">
+        <div className="public-settings-panel">
           <section className="public-settings-block">
             <h3>{text.settings.villageTitle}</h3>
             <div className="public-village-picker public-village-picker--settings">
@@ -967,7 +976,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </div>
           </section>
-        </section>
+        </div>
       )
     }
 
