@@ -2,6 +2,7 @@ package de.tif23.studienarbeit.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.ModulesViewModel
+import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.data.Module
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
@@ -154,7 +156,10 @@ fun ModulesScreen(backStack: NavBackStack<NavKey>, viewModel: ModulesViewModel =
                                 items = uiState.modules,
                                 key = { it.id }
                             ) { module ->
-                                ModuleGridCard(module = module)
+                                        ModuleGridCard(
+                                            module = module,
+                                            onClick = { backStack.add(NavDestinations.ModuleDetailScreen(module.id)) }
+                                        )
                             }
                         }
                     }
@@ -165,13 +170,15 @@ fun ModulesScreen(backStack: NavBackStack<NavKey>, viewModel: ModulesViewModel =
 }
 
 @Composable
-private fun ModuleGridCard(module: Module) {
+        private fun ModuleGridCard(module: Module, onClick: () -> Unit) {
     val sensorCount = module.sensors.size
     val okSensorCount = module.sensors.count { it.lastReading?.status == "OK" }
     val progress = if (sensorCount == 0) 0f else okSensorCount.toFloat() / sensorCount.toFloat()
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),

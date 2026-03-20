@@ -24,6 +24,9 @@ object NavDestinations {
     data object ModulesScreen : NavKey
 
     @Serializable
+    data class ModuleDetailScreen(val moduleId: Int) : NavKey
+
+    @Serializable
     data object SettingsScreen : NavKey
 
     @Serializable
