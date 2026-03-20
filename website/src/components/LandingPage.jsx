@@ -71,8 +71,8 @@ const PROJECT_SHOWCASE_SLIDES = [
     image: '/project-gallery/sensor-setup.svg',
     alt: 'Illustration eines Sensor-Setups vor Ort mit Team und Messgeräten',
     description:
-      'Vorführung, wie Gateways und Sensoren vor Ort montiert, verbunden und in der Admin-Oberfläche sichtbar gemacht werden.',
-    highlights: ['Gateway registrieren', 'Sensorposition prüfen', 'Erste Live-Messung bestätigen'],
+      'Der praktische Aufbau beginnt vor Ort: Unsere LoRaWAN-Gateways werden strategisch platziert und mit dem Netzwerk verbunden. Danach installieren wir die Umweltsensoren an optimalen Positionen – von der Bodenfeuchte bis zur Luftqualität. Jedes Gerät wird konfiguriert und sofort in der Admin-Oberfläche sichtbar gemacht, damit der Betrieb starten kann.',
+    highlights: 'Gateway-Reichweite optimieren, Sensor-Netzwerk aufbauen, Live-Daten überprüfen',
   },
   {
     id: 'admin-configuration',
@@ -81,8 +81,8 @@ const PROJECT_SHOWCASE_SLIDES = [
     image: '/project-gallery/admin-workflow.svg',
     alt: 'Illustration einer Admin-Oberfläche mit Modulen und Kartenansicht',
     description:
-      'Schritt-für-Schritt Konfiguration von Modulen, Sensorfeldern und Gemeinde-Features direkt im Dashboard.',
-    highlights: ['Module ein-/ausschalten', 'Sichtbarkeit für User steuern', 'Änderungen sofort deployen'],
+      'Im Admin-Dashboard verwalten Gemeinden ihre Smart-Village-Funktionen zentral: Module wie Wetter, Mitfahrbank oder Mitteilungen können flexibel aktiviert oder deaktiviert werden. Die Sichtbarkeit für Bürger lässt sich granular steuern. Alle Änderungen sind sofort live – keine Neustart, keine Wartezeit. Eine intuitive Kartendarstellung zeigt alle Geräte und deren Status im Überblick.',
+    highlights: 'Module flexibel verwalten, Rechte für Nutzergruppen setzen, Daten in Echtzeit visualisieren',
   },
   {
     id: 'mqtt-demo',
@@ -91,8 +91,8 @@ const PROJECT_SHOWCASE_SLIDES = [
     image: '/project-gallery/mqtt-pipeline.svg',
     alt: 'Illustration eines Datenflusses von Sensoren über MQTT ins Backend',
     description:
-      'Demonstration der Datenpipeline von echten Sensorwerten über Broker und Backend bis in die App-Ansichten.',
-    highlights: ['Topic-Publish über Mosquitto', 'Backend-Ingestion prüfen', 'Latenz in der UI verfolgen'],
+      'Sensordaten fließen über das MQTT-Protokoll durch Mosquitto-Broker direkt ins Backend. Unsere Ingestion-Pipeline verarbeitet tausende von Messwerten pro Minute, validiert sie und speichert sie in der Datenbank. Die Echtzeitverarbeitung ermöglicht Live-Updates in der mobilen App und Web-Oberfläche – Bürger sehen Sensor-Daten mit minimaler Latenz.',
+    highlights: 'Echtzeit-Datenströme verarbeiten, Qualitätschecks durchführen, Niedrige Latenz gewährleisten',
   },
   {
     id: 'community-demo',
@@ -101,8 +101,8 @@ const PROJECT_SHOWCASE_SLIDES = [
     image: '/project-gallery/community-demo.svg',
     alt: 'Illustration einer Projektvorführung mit Gemeinde und Team',
     description:
-      'Vor-Ort Sessions mit Gemeinde und Interessierten: Sensorik erklären, Daten nutzen und Funktionen ausprobieren.',
-    highlights: ['User-Seite live zeigen', 'Use Cases sammeln', 'Feedback direkt aufnehmen'],
+      'In direktem Austausch mit der Gemeinde zeigen wir, wie Smart Village im Alltag hilft: Die Bürger-App ermöglicht schnellen Zugriff auf Schule, Wettervorhersage und Mitfahrgelegenheiten. Wir sammeln Feedback zu neuen Use-Cases, erklären die Sensorik-Hintergründe und diskutieren Ideen zur Weiterentwicklung. Diese Sessions sind entscheidend, um die Plattform wirklich nutzerfreundlich zu machen.',
+    highlights: 'Use-Cases mit Bürgern entwickeln, Feedback direkt aufnehmen, Transparenz über Technologie',
   },
 ]
 
@@ -222,11 +222,7 @@ export default function LandingPage() {
           <div className="landing-carousel-content">
             <h3>{currentSlide.title}</h3>
             <p>{currentSlide.description}</p>
-            <ul className="landing-carousel-points">
-              {currentSlide.highlights.map((point) => (
-                <li key={`${currentSlide.id}-${point}`}>{point}</li>
-              ))}
-            </ul>
+            <p className="landing-carousel-highlights">{currentSlide.highlights}</p>
           </div>
         </article>
 
@@ -253,33 +249,6 @@ export default function LandingPage() {
             ›
           </button>
         </div>
-      </section>
-
-      <section className="landing-grid" aria-label="Projektinformationen">
-        <article className="landing-card">
-          <h2>Über das Projekt</h2>
-          <p>
-            Smart Village verbindet Gemeindeinformationen, Sensorik, Mitfahrbank-Status,
-            Wetterdaten und weitere Module in einem einheitlichen System.
-          </p>
-        </article>
-
-        <article className="landing-card">
-          <h2>Über uns</h2>
-          <p>
-            Wir sind Studierende der DHBW: Leon Kühn, Nico Röcker, Manuel Keßler und
-            Alexander Shimaylo. Das Projekt wird betreut von Herrn Schenk und als
-            praxisorientierte Studienarbeit im sechsten Semester umgesetzt.
-          </p>
-        </article>
-
-        <article className="landing-card">
-          <h2>Hinweis zu Testzwecken</h2>
-          <p>
-            Dieses System ist eine Test- und Demonstrationsumgebung im Rahmen der Studienarbeit.
-            Inhalte und Funktionen können sich während der Entwicklung ändern.
-          </p>
-        </article>
       </section>
 
       <section className="landing-team" aria-label="Unser Team">
