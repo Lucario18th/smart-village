@@ -2,6 +2,10 @@ import React from 'react'
 
 const COUNTDOWN_SECONDS = 5 * 60
 const CODE_LENGTH = 6
+const getDefaultMailhogUrl = () => {
+  if (typeof window === 'undefined') return 'http://localhost:8025'
+  return `${window.location.protocol}//${window.location.hostname}:8025`
+}
 const extractDigits = (value) => value.replace(/\D/g, '')
 
 export default function EmailVerificationPending({
@@ -16,6 +20,7 @@ export default function EmailVerificationPending({
   const [isResending, setIsResending] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState('')
   const [infoMessage, setInfoMessage] = React.useState('')
+  const mailhogUrl = import.meta.env?.VITE_MAILHOG_URL || getDefaultMailhogUrl()
   const codeInputRefs = React.useRef([])
   const codeDigits = React.useMemo(
     () => Array.from({ length: CODE_LENGTH }, (_, index) => code[index] || ''),
@@ -147,6 +152,10 @@ export default function EmailVerificationPending({
     handleDigitChange(index, pasted)
   }
 
+  const handleOpenMailhog = () => {
+    window.open(mailhogUrl, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <main className="auth-page">
       <section className="auth-card">
@@ -205,6 +214,13 @@ export default function EmailVerificationPending({
         </form>
 
         <div className="auth-actions">
+          <button
+            type="button"
+            className="auth-secondary-button"
+            onClick={handleOpenMailhog}
+          >
+            MailHog öffnen (neuer Tab)
+          </button>
           <button
             type="button"
             className="auth-secondary-button"
