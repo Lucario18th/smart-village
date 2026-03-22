@@ -15,6 +15,123 @@ const DEFAULT_ADMIN_PREFS = {
   language: 'de',
 }
 
+const ADMIN_I18N = {
+  de: {
+    unknownUser: 'Unbekannt',
+    title: 'Smart Village Admin',
+    switchToHomeTab: 'Zum Start-Tab wechseln',
+    openHomeTabTitle: 'Start-Tab öffnen · Shift+Alt+Klick: Simulation',
+    closeHint: 'Hinweis schließen',
+    closeNavigation: 'Navigation schließen',
+    openNavigation: 'Navigation öffnen',
+    loggedInAs: 'Angemeldet als',
+    simulationHint: 'Simulation öffnen: Strg + Umschalt + S oder Shift + Alt + Klick auf den Titel',
+    externalNavigation: 'Externe Navigation',
+    toStartPage: 'Zur Startseite',
+    projectOverview: 'Projektübersicht',
+    toCitizenPortal: 'Zum Bürgerportal',
+    citizenPortal: 'Bürgerportal',
+    logout: 'Abmelden',
+    configuration: 'Konfiguration',
+    save: 'Speichern',
+    saving: 'Speichern...',
+    statusPrefix: 'Status:',
+    unsavedChanges: '· Ungespeicherte Änderungen vorhanden',
+    emptyState: '—',
+    imprint: 'Impressum',
+    privacy: 'Datenschutz',
+    lastChange: 'Letzte Änderung:',
+    noChangeYet: 'noch keine',
+    copyright: 'Studierendenprojekt der DHBW Lörrach',
+    sectionSummary: {
+      map: { label: 'Home', title: 'Startseite', description: 'Gemeindekarte auf Basis von OpenStreetMap.' },
+      general: { label: 'Allgemein', title: 'Allgemeine Einstellungen', description: 'Grunddaten der Gemeinde verwalten.' },
+      modules: { label: 'Module', title: 'Module und Dienste', description: 'Funktionen für die Gemeinde aktivieren oder deaktivieren.' },
+      sensors: { label: 'Sensoren', title: 'Sensor-Verwaltung', description: 'Sensoren und Datenquellen pro Modul konfigurieren.' },
+      statistics: { label: 'Statistiken', title: 'Sensor-Statistiken', description: 'Daten und Kennzahlen der Sensoren anzeigen.' },
+      design: { label: 'Einstellungen', title: 'Einstellungen', description: 'Design, Darstellung und Kontoverwaltung der App konfigurieren.' },
+    },
+  },
+  en: {
+    unknownUser: 'Unknown',
+    title: 'Smart Village Admin',
+    switchToHomeTab: 'Switch to home tab',
+    openHomeTabTitle: 'Open home tab · Shift+Alt+Click: Simulation',
+    closeHint: 'Close notice',
+    closeNavigation: 'Close navigation',
+    openNavigation: 'Open navigation',
+    loggedInAs: 'Logged in as',
+    simulationHint: 'Open simulation: Ctrl + Shift + S or Shift + Alt + click on the title',
+    externalNavigation: 'External navigation',
+    toStartPage: 'Go to landing page',
+    projectOverview: 'Project overview',
+    toCitizenPortal: 'Go to citizen portal',
+    citizenPortal: 'Citizen portal',
+    logout: 'Log out',
+    configuration: 'Configuration',
+    save: 'Save',
+    saving: 'Saving...',
+    statusPrefix: 'Status:',
+    unsavedChanges: '· Unsaved changes available',
+    emptyState: '—',
+    imprint: 'Legal notice',
+    privacy: 'Privacy policy',
+    lastChange: 'Last change:',
+    noChangeYet: 'none yet',
+    copyright: 'Student project of DHBW Lörrach',
+    sectionSummary: {
+      map: { label: 'Home', title: 'Home', description: 'Municipality map based on OpenStreetMap.' },
+      general: { label: 'General', title: 'General Settings', description: 'Manage core municipality data.' },
+      modules: { label: 'Modules', title: 'Modules and Services', description: 'Enable or disable functions for the municipality.' },
+      sensors: { label: 'Sensors', title: 'Sensor Management', description: 'Configure sensors and data sources per module.' },
+      statistics: { label: 'Statistics', title: 'Sensor Statistics', description: 'View sensor data and key metrics.' },
+      design: { label: 'Settings', title: 'Settings', description: 'Configure design, appearance, and account management.' },
+    },
+  },
+  fr: {
+    unknownUser: 'Inconnu',
+    title: 'Administration Smart Village',
+    switchToHomeTab: 'Revenir à l’onglet d’accueil',
+    openHomeTabTitle: 'Ouvrir l’accueil · Shift+Alt+Clic : simulation',
+    closeHint: 'Fermer la notification',
+    closeNavigation: 'Fermer la navigation',
+    openNavigation: 'Ouvrir la navigation',
+    loggedInAs: 'Connecté en tant que',
+    simulationHint: 'Ouvrir la simulation : Ctrl + Maj + S ou Shift + Alt + clic sur le titre',
+    externalNavigation: 'Navigation externe',
+    toStartPage: 'Aller à la page d’accueil',
+    projectOverview: 'Vue d’ensemble du projet',
+    toCitizenPortal: 'Aller au portail citoyen',
+    citizenPortal: 'Portail citoyen',
+    logout: 'Se déconnecter',
+    configuration: 'Configuration',
+    save: 'Enregistrer',
+    saving: 'Enregistrement...',
+    statusPrefix: 'Statut :',
+    unsavedChanges: '· Modifications non enregistrées',
+    emptyState: '—',
+    imprint: 'Mentions légales',
+    privacy: 'Protection des données',
+    lastChange: 'Dernière modification :',
+    noChangeYet: 'aucune pour le moment',
+    copyright: 'Projet étudiant de la DHBW Lörrach',
+    sectionSummary: {
+      map: { label: 'Accueil', title: 'Accueil', description: 'Carte communale basée sur OpenStreetMap.' },
+      general: { label: 'Général', title: 'Paramètres généraux', description: 'Gérer les informations de base de la commune.' },
+      modules: { label: 'Modules', title: 'Modules et services', description: 'Activer ou désactiver les fonctions de la commune.' },
+      sensors: { label: 'Capteurs', title: 'Gestion des capteurs', description: 'Configurer les capteurs et les sources de données par module.' },
+      statistics: { label: 'Statistiques', title: 'Statistiques des capteurs', description: 'Afficher les données et indicateurs des capteurs.' },
+      design: { label: 'Paramètres', title: 'Paramètres', description: 'Configurer le design, l’affichage et la gestion du compte.' },
+    },
+  },
+}
+
+const DATE_LOCALE_MAP = {
+  de: 'de-DE',
+  en: 'en-GB',
+  fr: 'fr-FR',
+}
+
 function loadAdminPrefs() {
   try {
     const raw = localStorage.getItem(ADMIN_PREFS_KEY)
@@ -37,7 +154,7 @@ export default function AdminView({ session, onLogout }) {
   const [activeSectionId, setActiveSectionId] = useState(ADMIN_SECTIONS[0].id)
   const [isGeneralEditing, setIsGeneralEditing] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
-  const [adminPrefs] = useState(() => loadAdminPrefs())
+  const [adminPrefs, setAdminPrefs] = useState(() => loadAdminPrefs())
   const headerRef = useRef(null)
   const [mobileHeaderHeight, setMobileHeaderHeight] = useState(0)
   const {
@@ -61,6 +178,9 @@ export default function AdminView({ session, onLogout }) {
   const [deleteError, setDeleteError] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [isSimulationLabOpen, setIsSimulationLabOpen] = useState(false)
+  const locale = adminPrefs.language || 'de'
+  const text = ADMIN_I18N[locale] || ADMIN_I18N.de
+  const dateLocale = DATE_LOCALE_MAP[locale] || DATE_LOCALE_MAP.de
 
   const handleSectionChange = useCallback((sectionId) => {
     setActiveSectionId(sectionId)
@@ -76,6 +196,18 @@ export default function AdminView({ session, onLogout }) {
       setIsGeneralEditing(false)
     }
   }, [activeSectionId])
+
+  useEffect(() => {
+    const applyAdminPrefsFromStorage = () => setAdminPrefs(loadAdminPrefs())
+
+    window.addEventListener('storage', applyAdminPrefsFromStorage)
+    window.addEventListener('smart-village-admin-prefs-changed', applyAdminPrefsFromStorage)
+
+    return () => {
+      window.removeEventListener('storage', applyAdminPrefsFromStorage)
+      window.removeEventListener('smart-village-admin-prefs-changed', applyAdminPrefsFromStorage)
+    }
+  }, [])
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -124,15 +256,26 @@ export default function AdminView({ session, onLogout }) {
     }
   }, [])
 
+  const localizedSections = useMemo(() => {
+    return ADMIN_SECTIONS.map((section) => {
+      const localized = text.sectionSummary?.[section.id]
+      if (!localized) return section
+      return {
+        ...section,
+        ...localized,
+      }
+    })
+  }, [text])
+
   const activeSection = useMemo(() => {
-    return ADMIN_SECTIONS.find((section) => section.id === activeSectionId) ?? ADMIN_SECTIONS[0]
-  }, [activeSectionId])
+    return localizedSections.find((section) => section.id === activeSectionId) ?? localizedSections[0]
+  }, [activeSectionId, localizedSections])
 
   const sectionEntries = useMemo(() => {
     return getSummaryForSection(activeSection.id)
   }, [activeSection.id, getSummaryForSection])
 
-  const userEmail = session?.email || 'Unbekannt'
+  const userEmail = session?.email || text.unknownUser
   const internalVillageId = config.meta?.id ?? '—'
   const simulationStorageKey = `smart-village-admin-simulation:${session?.sub ?? 'unknown'}:${internalVillageId}`
 
@@ -192,10 +335,10 @@ export default function AdminView({ session, onLogout }) {
                   setActiveSectionId('map')
                   setIsMobileSidebarOpen(false)
                 }}
-                aria-label="Zum Start-Tab wechseln"
-                title="Start-Tab öffnen · Shift+Alt+Klick: Simulation"
+                aria-label={text.switchToHomeTab}
+                title={text.openHomeTabTitle}
               >
-                Smart Village Admin
+                {text.title}
               </button>
             </h1>
             <div className="admin-header-actions-right">
@@ -203,7 +346,7 @@ export default function AdminView({ session, onLogout }) {
                 <div className="admin-header-toast-slot" role="status" aria-live="polite">
                   <div className="toast-notification">
                     <span>{toast.message}</span>
-                    <button type="button" aria-label="Hinweis schließen" onClick={dismissToast}>
+                    <button type="button" aria-label={text.closeHint} onClick={dismissToast}>
                       ×
                     </button>
                   </div>
@@ -218,7 +361,7 @@ export default function AdminView({ session, onLogout }) {
               <button
                 type="button"
                 className={`admin-sidebar-toggle${isMobileSidebarOpen ? ' is-open' : ''}`}
-                aria-label={isMobileSidebarOpen ? 'Navigation schließen' : 'Navigation öffnen'}
+                aria-label={isMobileSidebarOpen ? text.closeNavigation : text.openNavigation}
                 aria-expanded={isMobileSidebarOpen}
                 aria-controls="admin-sidebar"
                 onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
@@ -230,10 +373,10 @@ export default function AdminView({ session, onLogout }) {
             </div>
           </div>
           <p className="admin-header-user">
-            Angemeldet als <strong>{userEmail}</strong>
+            {text.loggedInAs} <strong>{userEmail}</strong>
           </p>
           <p className="admin-shortcut-hint">
-            Simulation öffnen: <strong>Strg + Umschalt + S</strong> oder <strong>Shift + Alt + Klick</strong> auf den Titel
+            {text.simulationHint}
           </p>
         </div>
       </header>
@@ -243,29 +386,30 @@ export default function AdminView({ session, onLogout }) {
           <button
             type="button"
             className="admin-sidebar-backdrop"
-            aria-label="Navigation schließen"
+            aria-label={text.closeNavigation}
             onClick={() => setIsMobileSidebarOpen(false)}
           />
         ) : null}
         <aside id="admin-sidebar" className={`admin-sidebar${isMobileSidebarOpen ? ' is-open' : ''}`}>
           <AdminNavigation
-            sections={ADMIN_SECTIONS}
+            sections={localizedSections}
             activeSectionId={activeSection.id}
             onChange={handleSectionChange}
+            navAriaLabel={text.title}
           />
 
-          <nav className="admin-nav-external" aria-label="Externe Navigation">
-            <Link to="/" className="admin-nav-external-link" title="Zur Startseite">
+          <nav className="admin-nav-external" aria-label={text.externalNavigation}>
+            <Link to="/" className="admin-nav-external-link" title={text.toStartPage}>
               <svg className="admin-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M7 17L17 7M17 7H9M17 7V15" />
               </svg>
-              <span>Projektübersicht</span>
+              <span>{text.projectOverview}</span>
             </Link>
-            <Link to="/user" className="admin-nav-external-link" title="Zum Bürgerportal">
+            <Link to="/user" className="admin-nav-external-link" title={text.toCitizenPortal}>
               <svg className="admin-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M7 17L17 7M17 7H9M17 7V15" />
               </svg>
-              <span>Bürgerportal</span>
+              <span>{text.citizenPortal}</span>
             </Link>
           </nav>
 
@@ -276,7 +420,7 @@ export default function AdminView({ session, onLogout }) {
               onClick={onLogout}
               disabled={isLoading}
             >
-              Abmelden
+              {text.logout}
             </button>
           </div>
         </aside>
@@ -309,13 +453,13 @@ export default function AdminView({ session, onLogout }) {
           activeSection.id !== 'statistics' &&
           activeSection.id !== 'sensors' &&
           activeSection.id !== 'modules' ? (
-            <section className="config-actions" aria-label="Konfiguration">
+            <section className="config-actions" aria-label={text.configuration}>
               <button
                 type="button"
                 onClick={saveConfig}
                 disabled={isLoading || !hasUnsavedChanges}
               >
-                {isLoading ? 'Speichern...' : 'Speichern'}
+                {isLoading ? text.saving : text.save}
               </button>
             </section>
           ) : null}
@@ -323,7 +467,7 @@ export default function AdminView({ session, onLogout }) {
           {activeSection.id !== 'map' ? (
             <>
               <p className="storage-status">
-                Status: {storageMessage || '—'} {hasUnsavedChanges ? '· Ungespeicherte Änderungen vorhanden' : ''}
+                {text.statusPrefix} {storageMessage || text.emptyState} {hasUnsavedChanges ? text.unsavedChanges : ''}
               </p>
             </>
           ) : null}
@@ -332,14 +476,14 @@ export default function AdminView({ session, onLogout }) {
 
       <footer className="app-footer app-page-footer">
         <div className="app-footer-links">
-          <Link to="/impressum" className="app-footer-link">Impressum</Link>
-          <Link to="/datenschutz" className="app-footer-link">Datenschutz</Link>
+          <Link to="/impressum" className="app-footer-link">{text.imprint}</Link>
+          <Link to="/datenschutz" className="app-footer-link">{text.privacy}</Link>
         </div>
-        Smart Village Admin · Letzte Änderung:{' '}
-        {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString('de-DE') : 'noch keine'}
+        {text.title} · {text.lastChange}{' '}
+        {config.meta.updatedAt ? new Date(config.meta.updatedAt).toLocaleString(dateLocale) : text.noChangeYet}
         <br />
         <span className="app-footer-copy">
-          © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach
+          © {new Date().getFullYear()} Smart Village · {text.copyright}
         </span>
       </footer>
 

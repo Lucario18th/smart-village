@@ -38,6 +38,9 @@ function loadAdminPrefs() {
 
 function persistAdminPrefs(prefs) {
   localStorage.setItem(ADMIN_PREFS_KEY, JSON.stringify(prefs))
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('smart-village-admin-prefs-changed'))
+  }
 }
 
 function ChangePasswordSection() {

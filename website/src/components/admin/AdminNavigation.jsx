@@ -17,9 +17,9 @@ function NavIcon({ sectionId }) {
   )
 }
 
-export default function AdminNavigation({ sections, activeSectionId, onChange }) {
+export default function AdminNavigation({ sections, activeSectionId, onChange, navAriaLabel = 'Admin Navigation' }) {
   return (
-    <nav className="admin-nav" aria-label="Admin Navigation">
+    <nav className="admin-nav" aria-label={navAriaLabel}>
       {sections.map((section) => {
         const isActive = section.id === activeSectionId
 
