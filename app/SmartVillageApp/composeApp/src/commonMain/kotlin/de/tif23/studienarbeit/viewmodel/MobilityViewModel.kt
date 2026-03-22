@@ -58,7 +58,7 @@ class MobilityViewModel(
 
             runCatching {
                 val villageName = getVillageUseCase.getVillageConfig(villageId).village.name
-                val stationBaseData = getVillageTrainStationsUseCase.getTopStationsForVillage(villageName, limit = 5)
+                val stationBaseData = getVillageTrainStationsUseCase.getTopStationsForVillage(villageName, limit = 6)
                 val (date, hour) = getCurrentTimetableDateAndHour()
 
                 val stations = mutableListOf<Station>()

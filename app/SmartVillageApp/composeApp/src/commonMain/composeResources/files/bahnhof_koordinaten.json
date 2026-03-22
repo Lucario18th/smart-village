@@ -665,6 +665,42 @@
     ],
     "loerrach": [
         {
+            "name": "Lörrach Hauptbahnhof",
+            "lat": 47.6139646,
+            "lon": 7.6653218,
+            "eva": 8003729
+        },
+        {
+            "name": "Lörrach Museum/Burghof",
+            "lat": 47.608038,
+            "lon": 7.6612922,
+            "eva": 8003737
+        },
+        {
+            "name": "Lörrach Schwarzwaldstraße",
+            "lat": 47.62456,
+            "lon": 7.6726141,
+            "eva": 8003743
+        },
+        {
+            "name": "Basel Badischer Bahnhof",
+            "lat": 47.5674616,
+            "lon": 7.6073096,
+            "eva": 8000026
+        },
+        {
+            "name": "Waldshut",
+            "lat" : 47.6211695,
+            "lon" : 8.2166627,
+            "eva" : 8006167
+        },
+        {
+            "name": "Freiburg (Breisgau) Hauptbahnhof",
+            "lat": 47.9977308,
+            "lon": 7.8412948,
+            "eva": 8000107
+        },
+        {
             "name": "Beuggen",
             "lat": 47.5823581,
             "lon": 7.8112121,
@@ -797,12 +833,6 @@
             "eva": 8500081
         },
         {
-            "name": "Basel Badischer Bahnhof",
-            "lat": 47.5674616,
-            "lon": 7.6073096,
-            "eva": 8000026
-        },
-        {
             "name": "Basel SBB",
             "lat": 47.5476225,
             "lon": 7.5896417,
@@ -929,28 +959,10 @@
             "eva": 8003736
         },
         {
-            "name": "Lörrach Museum/Burghof",
-            "lat": 47.608038,
-            "lon": 7.6612922,
-            "eva": 8003737
-        },
-        {
-            "name": "Lörrach Schwarzwaldstraße",
-            "lat": 47.62456,
-            "lon": 7.6726141,
-            "eva": 8003743
-        },
-        {
             "name": "Lörrach-Stetten",
             "lat": 47.6017968,
             "lon": 7.6591824,
             "eva": 8003730
-        },
-        {
-            "name": "Lörrach Hauptbahnhof",
-            "lat": 47.6139646,
-            "lon": 7.6653218,
-            "eva": 8003729
         },
         {
             "name": "Lörrach-Haagen/Messe",
