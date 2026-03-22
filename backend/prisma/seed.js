@@ -1,6 +1,5 @@
 // prisma/seed.js oder prisma/seed.cjs
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
@@ -37,69 +36,13 @@ async function seedSensorTypes() {
 
 async function seedPostalCodes() {
   const postalCodes = [
-    // Freiburg
+    // Freiburg / Region
     {
       zipCode: "79098",
       city: "Freiburg im Breisgau",
       state: "Baden-Württemberg",
       lat: 47.9959,
       lng: 7.8522,
-    },
-    {
-      zipCode: "79100",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 47.964,
-      lng: 7.857,
-    },
-    {
-      zipCode: "79102",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 47.991,
-      lng: 7.867,
-    },
-    {
-      zipCode: "79104",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 48.006,
-      lng: 7.878,
-    },
-    {
-      zipCode: "79106",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 48.007,
-      lng: 7.837,
-    },
-    {
-      zipCode: "79108",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 48.033,
-      lng: 7.857,
-    },
-    {
-      zipCode: "79110",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 48.019,
-      lng: 7.812,
-    },
-    {
-      zipCode: "79111",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 47.98,
-      lng: 7.812,
-    },
-    {
-      zipCode: "79112",
-      city: "Freiburg im Breisgau",
-      state: "Baden-Württemberg",
-      lat: 47.957,
-      lng: 7.744,
     },
 
     // Neuenburg / Markgräflerland
@@ -160,20 +103,6 @@ async function seedPostalCodes() {
       state: "Baden-Württemberg",
       lat: 47.609,
       lng: 7.6646,
-    },
-    {
-      zipCode: "79540",
-      city: "Lörrach",
-      state: "Baden-Württemberg",
-      lat: 47.611,
-      lng: 7.682,
-    },
-    {
-      zipCode: "79541",
-      city: "Lörrach",
-      state: "Baden-Württemberg",
-      lat: 47.588,
-      lng: 7.687,
     },
     {
       zipCode: "79576",
@@ -251,84 +180,6 @@ async function seedPostalCodes() {
   console.log("✅ Seeded postal codes");
 }
 
-async function seedAccountsAndVillages() {
-  const passwordHash = await bcrypt.hash("test1234", 10);
-
-  const freiburgPc = await prisma.postalCode.findUnique({
-    where: { zipCode: "79098" },
-  });
-  const loerrachPc = await prisma.postalCode.findUnique({
-    where: { zipCode: "79539" },
-  });
-  const buggingenPc = await prisma.postalCode.findUnique({
-    where: { zipCode: "79426" },
-  });
-
-  const freiburgAccount = await prisma.account.upsert({
-    where: { email: "freiburg@smart-village.local" },
-    update: {},
-    create: {
-      email: "freiburg@smart-village.local",
-      passwordHash,
-      isAdmin: true,
-      emailVerified: true,
-      villages: {
-        create: {
-          name: "Freiburg im Breisgau",
-          locationName: "79098 Freiburg im Breisgau",
-          municipalityCode: "79098-Freiburg im Breisgau",
-          postalCodeId: freiburgPc ? freiburgPc.id : null,
-        },
-      },
-    },
-  });
-
-  const loerrachAccount = await prisma.account.upsert({
-    where: { email: "loerrach@smart-village.local" },
-    update: {},
-    create: {
-      email: "loerrach@smart-village.local",
-      passwordHash,
-      isAdmin: false,
-      emailVerified: true,
-      villages: {
-        create: {
-          name: "Lörrach",
-          locationName: "79539 Lörrach",
-          municipalityCode: "79539-Lörrach",
-          postalCodeId: loerrachPc ? loerrachPc.id : null,
-        },
-      },
-    },
-  });
-
-  const buggingenAccount = await prisma.account.upsert({
-    where: { email: "buggingen@smart-village.local" },
-    update: {},
-    create: {
-      email: "buggingen@smart-village.local",
-      passwordHash,
-      isAdmin: false,
-      emailVerified: true,
-      villages: {
-        create: {
-          name: "Buggingen",
-          locationName: "79426 Buggingen",
-          municipalityCode: "79426-Buggingen",
-          postalCodeId: buggingenPc ? buggingenPc.id : null,
-        },
-      },
-    },
-  });
-
-  console.log(
-    "✅ Seeded accounts:",
-    freiburgAccount.email,
-    loerrachAccount.email,
-    buggingenAccount.email
-  );
-}
-
 async function seedVillageFeatures() {
   const villages = await prisma.village.findMany({ select: { id: true } });
 
@@ -360,7 +211,6 @@ async function main() {
   console.log("🌱 Seeding database (JS)...");
   await seedSensorTypes();
   await seedPostalCodes();
-  await seedAccountsAndVillages();
   await seedVillageFeatures();
 }
 

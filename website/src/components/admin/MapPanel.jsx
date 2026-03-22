@@ -9,6 +9,7 @@ import {
   toggleControllerSelection,
   toggleSensorSelection,
 } from '../../utils/mapViewUtils'
+import { renderMapPinGlyph, resolveMapPinIcon } from '../../utils/mapPinGlyphs'
 
 const buildEmbedUrl = (lat, lng) => {
   const delta = 0.03
@@ -23,8 +24,9 @@ const MAP_FILTER_DEBUG_ENABLED =
 const APP_PIN_PATH =
   'M430,560L530,560L530,360L505,360L505,300L455,300L455,360L430,360L430,560Z M480,774Q602,662 661,570.5Q720,479 720,408Q720,299 650.5,229.5Q581,160 480,160Q379,160 309.5,229.5Q240,299 240,408Q240,479 299,570.5Q358,662 480,774ZM480,880Q319,743 239.5,625.5Q160,508 160,408Q160,258 256.5,169Q353,80 480,80Q607,80 703.5,169Q800,258 800,408Q800,508 720.5,625.5Q641,743 480,880Z'
 const iconCache = new Map()
-const getPinIcon = (color, variant) => {
-  const key = `${variant}-${color}`
+const getPinIcon = (color, variant, glyphIcon = null) => {
+  const iconKey = glyphIcon?.key || 'default'
+  const key = `${variant}-${color}-${iconKey}`
   if (iconCache.has(key)) {
     return iconCache.get(key)
   }
@@ -33,16 +35,17 @@ const getPinIcon = (color, variant) => {
   const size = isCity ? 42 : 30
   const anchorX = Math.round(size / 2)
   const anchorY = Math.round(size * 0.92)
-  const icon = L.divIcon({
+  const glyphMarkup = isCity ? '' : renderMapPinGlyph(glyphIcon, color)
+  const pinIcon = L.divIcon({
     className: `map-leaflet-pin map-leaflet-pin--${variant}`,
-    html: `<svg class="map-pin-svg" viewBox="0 0 960 960" width="${size}" height="${size}" aria-hidden="true" focusable="false"><path fill="${color}" d="${APP_PIN_PATH}"/></svg>`,
+    html: `<svg class="map-pin-svg" viewBox="0 0 960 960" width="${size}" height="${size}" aria-hidden="true" focusable="false"><path fill="${color}" d="${APP_PIN_PATH}"/></svg>${glyphMarkup}`,
     iconSize: [size, size],
     iconAnchor: [anchorX, anchorY],
     popupAnchor: [0, -Math.round(size * 0.8)],
   })
 
-  iconCache.set(key, icon)
-  return icon
+  iconCache.set(key, pinIcon)
+  return pinIcon
 }
 
 const CITY_PIN_ICON = getPinIcon('#ff2d55', 'city')
@@ -651,7 +654,11 @@ export default function MapPanel({ general, sensors = [], devices = [], villageI
                 icon={
                   marker.kind === 'controller'
                     ? GATEWAY_PIN_ICON
-                    : getPinIcon(marker.color || '#7c3aed', marker.kind === 'mitfahrbank' ? 'mitfahrbank' : 'sensor')
+                    : getPinIcon(
+                        marker.color || '#7c3aed',
+                        marker.kind === 'mitfahrbank' ? 'mitfahrbank' : 'sensor',
+                        resolveMapPinIcon(marker)
+                      )
                 }
               >
                 <Popup>
@@ -693,7 +700,7 @@ export default function MapPanel({ general, sensors = [], devices = [], villageI
                 <p>Auto-include: {String(debugState.autoIncludeNew)}</p>
               </div>
             ) : null}
-            <div className="map-legend-overlay" aria-label="Legende">
+            <div className="map-legend-overlay map-legend-overlay--admin" aria-label="Legende">
               <h4>Legende</h4>
               <ul>
                 <li>

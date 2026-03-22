@@ -1,5 +1,47 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { apiClient } from '../../../api/client'
+
+const ADMIN_PREFS_KEY = 'smart-village-admin-preferences'
+
+const I18N = {
+  de: {
+    languageTitle: 'Sprache',
+    languageLabel: 'Anzeigesprache',
+  },
+  en: {
+    languageTitle: 'Language',
+    languageLabel: 'Display language',
+  },
+  fr: {
+    languageTitle: 'Langue',
+    languageLabel: "Langue d'affichage",
+  },
+}
+
+const DEFAULT_ADMIN_PREFS = {
+  language: 'de',
+}
+
+function loadAdminPrefs() {
+  try {
+    const raw = localStorage.getItem(ADMIN_PREFS_KEY)
+    if (!raw) return DEFAULT_ADMIN_PREFS
+    const parsed = JSON.parse(raw)
+    return {
+      ...DEFAULT_ADMIN_PREFS,
+      ...parsed,
+    }
+  } catch {
+    return DEFAULT_ADMIN_PREFS
+  }
+}
+
+function persistAdminPrefs(prefs) {
+  localStorage.setItem(ADMIN_PREFS_KEY, JSON.stringify(prefs))
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('smart-village-admin-prefs-changed'))
+  }
+}
 
 function ChangePasswordSection() {
   const [fields, setFields] = useState({ current: '', next: '', confirm: '' })
@@ -94,6 +136,13 @@ export default function DesignSettingsForm({
   onDeleteAccount,
   isDeleteLoading = false,
 }) {
+  const [adminPrefs, setAdminPrefs] = useState(() => loadAdminPrefs())
+  const locale = adminPrefs.language || 'de'
+  const text = I18N[locale]
+
+  useEffect(() => {
+    persistAdminPrefs(adminPrefs)
+  }, [adminPrefs])
   return (
     <>
       <section className="design-card">
@@ -149,6 +198,29 @@ export default function DesignSettingsForm({
                 Hoch
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="design-card">
+        <h3 className="design-card-title">{text.languageTitle}</h3>
+        <div className="design-card-fields">
+          <div className="design-select-field">
+            <label htmlFor="admin-design-language-select" className="design-select-label">{text.languageLabel}</label>
+            <select
+              id="admin-design-language-select"
+              value={locale}
+              onChange={(event) =>
+                setAdminPrefs((current) => ({
+                  ...current,
+                  language: event.target.value,
+                }))
+              }
+            >
+              <option value="de">Deutsch</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+            </select>
           </div>
         </div>
       </section>

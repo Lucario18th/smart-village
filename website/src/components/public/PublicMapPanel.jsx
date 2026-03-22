@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
@@ -8,6 +8,7 @@ import {
   buildSelectionState,
   toggleSensorSelection,
 } from '../../utils/mapViewUtils'
+import { renderMapPinGlyph, resolveMapPinIcon } from '../../utils/mapPinGlyphs'
 
 const MAP_TEXT = {
   de: {
@@ -92,8 +93,9 @@ const APP_PIN_PATH =
   'M430,560L530,560L530,360L505,360L505,300L455,300L455,360L430,360L430,560Z M480,774Q602,662 661,570.5Q720,479 720,408Q720,299 650.5,229.5Q581,160 480,160Q379,160 309.5,229.5Q240,299 240,408Q240,479 299,570.5Q358,662 480,774ZM480,880Q319,743 239.5,625.5Q160,508 160,408Q160,258 256.5,169Q353,80 480,80Q607,80 703.5,169Q800,258 800,408Q800,508 720.5,625.5Q641,743 480,880Z'
 const iconCache = new Map()
 
-function getPinIcon(color, variant) {
-  const key = `${variant}-${color}`
+function getPinIcon(color, variant, glyphIcon = null) {
+  const iconKey = glyphIcon?.key || 'default'
+  const key = `${variant}-${color}-${iconKey}`
   if (iconCache.has(key)) {
     return iconCache.get(key)
   }
@@ -102,26 +104,27 @@ function getPinIcon(color, variant) {
   const size = isCity ? 42 : 30
   const anchorX = Math.round(size / 2)
   const anchorY = Math.round(size * 0.92)
-  const icon = L.divIcon({
+  const glyphMarkup = isCity ? '' : renderMapPinGlyph(glyphIcon, color)
+  const pinIcon = L.divIcon({
     className: `map-leaflet-pin map-leaflet-pin--${variant}`,
-    html: `<svg class="map-pin-svg" viewBox="0 0 960 960" width="${size}" height="${size}" aria-hidden="true" focusable="false"><path fill="${color}" d="${APP_PIN_PATH}"/></svg>`,
+    html: `<svg class="map-pin-svg" viewBox="0 0 960 960" width="${size}" height="${size}" aria-hidden="true" focusable="false"><path fill="${color}" d="${APP_PIN_PATH}"/></svg>${glyphMarkup}`,
     iconSize: [size, size],
     iconAnchor: [anchorX, anchorY],
     popupAnchor: [0, -Math.round(size * 0.8)],
   })
 
-  iconCache.set(key, icon)
-  return icon
+  iconCache.set(key, pinIcon)
+  return pinIcon
 }
 
 const CITY_PIN_ICON = getPinIcon('#ff2d55', 'city')
 
-function MapViewportSync({ center }) {
+function MapViewportSync({ center, zoom = BASE_MAP_ZOOM }) {
   const map = useMap()
 
   useEffect(() => {
-    map.setView([center.lat, center.lng], map.getZoom(), { animate: true })
-  }, [map, center.lat, center.lng])
+    map.setView([center.lat, center.lng], zoom, { animate: true })
+  }, [map, center.lat, center.lng, zoom])
 
   return null
 }
@@ -199,10 +202,32 @@ function SensorSelectionTree({ sensors, selection, onToggleSensor, allSelected, 
   )
 }
 
-export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares = [], locale = 'de' }) {
+export default function PublicMapPanel({
+  zipCode,
+  city,
+  sensors = [],
+  rideshares = [],
+  locale = 'de',
+  selectedSensorId = null,
+  onSensorDeselect = () => {},
+}) {
   const text = MAP_TEXT[locale] || MAP_TEXT.de
   const dateLocale = DATE_LOCALES[locale] || DATE_LOCALES.de
-  const [center, setCenter] = useState(FALLBACK_LOCATION)
+  const mapRef = useRef(null)
+  const markerRefs = useRef({})
+  const initialSelectedSensor = sensors.find((sensor) => {
+    if (sensor.id !== selectedSensorId) return false
+    return Number.isFinite(Number(sensor.latitude)) && Number.isFinite(Number(sensor.longitude))
+  })
+  const [mapCenter, setMapCenter] = useState(() => {
+    if (!initialSelectedSensor) return FALLBACK_LOCATION
+    return {
+      lat: Number(initialSelectedSensor.latitude),
+      lng: Number(initialSelectedSensor.longitude),
+    }
+  })
+  const [cityCenter, setCityCenter] = useState(FALLBACK_LOCATION)
+  const [zoom, setZoom] = useState(() => (initialSelectedSensor ? 16 : BASE_MAP_ZOOM))
   const [selection, setSelection] = useState(() => buildSelectionState([], []))
   const [isPanelOpen, setIsPanelOpen] = useState(false)
 
@@ -241,34 +266,74 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
   useEffect(() => {
     let cancelled = false
 
+    const selectedSensor = normalizedSensors.find((sensor) => sensor.id === selectedSensorId)
+    const hasSelectedSensorCoordinates =
+      selectedSensor &&
+      Number.isFinite(Number(selectedSensor.latitude)) &&
+      Number.isFinite(Number(selectedSensor.longitude))
+
     if (!zipCode && !city) {
-      setCenter(FALLBACK_LOCATION)
+      setCityCenter(FALLBACK_LOCATION)
+      if (!hasSelectedSensorCoordinates) {
+        setMapCenter(FALLBACK_LOCATION)
+      }
       return
     }
 
     geocodeCity(zipCode, city)
       .then((coords) => {
         if (cancelled) return
-        setCenter(coords)
+        setCityCenter(coords)
+        if (!hasSelectedSensorCoordinates) {
+          setMapCenter(coords)
+        }
       })
       .catch(() => {
         if (cancelled) return
-        setCenter(FALLBACK_LOCATION)
+        setCityCenter(FALLBACK_LOCATION)
+        if (!hasSelectedSensorCoordinates) {
+          setMapCenter(FALLBACK_LOCATION)
+        }
       })
 
     return () => {
       cancelled = true
     }
-  }, [zipCode, city])
+  }, [zipCode, city, selectedSensorId, normalizedSensors])
 
   useEffect(() => {
     setSelection((prev) => buildSelectionState([], normalizedSensors, prev))
   }, [normalizedSensors])
 
+  useLayoutEffect(() => {
+    if (!selectedSensorId) {
+      setZoom(BASE_MAP_ZOOM)
+      return
+    }
+
+    const sensor = normalizedSensors.find((s) => s.id === selectedSensorId)
+    if (!sensor) return
+
+    const lat = Number(sensor.latitude)
+    const lng = Number(sensor.longitude)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+
+    setMapCenter({ lat, lng })
+    setZoom(16)
+  }, [selectedSensorId, normalizedSensors])
+
   const markers = useMemo(
     () => buildMarkers({ sensors: normalizedSensors, devices: [], selection, includeControllers: false }),
     [normalizedSensors, selection]
   )
+
+  useEffect(() => {
+    if (!selectedSensorId) return
+
+    const marker = markerRefs.current[selectedSensorId]
+    if (!marker || typeof marker.openPopup !== 'function') return
+    marker.openPopup()
+  }, [selectedSensorId, markers])
 
   const handleToggleSensor = (sensorId) => {
     setSelection((prev) => toggleSensorSelection(sensorId, normalizedSensors, prev))
@@ -305,20 +370,21 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
 
         <div className="map-frame" role="region" aria-label={text.mapAria}>
           <MapContainer
-            center={[center.lat, center.lng]}
-            zoom={BASE_MAP_ZOOM}
+            center={[mapCenter.lat, mapCenter.lng]}
+            zoom={zoom}
             minZoom={5}
             maxZoom={19}
             scrollWheelZoom
             className="map-leaflet"
+            ref={mapRef}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <MapViewportSync center={center} />
+            <MapViewportSync center={mapCenter} zoom={zoom} />
 
-            <Marker position={[center.lat, center.lng]} icon={CITY_PIN_ICON} zIndexOffset={1200}>
+            <Marker position={[cityCenter.lat, cityCenter.lng]} icon={CITY_PIN_ICON} zIndexOffset={1200}>
               <Popup>
                 <strong>{zipCode || city ? `${zipCode || ''} ${city || ''}`.trim() : text.cityCenter}</strong>
               </Popup>
@@ -328,7 +394,18 @@ export default function PublicMapPanel({ zipCode, city, sensors = [], rideshares
               <Marker
                 key={marker.id}
                 position={[marker.lat, marker.lng]}
-                icon={getPinIcon(marker.color || '#7c3aed', marker.kind === 'mitfahrbank' ? 'mitfahrbank' : 'sensor')}
+                ref={(instance) => {
+                  if (instance) {
+                    markerRefs.current[marker.id] = instance
+                  } else {
+                    delete markerRefs.current[marker.id]
+                  }
+                }}
+                icon={getPinIcon(
+                  marker.color || '#7c3aed',
+                  marker.kind === 'mitfahrbank' ? 'mitfahrbank' : 'sensor',
+                  resolveMapPinIcon(marker)
+                )}
               >
                 <Popup>
                   <MarkerPopupContent marker={marker} text={text} dateLocale={dateLocale} />

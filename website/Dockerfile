@@ -1,6 +1,8 @@
 # 1. Build-Stage
 FROM node:20-alpine AS build
 WORKDIR /app
+ARG VITE_MAILHOG_URL=https://localhost:8025
+ENV VITE_MAILHOG_URL=${VITE_MAILHOG_URL}
 COPY package*.json ./
 RUN npm ci
 COPY . .

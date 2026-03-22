@@ -417,8 +417,6 @@ export default function AdminSimulationLab({
   const [mqttConnected, setMqttConnected] = useState(false)
   const [mqttError, setMqttError] = useState('')
   const [backendConfirmations, setBackendConfirmations] = useState({})
-  const [isGatewayFormOpen, setIsGatewayFormOpen] = useState(true)
-  const [isSensorFormOpen, setIsSensorFormOpen] = useState(true)
   const [coordinateModalTarget, setCoordinateModalTarget] = useState(null)
 
   const resolvedSensorTypes = useMemo(() => {
@@ -536,8 +534,6 @@ export default function AdminSimulationLab({
     })
     setEditingGatewayId(null)
     setEditingSensorId(null)
-    setIsGatewayFormOpen(true)
-    setIsSensorFormOpen(true)
     setCoordinateModalTarget(null)
     lastPublishedRef.current = new Map()
     publishMetaRef.current = new Map()
@@ -873,12 +869,10 @@ export default function AdminSimulationLab({
 
     setGatewayForm(EMPTY_GATEWAY_FORM)
     setEditingGatewayId(null)
-    setIsGatewayFormOpen(true)
   }
 
   const editGateway = (gateway) => {
     setEditingGatewayId(gateway.id)
-    setIsGatewayFormOpen(true)
     setGatewayForm({
       name: gateway.name,
       code: gateway.code || '',
@@ -957,12 +951,10 @@ export default function AdminSimulationLab({
       sensorTypeId: String(resolvedSensorTypes[0]?.id ?? 1),
     })
     setEditingSensorId(null)
-    setIsSensorFormOpen(true)
   }
 
   const editSensor = (sensor) => {
     setEditingSensorId(sensor.id)
-    setIsSensorFormOpen(true)
     setSensorForm({
       gatewayId: sensor.gatewayId || '',
       name: sensor.name,
@@ -1204,16 +1196,9 @@ export default function AdminSimulationLab({
 
         <div className="sim-lab-grid">
           <section className="sim-lab-panel">
-            <button
-              type="button"
-              className="sim-lab-panel-toggle"
-              onClick={() => setIsGatewayFormOpen((prev) => !prev)}
-              aria-expanded={isGatewayFormOpen}
-            >
-              <span className="sim-lab-panel-toggle-icon">{isGatewayFormOpen ? 'v' : '>'}</span>
-              <h3>{editingGatewayId ? 'Gateway bearbeiten' : 'Gateway anlegen'}</h3>
-            </button>
-            {isGatewayFormOpen ? <form className="sim-lab-form" onSubmit={saveGateway}>
+            <h3>{editingGatewayId ? 'Gateway bearbeiten' : 'Gateway anlegen'}</h3>
+            <div className="sim-lab-panel-content">
+              <form className="sim-lab-form" onSubmit={saveGateway}>
               <label>
                 Name
                 <input
@@ -1285,7 +1270,7 @@ export default function AdminSimulationLab({
                   </button>
                 ) : null}
               </div>
-            </form> : null}
+            </form>
 
             <ul className="sim-lab-list">
               {simState.gateways.map((gateway) => (
@@ -1316,19 +1301,13 @@ export default function AdminSimulationLab({
               ))}
               {simState.gateways.length === 0 ? <li className="sim-lab-empty">Noch keine Gateways angelegt.</li> : null}
             </ul>
+            </div>
           </section>
 
           <section className="sim-lab-panel">
-            <button
-              type="button"
-              className="sim-lab-panel-toggle"
-              onClick={() => setIsSensorFormOpen((prev) => !prev)}
-              aria-expanded={isSensorFormOpen}
-            >
-              <span className="sim-lab-panel-toggle-icon">{isSensorFormOpen ? 'v' : '>'}</span>
-              <h3>{editingSensorId ? 'Sensor bearbeiten' : 'Sensor anlegen'}</h3>
-            </button>
-            {isSensorFormOpen ? <form className="sim-lab-form" onSubmit={saveSensor}>
+            <h3>{editingSensorId ? 'Sensor bearbeiten' : 'Sensor anlegen'}</h3>
+            <div className="sim-lab-panel-content">
+              <form className="sim-lab-form" onSubmit={saveSensor}>
               <label>
                 Sensorname
                 <input
@@ -1446,7 +1425,7 @@ export default function AdminSimulationLab({
                   </button>
                 ) : null}
               </div>
-            </form> : null}
+            </form>
 
             <ul className="sim-lab-list">
               {simState.sensors.map((sensor) => (
@@ -1499,6 +1478,7 @@ export default function AdminSimulationLab({
               ))}
               {simState.sensors.length === 0 ? <li className="sim-lab-empty">Noch keine Sensoren angelegt.</li> : null}
             </ul>
+            </div>
           </section>
         </div>
 

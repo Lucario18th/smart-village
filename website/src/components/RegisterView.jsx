@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
 import LocationAutocomplete from './LocationAutocomplete'
 
+const getDefaultMailhogUrl = () => {
+  if (typeof window === 'undefined') return 'http://localhost:8025'
+  return `${window.location.protocol}//${window.location.hostname}:8025`
+}
+
 export default function RegisterView({ onRegister, onBack, initialEmail = '' }) {
   const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
@@ -10,6 +15,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState(null)
+  const mailhogUrl = import.meta.env?.VITE_MAILHOG_URL || getDefaultMailhogUrl()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -37,7 +43,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
     }
 
     if (!selectedLocation?.id) {
-      setErrorMessage('Bitte wähle ein gültiges Dorf (PLZ oder Ort) aus')
+      setErrorMessage('Bitte wähle ein gültiges Dorf (PLZ und Ort) aus')
       return
     }
 
@@ -64,6 +70,10 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleOpenMailhog = () => {
+    window.open(mailhogUrl, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -113,7 +123,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
 
           <div className="auth-form-row">
             <LocationAutocomplete
-              label="Ihr Dorf (PLZ oder Ort)"
+              label="Ihr Dorf (PLZ und Ort)"
               labelClassName="auth-form-label"
               placeholder="12345 oder Musterstadt"
               onSelect={setSelectedLocation}
@@ -124,6 +134,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
             <label htmlFor="accountType" className="auth-form-select-field">
               <span>Account-Typ</span>
               <select
+              className="auth-form-select"
                 id="accountType"
                 value={accountType}
                 onChange={(event) => {
@@ -157,6 +168,13 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
           <button type="submit" className="auth-submit-button" disabled={isLoading}>
             {isLoading ? 'Wird registriert...' : 'Registrieren'}
           </button>
+
+          <p className="auth-hint">
+            Verifizierungscode ansehen?{' '}
+            <button type="button" onClick={handleOpenMailhog} className="link-button">
+              MailHog in neuem Tab öffnen
+            </button>
+          </p>
         </form>
 
         <p className="auth-hint">

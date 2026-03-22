@@ -3,10 +3,13 @@ services:
     build:
       context: ../website
       dockerfile: Dockerfile
+      args:
+        VITE_MAILHOG_URL: ${VITE_MAILHOG_URL:-https://localhost:8025}
     container_name: smartvillage-nginx
     ports:
       - "80:80"
       - "443:443"
+      - "8025:8025"
     depends_on:
       backend:
         condition: service_healthy
@@ -71,7 +74,6 @@ services:
     container_name: smartvillage-mailhog
     ports:
       - "1025:1025"
-      - "8025:8025"
     networks:
       - smartvillage-net
 

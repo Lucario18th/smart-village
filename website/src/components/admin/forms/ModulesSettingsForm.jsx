@@ -143,6 +143,7 @@ export default function ModulesSettingsForm({
   }, [loadCustomModules])
 
   const openCreateForm = () => {
+    if (!isEditing) return
     setEditingModule(null)
     setModuleForm({ name: '', description: '', iconKey: 'sensors', moduleType: 'Service', sensorIds: [] })
     setModuleFormError('')
@@ -150,6 +151,7 @@ export default function ModulesSettingsForm({
   }
 
   const openEditForm = (mod) => {
+    if (!isEditing) return
     setEditingModule(mod)
     setModuleForm({
       name: mod.name,
@@ -205,6 +207,7 @@ export default function ModulesSettingsForm({
   }
 
   const handleDeleteModule = async (moduleId) => {
+    if (!isEditing) return
     setDeletingModuleId(moduleId)
     try {
       await apiClient.villageModules.delete(villageId, moduleId)
@@ -220,6 +223,7 @@ export default function ModulesSettingsForm({
   }
 
   const handleToggleModuleEnabled = async (mod) => {
+    if (!isEditing) return
     try {
       const updated = await apiClient.villageModules.update(villageId, mod.id, {
         isEnabled: !mod.isEnabled,
@@ -305,10 +309,17 @@ export default function ModulesSettingsForm({
 
     editSnapshotRef.current = null
     setIsEditing(false)
+    setShowModuleForm(false)
+    setEditingModule(null)
+    setModuleFormError('')
+    setSensorSearch('')
   }
 
-  const handleSave = () => {
-    onSave?.()
+  const handleSave = async () => {
+    const saved = await onSave?.()
+    if (saved === false) {
+      return
+    }
     editSnapshotRef.current = null
     setIsEditing(false)
   }
@@ -451,7 +462,7 @@ export default function ModulesSettingsForm({
                 Erstellen Sie eigene Module und ordnen Sie Sensoren zu.
               </p>
             </div>
-            <button type="button" className="cm-add-btn" onClick={openCreateForm}>
+            <button type="button" className="cm-add-btn" onClick={openCreateForm} disabled={!isEditing}>
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z" />
               </svg>
@@ -476,13 +487,14 @@ export default function ModulesSettingsForm({
                   category={mod.moduleType || 'Service'}
                   isEnabled={mod.isEnabled}
                   onEnabledChange={() => handleToggleModuleEnabled(mod)}
-                  isEditing={true}
+                  isEditing={isEditing}
                   secondaryControl={(
                     <div className="service-card-side-actions">
                       <button
                         type="button"
                         className="cm-icon-btn cm-edit-btn"
                         onClick={() => openEditForm(mod)}
+                        disabled={!isEditing}
                         aria-label={`${mod.name} bearbeiten`}
                       >
                         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -493,7 +505,7 @@ export default function ModulesSettingsForm({
                         type="button"
                         className="cm-icon-btn cm-delete-btn"
                         onClick={() => handleDeleteModule(mod.id)}
-                        disabled={deletingModuleId === mod.id}
+                        disabled={!isEditing || deletingModuleId === mod.id}
                         aria-label={`${mod.name} löschen`}
                       >
                         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
