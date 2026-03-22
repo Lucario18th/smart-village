@@ -65,23 +65,23 @@ const LANDING_LINKS = {
 }
 
 const TEAM_MEMBERS = [
-  {
+    {
     id: 'member-1',
+    name: 'Manuel Keßler',
+    role: 'DHBW Student',
+    image: '/team/member-3.svg',
+  },
+  {
+    id: 'member-2',
     name: 'Leon Kühn',
     role: 'DHBW Student',
     image: '/team/member-1.svg',
   },
   {
-    id: 'member-2',
+    id: 'member-3',
     name: 'Nico Röcker',
     role: 'DHBW Student',
     image: '/team/member-2.svg',
-  },
-  {
-    id: 'member-3',
-    name: 'Manuel Keßler',
-    role: 'DHBW Student',
-    image: '/team/member-3.svg',
   },
   {
     id: 'member-4',
