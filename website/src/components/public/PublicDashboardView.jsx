@@ -693,41 +693,48 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
-              {sensors.map((sensor) => (
-                <div
-                  key={sensor.id}
-                  className="sensor-card"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedSensorId(sensor.id)
-                    setActiveSectionId('map')
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+              {sensors.map((sensor) => {
+                const hasCoordinates =
+                  Number.isFinite(Number(sensor.latitude)) && Number.isFinite(Number(sensor.longitude))
+
+                return (
+                  <div
+                    key={sensor.id}
+                    className="sensor-card"
+                    style={{ cursor: hasCoordinates ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (!hasCoordinates) return
                       setSelectedSensorId(sensor.id)
                       setActiveSectionId('map')
-                    }
-                  }}
-                >
-                  {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
-                  {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
-                  {sensor.lastReading ? (
-                    <div className="sensor-card-reading">
-                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
-                      <span className="sensor-card-unit">{sensor.unit}</span>
-                    </div>
-                  ) : (
-                    <p className="sensor-card-no-data">{text.noReadings}</p>
-                  )}
-                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
-                    <p className="sensor-card-coords">
-                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
+                    }}
+                    role={hasCoordinates ? 'button' : undefined}
+                    tabIndex={hasCoordinates ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (!hasCoordinates) return
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelectedSensorId(sensor.id)
+                        setActiveSectionId('map')
+                      }
+                    }}
+                  >
+                    {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
+                    {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
+                    {sensor.lastReading ? (
+                      <div className="sensor-card-reading">
+                        <span className="sensor-card-value">{sensor.lastReading.value}</span>
+                        <span className="sensor-card-unit">{sensor.unit}</span>
+                      </div>
+                    ) : (
+                      <p className="sensor-card-no-data">{text.noReadings}</p>
+                    )}
+                    {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+                      <p className="sensor-card-coords">
+                        {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+                      </p>
+                    ) : null}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
@@ -750,41 +757,48 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
-              {moduleSensors.map((sensor) => (
-                <div
-                  key={sensor.id}
-                  className="sensor-card"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedSensorId(sensor.id)
-                    setActiveSectionId('map')
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+              {moduleSensors.map((sensor) => {
+                const hasCoordinates =
+                  Number.isFinite(Number(sensor.latitude)) && Number.isFinite(Number(sensor.longitude))
+
+                return (
+                  <div
+                    key={sensor.id}
+                    className="sensor-card"
+                    style={{ cursor: hasCoordinates ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (!hasCoordinates) return
                       setSelectedSensorId(sensor.id)
                       setActiveSectionId('map')
-                    }
-                  }}
-                >
-                  {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
-                  {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
-                  {sensor.lastReading ? (
-                    <div className="sensor-card-reading">
-                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
-                      <span className="sensor-card-unit">{sensor.unit}</span>
-                    </div>
-                  ) : (
-                    <p className="sensor-card-no-data">{text.noReadings}</p>
-                  )}
-                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
-                    <p className="sensor-card-coords">
-                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
+                    }}
+                    role={hasCoordinates ? 'button' : undefined}
+                    tabIndex={hasCoordinates ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (!hasCoordinates) return
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelectedSensorId(sensor.id)
+                        setActiveSectionId('map')
+                      }
+                    }}
+                  >
+                    {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
+                    {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
+                    {sensor.lastReading ? (
+                      <div className="sensor-card-reading">
+                        <span className="sensor-card-value">{sensor.lastReading.value}</span>
+                        <span className="sensor-card-unit">{sensor.unit}</span>
+                      </div>
+                    ) : (
+                      <p className="sensor-card-no-data">{text.noReadings}</p>
+                    )}
+                    {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+                      <p className="sensor-card-coords">
+                        {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+                      </p>
+                    ) : null}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

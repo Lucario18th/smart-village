@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { FALLBACK_LOCATION } from '../../config/configModel'
@@ -214,8 +214,20 @@ export default function PublicMapPanel({
   const text = MAP_TEXT[locale] || MAP_TEXT.de
   const dateLocale = DATE_LOCALES[locale] || DATE_LOCALES.de
   const mapRef = useRef(null)
-  const [center, setCenter] = useState(FALLBACK_LOCATION)
-  const [zoom, setZoom] = useState(BASE_MAP_ZOOM)
+  const markerRefs = useRef({})
+  const initialSelectedSensor = sensors.find((sensor) => {
+    if (sensor.id !== selectedSensorId) return false
+    return Number.isFinite(Number(sensor.latitude)) && Number.isFinite(Number(sensor.longitude))
+  })
+  const [mapCenter, setMapCenter] = useState(() => {
+    if (!initialSelectedSensor) return FALLBACK_LOCATION
+    return {
+      lat: Number(initialSelectedSensor.latitude),
+      lng: Number(initialSelectedSensor.longitude),
+    }
+  })
+  const [cityCenter, setCityCenter] = useState(FALLBACK_LOCATION)
+  const [zoom, setZoom] = useState(() => (initialSelectedSensor ? 16 : BASE_MAP_ZOOM))
   const [selection, setSelection] = useState(() => buildSelectionState([], []))
   const [isPanelOpen, setIsPanelOpen] = useState(false)
 
@@ -254,40 +266,59 @@ export default function PublicMapPanel({
   useEffect(() => {
     let cancelled = false
 
+    const selectedSensor = normalizedSensors.find((sensor) => sensor.id === selectedSensorId)
+    const hasSelectedSensorCoordinates =
+      selectedSensor &&
+      Number.isFinite(Number(selectedSensor.latitude)) &&
+      Number.isFinite(Number(selectedSensor.longitude))
+
     if (!zipCode && !city) {
-      setCenter(FALLBACK_LOCATION)
+      setCityCenter(FALLBACK_LOCATION)
+      if (!hasSelectedSensorCoordinates) {
+        setMapCenter(FALLBACK_LOCATION)
+      }
       return
     }
 
     geocodeCity(zipCode, city)
       .then((coords) => {
         if (cancelled) return
-        setCenter(coords)
+        setCityCenter(coords)
+        if (!hasSelectedSensorCoordinates) {
+          setMapCenter(coords)
+        }
       })
       .catch(() => {
         if (cancelled) return
-        setCenter(FALLBACK_LOCATION)
+        setCityCenter(FALLBACK_LOCATION)
+        if (!hasSelectedSensorCoordinates) {
+          setMapCenter(FALLBACK_LOCATION)
+        }
       })
 
     return () => {
       cancelled = true
     }
-  }, [zipCode, city])
+  }, [zipCode, city, selectedSensorId, normalizedSensors])
 
   useEffect(() => {
     setSelection((prev) => buildSelectionState([], normalizedSensors, prev))
   }, [normalizedSensors])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!selectedSensorId) {
       setZoom(BASE_MAP_ZOOM)
       return
     }
 
     const sensor = normalizedSensors.find((s) => s.id === selectedSensorId)
-    if (!sensor || sensor.latitude == null || sensor.longitude == null) return
+    if (!sensor) return
 
-    setCenter({ lat: sensor.latitude, lng: sensor.longitude })
+    const lat = Number(sensor.latitude)
+    const lng = Number(sensor.longitude)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return
+
+    setMapCenter({ lat, lng })
     setZoom(16)
   }, [selectedSensorId, normalizedSensors])
 
@@ -295,6 +326,14 @@ export default function PublicMapPanel({
     () => buildMarkers({ sensors: normalizedSensors, devices: [], selection, includeControllers: false }),
     [normalizedSensors, selection]
   )
+
+  useEffect(() => {
+    if (!selectedSensorId) return
+
+    const marker = markerRefs.current[selectedSensorId]
+    if (!marker || typeof marker.openPopup !== 'function') return
+    marker.openPopup()
+  }, [selectedSensorId, markers])
 
   const handleToggleSensor = (sensorId) => {
     setSelection((prev) => toggleSensorSelection(sensorId, normalizedSensors, prev))
@@ -331,7 +370,7 @@ export default function PublicMapPanel({
 
         <div className="map-frame" role="region" aria-label={text.mapAria}>
           <MapContainer
-            center={[center.lat, center.lng]}
+            center={[mapCenter.lat, mapCenter.lng]}
             zoom={zoom}
             minZoom={5}
             maxZoom={19}
@@ -343,9 +382,9 @@ export default function PublicMapPanel({
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <MapViewportSync center={center} zoom={zoom} />
+            <MapViewportSync center={mapCenter} zoom={zoom} />
 
-            <Marker position={[center.lat, center.lng]} icon={CITY_PIN_ICON} zIndexOffset={1200}>
+            <Marker position={[cityCenter.lat, cityCenter.lng]} icon={CITY_PIN_ICON} zIndexOffset={1200}>
               <Popup>
                 <strong>{zipCode || city ? `${zipCode || ''} ${city || ''}`.trim() : text.cityCenter}</strong>
               </Popup>
@@ -355,6 +394,13 @@ export default function PublicMapPanel({
               <Marker
                 key={marker.id}
                 position={[marker.lat, marker.lng]}
+                ref={(instance) => {
+                  if (instance) {
+                    markerRefs.current[marker.id] = instance
+                  } else {
+                    delete markerRefs.current[marker.id]
+                  }
+                }}
                 icon={getPinIcon(
                   marker.color || '#7c3aed',
                   marker.kind === 'mitfahrbank' ? 'mitfahrbank' : 'sensor',

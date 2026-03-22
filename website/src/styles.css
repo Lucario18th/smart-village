@@ -991,7 +991,7 @@ html.dark-high-contrast .map-frame .leaflet-tile{
 .sensor-card-coords{margin:0;font-size:12px;color:var(--md-sys-color-on-surface-variant)}
 
 /* Custom module sections */
-.village-module-section{border-left:3px solid var(--md-sys-color-primary)}
+.village-module-section{border-left:none}
 .village-module-title{margin:0 0 4px;font-size:18px;color:var(--md-sys-color-on-surface)}
 .village-module-description{margin:0 0 12px;font-size:14px;color:var(--md-sys-color-on-surface-variant)}
 
