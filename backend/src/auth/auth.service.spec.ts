@@ -343,7 +343,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('should lock admin account after too many failed attempts', async () => {
+    it('should not lock admin account after failed attempts', async () => {
       const loginDto = {
         email: 'admin@example.com',
         password: 'wrongpassword',
@@ -361,20 +361,21 @@ describe('AuthService', () => {
 
       await expect(service.login(loginDto)).rejects.toMatchObject({
         response: expect.objectContaining({
-          code: 'ADMIN_ACCOUNT_LOCKED',
+          code: 'INVALID_PASSWORD',
         }),
       });
 
-      expect(prismaService.account.update).toHaveBeenCalledWith({
-        where: { id: adminAccount.id },
-        data: expect.objectContaining({
-          failedLoginAttempts: 0,
-          lockUntil: expect.any(Date),
+      expect(prismaService.account.update).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: adminAccount.id },
+          data: expect.objectContaining({
+            lockUntil: expect.any(Date),
+          }),
         }),
-      });
+      );
     });
 
-    it('should block concurrent admin login when session is active', async () => {
+    it('should allow concurrent admin login when session is active', async () => {
       const loginDto = {
         email: 'admin@example.com',
         password: 'password123',
@@ -390,12 +391,19 @@ describe('AuthService', () => {
 
       mockPrismaService.account.findUnique.mockResolvedValue(adminAccount);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      mockJwtService.signAsync.mockResolvedValue('jwt_token_admin');
 
-      await expect(service.login(loginDto)).rejects.toMatchObject({
-        response: expect.objectContaining({
-          code: 'ADMIN_SESSION_ACTIVE',
+      const result = await service.login(loginDto);
+
+      expect(result.accessToken).toBe('jwt_token_admin');
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: adminAccount.id,
+          email: adminAccount.email,
+          isAdmin: true,
+          sid: expect.any(String),
         }),
-      });
+      );
     });
   });
 

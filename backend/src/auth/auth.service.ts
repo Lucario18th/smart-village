@@ -19,8 +19,6 @@ export class AuthService {
   private static readonly VERIFICATION_CODE_TTL_MS = 5 * 60 * 1000;
   private static readonly VERIFICATION_CODE_MIN = 100_000;
   private static readonly VERIFICATION_CODE_MAX = 1_000_000;
-  private static readonly DEFAULT_MAX_ADMIN_LOGIN_ATTEMPTS = 5;
-  private static readonly DEFAULT_ADMIN_LOCKOUT_MS = 30 * 60 * 1000;
   private static readonly DEFAULT_ADMIN_SESSION_TTL_MS = 30 * 60 * 1000;
 
   constructor(
@@ -65,23 +63,6 @@ export class AuthService {
     }
   }
 
-  private getMaxAdminLoginAttempts(): number {
-    const parsed = Number.parseInt(
-      process.env.ADMIN_MAX_LOGIN_ATTEMPTS ?? "",
-      10,
-    );
-    return Number.isFinite(parsed) && parsed > 0
-      ? parsed
-      : AuthService.DEFAULT_MAX_ADMIN_LOGIN_ATTEMPTS;
-  }
-
-  private getAdminLockoutMs(): number {
-    return this.parseDurationToMs(
-      process.env.ADMIN_LOCKOUT_TTL,
-      AuthService.DEFAULT_ADMIN_LOCKOUT_MS,
-    );
-  }
-
   private getAdminSessionTtlMs(): number {
     return this.parseDurationToMs(
       process.env.ADMIN_SESSION_TTL,
@@ -115,70 +96,8 @@ export class AuthService {
     }
   }
 
-  private getLockoutUntil(): Date {
-    return new Date(Date.now() + this.getAdminLockoutMs());
-  }
-
   private getAdminSessionExpiresAt(): Date {
     return new Date(Date.now() + this.getAdminSessionTtlMs());
-  }
-
-  private isAdminLocked(account: Account): boolean {
-    return Boolean(account.lockUntil && account.lockUntil.getTime() > Date.now());
-  }
-
-  private async registerAdminFailedAttempt(
-    account: Account,
-    context: LoginContext,
-  ) {
-    const maxAttempts = this.getMaxAdminLoginAttempts();
-    const nextAttemptCount = account.failedLoginAttempts + 1;
-
-    if (nextAttemptCount >= maxAttempts) {
-      const lockUntil = this.getLockoutUntil();
-      await this.prisma.account.update({
-        where: { id: account.id },
-        data: {
-          failedLoginAttempts: 0,
-          lockUntil,
-        },
-      });
-
-      await this.logIncident({
-        type: SecurityIncidentType.LOGIN_BLOCKED,
-        success: false,
-        reason: "Too many failed admin login attempts",
-        accountId: account.id,
-        email: account.email,
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-      });
-
-      throw new UnauthorizedException({
-        statusCode: 401,
-        message: "Too many failed login attempts. Account temporarily locked.",
-        error: "Unauthorized",
-        code: "ADMIN_ACCOUNT_LOCKED",
-        lockedUntil: lockUntil.toISOString(),
-      });
-    }
-
-    await this.prisma.account.update({
-      where: { id: account.id },
-      data: {
-        failedLoginAttempts: nextAttemptCount,
-      },
-    });
-
-    await this.logIncident({
-      type: SecurityIncidentType.LOGIN_FAILED,
-      success: false,
-      reason: `Invalid password (attempt ${nextAttemptCount}/${maxAttempts})`,
-      accountId: account.id,
-      email: account.email,
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-    });
   }
 
   private generateVerificationCode() {
@@ -311,26 +230,6 @@ export class AuthService {
       });
     }
 
-    if (account.isAdmin && this.isAdminLocked(account)) {
-      await this.logIncident({
-        type: SecurityIncidentType.LOGIN_BLOCKED,
-        success: false,
-        reason: "Account currently locked",
-        accountId: account.id,
-        email: account.email,
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-      });
-
-      throw new UnauthorizedException({
-        statusCode: 401,
-        message: "Admin account is temporarily locked.",
-        error: "Unauthorized",
-        code: "ADMIN_ACCOUNT_LOCKED",
-        lockedUntil: account.lockUntil?.toISOString() ?? null,
-      });
-    }
-
     if (!account.emailVerified) {
       await this.sendOrResendVerificationCode(account);
 
@@ -354,19 +253,15 @@ export class AuthService {
 
     const valid = await bcrypt.compare(dto.password, account.passwordHash);
     if (!valid) {
-      if (account.isAdmin) {
-        await this.registerAdminFailedAttempt(account, context);
-      } else {
-        await this.logIncident({
-          type: SecurityIncidentType.LOGIN_FAILED,
-          success: false,
-          reason: "Invalid password",
-          accountId: account.id,
-          email: account.email,
-          ipAddress: context.ipAddress,
-          userAgent: context.userAgent,
-        });
-      }
+      await this.logIncident({
+        type: SecurityIncidentType.LOGIN_FAILED,
+        success: false,
+        reason: "Invalid password",
+        accountId: account.id,
+        email: account.email,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
 
       throw new UnauthorizedException({
         statusCode: 401,
@@ -380,31 +275,6 @@ export class AuthService {
     let adminSessionId: string | null = null;
 
     if (account.isAdmin) {
-      const hasActiveSession =
-        Boolean(account.activeAdminSessionId) &&
-        Boolean(account.activeAdminSessionExpiresAt) &&
-        account.activeAdminSessionExpiresAt!.getTime() > Date.now();
-
-      if (hasActiveSession) {
-        await this.logIncident({
-          type: SecurityIncidentType.ADMIN_SESSION_BLOCKED,
-          success: false,
-          reason: "Concurrent admin login blocked",
-          accountId: account.id,
-          email: account.email,
-          ipAddress: context.ipAddress,
-          userAgent: context.userAgent,
-        });
-
-        throw new UnauthorizedException({
-          statusCode: 401,
-          message: "Admin account already has an active session.",
-          error: "Unauthorized",
-          code: "ADMIN_SESSION_ACTIVE",
-          activeUntil: account.activeAdminSessionExpiresAt?.toISOString() ?? null,
-        });
-      }
-
       adminSessionId = randomUUID();
     }
 
