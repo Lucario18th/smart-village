@@ -25,9 +25,20 @@ data class TimeTableEntry(
 	val arrival: ArrivalTrainInfo?,
 	@XmlElement
 	@XmlSerialName("dp")
-	val departure: DepartureTrainInfo?
+	val departure: DepartureTrainInfo?,
+	@XmlElement
+	@XmlSerialName("ref")
+	val referencedTrip: ReferencedTrip?,
 )
 
+@Serializable
+@XmlSerialName("ref")
+data class ReferencedTrip(
+//	@XmlElement
+//	val rt: LineInfo?,
+	@XmlElement
+	val tl: LineInfo?
+)
 @Serializable
 @XmlSerialName("tl")
 data class LineInfo(
