@@ -16,7 +16,8 @@ body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe
 .auth-form input:focus,.auth-form select:focus{outline:none;border-color:var(--md-sys-color-primary);background:var(--md-sys-color-surface);box-shadow:0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent)}
 .auth-form-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;align-items:end}
 .auth-form-label{font-size:13px;font-weight:700;letter-spacing:.01em;color:var(--md-sys-color-on-surface)}
-.auth-form-select-field{display:grid;gap:6px}
+.auth-form-select-field{display:grid;gap:6px;}
+.auth-form-select{width: 180px;}
 .auth-code-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .auth-code-input{padding:10px 0!important;text-align:center;font-size:22px;font-weight:800;letter-spacing:.02em;border-radius:10px}
 .auth-submit-button{margin-top:8px;padding:12px 15px;border:none;border-radius:12px;background:linear-gradient(110deg, color-mix(in srgb, var(--md-sys-color-primary) 92%, #000) 0%, var(--md-sys-color-primary) 52%, color-mix(in srgb, var(--md-sys-color-secondary) 88%, #000) 100%);color:var(--md-sys-color-on-primary);font-weight:800;font-size:15px;letter-spacing:.02em;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}

@@ -134,6 +134,7 @@ export default function RegisterView({ onRegister, onBack, initialEmail = '' }) 
             <label htmlFor="accountType" className="auth-form-select-field">
               <span>Account-Typ</span>
               <select
+              className="auth-form-select"
                 id="accountType"
                 value={accountType}
                 onChange={(event) => {
