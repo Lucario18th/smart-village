@@ -96,7 +96,10 @@ export default function GeneralSettingsForm({
 
   const handleSave = async () => {
     try {
-      await onSave?.()
+      const saved = await onSave?.()
+      if (saved === false) {
+        return
+      }
       editSnapshotRef.current = null
       setIsEditing(false)
       onEditingChange?.(false)

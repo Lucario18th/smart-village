@@ -315,8 +315,11 @@ export default function ModulesSettingsForm({
     setSensorSearch('')
   }
 
-  const handleSave = () => {
-    onSave?.()
+  const handleSave = async () => {
+    const saved = await onSave?.()
+    if (saved === false) {
+      return
+    }
     editSnapshotRef.current = null
     setIsEditing(false)
   }

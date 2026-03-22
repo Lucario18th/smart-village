@@ -634,8 +634,8 @@ export default function SensorsSettingsForm({
     return unassignedSensors.filter(matchesSensor)
   }, [unassignedSensors, normalizedQuery])
 
-  const handleUpdateSensor = (formData) => {
-    onUpdateSensor(editingSensorId, {
+  const handleUpdateSensor = async (formData) => {
+    const saved = await onUpdateSensor(editingSensorId, {
       name: formData.name,
       sensorTypeId: parseInt(formData.sensorTypeId),
       infoText: formData.infoText,
@@ -645,7 +645,9 @@ export default function SensorsSettingsForm({
       latitude: formData.latitude,
       longitude: formData.longitude,
     })
-    setEditingSensorId(null)
+    if (saved !== false) {
+      setEditingSensorId(null)
+    }
   }
 
   const handleAddDevice = (formData) => {
@@ -658,13 +660,15 @@ export default function SensorsSettingsForm({
     setIsAddingDevice(false)
   }
 
-  const handleUpdateDevice = (formData) => {
-    onUpdateDevice(editingDeviceId, {
+  const handleUpdateDevice = async (formData) => {
+    const saved = await onUpdateDevice(editingDeviceId, {
       name: formData.name,
       latitude: formData.latitude,
       longitude: formData.longitude,
     })
-    setEditingDeviceId(null)
+    if (saved !== false) {
+      setEditingDeviceId(null)
+    }
   }
 
   const isSensorInactive = (sensor) => sensor.exposeToApp === false || sensor.dataStale === true

@@ -444,19 +444,45 @@ export function useVillageConfig(session) {
     })
   }, [nextSensorId])
 
-  // Update bestehenden sensor
-  const updateSensor = useCallback((sensorId, updates) => {
+  // Update bestehenden Sensor; bei persistierten IDs sofort per API speichern.
+  const updateSensor = useCallback(async (sensorId, updates) => {
+    const currentSensor = (configRef.current.sensors || []).find((sensor) => sensor.id === sensorId)
+    const mergedSensor = currentSensor ? { ...currentSensor, ...updates } : null
+
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
-        sensors: (currentConfig.sensors || []).map(sensor =>
+        sensors: (currentConfig.sensors || []).map((sensor) =>
           sensor.id === sensorId ? { ...sensor, ...updates } : sensor
         ),
       }
-      setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
-  }, [])
+
+    if (!mergedSensor || sensorId < 0 || !villageId) {
+      setHasUnsavedChanges(true)
+      return false
+    }
+
+    try {
+      await apiClient.sensors.update(sensorId, {
+        name: mergedSensor.name,
+        infoText: mergedSensor.infoText,
+        isActive: mergedSensor.active,
+        receiveData: mergedSensor.receiveData,
+        exposeToApp: mergedSensor.exposeToApp,
+        deviceId: mergedSensor.deviceId ?? null,
+        latitude: toNumberOrNull(mergedSensor.latitude),
+        longitude: toNumberOrNull(mergedSensor.longitude),
+      })
+      setStorageMessage('Sensor erfolgreich gespeichert')
+      return true
+    } catch (error) {
+      setHasUnsavedChanges(true)
+      setStorageMessage(`Sensor konnte nicht gespeichert werden: ${error.message}`)
+      return false
+    }
+  }, [villageId])
 
   const addDevice = useCallback((deviceData) => {
     setConfig((currentConfig) => {
@@ -480,18 +506,39 @@ export function useVillageConfig(session) {
     })
   }, [nextDeviceId])
 
-  const updateDevice = useCallback((deviceId, updates) => {
+  const updateDevice = useCallback(async (deviceId, updates) => {
+    const currentDevice = (configRef.current.devices || []).find((device) => device.id === deviceId)
+    const mergedDevice = currentDevice ? { ...currentDevice, ...updates } : null
+
     setConfig((currentConfig) => {
       const nextConfig = {
         ...currentConfig,
-        devices: (currentConfig.devices || []).map(device =>
+        devices: (currentConfig.devices || []).map((device) =>
           device.id === deviceId ? { ...device, ...updates } : device
         ),
       }
-      setHasUnsavedChanges(true)
       return markUpdated(nextConfig)
     })
-  }, [])
+
+    if (!mergedDevice || deviceId < 0 || !villageId) {
+      setHasUnsavedChanges(true)
+      return false
+    }
+
+    try {
+      await apiClient.devices.update(deviceId, {
+        name: mergedDevice.name,
+        latitude: toNumberOrNull(mergedDevice.latitude),
+        longitude: toNumberOrNull(mergedDevice.longitude),
+      })
+      setStorageMessage('Gateway erfolgreich gespeichert')
+      return true
+    } catch (error) {
+      setHasUnsavedChanges(true)
+      setStorageMessage(`Gateway konnte nicht gespeichert werden: ${error.message}`)
+      return false
+    }
+  }, [villageId])
 
   // Mark sensor for deletion
   const removeSensor = useCallback((sensorId) => {
