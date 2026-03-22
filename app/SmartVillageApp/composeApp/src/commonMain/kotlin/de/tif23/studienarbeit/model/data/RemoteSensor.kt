@@ -8,6 +8,6 @@ data class RemoteSensor(
     val name: String,
     val type: String,
     val unit: String,
-    val latitude: Double,
-    val longitude: Double
+    val latitude: Double?,
+    val longitude: Double?
 )

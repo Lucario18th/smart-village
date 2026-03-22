@@ -184,8 +184,10 @@ fun SensorDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text(text = "Standort", style = MaterialTheme.typography.titleMedium)
-                        DetailRow("Breitengrad", sensorData.coordinates.lat.toString())
-                        DetailRow("Längengrad", sensorData.coordinates.lon.toString())
+                        if (sensorData.coordinates != null) {
+                            DetailRow("Breitengrad", sensorData.coordinates.lat.toString())
+                            DetailRow("Längengrad", sensorData.coordinates.lon.toString())
+                        }
                     }
                 }
             }

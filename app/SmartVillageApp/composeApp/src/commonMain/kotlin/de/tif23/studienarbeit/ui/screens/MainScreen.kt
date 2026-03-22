@@ -51,7 +51,6 @@ import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.util.getPlatform
 import de.tif23.studienarbeit.viewmodel.MainViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
-import de.tif23.studienarbeit.viewmodel.data.VillageFeatures
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
@@ -132,7 +131,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                         backStack = backStack,
                         villageId = state.village?.village?.id!!,
                         villageName = state.village?.village?.name!!,
-                        features = state.village?.village?.features!!
+                        isMessageFeatureActive = state.village?.village?.features?.messages?: false
                     )
                 },
                 bottomBar = {
@@ -145,7 +144,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                         .fillMaxWidth()
                         .padding(paddingValues)
                 ) {
-                    if (state.village?.village?.features?.map!!) {
+                    if (state.village?.village?.features?.map?: false) {
                         item {
                             Card(
                                 modifier = Modifier
@@ -337,7 +336,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName: String, features: VillageFeatures) {
+private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName: String, isMessageFeatureActive: Boolean) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -354,7 +353,7 @@ private fun TopBar(backStack: NavBackStack<NavKey>, villageId: Int, villageName:
             }
         },
         actions = {
-            if (features.messages) {
+            if (isMessageFeatureActive) {
                 IconButton(onClick = { backStack.add(NavDestinations.MessagesScreen(villageId)) }) {
                     Icon(
                         painter = painterResource(Res.drawable.notifications),

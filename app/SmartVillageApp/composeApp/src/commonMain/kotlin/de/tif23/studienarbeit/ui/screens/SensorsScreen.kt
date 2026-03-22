@@ -17,7 +17,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,14 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.tif23.studienarbeit.ui.components.NavBar
 import de.tif23.studienarbeit.ui.theme.onSurfaceLight
-import de.tif23.studienarbeit.ui.theme.primaryLight
 import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.SensorViewModel
@@ -119,7 +116,7 @@ fun SensorsScreen(
                     }
                 }
 
-                uiState.groupedSensors.isEmpty() -> {
+                uiState.sensors.isEmpty() -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -136,53 +133,36 @@ fun SensorsScreen(
                             .fillMaxSize()
                             .padding(paddingValues)
                     ) {
-                        uiState.groupedSensors.forEachIndexed { index, group ->
-                            item {
-                                Text(
-                                    text = group.coordinatesLabel,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (isSystemInDarkTheme() && index == 0) primaryLight else MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(
-                                        start = 16.dp,
-                                        top = 16.dp,
-                                        end = 16.dp,
-                                        bottom = 8.dp
-                                    )
-                                )
-                            }
-
+                        uiState.sensors.forEachIndexed { index, sensor ->
                             item {
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                                    )
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                    ),
+                                    elevation = CardDefaults.cardElevation(2.dp)
                                 ) {
-                                    Column {
-                                        group.sensors.forEachIndexed { index, sensor ->
-                                            SensorListItem(
-                                                sensor = sensor,
-                                                onClick = {
-                                                    backStack.add(
-                                                        NavDestinations.SensorDetailScreen(sensor.id)
-                                                    )
-                                                }
+                                    SensorListItem(
+                                        sensor = sensor,
+                                        onClick = {
+                                            backStack.add(
+                                                NavDestinations.SensorDetailScreen(sensor.id)
                                             )
-
-                                            if (index < group.sensors.lastIndex) {
-                                                HorizontalDivider(
-                                                    color = MaterialTheme.colorScheme.outlineVariant
-                                                )
-                                            }
                                         }
-                                    }
+                                    )
+                                }
+                            }
+                            if (index < uiState.sensors.lastIndex) {
+                                item {
+                                    Spacer(
+                                        //color = MaterialTheme.colorScheme.outlineVariant,
+                                        modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)
+                                    )
                                 }
                             }
                         }
-                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
                 }
             }

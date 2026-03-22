@@ -56,7 +56,7 @@ fun RemoteSensor.toDomain(): Sensor {
         name = this.name,
         type = getSensorType(this.type),
         unit = this.unit,
-        coordinates = Coordinates(
+        coordinates = if (this.latitude == null || this.longitude == null) null else Coordinates(
             lat = this.latitude,
             lon = this.longitude
         ),
@@ -70,7 +70,7 @@ fun RemoteSensorData.toDomain(): Sensor {
         name = this.name,
         type = getSensorType(this.type),
         unit = this.unit,
-        coordinates = Coordinates(
+        coordinates = if (this.latitude == null || this.longitude == null) null else Coordinates(
             lat = this.latitude,
             lon = this.longitude
         ),
@@ -92,7 +92,7 @@ fun RemoteVillageConfig.toDomain(): VillageConfig {
             city = this.postalCode.city,
             locationName = this.locationName,
             sensorCount = this.sensors.size,
-            features = VillageFeatures(
+            features = if (this.features == null) null else VillageFeatures(
                 sensorData = this.features.sensorData,
                 weather = this.features.weather,
                 messages = this.features.messages,
@@ -102,7 +102,7 @@ fun RemoteVillageConfig.toDomain(): VillageConfig {
                 textileContainers = this.features.textileContainers,
             )
         ),
-        sensorDetailVisibility = SensorDetailVisibility(
+        sensorDetailVisibility = if (this.sensorDetailVisibility == null) null else SensorDetailVisibility(
             name = this.sensorDetailVisibility.name,
             type = this.sensorDetailVisibility.type,
             description = this.sensorDetailVisibility.description,

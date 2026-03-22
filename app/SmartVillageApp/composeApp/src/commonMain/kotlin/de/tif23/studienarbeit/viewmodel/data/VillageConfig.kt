@@ -2,7 +2,7 @@ package de.tif23.studienarbeit.viewmodel.data
 
 data class VillageConfig(
     val village: Village,
-    val sensorDetailVisibility: SensorDetailVisibility,
+    val sensorDetailVisibility: SensorDetailVisibility?,
     val sensors: List<Sensor>,
     val statusText: String?,
     val infoText: String?
