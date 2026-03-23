@@ -30,6 +30,9 @@ JWT_SECRET=<zufälliger-schlüssel>
 
 # Korrekte Frontend-URL für CORS
 FRONTEND_URL=https://<domain>
+
+# MailHog-Link im Registrierungs-/Verifizierungsfenster
+VITE_MAILHOG_URL=https://<domain>:8025
 ```
 
 ### 3. SSL-Zertifikate bereitstellen
@@ -69,14 +72,14 @@ Das System ist bereit, wenn alle Container den Status "healthy" haben.
 **Zugang:**
 - Frontend: `https://localhost` (oder die konfigurierte Domain)
 - Backend-API: `https://localhost/api/health`
-- MailHog (Entwicklung): `http://localhost:8025`
+- MailHog (Entwicklung): `https://localhost:8025`
 
 ## Erster Login
 
 1. Im Browser die Frontend-URL aufrufen.
 2. Auf "Registrieren" klicken.
 3. E-Mail, Passwort und Standort eingeben.
-4. In MailHog (`http://localhost:8025`) den Verifizierungscode abrufen.
+4. In MailHog (`https://localhost:8025`) den Verifizierungscode abrufen.
 5. Den 6-stelligen Code im Verifizierungsformular eingeben.
 6. Mit den registrierten Zugangsdaten anmelden.
 
@@ -138,6 +141,7 @@ docker compose up -d
 ```
 
 Bei Schema-Änderungen werden die Migrationen beim Neustart automatisch angewendet.
+Hinweis: Änderungen an `VITE_*`-Variablen erfordern ein Neu-Bauen des Frontend-Images (`docker compose build nginx`).
 
 ## Logs
 
@@ -201,5 +205,5 @@ Die Dokumentation dazu befindet sich im alten Dokument `doku/Server-Sicherheit-D
 - MQTT-Konfiguration in `smartvillage.env` prüfen
 
 **E-Mail-Verifizierung funktioniert nicht:**
-- MailHog-Oberfläche prüfen: `http://localhost:8025`
+- MailHog-Oberfläche prüfen: `https://localhost:8025`
 - SMTP-Konfiguration in `smartvillage.env` prüfen

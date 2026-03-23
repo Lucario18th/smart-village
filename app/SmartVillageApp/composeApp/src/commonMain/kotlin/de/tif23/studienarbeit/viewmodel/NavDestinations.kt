@@ -21,13 +21,18 @@ object NavDestinations {
     data class SensorDetailScreen(val sensorId: Int) : NavKey
 
     @Serializable
-    data object PinboardScreen : NavKey
+    data object ModulesScreen : NavKey
+
+    @Serializable
+    data class ModuleDetailScreen(val moduleId: Int) : NavKey
 
     @Serializable
     data object SettingsScreen : NavKey
 
     @Serializable
-    data object NotificationsScreen : NavKey
+    data class MessagesScreen(
+        val villageId: Int
+    ) : NavKey
 
     @Serializable
     data class RideDetailsScreen(val rideId: String) : NavKey

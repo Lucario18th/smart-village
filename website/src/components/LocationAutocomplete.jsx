@@ -5,8 +5,8 @@ const formatOption = (option) =>
   `${option.zipCode} ${option.city}${option.state ? ` (${option.state})` : ''}`
 
 export default function LocationAutocomplete({
-  label = 'PLZ oder Ort',
-  placeholder = '12345 oder Berlin',
+  label = 'Standort (PLZ und Ort)',
+  placeholder = '12345 Berlin',
   onSelect,
   selectedOption = null,
   disabled = false,

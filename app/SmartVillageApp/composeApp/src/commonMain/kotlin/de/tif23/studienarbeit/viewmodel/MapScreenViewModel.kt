@@ -2,7 +2,6 @@ package de.tif23.studienarbeit.viewmodel
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -26,6 +25,7 @@ import de.tif23.studienarbeit.viewmodel.constants.LOERRACH_LON
 import de.tif23.studienarbeit.viewmodel.data.RecyclingContainer
 import de.tif23.studienarbeit.viewmodel.data.RecyclingType
 import de.tif23.studienarbeit.viewmodel.data.Sensor
+import de.tif23.studienarbeit.viewmodel.data.SensorType
 import de.tif23.studienarbeit.viewmodel.data.TrainStation
 import de.tif23.studienarbeit.viewmodel.data.VillageConfig
 import de.tif23.studienarbeit.viewmodel.data.state.MapScreenViewModelState
@@ -49,12 +49,8 @@ import ovh.plrapps.mapcompose.api.scale
 import ovh.plrapps.mapcompose.ui.layout.Forced
 import ovh.plrapps.mapcompose.ui.state.MapState
 import smartvillageapp.composeapp.generated.resources.Res
-import smartvillageapp.composeapp.generated.resources.altglas_location
-import smartvillageapp.composeapp.generated.resources.altkleider_location
 import smartvillageapp.composeapp.generated.resources.circle_full
-import smartvillageapp.composeapp.generated.resources.parkbank_location
 import smartvillageapp.composeapp.generated.resources.train_filled
-import smartvillageapp.composeapp.generated.resources.weather_filled
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.time.Clock
@@ -136,7 +132,7 @@ class MapScreenViewModel(
             stateFlow.update { it.copy(village = village, isLoading = false) }
             moveToInitialPosition(village)
             loadMarkers(village)
-            addClickListeners()
+            addClickListeners(village.village.name)
         }
     }
 
@@ -150,22 +146,22 @@ class MapScreenViewModel(
         sensorsById = sensors.associateBy { it.id }
 
         containers.forEach {
-            mapState.addMarker(
-                id = "container_${it.id}",
-                x = lonToX(it.coordinates.lon),
-                y = latToY(it.coordinates.lat)
-            ) {
-                Icon(
-                    painter = if (it.type == RecyclingType.ALTGLAS.name) {
-                        painterResource(Res.drawable.altglas_location)
-                    } else {
-                        painterResource(Res.drawable.altkleider_location)
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+//            mapState.addMarker(
+//                id = "container_${it.id}",
+//                x = lonToX(it.coordinates.lon),
+//                y = latToY(it.coordinates.lat)
+//            ) {
+//                Icon(
+//                    painter = if (it.type == RecyclingType.ALTGLAS.name) {
+//                        painterResource(Res.drawable.altglas_location)
+//                    } else {
+//                        painterResource(Res.drawable.altkleider_location)
+//                    },
+//                    contentDescription = null,
+//                    modifier = Modifier.size(32.dp),
+//                    tint = MaterialTheme.colorScheme.primary
+//                )
+//            }
         }
 
         stations.forEach {
@@ -190,13 +186,9 @@ class MapScreenViewModel(
                 y = latToY(it.coordinates.lat)
             ) {
                 Icon(
-                    painter = if (it.type == "Mitfahrbank") {
-                        painterResource(Res.drawable.parkbank_location)
-                    } else {
-                        painterResource(Res.drawable.weather_filled)
-                    },
+                    painter = painterResource(it.type.drawableResource),
                     contentDescription = null,
-                    modifier = Modifier.size(if (it.type == "Mitfahrbank") 32.dp else 24.dp),
+                    modifier = Modifier.size(if (it.type == SensorType.RIDESHARE) 32.dp else 24.dp),
                     tint = onSurfaceLight
                 )
             }
@@ -210,10 +202,10 @@ class MapScreenViewModel(
         }
     }
 
-    private fun addClickListeners() {
+    private fun addClickListeners(villageName: String) {
         mapState.onMarkerClick { id, _, _ ->
             when {
-                id.startsWith("station_") -> onStationSelected(id.removePrefix("station_"))
+                id.startsWith("station_") -> onStationSelected(id.removePrefix("station_"), villageName)
                 id.startsWith("sensor_") -> onSensorSelected(id.removePrefix("sensor_"))
                 id.startsWith("container_") -> onContainerSelected(id.removePrefix("container_"))
             }
@@ -234,25 +226,27 @@ class MapScreenViewModel(
                 sheetContent = MapSheetContent.Sensor(
                     id = sensor.id,
                     name = sensor.name,
-                    type = sensor.type,
+                    type = sensor.type.name,
                     value = value,
                     unit = sensor.unit,
-                    isRideshareBench = sensor.type == "Mitfahrbank"
+                    isRideshareBench = sensor.type == SensorType.RIDESHARE
                 )
             )
         }
     }
 
-    private fun onStationSelected(evaNo: String) {
-        val stationName = stationsByEva[evaNo]?.name ?: "Bahnhof"
-        stateFlow.update {
-            it.copy(
-                sheetContent = MapSheetContent.Station(
-                    evaNo = evaNo,
-                    stationName = stationName,
-                    isLoading = true
+    private fun onStationSelected(evaNo: String, villageName: String) {
+        viewModelScope.launch {
+            val stationName = getVillageTrainStationsUseCase.getAllStationsForVillage(villageName).find { it.eva.toString() == evaNo }?.name?: "Bahnhof"
+            stateFlow.update {
+                it.copy(
+                    sheetContent = MapSheetContent.Station(
+                        evaNo = evaNo,
+                        stationName = stationName,
+                        isLoading = true
+                    )
                 )
-            )
+            }
         }
 
         viewModelScope.launch {

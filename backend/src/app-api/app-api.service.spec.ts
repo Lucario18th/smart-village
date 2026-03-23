@@ -118,6 +118,8 @@ describe('AppApiService', () => {
         id: 1,
         name: 'Freiburg',
         locationName: '79098 Freiburg',
+        contactEmail: 'verwaltung@freiburg.de',
+        contactPhone: '+49 761 123456',
         postalCode: { zipCode: '79098', city: 'Freiburg im Breisgau' },
         account: { isPublicAppApiEnabled: true },
         features: {
@@ -152,6 +154,8 @@ describe('AppApiService', () => {
       expect(result.features?.weather).toBe(false);
       expect(result.sensors).toHaveLength(1);
       expect(result.sensors[0].type).toBe('Temperature');
+      expect(result.contactEmail).toBe('verwaltung@freiburg.de');
+      expect(result.contactPhone).toBe('+49 761 123456');
       expect(result.sensorDetailVisibility).toEqual({
         name: true,
         type: true,

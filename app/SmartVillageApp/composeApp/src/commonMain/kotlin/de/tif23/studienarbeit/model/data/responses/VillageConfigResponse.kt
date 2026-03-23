@@ -1,5 +1,6 @@
 package de.tif23.studienarbeit.model.data.responses
 
+import de.tif23.studienarbeit.model.data.RemoteModule
 import de.tif23.studienarbeit.model.data.RemotePostalCode
 import de.tif23.studienarbeit.model.data.RemoteSensor
 import de.tif23.studienarbeit.model.data.RemoteSensorDetailVisibility
@@ -26,4 +27,5 @@ data class RemoteVillageConfig(
     val features: RemoteVillageFeatures,
     val sensorDetailVisibility: RemoteSensorDetailVisibility,
     val sensors: List<RemoteSensor>,
+    val modules: List<RemoteModule>
 )

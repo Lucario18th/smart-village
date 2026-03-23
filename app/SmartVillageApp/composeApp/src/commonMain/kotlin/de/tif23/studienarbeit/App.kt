@@ -13,7 +13,10 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.ui.screens.MainScreen
 import de.tif23.studienarbeit.ui.screens.MapScreen
+import de.tif23.studienarbeit.ui.screens.MessagesScreen
 import de.tif23.studienarbeit.ui.screens.MobilityScreen
+import de.tif23.studienarbeit.ui.screens.ModuleDetailScreen
+import de.tif23.studienarbeit.ui.screens.ModulesScreen
 import de.tif23.studienarbeit.ui.screens.RideDetailsScreen
 import de.tif23.studienarbeit.ui.screens.RideOfferScreen
 import de.tif23.studienarbeit.ui.screens.RidesharePointDetailScreen
@@ -23,6 +26,8 @@ import de.tif23.studienarbeit.ui.screens.SettingsScreen
 import de.tif23.studienarbeit.ui.screens.SplashScreen
 import de.tif23.studienarbeit.ui.screens.StationDeparturesScreen
 import de.tif23.studienarbeit.ui.theme.SmartVillageTheme
+import de.tif23.studienarbeit.viewmodel.MessagesViewModel
+import de.tif23.studienarbeit.viewmodel.ModuleDetailViewModel
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.StationDeparturesViewModel
 import kotlinx.serialization.modules.SerializersModule
@@ -36,9 +41,10 @@ private val config = SavedStateConfiguration {
             subclass(NavDestinations.MobilityScreen::class, NavDestinations.MobilityScreen.serializer())
             subclass(NavDestinations.SensorScreen::class, NavDestinations.SensorScreen.serializer())
             subclass(NavDestinations.SensorDetailScreen::class, NavDestinations.SensorDetailScreen.serializer())
-            subclass(NavDestinations.PinboardScreen::class, NavDestinations.PinboardScreen.serializer())
+            subclass(NavDestinations.ModulesScreen::class, NavDestinations.ModulesScreen.serializer())
+            subclass(NavDestinations.ModuleDetailScreen::class, NavDestinations.ModuleDetailScreen.serializer())
             subclass(NavDestinations.SettingsScreen::class, NavDestinations.SettingsScreen.serializer())
-            subclass(NavDestinations.NotificationsScreen::class, NavDestinations.NotificationsScreen.serializer())
+            subclass(NavDestinations.MessagesScreen::class, NavDestinations.MessagesScreen.serializer())
             subclass(NavDestinations.RideDetailsScreen::class, NavDestinations.RideDetailsScreen.serializer())
             subclass(NavDestinations.RidesharePointDetailScreen::class, NavDestinations.RidesharePointDetailScreen.serializer())
             subclass(NavDestinations.RideOfferScreen::class, NavDestinations.RideOfferScreen.serializer())
@@ -93,16 +99,30 @@ fun App() {
                     )
                 }
 
-                entry<NavDestinations.PinboardScreen> {
+                entry<NavDestinations.ModulesScreen> {
+                    ModulesScreen(
+                        backStack = backStack,
+                    )
+                }
 
+                entry<NavDestinations.ModuleDetailScreen> { moduleDetailScreen ->
+                    ModuleDetailScreen(
+                        backStack = backStack,
+                        viewModel = viewModel<ModuleDetailViewModel>(
+                            factory = ModuleDetailViewModel.Factory(moduleDetailScreen.moduleId)
+                        )
+                    )
                 }
 
                 entry<NavDestinations.SettingsScreen> {
                     SettingsScreen(backStack = backStack)
                 }
 
-                entry<NavDestinations.NotificationsScreen> {
-
+                entry<NavDestinations.MessagesScreen> { villageId -> 
+                    MessagesScreen(
+                        backStack = backStack,
+                        viewModel = viewModel(factory = MessagesViewModel.Factory(villageId))
+                    )
                 }
 
                 entry<NavDestinations.RideDetailsScreen> {

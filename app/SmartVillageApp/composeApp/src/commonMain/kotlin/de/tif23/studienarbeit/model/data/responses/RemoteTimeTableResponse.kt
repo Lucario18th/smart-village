@@ -61,6 +61,12 @@ data class DepartureTrainInfo(
 	val wings: String?,
 	@XmlSerialName("ppth")
 	val plannedPath: String,
+	@XmlSerialName("cde")
+    val changedDistantEndpoint: String?,
+	@XmlSerialName("dp")
+	val eventChange: String?,
+	@XmlSerialName("dc")
+	val distantChange: String?,
 	@XmlSerialName("hi")
 	val isHidden: String?
 )
@@ -83,6 +89,12 @@ data class ArrivalTrainInfo(
 	val plannedDistantEndpoint: String?,
 	@XmlSerialName("ppth")
 	val plannedPath: String,
+	@XmlSerialName("cde")
+    val changedDistantEndpoint: String?,
+	@XmlSerialName("dp")
+	val eventChange: String?,
+	@XmlSerialName("dc")
+	val distantChange: String?,
 	@XmlSerialName("hi")
 	val isHidden: String?
 )

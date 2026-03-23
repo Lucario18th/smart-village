@@ -205,6 +205,10 @@ function SimpleLineChart({ readings, unit }) {
   const width = 760
   const height = 220
   const padding = 24
+  const leftPadding = 66
+  const rightPadding = 24
+  const topPadding = 22
+  const bottomPadding = 42
   const values = readings.map((reading) => Number(reading.value)).filter((value) => Number.isFinite(value))
   const min = Math.min(...values)
   const max = Math.max(...values)
@@ -212,11 +216,39 @@ function SimpleLineChart({ readings, unit }) {
   const toTs = readings[readings.length - 1].tsDate.getTime()
   const xSpan = Math.max(toTs - fromTs, 1)
   const ySpan = Math.max(max - min, 1)
+  const axisLabelY = unit ? `Messwert (${unit})` : 'Messwert'
+  const fromLabel = new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short' }).format(
+    readings[0].tsDate
+  )
+  const toLabel = new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short' }).format(
+    readings[readings.length - 1].tsDate
+  )
+  const plotWidth = width - leftPadding - rightPadding
+  const plotHeight = height - topPadding - bottomPadding
+  const yTickRatios = [0.25, 0.5, 0.75]
+  const xTickRatios = [0.25, 0.5, 0.75]
+  const yTicks = yTickRatios.map((ratio) => ({
+    y: topPadding + plotHeight * ratio,
+    value: max - ySpan * ratio,
+  }))
+  const xTicks = xTickRatios.map((ratio) => {
+    const tickTs = new Date(fromTs + xSpan * ratio)
+    const label = new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short' }).format(tickTs)
+    return {
+      x: leftPadding + plotWidth * ratio,
+      label,
+    }
+  })
 
   const points = readings
     .map((reading) => {
-      const x = padding + ((reading.tsDate.getTime() - fromTs) / xSpan) * (width - padding * 2)
-      const y = height - padding - ((Number(reading.value) - min) / ySpan) * (height - padding * 2)
+      const x =
+        leftPadding +
+        ((reading.tsDate.getTime() - fromTs) / xSpan) * (width - leftPadding - rightPadding)
+      const y =
+        height -
+        bottomPadding -
+        ((Number(reading.value) - min) / ySpan) * (height - topPadding - bottomPadding)
       return `${x},${y}`
     })
     .join(' ')
@@ -224,14 +256,84 @@ function SimpleLineChart({ readings, unit }) {
   return (
     <div className="stats-chart-wrap">
       <svg className="stats-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Zeitreihe Sensorwerte">
-        <line x1={padding} y1={padding} x2={padding} y2={height - padding} className="stats-axis" />
+        {yTicks.map((tick) => (
+          <line
+            key={`grid-y-${tick.y}`}
+            x1={leftPadding}
+            y1={tick.y}
+            x2={width - rightPadding}
+            y2={tick.y}
+            className="stats-gridline"
+          />
+        ))}
+        {xTicks.map((tick) => (
+          <line
+            key={`grid-x-${tick.x}`}
+            x1={tick.x}
+            y1={topPadding}
+            x2={tick.x}
+            y2={height - bottomPadding}
+            className="stats-gridline"
+          />
+        ))}
+
         <line
-          x1={padding}
-          y1={height - padding}
-          x2={width - padding}
-          y2={height - padding}
+          x1={leftPadding}
+          y1={topPadding}
+          x2={leftPadding}
+          y2={height - bottomPadding}
           className="stats-axis"
         />
+        <line
+          x1={leftPadding}
+          y1={height - bottomPadding}
+          x2={width - rightPadding}
+          y2={height - bottomPadding}
+          className="stats-axis"
+        />
+
+        <text x={leftPadding - 8} y={topPadding + 4} textAnchor="end" className="stats-axis-tick">
+          {formatValue(max, unit)}
+        </text>
+        {yTicks.map((tick) => (
+          <text key={`tick-y-${tick.y}`} x={leftPadding - 8} y={tick.y + 4} textAnchor="end" className="stats-axis-tick">
+            {formatValue(tick.value, unit)}
+          </text>
+        ))}
+        <text x={leftPadding - 8} y={height - bottomPadding + 4} textAnchor="end" className="stats-axis-tick">
+          {formatValue(min, unit)}
+        </text>
+
+        <text x={leftPadding} y={height - 12} textAnchor="start" className="stats-axis-tick">
+          {fromLabel}
+        </text>
+        {xTicks.map((tick) => (
+          <text key={`tick-x-${tick.x}`} x={tick.x} y={height - 12} textAnchor="middle" className="stats-axis-tick">
+            {tick.label}
+          </text>
+        ))}
+        <text x={width - rightPadding} y={height - 12} textAnchor="end" className="stats-axis-tick">
+          {toLabel}
+        </text>
+
+        <text
+          x={16}
+          y={(topPadding + (height - bottomPadding)) / 2}
+          textAnchor="middle"
+          transform={`rotate(-90 16 ${(topPadding + (height - bottomPadding)) / 2})`}
+          className="stats-axis-label"
+        >
+          {axisLabelY}
+        </text>
+        <text
+          x={(leftPadding + (width - rightPadding)) / 2}
+          y={height - 26}
+          textAnchor="middle"
+          className="stats-axis-label"
+        >
+          Zeit
+        </text>
+
         <polyline className="stats-line" points={points} />
       </svg>
       <div className="stats-chart-scale">
@@ -432,49 +534,6 @@ export default function StatisticsForm({ config }) {
 
       {layer === 'overview' ? (
         <>
-          <section className="statistics-block">
-            <h3>Übersicht aller Sensoren</h3>
-            <div className="sensor-table-wrap">
-              <table className="sensor-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Typ</th>
-                    <th>Ort</th>
-                    <th>Letzter Messwert</th>
-                    <th>Letzte Meldung</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sensors.map((sensor) => {
-                    const freshness = getFreshness(sensor.lastTs)
-                    return (
-                      <tr key={sensor.id} className={sensor.id === selectedSensor?.id ? 'is-selected' : ''}>
-                        <td>
-                          <button
-                            type="button"
-                            className="sensor-link-button"
-                            onClick={() => setSelectedSensorId(sensor.id)}
-                          >
-                            {sensor.name}
-                          </button>
-                        </td>
-                        <td>{sensor.type || 'Unbekannt'}</td>
-                        <td>{getSensorLocation(sensor)}</td>
-                        <td>{formatValue(sensor.lastValue, sensor.unit)}</td>
-                        <td>{formatTimestamp(sensor.lastTs)}</td>
-                        <td>
-                          <span className={`health-pill ${freshness.tone}`}>{freshness.status}</span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
           {selectedSensor ? (
             <section className="statistics-block sensor-detail-block">
               <div className="sensor-detail-header">
@@ -571,6 +630,56 @@ export default function StatisticsForm({ config }) {
               ) : null}
             </section>
           ) : null}
+
+          <section className="statistics-block">
+            <h3>Übersicht aller Sensoren</h3>
+            <div className="sensor-table-wrap">
+              <table className="sensor-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Typ</th>
+                    <th>Ort</th>
+                    <th>Letzter Messwert</th>
+                    <th>Letzte Meldung</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sensors.map((sensor) => {
+                    const freshness = getFreshness(sensor.lastTs)
+                    return (
+                      <tr
+                        key={sensor.id}
+                        className={`${sensor.id === selectedSensor?.id ? 'is-selected ' : ''}is-clickable`}
+                        onClick={() => setSelectedSensorId(sensor.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault()
+                            setSelectedSensorId(sensor.id)
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Sensor ${sensor.name} anzeigen`}
+                      >
+                        <td>
+                          <span className="sensor-link-button">{sensor.name}</span>
+                        </td>
+                        <td>{sensor.type || 'Unbekannt'}</td>
+                        <td>{getSensorLocation(sensor)}</td>
+                        <td>{formatValue(sensor.lastValue, sensor.unit)}</td>
+                        <td>{formatTimestamp(sensor.lastTs)}</td>
+                        <td>
+                          <span className={`health-pill ${freshness.tone}`}>{freshness.status}</span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </>
       ) : null}
 

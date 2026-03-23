@@ -18,7 +18,7 @@ const DATE_LOCALES = {
 
 const I18N = {
   de: {
-    appTitle: 'Smart Village User',
+    appTitle: 'Smart Village Bürgerportal',
     navOpen: 'Navigation öffnen',
     navClose: 'Navigation schließen',
     navAria: 'Nutzer Navigation',
@@ -33,6 +33,7 @@ const I18N = {
     noWeather: 'Keine Wetterdaten verfügbar.',
     weatherValue: 'Wetterwert',
     noMessages: 'Keine Nachrichten vorhanden.',
+    noEvents: 'Keine Veranstaltungen verfügbar.',
     noRideshare: 'Keine Mitfahrbank-Daten vorhanden.',
     onePerson: 'Person',
     manyPeople: 'Personen',
@@ -41,6 +42,8 @@ const I18N = {
     textileFallback: 'Container',
     noVillageFooter: 'nicht ausgewählt',
     footerVillage: 'Gemeinde',
+    footerEmail: 'E-Mail',
+    footerPhone: 'Telefon',
     settings: {
       villageTitle: 'Gemeinde',
       villageSelectLabel: 'Gemeinde auswählen',
@@ -89,7 +92,7 @@ const I18N = {
     },
   },
   en: {
-    appTitle: 'Smart Village User',
+    appTitle: 'Smart Village Bürgerportal',
     navOpen: 'Open navigation',
     navClose: 'Close navigation',
     navAria: 'User navigation',
@@ -104,6 +107,7 @@ const I18N = {
     noWeather: 'No weather data available.',
     weatherValue: 'Weather value',
     noMessages: 'No messages available.',
+    noEvents: 'No events available.',
     noRideshare: 'No rideshare data available.',
     onePerson: 'person',
     manyPeople: 'people',
@@ -112,6 +116,8 @@ const I18N = {
     textileFallback: 'Container',
     noVillageFooter: 'not selected',
     footerVillage: 'Village',
+    footerEmail: 'Email',
+    footerPhone: 'Phone',
     settings: {
       villageTitle: 'Village',
       villageSelectLabel: 'Select village',
@@ -160,7 +166,7 @@ const I18N = {
     },
   },
   fr: {
-    appTitle: 'Smart Village User',
+    appTitle: 'Smart Village Bürgerportal',
     navOpen: 'Ouvrir la navigation',
     navClose: 'Fermer la navigation',
     navAria: 'Navigation utilisateur',
@@ -175,6 +181,7 @@ const I18N = {
     noWeather: 'Aucune donnée météo disponible.',
     weatherValue: 'Valeur météo',
     noMessages: 'Aucun message disponible.',
+    noEvents: 'Aucun événement disponible.',
     noRideshare: 'Aucune donnée de covoiturage disponible.',
     onePerson: 'personne',
     manyPeople: 'personnes',
@@ -183,6 +190,8 @@ const I18N = {
     textileFallback: 'Conteneur',
     noVillageFooter: 'non sélectionnée',
     footerVillage: 'Commune',
+    footerEmail: 'E-mail',
+    footerPhone: 'Téléphone',
     settings: {
       villageTitle: 'Commune',
       villageSelectLabel: 'Choisir une commune',
@@ -275,24 +284,6 @@ const DEFAULT_PREFS = {
   themeMode: 'dark',
   contrast: 'standard',
   iconSet: 'default',
-}
-
-const DEPARTURE_PLACEHOLDERS_BY_LOCALE = {
-  de: [
-    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'In 6 min', platform: 'Gleis 2' },
-    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'In 14 min', platform: 'Gleis 1' },
-    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'In 21 min', platform: 'Gleis 3' },
-  ],
-  en: [
-    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'In 6 min', platform: 'Platform 2' },
-    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'In 14 min', platform: 'Platform 1' },
-    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'In 21 min', platform: 'Platform 3' },
-  ],
-  fr: [
-    { id: 'dep-1', line: 'RE 7', destination: 'Freiburg (Breisgau) Hbf', time: 'Dans 6 min', platform: 'Voie 2' },
-    { id: 'dep-2', line: 'RB 26', destination: 'Basel Bad Bf', time: 'Dans 14 min', platform: 'Voie 1' },
-    { id: 'dep-3', line: 'S5', destination: 'Lahr (Schwarzwald)', time: 'Dans 21 min', platform: 'Voie 3' },
-  ],
 }
 
 function loadPublicPrefs() {
@@ -391,6 +382,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     initialVillageId ? String(initialVillageId) : loadLastVillageId()
   )
   const [activeSectionId, setActiveSectionId] = useState('map')
+  const [selectedSensorId, setSelectedSensorId] = useState(null)
 
   const [config, setConfig] = useState(null)
   const [initialData, setInitialData] = useState(null)
@@ -531,6 +523,8 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
   const villageStatusText = (config?.statusText || '').trim()
   const villageInfoText = (config?.infoText || '').trim()
+  const villageContactEmail = (config?.contactEmail || '').trim()
+  const villageContactPhone = (config?.contactPhone || '').trim()
 
   const features = config?.features || {}
   const visibility = config?.sensorDetailVisibility || {}
@@ -637,8 +631,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     ]
   )
 
-  const departurePlaceholders = DEPARTURE_PLACEHOLDERS_BY_LOCALE[locale] || DEPARTURE_PLACEHOLDERS_BY_LOCALE.de
-
   const renderTabContent = () => {
     if (!selectedVillageId) {
       return (
@@ -665,50 +657,87 @@ export default function PublicDashboardView({ initialVillageId = null }) {
     }
 
     if (activeSection.id === 'map') {
+      const isMapEnabled = config?.modules?.map?.enabled !== false
       return (
-        <section className="village-section village-map-section">
+        <div className="village-map-section">
           <h3>{text.sections.map.heading}</h3>
-          <PublicMapPanel
-            zipCode={config?.postalCode?.zipCode}
-            city={config?.postalCode?.city}
-            sensors={sensors}
-            rideshares={[]}
-            locale={locale}
-          />
-        </section>
+          {isMapEnabled ? (
+            <PublicMapPanel
+              zipCode={config?.postalCode?.zipCode}
+              city={config?.postalCode?.city}
+              sensors={sensors}
+              rideshares={[]}
+              locale={locale}
+              selectedSensorId={selectedSensorId}
+              onSensorDeselect={() => setSelectedSensorId(null)}
+            />
+          ) : (
+            <div className="village-map-disabled">
+              {config?.mapDisabledTitle ? <h4 className="map-disabled-title">{config.mapDisabledTitle}</h4> : null}
+              {config?.mapDisabledText ? (
+                <p className="map-disabled-text">{config.mapDisabledText}</p>
+              ) : (
+                <p className="map-disabled-text">{text.sections.map.heading} ist derzeit nicht verfügbar.</p>
+              )}
+            </div>
+          )}
+        </div>
       )
     }
 
     if (activeSection.id === 'sensors') {
       return (
-        <section className="village-section">
+        <div>
           <h3>{text.sections.sensors.heading}</h3>
           {sensors.length === 0 ? (
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
-              {sensors.map((sensor) => (
-                <div key={sensor.id} className="sensor-card">
-                  {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
-                  {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
-                  {sensor.lastReading ? (
-                    <div className="sensor-card-reading">
-                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
-                      <span className="sensor-card-unit">{sensor.unit}</span>
-                    </div>
-                  ) : (
-                    <p className="sensor-card-no-data">{text.noReadings}</p>
-                  )}
-                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
-                    <p className="sensor-card-coords">
-                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
+              {sensors.map((sensor) => {
+                const hasCoordinates =
+                  Number.isFinite(Number(sensor.latitude)) && Number.isFinite(Number(sensor.longitude))
+
+                return (
+                  <div
+                    key={sensor.id}
+                    className="sensor-card"
+                    style={{ cursor: hasCoordinates ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (!hasCoordinates) return
+                      setSelectedSensorId(sensor.id)
+                      setActiveSectionId('map')
+                    }}
+                    role={hasCoordinates ? 'button' : undefined}
+                    tabIndex={hasCoordinates ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (!hasCoordinates) return
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelectedSensorId(sensor.id)
+                        setActiveSectionId('map')
+                      }
+                    }}
+                  >
+                    {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
+                    {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
+                    {sensor.lastReading ? (
+                      <div className="sensor-card-reading">
+                        <span className="sensor-card-value">{sensor.lastReading.value}</span>
+                        <span className="sensor-card-unit">{sensor.unit}</span>
+                      </div>
+                    ) : (
+                      <p className="sensor-card-no-data">{text.noReadings}</p>
+                    )}
+                    {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+                      <p className="sensor-card-coords">
+                        {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+                      </p>
+                    ) : null}
+                  </div>
+                )
+              })}
             </div>
           )}
-        </section>
+        </div>
       )
     }
 
@@ -718,7 +747,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
       const moduleSensors = sensors.filter((sensor) => moduleSensorIds.has(sensor.id))
 
       return (
-        <section className="village-section village-module-section">
+        <div className="village-module-section">
           <h3>{activeSection.title}</h3>
           {moduleInfo?.description ? (
             <p className="village-module-description">{moduleInfo.description}</p>
@@ -728,34 +757,57 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             <p className="village-section-empty">{text.noSensors}</p>
           ) : (
             <div className="sensor-card-grid">
-              {moduleSensors.map((sensor) => (
-                <div key={sensor.id} className="sensor-card">
-                  {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
-                  {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
-                  {sensor.lastReading ? (
-                    <div className="sensor-card-reading">
-                      <span className="sensor-card-value">{sensor.lastReading.value}</span>
-                      <span className="sensor-card-unit">{sensor.unit}</span>
-                    </div>
-                  ) : (
-                    <p className="sensor-card-no-data">{text.noReadings}</p>
-                  )}
-                  {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
-                    <p className="sensor-card-coords">
-                      {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
+              {moduleSensors.map((sensor) => {
+                const hasCoordinates =
+                  Number.isFinite(Number(sensor.latitude)) && Number.isFinite(Number(sensor.longitude))
+
+                return (
+                  <div
+                    key={sensor.id}
+                    className="sensor-card"
+                    style={{ cursor: hasCoordinates ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (!hasCoordinates) return
+                      setSelectedSensorId(sensor.id)
+                      setActiveSectionId('map')
+                    }}
+                    role={hasCoordinates ? 'button' : undefined}
+                    tabIndex={hasCoordinates ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (!hasCoordinates) return
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelectedSensorId(sensor.id)
+                        setActiveSectionId('map')
+                      }
+                    }}
+                  >
+                    {visibility.name !== false ? <h4 className="sensor-card-name">{sensor.name}</h4> : null}
+                    {visibility.type !== false ? <p className="sensor-card-type">{sensor.type}</p> : null}
+                    {sensor.lastReading ? (
+                      <div className="sensor-card-reading">
+                        <span className="sensor-card-value">{sensor.lastReading.value}</span>
+                        <span className="sensor-card-unit">{sensor.unit}</span>
+                      </div>
+                    ) : (
+                      <p className="sensor-card-no-data">{text.noReadings}</p>
+                    )}
+                    {visibility.coordinates !== false && sensor.latitude != null && sensor.longitude != null ? (
+                      <p className="sensor-card-coords">
+                        {sensor.latitude.toFixed(4)}, {sensor.longitude.toFixed(4)}
+                      </p>
+                    ) : null}
+                  </div>
+                )
+              })}
             </div>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'weather') {
       return (
-        <section className="village-section">
+        <div>
           <h3>{text.sections.weather.heading}</h3>
           {weatherEntries.length === 0 ? (
             <p className="village-section-empty">{text.noWeather}</p>
@@ -772,13 +824,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </div>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'messages') {
       return (
-        <section className="village-section">
+        <div>
           <h3>{text.sections.messages.heading}</h3>
           {messages.length === 0 ? (
             <p className="village-section-empty">{text.noMessages}</p>
@@ -792,25 +844,16 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </ul>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'events') {
       return (
-        <section className="village-section public-events-panel">
+        <div className="public-events-panel">
           <h3>{text.sections.events.heading}</h3>
           {events.length === 0 ? (
-            <div className="public-departure-grid">
-              {departurePlaceholders.map((departure) => (
-                <article key={departure.id} className="public-departure-card">
-                  <span className="public-departure-line">{departure.line}</span>
-                  <h4>{departure.destination}</h4>
-                  <p>{departure.time}</p>
-                  <small>{departure.platform}</small>
-                </article>
-              ))}
-            </div>
+            <p className="village-section-empty">{text.noEvents}</p>
           ) : (
             <ul className="message-list">
               {events.map((event) => (
@@ -823,33 +866,13 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </ul>
           )}
-        </section>
+        </div>
       )
     }
 
     if (activeSection.id === 'settings') {
       return (
-        <section className="village-section public-settings-panel">
-          <section className="public-settings-block">
-            <h3>{text.settings.villageTitle}</h3>
-            <div className="public-village-picker public-village-picker--settings">
-              <label htmlFor="public-village-select-settings">{text.settings.villageSelectLabel}</label>
-              <select
-                id="public-village-select-settings"
-                value={selectedVillageId}
-                onChange={(event) => setSelectedVillageId(event.target.value)}
-                disabled={isVillagesLoading}
-              >
-                <option value="">{text.settings.selectPlaceholder}</option>
-                {villages.map((village) => (
-                  <option key={village.villageId} value={String(village.villageId)}>
-                    {village.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </section>
-
+        <div className="public-settings-panel">
           <section className="public-settings-block">
             <h3>{text.settings.languageTitle}</h3>
             <div className="public-village-picker public-village-picker--settings">
@@ -942,17 +965,6 @@ export default function PublicDashboardView({ initialVillageId = null }) {
             </div>
           </section>
 
-          <div className="public-settings-summary">
-            <p>{text.settings.currentVillage}: {selectedVillage?.name || '-'}</p>
-            <p>{text.modules.map}: {features.map === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.sensorData}: {features.sensorData === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.weather}: {features.weather === true ? text.settings.active : text.settings.inactive}</p>
-            <p>{text.modules.messages}: {features.messages === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.rideShare}: {features.rideShare === false ? text.settings.inactive : text.settings.active}</p>
-            <p>{text.modules.events}: {features.events === true ? text.settings.active : text.settings.inactive}</p>
-            <p>{text.modules.textileContainers}: {features.textileContainers === true ? text.settings.active : text.settings.inactive}</p>
-          </div>
-
           <section className="public-settings-block">
             <h3>{text.settings.supportTitle}</h3>
             <p className="public-settings-hint">{text.settings.supportHint}</p>
@@ -967,7 +979,7 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               ))}
             </div>
           </section>
-        </section>
+        </div>
       )
     }
 
@@ -981,17 +993,27 @@ export default function PublicDashboardView({ initialVillageId = null }) {
           <div className="admin-header-title-row">
             <h1>{text.appTitle}</h1>
             <div className="admin-header-actions-right">
-              <Link className="admin-header-link" to="/">
-                Startseite
-              </Link>
-              <Link className="admin-header-link admin-header-link--secondary" to="/admin">
-                Admin
-              </Link>
+              <div className="public-village-selector-header">
+                <label htmlFor="public-village-select-header">{text.settings.villageSelectLabel}</label>
+                <select
+                  id="public-village-select-header"
+                  value={selectedVillageId}
+                  onChange={(event) => setSelectedVillageId(event.target.value)}
+                  disabled={isVillagesLoading}
+                >
+                  <option value="">{text.settings.selectPlaceholder}</option>
+                  {villages.map((village) => (
+                    <option key={village.villageId} value={String(village.villageId)}>
+                      {village.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               {features.userAssistant !== false ? (
                 <AiAssistantWidget
                   audience="user"
                   contextData={assistantContext}
-                  placement="header"
+                  placement="floating"
                   launcherVariant="compact"
                   locale={locale}
                 />
@@ -1049,6 +1071,20 @@ export default function PublicDashboardView({ initialVillageId = null }) {
               </button>
             ))}
           </nav>
+
+          <nav className="public-nav-external" aria-label="Externe Navigation">
+            <Link to="/" className="public-nav-external-link" title="Zur Startseite">
+              <svg className="public-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">                <path d="M7 17L17 7M17 7H9M17 7V15" />
+              </svg>
+              <span>Projektübersicht</span>
+            </Link>
+            <Link to="/admin" className="public-nav-external-link" title="Zur Administration">
+              <svg className="public-nav-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7M17 7H9M17 7V15" />
+              </svg>
+              <span>Dorf Administration</span>
+            </Link>
+          </nav>
         </aside>
 
         <section className={`admin-main-content public-user-main${activeSection.id === 'map' ? ' is-map-home' : ''}`}>
@@ -1066,13 +1102,34 @@ export default function PublicDashboardView({ initialVillageId = null }) {
 
           {renderTabContent()}
 
-          {activeSection.id !== 'map' ? (
-            <footer className="app-footer public-user-footer">
-              {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
-            </footer>
-          ) : null}
         </section>
       </div>
+
+      <footer className="app-footer app-page-footer public-user-footer">
+        <div className="app-footer-links">
+          <Link to="/impressum" className="app-footer-link">Impressum</Link>
+          <Link to="/datenschutz" className="app-footer-link">Datenschutz</Link>
+        </div>
+        {text.footerVillage}: {selectedVillage?.name || text.noVillageFooter}
+        {villageContactEmail || villageContactPhone ? (
+          <div className="public-footer-contact">
+            {villageContactEmail ? (
+              <p>
+                {text.footerEmail}: <a className="app-footer-link" href={`mailto:${villageContactEmail}`}>{villageContactEmail}</a>
+              </p>
+            ) : null}
+            {villageContactPhone ? (
+              <p>
+                {text.footerPhone}: <a className="app-footer-link" href={`tel:${villageContactPhone.replace(/\s+/g, '')}`}>{villageContactPhone}</a>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        <br />
+        <span className="app-footer-copy">
+          © {new Date().getFullYear()} Smart Village · Studierendenprojekt der DHBW Lörrach
+        </span>
+      </footer>
     </main>
   )
 }
