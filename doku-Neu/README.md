@@ -71,7 +71,10 @@ docs/
 └── prozesse/
     ├── registrierung-und-login.md         ← Ablauf: Registrierung und Login
     ├── sensor-datenfluss.md               ← Ablauf: Sensordaten ueber REST und Polling
-    └── auto-discovery.md                  ← Ablauf: Automatische Geräteerkennung
+    ├── auto-discovery.md                  ← Ablauf: Automatische Geräteerkennung
+    ├── use-case-raspberry-pi5.md          ← Prozess-Usecase: Raspberry Pi 5 im Smart-Village-Kontext
+    ├── antwort-staat.md                   ← Prozess-Usecase: Kommunale Rueckmeldung an Buerger
+    └── studienkontext-kommunen.md         ← Studienkontext: Kontaktversuche mit Kommunen
 ```
 
 ## Verzeichnis der Dokumente
@@ -102,6 +105,9 @@ docs/
 | [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung. |
 | [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden. |
 | [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT. |
+| [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) | Beispielhafter End-to-End-Usecase fuer die Integration eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node. |
+| [Use Case: Antwort Staat](prozesse/antwort-staat.md) | Typischer Ablauf, wie eine Gemeinde Informationen und Rueckmeldungen an Buerger ueber die Plattform bereitstellt. |
+| [Studienkontext Kommunen](prozesse/studienkontext-kommunen.md) | Dokumentation der Kontaktversuche mit Kommunen und der Rueckmeldesituation im Projektzeitraum. |
 
 ## Zuordnung bestehender Dokumente
 
@@ -145,3 +151,42 @@ Die folgende Tabelle definiert die einheitlichen Begriffe dieser Dokumentation.
 | Gerät | Device | Ein IoT-Gerät oder Controller, an den Sensoren angeschlossen sind |
 | Mitfahrbank | Mitfahrbank / RideShare | Spezielle Sensorart für Mitfahrbänke |
 | Postleitzahl | PostalCode | Eintrag in der PLZ-Datenbank |
+
+## Standard-Server und Entwicklungszugang
+
+### Standard-Server-Instanz (Docker Compose)
+
+Die empfohlene lokale Standardinstanz wird ueber Docker Compose aus `infra/` gestartet:
+
+```bash
+cd infra
+docker compose up -d --build
+```
+
+Erreichbarkeit in der Standardkonfiguration:
+
+- Frontend (Nginx): `https://localhost`
+- Backend-Health/API via Nginx: `https://localhost/api/health`
+- Backend direkt (Container-Port): `https://localhost:8000/api/health`
+- MailHog (Entwicklung): `http://localhost:8025`
+- MQTT-Broker: `localhost:1883` (TCP), `wss://localhost/mqtt` (WebSocket via Nginx)
+
+### Standard-Entwicklungs-Account
+
+In der aktuellen Implementierung wird **kein automatischer Standard-User** (mit fixer E-Mail/Passwort) durch das Seed-Skript angelegt.
+
+Empfohlener Team-Standard fuer lokale Entwicklung/Tests:
+
+- Standard-Login (E-Mail): `dev-admin@smart-village.local`
+- Standard-Passwort: `DevOnly-SmartVillage-2026!`
+
+Wichtiger Hinweis: Diese Zugangsdaten sind ausschließlich fuer lokale Entwicklung und Tests vorgesehen. In produktiven Umgebungen muessen solche Testkonten deaktiviert oder entfernt werden, und Passwoerter sind zwingend zu aendern.
+
+Anlage des Accounts (wenn noch nicht vorhanden):
+
+1. Frontend unter `https://localhost` aufrufen.
+2. Ueber den Registrierungsprozess ein Konto mit obiger E-Mail anlegen.
+3. Verifizierungscode in MailHog (`http://localhost:8025`) abrufen und bestaetigen.
+4. Anschliessend normal ueber Login anmelden.
+
+Details zum Registrierungs- und Verifizierungsablauf: [Authentifizierung](backend/authentifizierung.md) und [Registrierung und Login](prozesse/registrierung-und-login.md).
