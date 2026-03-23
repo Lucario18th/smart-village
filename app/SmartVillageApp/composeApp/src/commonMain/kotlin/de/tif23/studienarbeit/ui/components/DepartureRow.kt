@@ -66,7 +66,7 @@ fun DepartureRow(departure: StationDeparture) {
 
             plannedStops?.let {
                 DeviationAwareText(
-                    plannedValue = "über $it",
+                    plannedValue = it,
                     changedValue = changedStopsLabel,
                     style = MaterialTheme.typography.bodySmall,
                     unchangedColor = MaterialTheme.colorScheme.onSurfaceVariant,

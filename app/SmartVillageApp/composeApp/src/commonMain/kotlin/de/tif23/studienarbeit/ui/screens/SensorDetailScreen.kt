@@ -222,10 +222,11 @@ fun SensorDetailScreen(
                                 text = "Status & Info",
                                 style = MaterialTheme.typography.titleMedium
                             )
-                            if (state.sensorDetailVisibility?.type == true) {
-                                DetailRow("Sensor-ID", sensorData.id.toString())
+                            DetailRow("Sensor-ID", sensorData.id.toString())
+                            if (state.sensorDetailVisibility?.type?: true) {
+                                DetailRow("Typ", formatSensorType(sensorData.type.name))
                             }
-                            DetailRow("Typ", formatSensorType(sensorData.type.name))
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -245,7 +246,7 @@ fun SensorDetailScreen(
                         }
                     }
                 }
-                if (state.sensorDetailVisibility?.coordinates == true) {
+                if (state.sensorDetailVisibility?.coordinates?: true) {
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),

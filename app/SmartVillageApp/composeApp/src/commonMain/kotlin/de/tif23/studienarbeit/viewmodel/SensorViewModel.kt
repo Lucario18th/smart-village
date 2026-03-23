@@ -37,7 +37,7 @@ class SensorViewModel(
         viewModelScope.launch {
             runCatching {
                 val villageId = selectedVillageSettingsStore.getSelectedVillageId()
-                if (villageId == null) {
+                if (villageId == null || villageId == -1) {
                     stateFlow.value = stateFlow.value.copy(isLoading = false, errorMessage = "Kein Dorf ausgewählt.")
                     return@launch
                 }
@@ -67,7 +67,7 @@ class SensorViewModel(
         pollingJob = viewModelScope.launch(Dispatchers.IO) {
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
             if (villageId == null) {
-                stateFlow.value = stateFlow.value.copy(isLoading = false, errorMessage = "Kein Dorf ausgewählt.")
+                stateFlow.update { it.copy(isLoading = false, errorMessage = "Kein Dorf ausgewählt.") }
                 return@launch
             }
 

@@ -36,7 +36,7 @@ class SensorDetailsViewModel(
         viewModelScope.launch {
             runCatching {
                 val villageId = selectedVillageStore.getSelectedVillageId()
-                if (villageId == null) {
+                if (villageId == null || villageId == -1) {
                     stateFlow.value = stateFlow.value.copy(isLoading = false, errorMessage = "Kein Dorf ausgewählt.")
                     return@launch
                 }
@@ -75,7 +75,7 @@ class SensorDetailsViewModel(
                 runCatching {
                     getSensorDataUseCase.getSensorById(villageId, sensorId)
                 }.onSuccess { sensor ->
-                    stateFlow.value = stateFlow.value.copy(sensorData = sensor)
+                    stateFlow.update { it.copy(sensorData = sensor) }
                 }
 
                 delay(POLLING_INTERVAL_MS)
