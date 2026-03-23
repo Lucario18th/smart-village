@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,10 +30,19 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
@@ -42,6 +53,7 @@ import de.tif23.studienarbeit.util.NavBarTabs
 import de.tif23.studienarbeit.viewmodel.NavDestinations
 import de.tif23.studienarbeit.viewmodel.SensorViewModel
 import de.tif23.studienarbeit.viewmodel.data.Sensor
+import de.tif23.studienarbeit.viewmodel.data.SensorDetailVisibility
 import org.jetbrains.compose.resources.painterResource
 import smartvillageapp.composeapp.generated.resources.Res
 import smartvillageapp.composeapp.generated.resources.background_dark
@@ -55,8 +67,14 @@ fun SensorsScreen(
 ) {
     val uiState by sensorViewModel.viewState.collectAsState()
 
+    val overscrollEffect = rememberOverscrollEffect()
+    val refreshThresholdPx = 140f
+    var pullDistance by remember { mutableFloatStateOf(0f) }
+    var refreshTriggered by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         sensorViewModel.startPolling()
+        sensorViewModel.loadSensorVisibility()
     }
     DisposableEffect(Unit) {
         onDispose { sensorViewModel.stopPolling() }
@@ -66,7 +84,49 @@ fun SensorsScreen(
         if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
+
+    LaunchedEffect(uiState.isLoading) {
+        if (!uiState.isLoading) {
+            pullDistance = 0f
+            refreshTriggered = false
+        }
+    }
+
+    val refreshOnOverscroll = remember(uiState.isLoading) {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    if (available.y > 0f && consumed.y == 0f) {
+                        pullDistance += available.y
+                        if (!refreshTriggered && !uiState.isLoading && pullDistance >= refreshThresholdPx) {
+                            refreshTriggered = true
+                            sensorViewModel.loadSensorVisibility()
+                        }
+                    } else if (available.y < 0f) {
+                        pullDistance = 0f
+                    }
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                pullDistance = 0f
+                refreshTriggered = false
+                return Velocity.Zero
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(refreshOnOverscroll)
+            .overscroll(overscrollEffect)
+    ) {
         Image(
             painter = backgroundPainter,
             contentDescription = null,
@@ -146,6 +206,7 @@ fun SensorsScreen(
                                 ) {
                                     SensorListItem(
                                         sensor = sensor,
+                                        sensorDetailVisibility = uiState.sensorDetailVisibility,
                                         onClick = {
                                             backStack.add(
                                                 NavDestinations.SensorDetailScreen(sensor.id)
@@ -171,7 +232,11 @@ fun SensorsScreen(
 }
 
 @Composable
-private fun SensorListItem(sensor: Sensor, onClick: () -> Unit) {
+private fun SensorListItem(
+    sensor: Sensor,
+    onClick: () -> Unit,
+    sensorDetailVisibility: SensorDetailVisibility?
+) {
     val reading = sensor.lastReading
     val valueText = reading?.value?.toString() ?: "-"
     val status = reading?.status
@@ -188,24 +253,30 @@ private fun SensorListItem(sensor: Sensor, onClick: () -> Unit) {
             .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            painter = painterResource(sensor.type.drawableResource),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.width(12.dp))
+        if (sensorDetailVisibility?.type?: true) {
+            Icon(
+                painter = painterResource(sensor.type.drawableResource),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+        }
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = sensor.name,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (sensorDetailVisibility?.name?: true) {
+                Text(
+                    text = sensor.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = sensor.type.name,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (sensorDetailVisibility?.type?: true) {
+                Text(
+                    text = sensor.type.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         Text(
@@ -214,7 +285,6 @@ private fun SensorListItem(sensor: Sensor, onClick: () -> Unit) {
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(end = 10.dp)
         )
-
         Text(
             text = status ?: "-",
             style = MaterialTheme.typography.labelMedium,

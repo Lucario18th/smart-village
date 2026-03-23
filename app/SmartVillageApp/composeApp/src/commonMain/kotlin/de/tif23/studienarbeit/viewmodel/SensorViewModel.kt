@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.tif23.studienarbeit.model.repository.SelectedVillageSettingsStore
 import de.tif23.studienarbeit.model.usecase.GetSensorDataUseCase
+import de.tif23.studienarbeit.model.usecase.GetVillageUseCase
 import de.tif23.studienarbeit.viewmodel.data.state.SensorViewModelState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -11,12 +12,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class SensorViewModel(
     private val getSensorsUseCase: GetSensorDataUseCase = GetSensorDataUseCase(),
-    private val selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore()
+    private val selectedVillageSettingsStore: SelectedVillageSettingsStore = SelectedVillageSettingsStore(),
+    private val getVillageUseCase: GetVillageUseCase = GetVillageUseCase()
 ) : ViewModel() {
 
     private val stateFlow = MutableStateFlow(SensorViewModelState())
@@ -26,6 +29,36 @@ class SensorViewModel(
 
     init {
         startPolling()
+        loadSensorVisibility()
+    }
+
+    fun loadSensorVisibility() {
+        stateFlow.value = stateFlow.value.copy(isLoading = true, errorMessage = null)
+        viewModelScope.launch {
+            runCatching {
+                val villageId = selectedVillageSettingsStore.getSelectedVillageId()
+                if (villageId == null) {
+                    stateFlow.value = stateFlow.value.copy(isLoading = false, errorMessage = "Kein Dorf ausgewählt.")
+                    return@launch
+                }
+                getVillageUseCase.getVillageConfig(villageId)
+            }.onSuccess { villageConfig ->
+                stateFlow.update {
+                    it.copy(
+                        sensorDetailVisibility = villageConfig.sensorDetailVisibility,
+                        isLoading = false
+                    )
+                }
+            }.onFailure { e ->
+                stateFlow.update {
+                    it.copy(
+                        sensorDetailVisibility = null,
+                        isLoading = false,
+                        errorMessage = "Sensor-Detail-Informationen konnten nicht geladen werden."
+                    )
+                }
+            }
+        }
     }
 
     fun startPolling() {
