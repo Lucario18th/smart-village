@@ -101,6 +101,10 @@ class MainViewModel(
     }
 
     init {
+        loadData()
+    }
+
+    fun loadData() {
         viewModelScope.launch {
             stateFlow.update { it.copy(isLoading = true) }
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()

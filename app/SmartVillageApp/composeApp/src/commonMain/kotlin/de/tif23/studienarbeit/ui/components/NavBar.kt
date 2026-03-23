@@ -4,6 +4,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,6 +28,10 @@ fun NavBar(
     navBarViewModel: NavBarViewModel = viewModel(),
 ) {
     val state by navBarViewModel.viewState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        navBarViewModel.loadFeatures()
+    }
 
     NavigationBar {
         NavigationBarItem(

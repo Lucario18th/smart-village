@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,15 +32,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
@@ -72,12 +84,23 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewModel()) {
     val state by viewModel.viewState.collectAsState()
+    val overscrollEffect = rememberOverscrollEffect()
+    val refreshThresholdPx = 140f
+    var pullDistance by remember { mutableFloatStateOf(0f) }
+    var refreshTriggered by remember { mutableStateOf(false) }
 
     val sensors = listOf(
         SensorCardData(state.environmentalData.temperature, "Temperatur"),
         SensorCardData(state.environmentalData.humidity, "Luftfeuchtigkeit"),
         SensorCardData(state.environmentalData.windSpeed, "Windgeschwindigkeit")
     )
+    val hasMapContent = state.village?.village?.features?.map == true
+    val hasStatusOrInfo =
+        state.village?.statusText?.isNotBlank() == true || state.village?.infoText?.isNotBlank() == true
+    val hasMessages = state.messages.isNotEmpty()
+    val hasWeatherContent = state.village?.village?.features?.weather == true
+    val hasAnyMainContent = hasMapContent || hasStatusOrInfo || hasMessages || hasWeatherContent
+
     val backgroundPainter = painterResource(
         if (isSystemInDarkTheme()) Res.drawable.background_dark else Res.drawable.background_light
     )
@@ -90,7 +113,52 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
         viewModel.startLocationTracking()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    LaunchedEffect(Unit) {
+        viewModel.loadData()
+    }
+
+    LaunchedEffect(state.isLoading) {
+        if (!state.isLoading) {
+            pullDistance = 0f
+            refreshTriggered = false
+        }
+    }
+
+    val refreshOnOverscroll = remember(state.isLoading) {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    if (available.y > 0f && consumed.y == 0f) {
+                        pullDistance += available.y
+                        if (!refreshTriggered && !state.isLoading && pullDistance >= refreshThresholdPx) {
+                            refreshTriggered = true
+                            viewModel.loadData()
+                        }
+                    } else if (available.y < 0f) {
+                        pullDistance = 0f
+                    }
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                pullDistance = 0f
+                refreshTriggered = false
+                return Velocity.Zero
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(refreshOnOverscroll)
+            .overscroll(overscrollEffect)
+    ) {
         Image(
             painter = backgroundPainter,
             contentDescription = null,
@@ -141,10 +209,10 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
 
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(paddingValues)
+                        .fillMaxSize(),
+                    contentPadding = paddingValues
                 ) {
-                    if (state.village?.village?.features?.map?: false) {
+                    if (hasMapContent) {
                         item {
                             Card(
                                 modifier = Modifier
@@ -191,7 +259,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    if (state.village?.statusText?.isNotEmpty() == true || state.village?.infoText?.isNotEmpty() == true) {
+                    if (hasStatusOrInfo) {
                         item {
                             Card(
                                 modifier = Modifier
@@ -224,7 +292,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    if (state.messages.isNotEmpty()) {
+                    if (hasMessages) {
                         item {
                             Text(
                                 text = "Neuigkeiten",
@@ -279,7 +347,7 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                             }
                         }
                     }
-                    if (state.village?.village?.features?.weather == true) {
+                    if (hasWeatherContent) {
                         item {
                             Text(
                                 text = "Umweltdaten",
@@ -326,6 +394,12 @@ fun MainScreen(backStack: NavBackStack<NavKey>, viewModel: MainViewModel = viewM
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    if (!hasAnyMainContent) {
+                        item {
+                            Spacer(modifier = Modifier.fillParentMaxSize())
                         }
                     }
                 }
