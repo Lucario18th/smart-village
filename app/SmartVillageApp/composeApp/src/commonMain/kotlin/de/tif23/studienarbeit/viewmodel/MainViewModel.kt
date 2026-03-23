@@ -101,6 +101,10 @@ class MainViewModel(
     }
 
     init {
+        loadData()
+    }
+
+    fun loadData() {
         viewModelScope.launch {
             stateFlow.update { it.copy(isLoading = true) }
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
@@ -288,17 +292,19 @@ class MainViewModel(
             if (village.village.features?.sensorData ?: false) {
                 val sensors = stateFlow.value.village?.sensors!!
                 sensors.forEach {
-                    mapState.addMarker(
-                        id = "sensor_${it.id}",
-                        x = lonToX(it.coordinates.lon),
-                        y = latToY(it.coordinates.lat)
-                    ) {
-                        Icon(
-                            painter = painterResource(it.type.drawableResource),
-                            contentDescription = null,
-                            modifier = Modifier.size(if (it.type == SensorType.RIDESHARE) 32.dp else 24.dp),
-                            tint = onSurfaceLight
-                        )
+                    if (it.coordinates != null) {
+                        mapState.addMarker(
+                            id = "sensor_${it.id}",
+                            x = lonToX(it.coordinates.lon),
+                            y = latToY(it.coordinates.lat)
+                        ) {
+                            Icon(
+                                painter = painterResource(it.type.drawableResource),
+                                contentDescription = null,
+                                modifier = Modifier.size(if (it.type == SensorType.RIDESHARE) 32.dp else 24.dp),
+                                tint = onSurfaceLight
+                            )
+                        }
                     }
                 }
             }

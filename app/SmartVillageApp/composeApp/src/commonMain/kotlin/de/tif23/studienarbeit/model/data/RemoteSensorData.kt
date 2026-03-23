@@ -10,8 +10,8 @@ data class RemoteSensorData(
     val name: String,
     val type: String,
     val unit: String,
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Double?,
+    val longitude: Double?,
     val lastReading: RemoteSensorReading?
 
 )

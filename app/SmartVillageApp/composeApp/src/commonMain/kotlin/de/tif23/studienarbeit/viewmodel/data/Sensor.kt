@@ -5,6 +5,6 @@ data class Sensor(
     val name: String,
     val type: SensorType,
     val unit: String,
-    val coordinates: Coordinates,
+    val coordinates: Coordinates?,
     val lastReading: SensorReading?
 )

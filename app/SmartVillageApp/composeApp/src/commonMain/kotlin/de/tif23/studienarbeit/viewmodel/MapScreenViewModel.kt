@@ -180,17 +180,19 @@ class MapScreenViewModel(
         }
 
         sensors.forEach {
-            mapState.addMarker(
-                id = "sensor_${it.id}",
-                x = lonToX(it.coordinates.lon),
-                y = latToY(it.coordinates.lat)
-            ) {
-                Icon(
-                    painter = painterResource(it.type.drawableResource),
-                    contentDescription = null,
-                    modifier = Modifier.size(if (it.type == SensorType.RIDESHARE) 32.dp else 24.dp),
-                    tint = onSurfaceLight
-                )
+            if (it.coordinates != null) {
+                mapState.addMarker(
+                    id = "sensor_${it.id}",
+                    x = lonToX(it.coordinates.lon),
+                    y = latToY(it.coordinates.lat)
+                ) {
+                    Icon(
+                        painter = painterResource(it.type.drawableResource),
+                        contentDescription = null,
+                        modifier = Modifier.size(if (it.type == SensorType.RIDESHARE) 32.dp else 24.dp),
+                        tint = onSurfaceLight
+                    )
+                }
             }
         }
     }

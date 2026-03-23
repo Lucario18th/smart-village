@@ -66,11 +66,12 @@ fun DepartureRow(departure: StationDeparture) {
 
             plannedStops?.let {
                 DeviationAwareText(
-                    plannedValue = "über $it",
-                    changedValue = changedStopsLabel?.let { value -> "über $value" },
+                    plannedValue = it,
+                    changedValue = changedStopsLabel,
                     style = MaterialTheme.typography.bodySmall,
                     unchangedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    plannedChangedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    plannedChangedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    isTrainPath = true
                 )
             }
         }
@@ -98,7 +99,7 @@ fun DepartureRow(departure: StationDeparture) {
 
 
 @Composable
-private fun DeviationAwareText(
+fun DeviationAwareText(
     plannedValue: String,
     changedValue: String?,
     style: TextStyle,
@@ -106,7 +107,8 @@ private fun DeviationAwareText(
     unchangedColor: Color = Color.Unspecified,
     unchangedFontWeight: FontWeight? = null,
     changedFontWeight: FontWeight? = null,
-    plannedChangedColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    plannedChangedColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    isTrainPath: Boolean = false
 ) {
     if (changedValue == null) {
         Text(
@@ -118,13 +120,9 @@ private fun DeviationAwareText(
         )
         return
     }
-
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
+    if (isTrainPath) {
+        Column(modifier = modifier) {
+            Text(
             text = plannedValue,
             style = style,
             color = plannedChangedColor,
@@ -137,6 +135,27 @@ private fun DeviationAwareText(
             color = MaterialTheme.colorScheme.error,
             fontWeight = changedFontWeight
         )
+        }
+    } else {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = plannedValue,
+                style = style,
+                color = plannedChangedColor,
+                textDecoration = TextDecoration.LineThrough,
+                fontWeight = unchangedFontWeight
+            )
+            Text(
+                text = changedValue,
+                style = style,
+                color = MaterialTheme.colorScheme.error,
+                fontWeight = changedFontWeight
+            )
+        }
     }
 }
 

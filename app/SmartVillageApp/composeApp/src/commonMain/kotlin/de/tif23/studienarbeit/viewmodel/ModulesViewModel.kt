@@ -24,7 +24,7 @@ class ModulesViewModel(
         viewModelScope.launch {
             runCatching {
                 val villageId = villageSettingsStore.getSelectedVillageId()
-                if (villageId == null) {
+                if (villageId == null || villageId == -1) {
                     stateFlow.update {
                         it.copy(
                             isLoading = false,

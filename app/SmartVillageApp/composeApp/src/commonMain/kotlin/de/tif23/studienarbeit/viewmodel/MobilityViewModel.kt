@@ -49,7 +49,7 @@ class MobilityViewModel(
             stateFlow.update { it.copy(isLoadingStations = true, stationErrorMessage = null, stations = emptyList()) }
 
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
-            if (villageId == null) {
+            if (villageId == null || villageId == -1) {
                 stateFlow.update {
                     it.copy(isLoadingStations = false, stationErrorMessage = "Kein Dorf ausgewählt.", stations = emptyList())
                 }
@@ -58,7 +58,7 @@ class MobilityViewModel(
 
             runCatching {
                 val villageName = getVillageUseCase.getVillageConfig(villageId).village.name
-                val stationBaseData = getVillageTrainStationsUseCase.getTopStationsForVillage(villageName, limit = 5)
+                val stationBaseData = getVillageTrainStationsUseCase.getTopStationsForVillage(villageName, limit = 6)
                 val (date, hour) = getCurrentTimetableDateAndHour()
 
                 val stations = mutableListOf<Station>()
@@ -97,7 +97,7 @@ class MobilityViewModel(
 
         ridesharePollingJob = viewModelScope.launch(Dispatchers.IO) {
             val villageId = selectedVillageSettingsStore.getSelectedVillageId()
-            if (villageId == null) {
+            if (villageId == null || villageId == -1) {
                 stateFlow.update {
                     it.copy(isLoadingRidesharePoints = false, ridesharePointErrorMessage = "Kein Dorf ausgewählt.")
                 }

@@ -24,8 +24,10 @@ data class RemoteVillageConfig(
     val name: String,
     val locationName: String,
     val postalCode: RemotePostalCode,
-    val features: RemoteVillageFeatures,
-    val sensorDetailVisibility: RemoteSensorDetailVisibility,
+    val features: RemoteVillageFeatures?,
+    val sensorDetailVisibility: RemoteSensorDetailVisibility?,
     val sensors: List<RemoteSensor>,
-    val modules: List<RemoteModule>
+    val modules: List<RemoteModule>,
+    val contactEmail: String?,
+    val contactPhone: String?
 )
