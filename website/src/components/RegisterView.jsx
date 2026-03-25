@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import LocationAutocomplete from './LocationAutocomplete'
 
 const getDefaultMailhogUrl = () => {
-  if (typeof window === 'undefined') return 'http://localhost:8025'
-  return `${window.location.protocol}//${window.location.hostname}:8025`
+  if (typeof window === 'undefined') return 'http://192.168.23.113:8025'
+  return 'http://192.168.23.113:8025'
 }
 
 export default function RegisterView({ onRegister, onBack, initialEmail = '' }) {
