@@ -33,6 +33,32 @@ Zusaetzlich bietet sie einen Android-Download-Button zur App.
 Administratoren mit erweiterten Rechten können Konten löschen.
 Dabei werden alle zugehörigen Daten kaskadierend entfernt.
 
+## Beispiel-Usecases
+
+### Raspberry Pi 5 als technischer Integrations-Usecase
+
+Ein praxisnaher Beispiel-Usecase ist der Einsatz eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node fuer eine Gemeinde.
+Der Raspberry Pi 5 kann Sensordaten (z. B. Bodenfeuchte und Umweltdaten) erfassen, per MQTT an das Backend senden und sich ueber Discovery-Topics automatisch als Geraet registrieren.
+
+Der technische Ablauf ist im Prozessdokument [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) beschrieben.
+Als projektnahe Quelle fuer Beispielcode und Konfiguration dient der Ordner `Raspberry PI/` im Repository.
+Der Usecase ist als uebertragbares Technikbeispiel zu verstehen, wie eine Gemeinde IoT-Sensorik strukturiert in die Plattform integriert.
+
+### Rostock-Kontext als Inspiration fuer Smart-Village
+
+Die im Rostock-Kontext diskutierten Smart-City-Ansatzpunkte dienen als Inspirationsquelle fuer Smart-Village-Szenarien im laendlichen Raum.
+Relevante Muster sind insbesondere: dezentrale Datenerfassung, digitale Sichtbarkeit kommunaler Informationen und vernetzte Statuskommunikation.
+
+Weiterfuehrende Ressource: https://youtu.be/-ElfgOPmclA?si=9HY43XEayRAcq9en
+
+### Usecase Antwort Staat (kommunale Rueckmeldung)
+
+Neben der reinen Sensorik unterstuetzt die Plattform den Usecase, dass eine Gemeinde Informationen aktiv an Buerger bereitstellt und auf Rueckmeldungen reagiert.
+Typischer Ablauf: Kommune pflegt Inhalte (z. B. Hinweise, Statusmeldungen, Veranstaltungsinformationen) in den Verwaltungsoberflaechen, das Backend stellt diese strukturiert bereit, App/Website liefern die Inhalte in der jeweiligen Gemeindeansicht aus.
+
+Fachlich wird dieser Ablauf auf Basis bestehender Begriffe modelliert (Konto, Gemeinde/Village, Status- und Informationstexte wie `Village.statusText` und `Village.infoText`).
+Details siehe [Use Case: Antwort Staat](prozesse/antwort-staat.md).
+
 ## Hauptkomponenten
 
 Das System besteht aus folgenden Komponenten:
@@ -127,3 +153,8 @@ Es existiert im Backend ein Modul unter `backend/src/mobile/`, das eine öffentl
 Diese Mobile API wird in naher Zukunft vollständig neu gestaltet.
 Sie ist daher in dieser Dokumentation nicht beschrieben.
 Gleiches gilt für den Ordner `app/` und alle Dokumente mit dem Prefix `MOBILE-API` im Hauptverzeichnis.
+
+## Studienkontext: Kommunen-Kontaktversuche
+
+Im Rahmen der Studienarbeit wurden mehrere Kommunen kontaktiert, um Feedback und Interesse an Smart-Village-Usecases einzuholen.
+Die Zusammenfassung der Kontaktwege und Rueckmeldungen befindet sich in [Studienkontext Kommunen](prozesse/studienkontext-kommunen.md).

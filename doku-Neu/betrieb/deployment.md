@@ -74,6 +74,24 @@ Das System ist bereit, wenn alle Container den Status "healthy" haben.
 - Backend-API: `https://localhost/api/health`
 - MailHog (Entwicklung): `https://localhost:8025`
 
+## Standard-Server-Instanz und Endpunkte
+
+Die Standardinstanz basiert auf dem Compose-Setup in `infra/docker-compose.yml` mit Nginx als Einstiegspunkt.
+
+Empfohlener Aufrufpfad in der Entwicklung:
+
+- Frontend (Nginx): `https://localhost`
+- REST-API ueber Nginx: `https://localhost/api/...`
+- Health-Check ueber Nginx: `https://localhost/api/health`
+
+Direkte Containerports (nur fuer technische Tests):
+
+- Backend direkt: `https://localhost:8000/api/health`
+- PostgreSQL: `localhost:5432`
+- MQTT TCP: `localhost:1883`
+- MQTT WebSocket (via Nginx): `wss://localhost/mqtt`
+- MailHog UI (nur Entwicklung): `http://localhost:8025`
+
 ## Erster Login
 
 1. Im Browser die Frontend-URL aufrufen.
@@ -82,6 +100,28 @@ Das System ist bereit, wenn alle Container den Status "healthy" haben.
 4. In MailHog (`https://localhost:8025`) den Verifizierungscode abrufen.
 5. Den 6-stelligen Code im Verifizierungsformular eingeben.
 6. Mit den registrierten Zugangsdaten anmelden.
+
+## Standard-Entwicklungs-Account
+
+Aktueller Stand: Es wird kein fester Standard-User automatisch durch `prisma db seed` erzeugt.
+
+Empfohlener Standard fuer lokale Team-Tests:
+
+- E-Mail: `dev-admin@smart-village.local`
+- Passwort: `DevOnly-SmartVillage-2026!`
+
+Sicherheits-Hinweis:
+Diese Zugangsdaten sind nur fuer lokale Entwicklung und Testzwecke gedacht. In produktiven Umgebungen muessen Testkonten deaktiviert oder entfernt werden. Passwoerter sind zwingend durch individuelle, sichere Werte zu ersetzen.
+
+Wenn der Account noch nicht existiert, kann er so angelegt werden:
+
+1. Frontend unter `https://localhost` oeffnen.
+2. Registrierungsdialog nutzen und den Account anlegen.
+3. Verifizierungscode in MailHog (`http://localhost:8025`) abrufen.
+4. E-Mail verifizieren und regulär einloggen.
+
+Alternativ kann der Account auch ueber API-Aufruf (`POST /api/auth/register`) erstellt werden.
+Fuer den fachlichen Ablauf siehe [Authentifizierung](../backend/authentifizierung.md).
 
 ## Datenbank
 
