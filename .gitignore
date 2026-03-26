@@ -1,5 +1,27 @@
-# Node dependencies
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V8
+.Trashes
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Node
 node_modules/
+dist/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.user
+
+# Node dependencies (explizit)
 backend/node_modules/
 website/node_modules/
 
@@ -7,12 +29,7 @@ website/node_modules/
 website/dist/
 backend/dist/
 
-# .NET / WPF build artifacts
-SmartVillageWPF/**/bin/
-SmartVillageWPF/**/obj/
-
 # Sonstiges
-.env
 backend/.env
 infra/.env
 frontend/.env
