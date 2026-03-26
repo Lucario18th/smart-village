@@ -93,6 +93,8 @@ docker compose exec backend npx prisma db seed
 | Semester-5-Konzeptphase | [`doku-Neu/abgabe-semester-5/` (Abgabe 5. Semester)](doku-Neu/abgabe-semester-5/) | Technologierecherche, LoRaWAN-Evaluation, erste Konzepte |
 | Archiv (veraltet) | [`doku-Alt/`](doku-Alt/) | Dokumentation aus frühen Projektphasen — nicht mehr aktuell |
 | Changelog | [`docs/aenderungen-2026-03-24.md`](docs/aenderungen-2026-03-24.md) | Letzte Änderungen |
+| MQTT-Simulation (Freiburg) | [`simulations/mqtt-freiburg/`](simulations/mqtt-freiburg/) | Simulationsskripte zum Testen der MQTT-Integration mit simulierten Sensordaten — genutzt während der Entwicklungsphase zur Validierung des Broker-Setups ohne physische Hardware |
+| Smoke-Test-Skripte | [`test-scripts/`](test-scripts/) | Shell- und Hilfsskripte für manuelle Smoke Tests gegen die laufende Instanz (API, MQTT, Health-Check) |
 
 ---
 
