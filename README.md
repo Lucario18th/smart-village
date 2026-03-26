@@ -1,13 +1,52 @@
-# smart-village
-Dies ist eine Studienarbeit über das Thema Smart-Village an der DHBW-Lörrach. Teilnehmende Studierende Manuel Keßler, Leon Kühn, Nico Röcker, Alexander Shimaylo aus dem Kurs TIF 23. Betreuender Dozent: Herr Schenk
+# Smart Village
 
-## Dokumentation
+Dies ist eine Studienarbeit der DHBW Lörrach (Kurs **TIF 23**, Semester **5 & 6**). Das Projekt bildet eine integrierte Smart-Village-Plattform mit Backend, Web-Frontend, Android-App, Desktop-Client und IoT-Anbindung.
 
-Die vollständige technische Dokumentation befindet sich im Verzeichnis [`docs/`](docs/README.md).
-Sie enthält eine Projektübersicht, Architektur- und Komponentenbeschreibungen, API-Referenz, Deployment-Anleitungen und Prozessbeschreibungen.
+## Projektkontext (fixe Fakten)
 
-## Aktuelle Ergänzungen
+### Team
 
-- **Auto-Refresh & Discovery**: Die Admin-Oberfläche lädt Sensor- und Controller-Daten nun automatisch alle 5 Sekunden über den bestehenden `/villages/:id` API-Call nach. Das Intervall kann per `VITE_DISCOVERY_POLL_INTERVAL_MS` angepasst, die Funktion über `VITE_AUTO_REFRESH_ENABLED=false` deaktiviert werden. Neu entdeckte Geräte/Sensoren werden gebündelt in einer Toast-Notification angezeigt.
-- **Mitfahrbank als Sensortyp**: Ein dedizierter Sensortyp „Mitfahrbank“ (Einheit: Personen) steht zur Verfügung. Wartende Personen werden als aktueller Messwert angezeigt und laufen über den gleichen MQTT/REST-Pfad wie andere Sensoren, inklusive Auto-Refresh und Discovery-Toast.
-- **Öffentliche Gemeindekarte**: Die OSM-Karte besitzt nun einen Auswahlbaum für Controller und Sensoren (inkl. Mitfahrbänken). Checkboxen für Controller blenden alle zugehörigen Sensoren ein/aus; einzelne Sensoren lassen sich separat steuern. Marker nutzen Sensorkoordinaten oder fallen auf die Geräte-Position zurück. Farben zeigen Messwert-Buckets (blau/gelb/rot) an, Mitfahrbänke folgen der Regel grün=0, orange=1–2, rot=3+. Neue Sensor- oder Gerätetypen erscheinen automatisch; Markerfarbe kann über `deriveMarkerColor` in `mapViewUtils` erweitert werden.
+| Name | Rolle | Verantwortlichkeiten |
+|---|---|---|
+| Leon Kühn | Project Lead | Backend (NestJS), MQTT integration, infrastructure, Docker Compose, many core features |
+| Manuel Keßler | Developer | Android mobile app (Kotlin), app-facing features |
+| Alexander Shimaylo | Developer | IoT / Raspberry Pi integration, sensor topics, documentation |
+| Nico Röcker | Developer | UI design, public website |
+
+### Betreuung & Kontakte
+
+- Supervising professor: Herr Schenk, DHBW Lörrach
+- Server provided by: Herr Dittrich — he is the new head of studies (Studiengangsleiter) for Computer Science at DHBW Lörrach. For any questions about the server or server infrastructure, contact Herr Dittrich.
+
+### Systemzugänge
+
+- Production (DHBW network only): https://192.168.23.113 (HTTPS, port 443)
+- Local after setup: https://localhost
+
+## App (Android/Kotlin) im Überblick
+
+Der App-Teil ist als Compose Multiplatform / Kotlin Multiplatform umgesetzt (`app/SmartVillageApp`).
+
+Die detaillierte App-Dokumentation (Architektur, Datenfluss, Schnittstellen, Build/Run, Qualität und Semester-5-PDF-Bezug) liegt in:
+
+- **[`docs/README.md`](docs/README.md)**
+
+## Dokumentationsstruktur
+
+Dieses `README.md` ist der Einstieg. Die technische Detailtiefe liegt in den Dokumenten unter `docs/`.
+
+- [`docs/README.md`](docs/README.md) – App-zentrierte technische Dokumentation (aktueller Fokus)
+- [`docs/PROJEKT-DOKUMENTATION.md`](docs/PROJEKT-DOKUMENTATION.md) – bestehendes Hauptdokument (unverändert)
+- [`docs/KI-NUTZUNG.md`](docs/KI-NUTZUNG.md) – Transparenz zur KI-gestützten Dokumentation
+- [`doku-Neu/abgage 5 semster/Entwicklungskonzepte für die App.pdf`](doku-Neu/abgage%205%20semster/Entwicklungskonzepte%20für%20die%20App.pdf) – konzeptionelle Referenz aus Semester 5
+
+## Gesamtplattform (Technologieüberblick)
+
+- Backend: NestJS, Prisma ORM, PostgreSQL + TimescaleDB, Mosquitto MQTT broker
+- Frontend: React + Vite, Leaflet / OpenStreetMap, Custom CSS
+- Mobile App: Android / Kotlin (release v1.0.1)
+- Desktop client: C# WPF (SmartVillageWPF)
+- IoT hardware: Raspberry Pi with BMP280 (pressure/temperature) and YL-69 (soil moisture), Python MQTT publisher scripts
+- Infrastructure: Docker Compose, Nginx (reverse proxy, TLS termination, security headers), MailHog
+- Tests: Docker-based smoke tests, frontend tests, test-scripts/
+- Simulations: simulations/mqtt-freiburg/
