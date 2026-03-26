@@ -12,7 +12,6 @@ Die folgenden Screenshots müssen manuell hinzugefügt werden
 | `screenshot-admin-dashboard.png` | Admin-Dashboard mit Sensor- und Geräteverwaltung |
 | `screenshot-map.png` | Öffentliche Kartenansicht mit OSM-Markern und Messwerten |
 | `screenshot-mobile-app.png` | Android-App, Sensorübersicht |
-| `screenshot-wpf-client.png` | WPF Windows-Desktop-Client |
 
 ## Hinweis
 

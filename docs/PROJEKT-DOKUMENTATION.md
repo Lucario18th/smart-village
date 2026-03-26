@@ -9,23 +9,92 @@ Grundlage sind die bestehenden technischen Detaildokumente unter `doku-Neu/` sow
 ## Screenshots
 
 > **Hinweis:** Die folgenden Screenshots zeigen den aktuellen Stand der Plattform.
-> Das System ist produktiv erreichbar unter https://192.168.23.113 (DHBW-Netz).
+> Das System ist produktiv erreichbar unter [**https://192.168.23.113**](https://192.168.23.113) (DHBW-Netz, HTTPS Port 443).
 
 ### Admin-Dashboard
 
 *Administrationsbereich zur Verwaltung von Gemeinden, Geräten und Sensoren*
 
+![Admin-Dashboard](screenshots/screenshot-admin-dashboard.png)
+
 ### Öffentliche Kartenansicht (OpenStreetMap)
 
 *Öffentliche Gemeindeübersicht mit Sensor-Markern und Echtzeit-Messwerten*
+
+![Öffentliche Kartenansicht](screenshots/screenshot-map.png)
 
 ### Mobile App (Android)
 
 *Android-App (Version 1.0.1) mit Sensorübersicht und Gemeindeauswahl*
 
-### WPF Desktop-Client
+![Mobile App](screenshots/screenshot-mobile-app.png)
 
-*Windows-Desktop-Client für die Datenverwaltung*
+> **Hinweis für Korrektoren:** Falls Bilder in der GitHub-Vorschau nicht laden, sind alle Screenshots im Ordner `docs/screenshots/` abgelegt. Das Live-System ist im DHBW-Netz unter https://192.168.23.113 erreichbar.
+
+***
+
+## Projektstart – So wird das System gestartet
+
+### Option A: Lokale Entwicklung (Docker)
+
+**Voraussetzungen:** Docker, Docker Compose, Git
+
+```bash
+git clone https://github.com/Lucario18th/smart-village.git
+cd smart-village/infra
+# infra/smartvillage.env öffnen und Umgebungsvariablen anpassen:
+# DATABASE_URL, JWT_SECRET, SMTP-Konfiguration, MQTT_BROKER_URL
+docker compose up --build   # Alle Services starten
+```
+
+Nach dem Start sind folgende Endpunkte erreichbar:
+
+| Service | URL |
+|---|---|
+| Frontend | https://localhost |
+| API | https://localhost/api |
+| API Health | https://localhost/api/health |
+| MailHog (E-Mail-Test) | http://localhost:8025 |
+| MQTT TCP | localhost:1883 |
+| MQTT WebSocket | wss://localhost/mqtt |
+
+**MailHog – Hinweis:** MailHog ist ein lokaler E-Mail-Testserver und dient als Workaround, da das Projekt keine eigene Domain für den produktiven E-Mail-Versand besitzt. Die E-Mail-Verifizierung bei der Registrierung neuer Accounts wurde damit vollständig getestet und validiert – alle eingehenden Mails (Verifizierungs-Links, Passwort-Reset etc.) erscheinen in der MailHog-UI unter http://localhost:8025.
+
+### Option B: Produktivbetrieb (DHBW-Netz)
+
+Das System läuft bereits produktiv und ist ohne Setup erreichbar:
+
+- **URL:** https://192.168.23.113
+- **Netzwerk:** DHBW-internes Netz (kein VPN, kein externer Zugriff)
+- **Port:** 443 (HTTPS)
+
+Alle Komponenten (Backend, Frontend, Datenbank, MQTT-Broker) laufen containerisiert auf dem DHBW-Server.
+
+***
+
+## Ansprechpartner & Integration
+
+### Teamübersicht
+
+| Bereich | Ansprechpartner | Zuständigkeit |
+|---|---|---|
+| Backend & API | Leon Kühn | NestJS, Prisma, Authentifizierung, Deployment, Docker, Sicherheit |
+| Frontend & UI | Nico Röcker | React, Vite, OpenStreetMap/Leaflet, UI/UX, öffentliche Kartenansicht |
+| Mobile App | Manuel Keßler | Android-App (Version 1.0.1), Sensorübersicht, Gemeindeauswahl |
+| IoT & Hardware | Alexander Shimaylo | Raspberry Pi Integration, MQTT-Client-Skripte, Sensor-Setup, Teile der Dokumentation |
+
+### Technische Integrationspunkte
+
+| Schnittstelle | Adresse | Hinweis |
+|---|---|---|
+| REST API (Produktion) | https://192.168.23.113/api | JWT Bearer Token erforderlich (außer öffentliche App-API) |
+| REST API (lokal) | https://localhost/api | Nur im lokalen Docker-Setup |
+| MQTT TCP (Produktion) | 192.168.23.113:1883 | Für IoT-Geräte im DHBW-Netz |
+| MQTT WebSocket | wss://192.168.23.113/mqtt | Für Browser-basierte MQTT-Clients |
+| Öffentliche App-API | https://192.168.23.113/api/app/villages | Kein Auth notwendig |
+
+Für Integrationsfragen zur API: `doku-Neu/api/endpunkte.md`  
+Für MQTT-Integration: `doku-Neu/backend/mqtt-integration.md`
 
 ---
 
@@ -84,9 +153,9 @@ Das Ziel von Smart Village ist eine integrierte Plattform, mit der Kommunen:
 ### Hauptkomponenten
 
 - Backend: NestJS, Prisma, PostgreSQL/TimescaleDB, MQTT
-- Frontend: React, Vite, Leaflet
+- Frontend: React, Vite, Leaflet/OpenStreetMap
+- Mobile: Android App (Version 1.0.1)
 - Infrastruktur: Docker Compose, Nginx, Mosquitto, MailHog
-- Mobile API: vorhanden, aber in der aktuellen Doku bewusst ausgeklammert (geplantes Redesign)
 
 ### Datenmodell (Kurzüberblick)
 
@@ -187,6 +256,14 @@ Ausbaustufen:
 - Kommunale Abstimmungsprozesse brauchen realistisch mehr Zeit als geplant.
 - Technische Funktionsfähigkeit allein reicht nicht; organisatorischer Fit ist entscheidend.
 - Sicherheit wurde bereits gehärtet, aber verbleibende Punkte (z. B. MQTT-Auth in Produktion) sind relevant.
+
+### Konkrete technische Herausforderungen
+
+- **Datenbankmigrationen (Prisma):** Schema-Änderungen bei laufendem System mit bestehenden Daten führten mehrfach zu Migrationskonflikten. Lösung: Migrationen immer zuerst mit `--create-only` prüfen, Produktionsdaten vor `migrate deploy` sichern. Dies war eine der häufigsten Fehlerquellen im gesamten Projektverlauf.
+- **KI-Rate-Limits & Token-Budget:** Die Token-Limits und Rate-Limits der verwendeten KI-Modelle (GPT-4, Claude) waren der größte operative Engpass beim KI-gestützten Entwickeln. Abhilfe: Prompts präzise scopen, Kontext auf das Notwendige reduzieren, große Aufgaben in kleinere Teilaufgaben aufteilen.
+- **Ollama (lokale KI):** Es wurde versucht, ein lokales KI-Modell (Ollama) auf dem Projektserver zu betreiben, um eine KI-Funktion direkt ins System zu integrieren. Das Vorhaben scheiterte am verfügbaren RAM des Servers – sinnvolle Modelle (7B+ Parameter) konnten nicht geladen werden.
+- **MQTT-Authentifizierung:** Mosquitto läuft im aktuellen Setup ohne ACL/Passwortschutz. Für einen produktiven Einsatz außerhalb des DHBW-Netzes muss Mosquitto-Auth konfiguriert werden.
+- **Kommunale Abstimmung:** Rückmeldungen von kontaktierten Gemeinden kamen sehr langsam oder gar nicht. Use Cases mussten daher teilweise ohne direkte Nutzer-Validierung aus sekundären Quellen entwickelt werden.
 
 ---
 
@@ -486,6 +563,57 @@ Praxiscode im Repository:
 - Auto-Discovery: `../doku-Neu/prozesse/auto-discovery.md`
 - Deployment: `../doku-Neu/betrieb/deployment.md`
 - Sicherheitskonzept: `../doku-Neu/betrieb/sicherheit.md`
+
+---
+
+## Teil 4: KI-Einsatz im Projekt
+
+### Überblick
+
+KI-Tools wurden im Smart-Village-Projekt intensiv und strukturiert eingesetzt – sowohl in der Konzeptionsphase (Semester 5) als auch in der Implementierungsphase (Semester 6). Der Einsatz war dabei kein Experiment, sondern ein zentraler Teil des Entwicklungsworkflows.
+
+### Eingesetzte Tools
+
+| Tool | Einsatzbereich |
+|---|---|
+| GitHub Copilot (Chat & Agent Mode) | Implementierung, Refactoring, Security-Hardening, Testgenerierung |
+| GitHub Copilot CLI | Kommandozeilen-Assistenz, Skript-Generierung, Docker-/Git-Befehle |
+| Perplexity AI | Prompt Engineering, technische Recherche, strukturierte Anfragen |
+| Claude / ChatGPT | Konzeptarbeit, Architekturreviews, Dokumentationsentwürfe |
+
+### GitHub Copilot Agent Mode – Erfahrungen
+
+GitHub Copilot im Agent Mode wurde für die Umsetzung ganzer Features genutzt:
+- MQTT-Integration (Backend-Service, Topic-Parsing, Auto-Discovery)
+- Security-Hardening (Helmet, HSTS, Rate-Limiting, Non-Root-Container)
+- Automatische Generierung von DTOs, Guards und Validierungslogik
+
+Der Agent Mode kann eigenständig mehrere Dateien planen, ändern, Befehle ausführen und iterieren – ein erheblicher Produktivitätsmultiplikator gegenüber klassischer Copilot-Vervollständigung.
+
+**GitHub Copilot CLI** wurde parallel für Terminalaufgaben genutzt: Erklärung von Fehlermeldungen, Generierung von Shell-Skripten, Docker-Compose-Debugging und Git-Workflows.
+
+### Prompt Engineering Workflow
+
+Da unklar formulierte Prompts Token verschwenden und inkonsistente Ergebnisse liefern, wurde folgender Workflow etabliert:
+
+1. **Problem/Feature in Perplexity AI beschreiben** → strukturierten, präzisen Copilot-Prompt erhalten
+2. **Prompt in Copilot Agent einfügen** → autonome Ausführung mit klar definiertem Scope
+3. **Ergebnis prüfen** → bei Bedarf Folge-Prompt mit konkreten Korrekturen
+4. **Code-Review** → KI-generierter Code wird immer manuell überprüft, besonders sicherheitskritische Stellen
+
+Perplexity AI hat sich dabei als ideales Tool für das Formulieren von Copilot-Prompts erwiesen: Die Antworten sind strukturiert, technisch präzise und berücksichtigen Scope und Token-Effizienz.
+
+### Limitierungen & Erkenntnisse
+
+- **Rate-Limits:** Das größte Problem im gesamten KI-Workflow. Bei intensiver Nutzung von GPT-4 und Claude wurden Rate-Limits regelmäßig erreicht, was Entwicklungsunterbrechungen verursachte. Lösung: Aufgaben in kleinere Einheiten zerlegen, Modelle wechseln.
+- **Token-Budget:** Zu breite Prompts mit zu viel Kontext führen zu schlechterer Qualität und höheren Kosten. Klarer Scope und minimaler Kontext sind entscheidend.
+- **Ollama (lokal):** Der Versuch, ein lokales KI-Modell auf dem Projektserver zu betreiben, schlug fehl – zu wenig RAM für 7B+ Modelle. Lokale KI erfordert dedizierte Hardware.
+- **Code-Qualität:** KI-generierter Code ist meist korrekt, aber nicht immer optimal oder sicher. Besonders bei JWT-Handhabung, SQL-Queries und MQTT-Auth ist manuelle Überprüfung unerlässlich.
+- **Architekturentscheidungen:** KI kann Optionen vorschlagen und abwägen, trifft aber keine guten übergeordneten Architekturentscheidungen ohne präzise menschliche Führung.
+
+### Fazit
+
+GitHub Copilot im Agent Mode in Kombination mit extern optimierten Prompts (via Perplexity AI) hat die Entwicklungsgeschwindigkeit erheblich gesteigert. KI ist kein Ersatz für Architekturverständnis oder Code-Review, aber ein enormer Beschleuniger bei der Implementierung. Die Kombination aus präzisen Prompts, Agent Mode und manueller Kontrolle hat sich als produktivster Workflow erwiesen und zeigt, wie weit KI-gestützte Entwicklung bereits heute in realen Studienprojekten angekommen ist.
 
 ---
 
