@@ -1,5 +1,5 @@
 # --- Build-Stage ---
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -15,13 +15,14 @@ RUN npx prisma generate
 RUN npm run build
 
 # --- Runtime-Stage ---
-FROM node:20-alpine
+FROM node:20
 WORKDIR /app
 
 # Tools für DB-Wait + Prisma (nc + openssl)
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
-    openssl
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 RUN npm ci --omit=dev
