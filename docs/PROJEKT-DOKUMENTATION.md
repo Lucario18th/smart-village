@@ -8,28 +8,43 @@ Grundlage sind die bestehenden technischen Detaildokumente unter `doku-Neu/` sow
 
 ## Screenshots
 
-> **Hinweis:** Die folgenden Screenshots zeigen den aktuellen Stand der Plattform.
 > Das System ist produktiv erreichbar unter [**https://192.168.23.113**](https://192.168.23.113) (DHBW-Netz, HTTPS Port 443).
+
+### Login
+
+*Login-Seite mit E-Mail-Verifizierung*
+
+![Login](assets/screenshots/login.png)
 
 ### Admin-Dashboard
 
-*Administrationsbereich zur Verwaltung von Gemeinden, Geräten und Sensoren*
+*Administrationsbereich – Übersicht nach dem Einloggen*
 
-![Admin-Dashboard](screenshots/screenshot-admin-dashboard.png)
+![Admin-Dashboard](assets/screenshots/admin-dashboard.png)
+
+### Geräteverwaltung
+
+*Verwaltung von IoT-Geräten und MQTT-Devices*
+
+![Geräteverwaltung](assets/screenshots/admin-devices.png)
+
+### Sensorverwaltung
+
+*Übersicht aller Sensoren mit Typ, Status und Sichtbarkeitseinstellungen*
+
+![Sensorverwaltung](assets/screenshots/admin-sensors.png)
+
+### Öffentliche Website / Startseite
+
+*Öffentliche Startseite mit Bürgerportal, Kartenansicht und Sensorübersicht*
+
+![Öffentliche Website](assets/screenshots/public-overview.png)
 
 ### Öffentliche Kartenansicht (OpenStreetMap)
 
-*Öffentliche Gemeindeübersicht mit Sensor-Markern und Echtzeit-Messwerten*
+*Kartenansicht mit Gemeinde-Markern und Echtzeit-Sensorwerten*
 
-![Öffentliche Kartenansicht](screenshots/screenshot-map.png)
-
-### Mobile App (Android)
-
-*Android-App (Version 1.0.1) mit Sensorübersicht und Gemeindeauswahl*
-
-![Mobile App](screenshots/screenshot-mobile-app.png)
-
-> **Hinweis für Korrektoren:** Falls Bilder in der GitHub-Vorschau nicht laden, sind alle Screenshots im Ordner `docs/screenshots/` abgelegt. Das Live-System ist im DHBW-Netz unter https://192.168.23.113 erreichbar.
+![Öffentliche Kartenansicht](assets/screenshots/map-view.png)
 
 ***
 

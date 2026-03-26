@@ -32,6 +32,20 @@ Smart Village ist eine IoT-Plattform für ländliche Gemeinden zur Verwaltung vo
 
 > Das Produktivsystem ist ausschließlich im DHBW-Netzwerk erreichbar.
 
+## Vorschau
+
+*Login-Seite*
+
+![Login-Seite](docs/assets/screenshots/login.png)
+
+*Admin-Dashboard – Verwaltung von Gemeinden, Geräten und Sensoren*
+
+![Admin-Dashboard](docs/assets/screenshots/admin-dashboard.png)
+
+*Öffentliche Website mit Bürgerportal und Kartenansicht*
+
+![Öffentliche Website](docs/assets/screenshots/public-overview.png)
+
 ---
 
 ## Quickstart (lokales Setup)
