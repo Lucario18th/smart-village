@@ -1,7 +1,7 @@
 # Smart Village
 **Studienarbeit · DHBW Lörrach · Kurs TIF 23 · Semester 5 & 6**
 
-Smart Village ist eine IoT-Plattform für ländliche Gemeinden zur Verwaltung von Sensoren, Geräten und kommunalen Informationen. Sie bietet ein webbasiertes Admin-Dashboard, eine öffentliche Website, eine Mobile App (Android) sowie einen WPF-Desktop-Client. Das System unterstützt Echtzeit-Sensordaten über MQTT, Auto-Discovery von IoT-Geräten und eine Kartenansicht auf Basis von OpenStreetMap. Das Projekt ist dabei deutlich über einen typischen Smart-Village-Prototyp hinausgewachsen und befindet sich bereits auf einem fortgeschrittenen Smart-City-Niveau. Noch ausstehend sind ausgedehnte Nutzertests und Feldtests mit echter physischer Hardware — die Firewall des DHBW-Netzwerks hat entsprechende Tests während der Entwicklung erschwert.
+Smart Village ist eine IoT-Plattform für ländliche Gemeinden zur Verwaltung von Sensoren, Geräten und kommunalen Informationen. Sie bietet ein webbasiertes Admin-Dashboard, eine öffentliche Website und eine Mobile App (Android). Das System unterstützt Echtzeit-Sensordaten über MQTT, Auto-Discovery von IoT-Geräten und eine Kartenansicht auf Basis von OpenStreetMap. Das Projekt ist dabei deutlich über einen typischen Smart-Village-Prototyp hinausgewachsen und befindet sich bereits auf einem fortgeschrittenen Smart-City-Niveau. Noch ausstehend sind ausgedehnte Nutzertests und Feldtests mit echter physischer Hardware — die Firewall des DHBW-Netzwerks hat entsprechende Tests während der Entwicklung erschwert.
 
 ---
 
@@ -90,7 +90,7 @@ docker compose exec backend npx prisma db seed
 | Doku-Navigation | [`docs/README.md`](docs/README.md) | Übersicht und Einstiegspunkt für alle Dokumente |
 | KI-Nutzung | [`docs/KI-NUTZUNG.md`](docs/KI-NUTZUNG.md) | Einsatz von GitHub Copilot, Agent Mode, Erkenntnisse, Probleme |
 | Technische Detaildokumentation | [`doku-Neu/`](doku-Neu/) | Architektur, API-Referenz, Backend, Frontend, Betrieb, Prozesse |
-| Semester-5-Konzeptphase | [`doku-Neu/abgabe-5-semester/` (Abgabe 5. Semester)](doku-Neu/abgage%205%20semster/) | Technologierecherche, LoRaWAN-Evaluation, erste Konzepte |
+| Semester-5-Konzeptphase | [`doku-Neu/abgabe-semester-5/` (Abgabe 5. Semester)](doku-Neu/abgabe-semester-5/) | Technologierecherche, LoRaWAN-Evaluation, erste Konzepte |
 | Archiv (veraltet) | [`doku-Alt/`](doku-Alt/) | Dokumentation aus frühen Projektphasen — nicht mehr aktuell |
 | Changelog | [`docs/aenderungen-2026-03-24.md`](docs/aenderungen-2026-03-24.md) | Letzte Änderungen |
 
@@ -99,4 +99,4 @@ docker compose exec backend npx prisma db seed
 ## Projektverlauf
 
 - **Semester 5 — Ideen- und Recherchephase:** Evaluation von IoT-Protokollen (LoRaWAN, MQTT, Zigbee u. a.), Architekturkonzepte, Anforderungsanalyse, erster kleiner Prototyp.
-- **Semester 6 — Umsetzungsphase:** Sehr ausführliche, iterative Implementierung des gesamten Systems — Backend, Web-App, Mobile App (Kotlin), WPF-Desktop-Client, Raspberry Pi-Integration mit echten Sensoren, Auto-Discovery, Kartenansicht (OpenStreetMap), KI-gestützte Tests, Security-Hardening, kontinuierliche Erweiterung bis zur finalen Präsentation. Das Projekt hat sich dabei deutlich über den ursprünglichen Smart-Village-Rahmen hinaus zu einem fortgeschrittenen System mit Smart-City-Umfang entwickelt.
+- **Semester 6 — Umsetzungsphase:** Sehr ausführliche, iterative Implementierung des gesamten Systems — Backend, Web-App, Mobile App (Kotlin), Raspberry Pi-Integration mit echten Sensoren, Auto-Discovery, Kartenansicht (OpenStreetMap), KI-gestützte Tests, Security-Hardening, kontinuierliche Erweiterung bis zur finalen Präsentation. Das Projekt hat sich dabei deutlich über den ursprünglichen Smart-Village-Rahmen hinaus zu einem fortgeschrittenen System mit Smart-City-Umfang entwickelt.

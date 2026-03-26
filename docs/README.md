@@ -17,7 +17,7 @@ Diese Seite bietet eine strukturierte Übersicht über alle Dokumente des Projek
 | Einen Sensor oder ein IoT-Gerät anbinden | [`PROJEKT-DOKUMENTATION.md`](PROJEKT-DOKUMENTATION.md) — Teil 3 + [`../doku-Neu/prozesse/`](../doku-Neu/prozesse/) |
 | Deployment, Betrieb, Sicherheit | [`../doku-Neu/betrieb/`](../doku-Neu/betrieb/) |
 | Wie wurde KI im Projekt eingesetzt? | [`KI-NUTZUNG.md`](KI-NUTZUNG.md) |
-| Semester-5-Konzept und Technologierecherche | [`../doku-Neu/abgabe-5-semester/` (Abgabe 5. Semester)](../doku-Neu/abgage%205%20semster/) |
+| Semester-5-Konzept und Technologierecherche | [`../doku-Neu/abgabe-semester-5/` (Abgabe 5. Semester)](../doku-Neu/abgabe-semester-5/) |
 | Letzte Änderungen | [`aenderungen-2026-03-24.md`](aenderungen-2026-03-24.md) |
 | Alte/archivierte Dokumentation | [`../doku-Alt/`](../doku-Alt/) *(veraltet — nur Archiv)* |
 
@@ -43,7 +43,7 @@ Diese Seite bietet eine strukturierte Übersicht über alle Dokumente des Projek
 | [`frontend/`](../doku-Neu/frontend/) | Frontend-Dokumentation: Komponenten, State, Routing |
 | [`betrieb/`](../doku-Neu/betrieb/) | Deployment, Sicherheitskonzept, Betriebsanleitungen |
 | [`prozesse/`](../doku-Neu/prozesse/) | Prozessbeschreibungen: Auto-Discovery, Sensor-Onboarding |
-| [`abgage 5 semster/`](../doku-Neu/abgage%205%20semster/) | Abgabe Semester 5: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase |
+| [`abgabe-semester-5/`](../doku-Neu/abgabe-semester-5/) | Abgabe Semester 5: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase |
 | [`API.md`](../doku-Neu/API.md) | API-Übersichtsdokument |
 | [`uebersicht.md`](../doku-Neu/uebersicht.md) | Projektübersicht |
 | [`aenderungen-2026-03-15.md`](../doku-Neu/aenderungen-2026-03-15.md) | Changelog 15.03.2026 |
@@ -56,8 +56,8 @@ Diese Seite bietet eine strukturierte Übersicht über alle Dokumente des Projek
 
 ## Projektverlauf
 
-- **Semester 5 — Ideen- und Recherchephase:** Evaluation von IoT-Protokollen (LoRaWAN, MQTT, Zigbee u. a.), Architekturkonzepte, Anforderungsanalyse, erster kleiner Prototyp. Ergebnisse unter [`doku-Neu/abgage 5 semster/`](../doku-Neu/abgage%205%20semster/).
-- **Semester 6 — Umsetzungsphase:** Sehr ausführliche, iterative Implementierung — Backend (NestJS, MQTT, Prisma), Web-App (React + Vite), Mobile App (Kotlin), WPF-Desktop-Client, Raspberry Pi-Integration mit echten Sensoren (BMP280, YL-69), Auto-Discovery, Kartenansicht (OpenStreetMap), KI-gestützte Tests, Security-Hardening. Kontinuierliche Erweiterung bis zur finalen Präsentation. Das Projekt hat sich weit über den ursprünglichen Smart-Village-Rahmen hinaus entwickelt und hat bereits Smart-City-Umfang erreicht.
+- **Semester 5 — Ideen- und Recherchephase:** Evaluation von IoT-Protokollen (LoRaWAN, MQTT, Zigbee u. a.), Architekturkonzepte, Anforderungsanalyse, erster kleiner Prototyp. Ergebnisse unter [`doku-Neu/abgabe-semester-5/`](../doku-Neu/abgabe-semester-5/).
+- **Semester 6 — Umsetzungsphase:** Sehr ausführliche, iterative Implementierung — Backend (NestJS, MQTT, Prisma), Web-App (React + Vite), Mobile App (Kotlin), Raspberry Pi-Integration mit echten Sensoren (BMP280, YL-69), Auto-Discovery, Kartenansicht (OpenStreetMap), KI-gestützte Tests, Security-Hardening. Kontinuierliche Erweiterung bis zur finalen Präsentation. Das Projekt hat sich weit über den ursprünglichen Smart-Village-Rahmen hinaus entwickelt und hat bereits Smart-City-Umfang erreicht.
 
 ---
 
