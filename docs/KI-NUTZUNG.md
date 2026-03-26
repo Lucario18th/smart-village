@@ -40,7 +40,7 @@ Der **Agent Mode** hat im Projekt die stärksten Eindrücke hinterlassen und die
 - Im **CLI-basierten Agent Mode** wurden Terminal-Kommandos selbstständig zusammengestellt und direkt ausgeführt — kein Copy-Paste, kein manuelles Korrigieren. Dies zeigte eindrücklich, wie weit KI in der Softwareentwicklung bereits angekommen ist.
 - Copilot ist als **aktiver Contributor** im Repository vertreten und erscheint in der offiziellen Contributor-Liste des Projekts.
 
-**Fazit des Teams:**
+**Fazit der Projektgruppe:**
 Der Agent Mode ist kein erweitertes Autocomplete. Er ist ein echter Entwicklungspartner, der eigenständig plant, umsetzt und über Dateigrenzen hinweg denkt. Der Einsatz hat gezeigt, dass KI-gestützte Entwicklung nicht mehr nur Zeitersparnis bei Boilerplate bedeutet, sondern echte architektonische Aufgaben übernehmen kann.
 
 ---

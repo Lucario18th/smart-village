@@ -2,16 +2,16 @@
 *Studienarbeit · DHBW Lörrach · TIF 23 · Semester 5 & 6*
 
 Diese Seite ist der zentrale Einstiegspunkt für alle Dokumente des Smart-Village-Projekts.  
-Hier findest du schnell das richtige Dokument für deine Frage.
+Diese Seite bietet eine strukturierte Übersicht über alle Dokumente des Projekts.
 
 ---
 
 ## Schnellnavigation
 
-| Ich suche … | Dokument |
+| Gesuchter Inhalt | Dokument |
 |-------------|----------|
 | Projektübersicht, Ziele, Warum wurde das gebaut? | [`PROJEKT-DOKUMENTATION.md`](PROJEKT-DOKUMENTATION.md) — Teil 1 (4MAT: Warum / Was / Wie / Was-wenn) |
-| Wie starte ich das Projekt lokal? | [`../README.md`](../README.md) — Abschnitt Quickstart |
+| Wie wird das Projekt lokal gestartet? | [`../README.md`](../README.md) — Abschnitt Quickstart |
 | Systemarchitektur und Technologieentscheidungen | [`PROJEKT-DOKUMENTATION.md`](PROJEKT-DOKUMENTATION.md) — Teil 2 + [`../doku-Neu/architektur/`](../doku-Neu/architektur/) |
 | REST-API-Endpunkte und Referenz | [`../doku-Neu/api/`](../doku-Neu/api/) |
 | Einen Sensor oder ein IoT-Gerät anbinden | [`PROJEKT-DOKUMENTATION.md`](PROJEKT-DOKUMENTATION.md) — Teil 3 + [`../doku-Neu/prozesse/`](../doku-Neu/prozesse/) |

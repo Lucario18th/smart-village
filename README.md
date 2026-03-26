@@ -45,8 +45,9 @@ cd smart-village
 ```bash
 # 2. Umgebungsvariablen konfigurieren
 cd infra
-cp .env.example .env
-# .env öffnen und anpassen:
+# Die bestehende Umgebungsvariablen-Datei liegt unter infra/smartvillage.env
+# Hinweis: Keine .env.example vorhanden — smartvillage.env direkt bearbeiten
+# infra/smartvillage.env öffnen und anpassen:
 # DATABASE_URL, JWT_SECRET, SMTP-Konfiguration, MQTT_BROKER_URL
 ```
 
