@@ -1,6 +1,6 @@
-# Designentscheidungen der Smart Village App
+# Architekturentscheidungen der Smart Village App
 
-Dieses Dokument hält die zentralen architektonischen und konzeptionellen Designentscheidungen für die App fest. Es baut auf den Grundlagen aus dem Dokument ["Entwicklungskonzepte für die App" (aus dem 5. Semester)](../abgabe-semester-5/Entwicklungskonzepte%20für%20die%20App.pdf) auf und spezifiziert die weitere Umsetzung.
+Dieses Dokument hält die zentralen architektonischen und konzeptionellen Entscheidungen für die App fest. Es baut auf den Grundlagen aus dem Dokument ["Entwicklungskonzepte für die App" (aus dem 5. Semester)](../abgabe-semester-5/Entwicklungskonzepte%20für%20die%20App.pdf) auf und spezifiziert die weitere Umsetzung.
 
 ## 1. Mehr-Mandanten-Fähigkeit (Multi-Tenancy)
 

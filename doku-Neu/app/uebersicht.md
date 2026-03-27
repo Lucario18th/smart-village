@@ -1,6 +1,11 @@
 # App Übersicht
 
-In diesem Dokument wird die Architektur, Struktur und Beschaffenheit der Smart-Village Companion App beschrieben.
+In diesem Dokument wird die Architektur, Struktur und Beschaffenheit der Smart-Village App beschrieben.
+
+## Verweise
+- [Walkthrough](walkthrough.md)
+- [Architektur-Entscheidungen](design-entscheidungen.md)
+- [Api-Anbindungen](api-anbindungen.md)
 
 ## Struktur der App
 Die App wurde als **Compose Multiplatform** Projekt aufgesetzt, welches im Kern aus verschiedenen Modulen besteht:
