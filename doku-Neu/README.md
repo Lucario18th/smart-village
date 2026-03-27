@@ -30,11 +30,6 @@ Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand a
 - Android-Download-Button auf der Landingpage fuehrt zum konfigurierbaren App-Link (`VITE_ANDROID_APP_URL`) mit Play-Store-Fallback.
 - Teamdaten und Projektbetreuung sind auf der Landingpage gepflegt (Leon Kühn, Nico Röcker, Manuel Keßler, Alexander Shimaylo; Betreuung: Herr Schenk).
 
-## Hinweis zur Mobile API
-
-Die Mobile API (`/mobile-api/`) wird in dieser Dokumentation bewusst nicht behandelt.
-Sie wird in naher Zukunft vollständig neu gestaltet. Vorhandener Code und bestehende Dokumente zur Mobile API sind daher als veraltet zu betrachten und hier nicht aufgeführt.
-
 ## Dokumentationsstruktur
 
 Die Dokumentation ist in folgende Bereiche aufgeteilt:
@@ -63,6 +58,11 @@ docs/
 │   ├── uebersicht.md                      ← Frontend-Architektur
 │   ├── komponenten.md                     ← React-Komponentenstruktur
 │   └── api-anbindung.md                   ← API-Client und Hooks
+├── app/
+│   ├── uebersicht.md                      ← App-Übersicht und Systemarchitektur
+│   ├── architektur-entscheidungen.md      ← Architekturentscheidungen der App
+│   ├── api-anbindungen.md                 ← API-Client und Backend-Kommunikation
+│   └── walkthrough.md                     ← Walkthrough der App-Ansichten
 ├── api/
 │   └── endpunkte.md                       ← REST-API-Endpunkte-Referenz
 ├── betrieb/
@@ -99,6 +99,10 @@ docs/
 | [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
 | [Komponentenstruktur](frontend/komponenten.md) | Alle React-Komponenten und ihre Aufgaben. |
 | [API-Anbindung](frontend/api-anbindung.md) | API-Client, Hooks und Zustandsverwaltung im Frontend. |
+| [App-Übersicht](app/uebersicht.md) | Systemarchitektur, Ordnerstruktur und verwendete Technologien der App. |
+| [App-Architektur](app/architektur-entscheidungen.md) | Begruendung von zentralen Design- und Architekturentscheidungen der App. |
+| [App-API-Anbindungen](app/api-anbindungen.md) | Beschreibung der API-Clients, DTOs und Polling-Mechanismen der App. |
+| [App-Walkthrough](app/walkthrough.md) | Rundgang durch die visuellen Ansichten der App inkl. Screenshots. |
 | [API-Endpunkte](api/endpunkte.md) | Vollständige Referenz aller REST-Endpunkte (ohne Mobile API). |
 | [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker. |
 | [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise. |

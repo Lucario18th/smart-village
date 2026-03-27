@@ -79,6 +79,12 @@ Es umfasst:
 Die Kommunikation mit dem Backend läuft über einen zentralen API-Client.
 Public-Ansichten nutzen die App-API (`/api/app/...`) und aktualisieren Daten via Polling.
 
+**Mobile App (Kotlin Multiplatform):**
+Die mobile App ist mit Kotlin Multiplatform und Compose Multiplatform entwickelt.
+Diese stellt die Daten aus dem Backend in einer mobilen Benutzeroberfläche dar und ermöglicht den Zugriff auf die wichtigsten Funktionen für die Bürger.
+Ebenfalls können auch aktuelle Abfahrtszeiten von Zügen in der Nähe angezeigt werden.
+Die Kommunikation mit dem Backend erfolgt über die App-API-Endpunkte (`/api/app/...`).
+
 **Datenbank (PostgreSQL mit TimescaleDB):**
 Alle Daten werden in einer PostgreSQL-Datenbank gespeichert.
 TimescaleDB wird als Erweiterung genutzt, um Zeitreihendaten effizient zu verarbeiten.

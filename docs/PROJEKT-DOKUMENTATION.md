@@ -46,13 +46,20 @@ Grundlage sind die bestehenden technischen Detaildokumente unter `doku-Neu/` sow
 
 ![Öffentliche Kartenansicht](assets/screenshots/map-view.png)
 
+### Mobile App (Android/iOS)
+
+*Startbildschirm und Kartenansicht der Smart-Village App (Compose Multiplatform)*
+
+![App Startbildschirm](../doku-Neu/app/screenshots/main-screen.png)  
+![App Kartenansicht](../doku-Neu/app/screenshots/map-screen.png)
+
 ***
 
 ## Projektstart – So wird das System gestartet
 
 ### Option A: Lokale Entwicklung (Docker)
 
-**Voraussetzungen:** Docker, Docker Compose, Git
+**Voraussetzungen:** Docker, Docker Compose, Git, Android Studio mit Emulator
 
 ```bash
 git clone https://github.com/Lucario18th/smart-village.git
@@ -61,6 +68,11 @@ cd smart-village/infra
 # DATABASE_URL, JWT_SECRET, SMTP-Konfiguration, MQTT_BROKER_URL
 docker compose up --build   # Alle Services starten
 ```
+
+Start der App:
+1. `smart-village/app/SmartVillageApp` in Android Studio öffnen
+2. In `app/SmartVillageApp/composeApp/src/commonMain/kotlin/de/tif23/studienarbeit/model/constants/Url.kt` die Konstante `SERVER_URL` auf `https://localhost/api/app` setzen
+3. Run-Konfiguration `app` auswählen und starten
 
 Nach dem Start sind folgende Endpunkte erreichbar:
 
@@ -84,6 +96,11 @@ Das System läuft bereits produktiv und ist ohne Setup erreichbar:
 - **Port:** 443 (HTTPS)
 
 Alle Komponenten (Backend, Frontend, Datenbank, MQTT-Broker) laufen containerisiert auf dem DHBW-Server.
+
+**App:**
+1. APK der App von den [GitHub-Releases](https://github.com/Lucario18th/smart-village/releases/tag/v1_0_1) herunterladen
+2. VPN-Verbindung zum DHBW-Netz herstellen
+3. App installieren und starten (benötigt Zugriff auf Standort)
 
 ***
 
@@ -372,6 +389,15 @@ Hinweis: Die Spalte "gewählt" basiert auf der aktuellen Codebasis. Die Spalte "
 | Material-UI | Nein | Keine Nutzung in package.json; UI ist komponenten- und CSS-basiert umgesetzt. |
 | Bootstrap | Nein | Nicht im Build/Styling-Stack enthalten. |
 
+## 2.11 Mobile Mobile App Framework
+
+| Technologie | Gewählt? | Begründung                                                                                                                               |
+|---|---|------------------------------------------------------------------------------------------------------------------------------------------|
+| Compose Multiplatform (KMP) | Ja | Ermöglicht weitreichendes Code-Sharing zwischen Android und iOS via Kotlin, moderne deklarative UI.                                      |
+| React Native | Nein | Obwohl React im Frontend genutzt wird, fiel die Wahl auf KMP für bessere native Performance, Kotlin-Fokus und Erfahrung des Entwicklers. |
+| Flutter | Nein | Erfordert Dart-Kenntnisse; das Team präferierte das Kotlin-Ökosystem.                                                                    |
+| Native (Swift & Kotlin getrennt) | Nein | Zu hoher Entwicklungs- und Wartungsaufwand für zwei separate Codebasen im Projektrahmen.                                                 |
+
 ---
 
 ## Teil 3: Endnutzer-Anleitung - Sensoren und Geräte einbinden
@@ -639,6 +665,7 @@ GitHub Copilot im Agent Mode in Kombination mit extern optimierten Prompts (via 
 - Systemarchitektur: `../doku-Neu/architektur/system-uebersicht.md`
 - Datenmodell: `../doku-Neu/architektur/datenmodell.md`
 - App-API: `../doku-Neu/backend/app-api.md`
+- App-Dokumentation: `../doku-Neu/app/uebersicht.md`, `../doku-Neu/app/architektur-entscheidungen.md`, `../doku-Neu/app/api-anbindungen.md`, `../doku-Neu/app/walkthrough.md`
 - Änderungshistorie: `../doku-Neu/aenderungen-2026-03-15.md`, `../doku-Neu/aenderungen-2026-03-17.md`, `../doku-Neu/aenderungen-2026-03-18.md`, `../doku-Neu/aenderungen-2026-03-23.md`
 
 ---

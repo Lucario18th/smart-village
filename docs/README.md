@@ -41,6 +41,7 @@ Diese Seite bietet eine strukturierte Übersicht über alle Dokumente des Projek
 | [`api/`](../doku-Neu/api/) | REST-API-Referenz und Endpunkte |
 | [`backend/`](../doku-Neu/backend/) | Backend-Dokumentation: MQTT-Integration, App-API, Module |
 | [`frontend/`](../doku-Neu/frontend/) | Frontend-Dokumentation: Komponenten, State, Routing |
+| [`app/`](../doku-Neu/app/) | Mobile App-Dokumentation: Architektur, Module, API-Anbindung |
 | [`betrieb/`](../doku-Neu/betrieb/) | Deployment, Sicherheitskonzept, Betriebsanleitungen |
 | [`prozesse/`](../doku-Neu/prozesse/) | Prozessbeschreibungen: Auto-Discovery, Sensor-Onboarding |
 | [`abgabe-semester-5/`](../doku-Neu/abgabe-semester-5/) | Abgabe Semester 5: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase |
