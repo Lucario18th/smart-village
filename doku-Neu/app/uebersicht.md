@@ -4,7 +4,7 @@ In diesem Dokument wird die Architektur, Struktur und Beschaffenheit der Smart-V
 
 ## Verweise
 - [Walkthrough](walkthrough.md)
-- [Architektur-Entscheidungen](design-entscheidungen.md)
+- [Architektur-Entscheidungen](architektur-entscheidungen.md)
 - [Api-Anbindungen](api-anbindungen.md)
 
 ## Struktur der App

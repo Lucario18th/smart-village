@@ -50,7 +50,7 @@ Bei der Übertragung von Echtzeit-Sensordaten musste die eigentlich geplante MQT
 *   **MQTT-Workaround (Port 1883 gesperrt):** Da der Standard-MQTT-Port 1883 für unseren Server im Netzwerk der DHBW nicht freigegeben wurde, ist ein direkter Aufbau einer MQTT-Verbindung zwischen App und Broker unmöglich. Die aktuelle Einbindung erfolgt daher rein temporär über einen HTTP-Daten-Fetch: Die App ruft in regelmäßigen Abständen (Polling) bzw. beim Start die Daten über den Endpunkt `/api/initial-data` ab.
 *   **Verweis:** Detaillierte Informationen zur Systemnutzung und den einzelnen Endpunkten sind im Dokument [App API-Anbindungen](api-anbindungen.md) aufgeführt.
 
-## 6. Mobilitätsdaten: Nur Daten zu Züben
+## 6. Mobilitätsdaten: Nur Daten zu Zügen
 
 **Entscheidung:**
 Die App zeigt ausschließlich Daten zu Zügen an, keine Informationen zu Bussen, Trams oder U-Bahnen. Außerdem ist der Routing-Teil bislang ohne Funktion.

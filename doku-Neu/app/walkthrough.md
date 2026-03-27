@@ -41,29 +41,27 @@ Das zentrale Hub für jegliche Mobilitätsangebote der Gemeinde.
 Zeigt aktuelle Abfahrten für eine bestimmte Bus- oder Bahnhaltestelle.
 - **Funktionen:** Echtzeit-Monitor der nächsten Abfahrten betrachten.
 - **Sichtbar:** Liste der nächsten Linien (Bus/Bahn), Abfahrtszeiten und eventuelle Verspätungen.
-> *Platzhalter für Screenshot: Station Departures Screen*
 
-## 10. Map Screen (Karte)
+## 7. Map Screen (Karte)
 Kartenansicht des Dorfes bzw. der Gemeinde.
 - **Funktionen:** Interaktives Navigieren und Entdecken von Point of Interests (Sensoren, Haltestellen, Mitfahrbänke).
 - **Sichtbar:** Eine interaktive Karte mit Markern (Pins) für verschiedene intelligente Komponenten.
 
 ![map-screen](./screenshots/map-screen.png)
 
-## 11. Modules Screen & Module Detail Screen (Module)
+## 8. Modules Screen & Module Detail Screen (Module)
 Übersicht und Detailansicht über zusätzlich in die App integrierte (vielleicht dynamisch geladene) Funktionsmodule.
 - **Funktionen:** Aktivieren/Deaktivieren oder Nutzen von Erweiterungs-Plugins der App.
 - **Sichtbar:** Auflistung der verfügbaren Module; bei Klick darauf öffnet sich der Detailbildschirm des jeweiligen Moduls.
 
 ![modules-screen](./screenshots/module-detail-screen.png)
 
-## 12. Messages Screen (Nachrichten & Neuigkeiten)
+## 9. Messages Screen (Nachrichten & Neuigkeiten)
 Neuigkeiten, Ankündigungen und Systemmeldungen für die Dorfgemeinschaft.
 - **Funktionen:** Lesen von Push-Nachrichten oder Bekanntmachungen aus dem Rathaus.
 - **Sichtbar:** Scrollbare Liste (Feed) der letzten Nachrichten mit Datum und Kurzvorschau.
 
-## 13. Settings Screen (Einstellungen)
+## 10. Settings Screen (Einstellungen)
 Die Konfigurationszentrale der App.
 - **Funktionen:** Anpassen der App-Präferenzen, Benachrichtigungseinstellungen und Themen (Dark/Light Mode). Impressum, Datenschutz und Login-Status.
 - **Sichtbar:** Typische Einstellungs-Liste mit Switches, Checkboxen und Versioninfos.
-> *Platzhalter für Screenshot: Settings Screen*

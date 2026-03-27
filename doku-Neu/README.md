@@ -79,39 +79,42 @@ docs/
 
 ## Verzeichnis der Dokumente
 
-| Dokument | Beschreibung |
-|----------|-------------|
-| [Änderungsprotokoll 2026-03-18](aenderungen-2026-03-18.md) | Security- und Versionsupdate ueber Backend, Frontend und Infrastruktur inkl. Test- und Audit-Ergebnisse. |
-| [Änderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration. |
-| [Änderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen. |
-| [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten. |
-| [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten. |
-| [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk. |
-| [Datenmodell](architektur/datenmodell.md) | Datenbankschema mit allen Entitäten, Feldern und Beziehungen. |
-| [Authentifizierung](backend/authentifizierung.md) | JWT-basierte Authentifizierung, E-Mail-Verifizierung und Guards. |
-| [Gemeindeverwaltung](backend/gemeinden.md) | Verwaltung von Gemeindedaten (Villages). |
-| [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte. |
-| [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller). |
-| [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung. |
-| [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert). |
-| [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen. |
-| [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche. |
-| [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
-| [Komponentenstruktur](frontend/komponenten.md) | Alle React-Komponenten und ihre Aufgaben. |
-| [API-Anbindung](frontend/api-anbindung.md) | API-Client, Hooks und Zustandsverwaltung im Frontend. |
-| [App-Übersicht](app/uebersicht.md) | Systemarchitektur, Ordnerstruktur und verwendete Technologien der App. |
-| [App-Architektur](app/architektur-entscheidungen.md) | Begruendung von zentralen Design- und Architekturentscheidungen der App. |
-| [App-API-Anbindungen](app/api-anbindungen.md) | Beschreibung der API-Clients, DTOs und Polling-Mechanismen der App. |
-| [App-Walkthrough](app/walkthrough.md) | Rundgang durch die visuellen Ansichten der App inkl. Screenshots. |
-| [API-Endpunkte](api/endpunkte.md) | Vollständige Referenz aller REST-Endpunkte (ohne Mobile API). |
-| [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker. |
-| [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise. |
-| [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung. |
-| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden. |
-| [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT. |
-| [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) | Beispielhafter End-to-End-Usecase fuer die Integration eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node. |
+| Dokument | Beschreibung                                                                                                      |
+|----------|-------------------------------------------------------------------------------------------------------------------|
+| [Änderungsprotokoll 2026-03-27](aenderungen-2026-03-27.md) | Hinzufügen der Dokumentation für die App, sowie kleinere Korrekturen.                                             |
+| [Änderungsprotokoll 2026-03-23](aenderungen-2026-03-23.md) | Prozessdokumente für Raspberry Pi Usecase, kommunale Rückmeldung und Studienkontext Kommunen hinzugefügt.         |
+| [Änderungsprotokoll 2026-03-18](aenderungen-2026-03-18.md) | Security- und Versionsupdate ueber Backend, Frontend und Infrastruktur inkl. Test- und Audit-Ergebnisse.          |
+| [Änderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration.        |
+| [Änderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen.                                                                   |
+| [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten.                |
+| [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten.                                         |
+| [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk.                                                           |
+| [Datenmodell](architektur/datenmodell.md) | Datenbankschema mit allen Entitäten, Feldern und Beziehungen.                                                     |
+| [Authentifizierung](backend/authentifizierung.md) | JWT-basierte Authentifizierung, E-Mail-Verifizierung und Guards.                                                  |
+| [Gemeindeverwaltung](backend/gemeinden.md) | Verwaltung von Gemeindedaten (Villages).                                                                          |
+| [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte.                                                         |
+| [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller).                                                                  |
+| [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung.                                                 |
+| [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert).                                                     |
+| [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen.                                                    |
+| [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche.                                                                                      |
+| [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite.                                                                              |
+| [Komponentenstruktur](frontend/komponenten.md) | Alle React-Komponenten und ihre Aufgaben.                                                                         |
+| [API-Anbindung](frontend/api-anbindung.md) | API-Client, Hooks und Zustandsverwaltung im Frontend.                                                             |
+| [App-Übersicht](app/uebersicht.md) | Systemarchitektur, Ordnerstruktur und verwendete Technologien der App.                                            |
+| [App-Architektur](app/architektur-entscheidungen.md) | Begruendung von zentralen Design- und Architekturentscheidungen der App.                                          |
+| [App-API-Anbindungen](app/api-anbindungen.md) | Beschreibung der API-Clients, DTOs und Polling-Mechanismen der App.                                               |
+| [App-Walkthrough](app/walkthrough.md) | Rundgang durch die visuellen Ansichten der App inkl. Screenshots.                                                 |
+| [API-Endpunkte](api/endpunkte.md) | Vollständige Referenz aller REST-Endpunkte (ohne Mobile API).                                                     |
+| [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker.                                                       |
+| [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise.                                                        |
+| [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung.                                                                   |
+| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden.                                  |
+| [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT.                                                       |
+| [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) | Beispielhafter End-to-End-Usecase fuer die Integration eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node.      |
 | [Use Case: Antwort Staat](prozesse/antwort-staat.md) | Typischer Ablauf, wie eine Gemeinde Informationen und Rueckmeldungen an Buerger ueber die Plattform bereitstellt. |
-| [Studienkontext Kommunen](prozesse/studienkontext-kommunen.md) | Dokumentation der Kontaktversuche mit Kommunen und der Rueckmeldesituation im Projektzeitraum. |
+| [Studienkontext Kommunen](prozesse/studienkontext-kommunen.md) | Dokumentation der Kontaktversuche mit Kommunen und der Rueckmeldesituation im Projektzeitraum.                    |
+| [Abgabe Semester 5](abgabe-semester-5/) | Dokumentation der Abgabe des 5. Semesters: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase.              |
 
 ## Zuordnung bestehender Dokumente
 
