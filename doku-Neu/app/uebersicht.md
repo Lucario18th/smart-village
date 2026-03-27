@@ -11,7 +11,7 @@ Es beschreibt den nachweisbaren technischen Umfang aus dem Repository-Code (Seme
 - Architektur: Kotlin Multiplatform mit Compose Multiplatform.
 - SourceSets: `commonMain`, `androidMain`, `iosMain`.
 - Android-App-Version: `1.0.1` (`versionCode` 2).
-- Navigation über Navigation3 (`NavDisplay` + typed destinations).
+- Navigation über Navigation3 von JetBrains/AndroidX (`NavDisplay` + typed destinations).
 - Datenbezug über App-API (`/api/app/...`) und MQTT-Anbindung im App-Code.
 
 Beispielhafte Code-Belege:
