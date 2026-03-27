@@ -59,6 +59,8 @@ docs/
 │   ├── app-api.md                         ← App-API (REST + Polling fuer Website und App)
 │   ├── admin-verwaltung.md                ← Admin-Modul (Kontolöschung)
 │   └── standortsuche.md                   ← PLZ-Suche (Locations)
+├── app/
+│   └── uebersicht.md                      ← Android-App (Kotlin/Compose Multiplatform)
 ├── frontend/
 │   ├── uebersicht.md                      ← Frontend-Architektur
 │   ├── komponenten.md                     ← React-Komponentenstruktur
@@ -96,6 +98,7 @@ docs/
 | [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert). |
 | [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen. |
 | [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche. |
+| [App-Übersicht](app/uebersicht.md) | Architektur, Komponenten, Datenfluss und Build-/Run-Hinweise der Android-App (Kotlin/Compose Multiplatform). |
 | [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
 | [Komponentenstruktur](frontend/komponenten.md) | Alle React-Komponenten und ihre Aufgaben. |
 | [API-Anbindung](frontend/api-anbindung.md) | API-Client, Hooks und Zustandsverwaltung im Frontend. |
