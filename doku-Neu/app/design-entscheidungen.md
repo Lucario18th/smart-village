@@ -40,3 +40,23 @@ Für die Darstellung der digitalen Dorfkarte in der App wird OpenStreetMap und n
 *   **Open Source & Unabhängigkeit:** Da OSM Open Source ist, entsteht keine Abhängigkeit ("Vendor Lock-in") von großen Tech-Konzernen (Big Tech).
 *   **Datenschutz:** Deutlich bessere Kompatibilität mit hohen Datenschutzanforderungen, da keine unnötigen oder versteckten Trackings durch die großen Plattformen erfolgen.
 *   **Kostenfaktor:** Die Einbindung und Nutzung der Karten ist frei von API-Kosten, was für das Projektbudget und eine mögliche Skalierung essenziell ist.
+
+## 5. MQTT-Workaround
+
+**Entscheidung:**
+Bei der Übertragung von Echtzeit-Sensordaten musste die eigentlich geplante MQTT-Anbindung vorerst durch einen HTTP-Daten-Fetch abgelöst werden.
+
+**Begründung & Auswirkungen:**
+*   **MQTT-Workaround (Port 1883 gesperrt):** Da der Standard-MQTT-Port 1883 für unseren Server im Netzwerk der DHBW nicht freigegeben wurde, ist ein direkter Aufbau einer MQTT-Verbindung zwischen App und Broker unmöglich. Die aktuelle Einbindung erfolgt daher rein temporär über einen HTTP-Daten-Fetch: Die App ruft in regelmäßigen Abständen (Polling) bzw. beim Start die Daten über den Endpunkt `/api/initial-data` ab.
+*   **Verweis:** Detaillierte Informationen zur Systemnutzung und den einzelnen Endpunkten sind im Dokument [App API-Anbindungen](api-anbindungen.md) aufgeführt.
+
+## 6. Mobilitätsdaten: Nur Daten zu Züben
+
+**Entscheidung:**
+Die App zeigt ausschließlich Daten zu Zügen an, keine Informationen zu Bussen, Trams oder U-Bahnen. Außerdem ist der Routing-Teil bislang ohne Funktion.
+
+**Begründung:**
+*   **Datenverfügbarkeit:** Es wurde keine zuverlässige, öffentliche API gefunden, mit welchen man Abfahrten aller öffentlichen Verkehrsmittel (inklusive Busse) in Echtzeit abrufen könnte. Gleiches gilt für das Routing.
+*   **In Betracht gezogene APIs:** [transport.rest](https://v6.db.transport.rest) gratis aber wenig zuverlässig und kleine Rate-Limits, [Delfi-API](https://www.delfi.de/de/leistungen-produkte/daten-dienste), [Mobidata-BW](https://mobidata-bw.de/dataset/trias), [Transitous-API](https://transitous.org/api), [RIS::Journeys](https://developers.deutschebahn.com/db-api-marketplace/apis/product/ris-journeys-netz) alle entweder kostenpflichtig oder nur auf Anfrage verfügbar.
+*   **Keine GTFS-Daten:** Es gibt zwar öffentlich verfügbare GTFS-Datensätze für zum Beispiel das Land Baden-Württemberg, welche die planmäßigen Fahrplandaten enthalten. Diese sind jedoch statisch und bieten keine Echtzeit-Informationen zu Verspätungen, Zugausfällen oder aktuellen Abfahrtszeiten. Ohne Echtzeit-Updates wäre die Funktionalität für die Nutzer wenig hilfreich. Außerdem wäre die Implementierung dieser in das Backend zu aufwendig gewesen.
+*   **Fokus auf Züge:** Da die Deutsche Bahn die [Timetables-API](https://developers.deutschebahn.com/db-api-marketplace/apis/product/timetables) als eine zuverlässige API, die auch gratis ist, mit Echtzeitdaten für Zugabfahrten bereitstellt, wurde beschlossen, sich vorerst auf diese zu konzentrieren. So können zumindest die wichtigsten Informationen zum ÖPNV (Zugverbindungen) bereitgestellt werden, auch wenn die vollständige Mobilitätsintegration (inklusive Busse) noch nicht realisiert werden konnte.
