@@ -2,8 +2,8 @@
 
 ## Einordnung
 
-Der Raspberry Pi 5 dient in diesem Projekt als praxisnahes Beispielgeraet fuer die Integration von IoT-Hardware in eine Gemeinde.
-Er kann je nach Auspraegung als
+Der Raspberry Pi 5 dient in diesem Projekt als praxisnahes Beispielgerät fuer die Integration von IoT-Hardware in eine Gemeinde.
+Er kann je nach Ausprägung als
 
 - IoT-Gateway (Anbindung mehrerer Sensoren und Weiterleitung),
 - Sensor-Node (direkt angeschlossene Sensorik),
@@ -19,11 +19,11 @@ Die projektspezifischen Beispiele befinden sich im Ordner `Raspberry PI/`:
 - `Raspberry PI/Code/soil_local_test.py` (lokaler Sensor-/Plausi-Test)
 - `Raspberry PI/Doku/Derzeitiger_Stand.md` (aktueller technischer Stand inkl. Setup, Verkabelung und Workflows)
 
-Diese Dateien sind die primaere Referenz fuer Konfiguration, Skriptstruktur und Hardwarebezug auf Raspberry-Pi-Seite.
+Diese Dateien sind die primäre Referenz fuer Konfiguration, Skriptstruktur und Hardwarebezug auf Raspberry-Pi-Seite.
 
 Der dokumentierte Hardware-Stand nutzt insbesondere Raspberry Pi 5 (Bookworm), BMP280 (I2C) sowie YL-69/LM393 (digitaler Bodenfeuchte-Status ueber D0).
 
-Hinweis zum Aktualitaetsstand:
+Hinweis zum Aktualitätsstand:
 Falls die begleitende Raspberry-Pi-Doku von der Implementierung abweicht, ist der aktuelle Code im Ordner `Raspberry PI/Code/` als technische Quelle fuehrend.
 
 ## Ablauf im Gesamtsystem
@@ -50,24 +50,24 @@ Die Anbindung erfolgt ueblicherweise ueber MQTT:
 
 Wesentliche Konfigurationsparameter des MQTT-Skripts sind `MQTT_URL`, `ACCOUNT_ID`, `VILLAGE`, `DEVICE_ID`, `SENSOR_ID` und `PUBLISH_INTERVAL`.
 
-Alternativ oder ergaenzend ist eine Uebertragung ueber REST (`/api/sensor-readings/:sensorId`) moeglich.
+Alternativ oder ergänzend ist eine Übertragung ueber REST (`/api/sensor-readings/:sensorId`) möglich.
 
-### 3. Registrierung und Mapping auf Entitaeten
+### 3. Registrierung und Mapping auf Entitäten
 
 Im Backend werden die MQTT-Nachrichten dem bestehenden Datenmodell zugeordnet:
 
-- Raspberry-Pi-Einheit -> Geraet (`Device`)
+- Raspberry-Pi-Einheit -> Gerät (`Device`)
 - angebundene Messstellen -> Sensor (`Sensor`)
 - einzelne Datenpunkte -> Messwert (`SensorReading`)
 
-Bei Discovery werden Geraete und Sensoren automatisch angelegt oder aktualisiert, sofern sie noch nicht vorhanden sind.
+Bei Discovery werden Geräte und Sensoren automatisch angelegt oder aktualisiert, sofern sie noch nicht vorhanden sind.
 Die Discovery-Nachricht liefert dabei die technischen Metadaten fuer die Zuordnung im Smart-Village-Datenmodell.
 
 ### 4. Sichtbarkeit in App und Website
 
 Nach der Speicherung im Backend stehen die Daten ueber API und App-API zur Verfuegung.
 Die Anzeige in Public/App orientiert sich an den bestehenden Feature-Flags und Sensor-Freigaben (u. a. `exposeToApp`).
-Damit werden Raspberry-Pi-Daten in denselben Oberflaechen sichtbar wie andere IoT-Quellen einer Gemeinde.
+Damit werden Raspberry-Pi-Daten in denselben Oberflächen sichtbar wie andere IoT-Quellen einer Gemeinde.
 
 ## Bezug zu Rostock / Smart City
 
@@ -84,4 +84,4 @@ https://youtu.be/-ElfgOPmclA?si=9HY43XEayRAcq9en
 Dieser Usecase ist ein technisches Integrationsbeispiel und ersetzt keine fachliche Priorisierung einzelner Kommunen.
 Die Mobile API ist weiterhin nicht Bestandteil des Dokumentationsumfangs.
 
-Zugangsdaten in Raspberry-Pi-Unterlagen sind als Beispielwerte zu behandeln und vor externen Veroeffentlichungen zu aendern oder zu entfernen.
+Zugangsdaten in Raspberry-Pi-Unterlagen sind als Beispielwerte zu behandeln und vor externen Veröffentlichungen zu ändern oder zu entfernen.

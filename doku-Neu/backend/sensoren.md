@@ -45,8 +45,8 @@ Messwerte werden als Zeitreihen gespeichert und können aggregiert abgefragt wer
 Gibt alle Sensoren einer Gemeinde zurück.
 Jeder Sensor enthält zusätzlich den letzten Messwert (Zeitstempel, Wert und Status), sofern vorhanden.
 Das wird im SensorService durch eine zusätzliche Abfrage des letzten SensorReading realisiert.
-Zusaetzlich wird pro Sensor das Feld `dataStale` berechnet.
-`dataStale` ist `true`, wenn seit dem letzten Messwert ungefaehr 60 Sekunden vergangen sind.
+Zusätzlich wird pro Sensor das Feld `dataStale` berechnet.
+`dataStale` ist `true`, wenn seit dem letzten Messwert ungefähr 60 Sekunden vergangen sind.
 
 ### Sensor anlegen
 

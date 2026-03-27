@@ -3,7 +3,7 @@
 ## Überblick
 
 Das Frontend ist eine Single-Page-Application (SPA) mit zwei Hauptbereichen:
-- oeffentliche Seiten (Landingpage und Public-User-Ansicht),
+- öffentliche Seiten (Landingpage und Public-User-Ansicht),
 - administrativer Bereich fuer registrierte Konten.
 
 Es ist mit React 18 und Vite gebaut.
@@ -78,7 +78,7 @@ website/
 └── vite.config.js
 ```
 
-## Routing und Anwendungszustaende
+## Routing und Anwendungszustände
 
 Die Anwendung nutzt `react-router-dom` fuer die Top-Level-Navigation.
 Die Routen sind zentral in `App.jsx` definiert.
@@ -105,7 +105,7 @@ Innerhalb der Admin-Route steuert der Auth-Status die Unteransichten:
 Im Public-/User-Bereich werden angezeigte Tabs dynamisch aus den Village-Feature-Flags erzeugt.
 Deaktivierte Module (z. B. Karte, Wetter, Events) werden komplett ausgeblendet.
 
-Die ausgewaehlte Gemeinde wird im Browser persistiert.
+Die ausgewählte Gemeinde wird im Browser persistiert.
 Beim ersten Laden wird bevorzugt die letzte Auswahl genutzt, sonst Gemeinde-ID 1 (falls vorhanden).
 
 ## Theming
@@ -132,10 +132,10 @@ Aktueller Standard:
 
 ## Landingpage (neu)
 
-Die Landingpage unter `/` dient als oeffentliche Einstiegsseite und enthaelt:
+Die Landingpage unter `/` dient als öffentliche Einstiegsseite und enthält:
 
 - Projektueberblick und Studienarbeitskontext,
-- Team-Bereich mit Bildplaetzen und gepflegten Namen,
+- Team-Bereich mit Bildplätzen und gepflegten Namen,
 - Rechts-/Kontaktlinks (Datenschutz, AGB, Cookies, Impressum, Social, E-Mail),
 - direkte Navigation zur User- und Admin-Seite,
 - Android-Download-Button fuer die App.

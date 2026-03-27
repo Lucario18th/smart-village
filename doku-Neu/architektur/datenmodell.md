@@ -240,11 +240,11 @@ Informationen zu Mitfahrgelegenheiten in einer Gemeinde.
 ### VillageFeatures (Feature-Flags fuer die App)
 
 Steuert, welche Module in der mobilen App fuer eine Gemeinde aktiviert sind.
-Jede Gemeinde hat hoechstens einen VillageFeatures-Eintrag (1:1-Beziehung).
+Jede Gemeinde hat höchstens einen VillageFeatures-Eintrag (1:1-Beziehung).
 
 | Feld | Typ | Beschreibung |
 |------|-----|-------------|
-| id | Int (Auto-Increment) | Primaerschluessel |
+| id | Int (Auto-Increment) | Primärschluessel |
 | villageId | Int (unique) | Fremdschluessel auf Village |
 | enableSensorData | Boolean | Sensordaten in der App anzeigen (Standard: true) |
 | enableWeather | Boolean | Wetterdaten in der App anzeigen (Standard: true) |
@@ -258,9 +258,9 @@ Jede Gemeinde hat hoechstens einen VillageFeatures-Eintrag (1:1-Beziehung).
 | showSensorDescription | Boolean | Sensorbeschreibung in der App-Detailansicht anzeigen (Standard: true) |
 | showSensorCoordinates | Boolean | Sensorkoordinaten in der App-Detailansicht anzeigen (Standard: true) |
 
-**Beziehungen:** Gehoert zu genau einer Village (1:1).
+**Beziehungen:** Gehört zu genau einer Village (1:1).
 
-**Verwendung:** Wird von der App-API ausgelesen, um zu steuern, welche Module in der App sichtbar sind. Die vier `showSensor*`-Felder steuern zusaetzlich, welche Detailinformationen zu einem Sensor in der App angezeigt werden. Siehe [App-API-Dokumentation](../backend/app-api.md).
+**Verwendung:** Wird von der App-API ausgelesen, um zu steuern, welche Module in der App sichtbar sind. Die vier `showSensor*`-Felder steuern zusätzlich, welche Detailinformationen zu einem Sensor in der App angezeigt werden. Siehe [App-API-Dokumentation](../backend/app-api.md).
 
 ## Enums
 

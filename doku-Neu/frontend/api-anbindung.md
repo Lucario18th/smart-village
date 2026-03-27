@@ -72,7 +72,7 @@ Die Session-Verwaltung befindet sich in `website/src/auth/session.js`.
 
 Der JWT-Token wird im Frontend dekodiert, um die Account-ID (`sub`) zu extrahieren.
 Die Dekodierung erfolgt durch einfaches Base64-Parsen des Token-Payloads.
-Die Session enthaelt zusaetzlich ein Ablaufdatum (`idleExpiresAt`) und wird bei Ablauf aktiv invalidiert.
+Die Session enthält zusätzlich ein Ablaufdatum (`idleExpiresAt`) und wird bei Ablauf aktiv invalidiert.
 
 ## Hook: useAdminAuth
 
@@ -124,7 +124,7 @@ Für jede Kategorie gibt es spezifische Update-Funktionen:
 |----------|-------|
 | `updateGeneralField(field, value)` | Allgemeine Einstellungen ändern |
 | `updateModuleEnabled(id, enabled)` | Modul aktivieren/deaktivieren |
-| `updateModuleFieldEnabled(id, fieldId, enabled)` | Sensor-Anzeigeoptionen aendern |
+| `updateModuleFieldEnabled(id, fieldId, enabled)` | Sensor-Anzeigeoptionen ändern |
 | `addSensor(data)` | Neuen Sensor hinzufügen |
 | `updateSensor(id, updates)` | Sensor aktualisieren |
 | `removeSensor(id)` | Sensor entfernen |
@@ -242,10 +242,10 @@ Das Frontend speichert folgende Daten im LocalStorage:
 | `smart-village-admin-session` | Session-Daten (Account-ID, E-Mail) |
 | `smart-village-config:{villageId}` | Gemeinde-Konfiguration |
 | `smart-village-public-preferences` | Sprache/Theme/Contrast fuer Public-Ansicht |
-| `smart-village-public-last-village-id` | Letztgewaehlte Gemeinde im Public-Bereich |
+| `smart-village-public-last-village-id` | Letztgewählte Gemeinde im Public-Bereich |
 
 Zusatzlich werden Kartenfilter im Adminbereich je Nutzer/Gemeinde in der Session gespeichert.
-Diese Filter werden nur durch explizite Benutzeraktionen geaendert und nicht durch Polling-Updates ueberschrieben.
+Diese Filter werden nur durch explizite Benutzeraktionen geändert und nicht durch Polling-Updates ueberschrieben.
 
 ## Live-Messwerte im Public-Bereich
 
@@ -258,10 +258,10 @@ Die Konfiguration bleibt erhalten, damit sie beim nächsten Login schneller gela
 
 ## Darkmode-Standard
 
-Im aktuellen Stand startet die Website standardmaessig im Darkmode.
+Im aktuellen Stand startet die Website standardmässig im Darkmode.
 Das gilt fuer:
 
 - Initialklasse in `main.jsx`,
 - Theme-Fallback in `themeManager.js`,
 - Default-Design in `configModel.js`,
-- Public-Default-Praeferenzen.
+- Public-Default-Präferenzen.

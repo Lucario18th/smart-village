@@ -111,11 +111,11 @@ Empfohlener Standard fuer lokale Team-Tests:
 - Passwort: `DevOnly-SmartVillage-2026!`
 
 Sicherheits-Hinweis:
-Diese Zugangsdaten sind nur fuer lokale Entwicklung und Testzwecke gedacht. In produktiven Umgebungen muessen Testkonten deaktiviert oder entfernt werden. Passwoerter sind zwingend durch individuelle, sichere Werte zu ersetzen.
+Diese Zugangsdaten sind nur fuer lokale Entwicklung und Testzwecke gedacht. In produktiven Umgebungen muessen Testkonten deaktiviert oder entfernt werden. Passwörter sind zwingend durch individuelle, sichere Werte zu ersetzen.
 
 Wenn der Account noch nicht existiert, kann er so angelegt werden:
 
-1. Frontend unter `https://localhost` oeffnen.
+1. Frontend unter `https://localhost` öffnen.
 2. Registrierungsdialog nutzen und den Account anlegen.
 3. Verifizierungscode in MailHog (`http://localhost:8025`) abrufen.
 4. E-Mail verifizieren und regulär einloggen.

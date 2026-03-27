@@ -6,8 +6,8 @@ Diese Referenz listet alle REST-API-Endpunkte des Smart-Village-Backends auf.
 Alle Endpunkte sind unter dem Prefix `/api` erreichbar.
 Die Base-URL ist `https://localhost:8000` (direkt) oder `https://localhost/api` (über Nginx).
 
-Die App-API fuer Website und mobile App ist extern unter dem Prefix `/api/app` erreichbar.
-Eine ausfuehrliche Beschreibung der App-API befindet sich in der [App-API-Dokumentation](../backend/app-api.md).
+Die App-API für Website und mobile App ist extern unter dem Prefix `/api/app` erreichbar.
+Eine ausführliche Beschreibung der App-API befindet sich in der [App-API-Dokumentation](../backend/app-api.md).
 
 Die Mobile API (`/mobile-api/`) ist in dieser Referenz nicht enthalten, da sie außerhalb des Geltungsbereichs liegt.
 

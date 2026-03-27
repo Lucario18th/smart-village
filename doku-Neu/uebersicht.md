@@ -26,9 +26,9 @@ Die Karte zeigt farbcodierte Marker, die den aktuellen Messwert darstellen.
 Ein besonderer Sensortyp ist die Mitfahrbank.
 Dabei handelt es sich um Sitzbänke, an denen wartende Personen gezählt werden, um Mitfahrgelegenheiten zu koordinieren.
 
-Fuer oeffentliche Nutzer gibt es eine Landingpage und eine Public-User-Ansicht im Browser.
+Für öffentliche Nutzer gibt es eine Landingpage und eine Public-User-Ansicht im Browser.
 Die Landingpage stellt Projektinformationen, Team, Rechtslinks sowie Einstiegspunkte zu User/Admin bereit.
-Zusaetzlich bietet sie einen Android-Download-Button zur App.
+Zusätzlich bietet sie einen Android-Download-Button zur App.
 
 Administratoren mit erweiterten Rechten können Konten löschen.
 Dabei werden alle zugehörigen Daten kaskadierend entfernt.
@@ -38,23 +38,23 @@ Dabei werden alle zugehörigen Daten kaskadierend entfernt.
 ### Raspberry Pi 5 als technischer Integrations-Usecase
 
 Ein praxisnaher Beispiel-Usecase ist der Einsatz eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node fuer eine Gemeinde.
-Der Raspberry Pi 5 kann Sensordaten (z. B. Bodenfeuchte und Umweltdaten) erfassen, per MQTT an das Backend senden und sich ueber Discovery-Topics automatisch als Geraet registrieren.
+Der Raspberry Pi 5 kann Sensordaten (z. B. Bodenfeuchte und Umweltdaten) erfassen, per MQTT an das Backend senden und sich ueber Discovery-Topics automatisch als Gerät registrieren.
 
 Der technische Ablauf ist im Prozessdokument [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) beschrieben.
-Als projektnahe Quelle fuer Beispielcode und Konfiguration dient der Ordner `Raspberry PI/` im Repository.
-Der Usecase ist als uebertragbares Technikbeispiel zu verstehen, wie eine Gemeinde IoT-Sensorik strukturiert in die Plattform integriert.
+Als projektnahe Quelle für Beispielcode und Konfiguration dient der Ordner `Raspberry PI/` im Repository.
+Der Usecase ist als übertragbares Technikbeispiel zu verstehen, wie eine Gemeinde IoT-Sensorik strukturiert in die Plattform integriert.
 
-### Rostock-Kontext als Inspiration fuer Smart-Village
+### Rostock-Kontext als Inspiration für Smart-Village
 
-Die im Rostock-Kontext diskutierten Smart-City-Ansatzpunkte dienen als Inspirationsquelle fuer Smart-Village-Szenarien im laendlichen Raum.
+Die im Rostock-Kontext diskutierten Smart-City-Ansatzpunkte dienen als Inspirationsquelle für Smart-Village-Szenarien im ländlichen Raum.
 Relevante Muster sind insbesondere: dezentrale Datenerfassung, digitale Sichtbarkeit kommunaler Informationen und vernetzte Statuskommunikation.
 
-Weiterfuehrende Ressource: https://youtu.be/-ElfgOPmclA?si=9HY43XEayRAcq9en
+Weiterführende Ressource: https://youtu.be/-ElfgOPmclA?si=9HY43XEayRAcq9en
 
-### Usecase Antwort Staat (kommunale Rueckmeldung)
+### Usecase Antwort Staat (kommunale Rückmeldung)
 
-Neben der reinen Sensorik unterstuetzt die Plattform den Usecase, dass eine Gemeinde Informationen aktiv an Buerger bereitstellt und auf Rueckmeldungen reagiert.
-Typischer Ablauf: Kommune pflegt Inhalte (z. B. Hinweise, Statusmeldungen, Veranstaltungsinformationen) in den Verwaltungsoberflaechen, das Backend stellt diese strukturiert bereit, App/Website liefern die Inhalte in der jeweiligen Gemeindeansicht aus.
+Neben der reinen Sensorik unterstützt die Plattform den Usecase, dass eine Gemeinde Informationen aktiv an Bürger bereitstellt und auf Rückmeldungen reagiert.
+Typischer Ablauf: Kommune pflegt Inhalte (z. B. Hinweise, Statusmeldungen, Veranstaltungsinformationen) in den Verwaltungsoberflächen, das Backend stellt diese strukturiert bereit, App/Website liefern die Inhalte in der jeweiligen Gemeindeansicht aus.
 
 Fachlich wird dieser Ablauf auf Basis bestehender Begriffe modelliert (Konto, Gemeinde/Village, Status- und Informationstexte wie `Village.statusText` und `Village.infoText`).
 Details siehe [Use Case: Antwort Staat](prozesse/antwort-staat.md).
@@ -94,7 +94,7 @@ Das ORM Prisma verwaltet das Schema und die Migrationen.
 Ein Mosquitto-Broker empfängt Nachrichten von IoT-Geräten.
 Das Backend abonniert bestimmte Topics und verarbeitet die eingehenden Sensordaten.
 Über ein Discovery-Protokoll können sich neue Geräte automatisch anmelden.
-Zusaetzlich stellt Mosquitto einen WebSocket-Listener bereit, damit Browser-Clients MQTT-Daten direkt empfangen koennen.
+Zusätzlich stellt Mosquitto einen WebSocket-Listener bereit, damit Browser-Clients MQTT-Daten direkt empfangen können.
 
 **Reverse Proxy (Nginx):**
 Nginx dient als Einstiegspunkt für alle HTTP-Anfragen.
@@ -123,14 +123,14 @@ Das Backend validiert die Nachrichten und speichert die Daten in der Datenbank.
 
 Das Frontend fragt regelmäßig neue Daten ab (Polling alle 5 Sekunden).
 Neu entdeckte Geräte oder Sensoren werden dem Benutzer über eine Benachrichtigung angezeigt.
-Fuer Public-Daten werden Live-Messwerte zusaetzlich direkt per MQTT-WebSocket eingemischt.
+Fuer Public-Daten werden Live-Messwerte zusätzlich direkt per MQTT-WebSocket eingemischt.
 
 Sowohl mobile App als auch Public-Website verwenden die gleichen App-API-Kernendpunkte:
 - `GET /api/app/villages`
 - `GET /api/app/villages/:villageId/config`
 - `GET /api/app/villages/:villageId/initial-data`
 
-In der Public-Oberflaeche werden Tabs und Inhalte dynamisch aus den Village-Feature-Flags erzeugt.
+In der Public-Oberfläche werden Tabs und Inhalte dynamisch aus den Village-Feature-Flags erzeugt.
 Deaktivierte Module werden nicht angezeigt.
 
 ```

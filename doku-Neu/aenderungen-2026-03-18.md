@@ -1,13 +1,13 @@
-# Aenderungsprotokoll (Stand 2026-03-18)
+# Änderungsprotokoll (Stand 2026-03-18)
 
 Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten fuer Frontend, Backend und Betrieb.
 
 ## Ziel der Aufgabe
 
-- Abhaengigkeiten auf einen sehr aktuellen Stand bringen.
+- Abhängigkeiten auf einen sehr aktuellen Stand bringen.
 - Bekannte Sicherheitsrisiken (inkl. SQL- und Konfigurationsrisiken) reduzieren.
 - Gesamtsystem testen (lokal und per Docker Compose).
-- Aenderungen nachvollziehbar dokumentieren.
+- Änderungen nachvollziehbar dokumentieren.
 
 ## Paket- und Toolchain-Updates
 
@@ -63,7 +63,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
 - Strengere Validation-Pipe in `main.ts`:
   - `forbidNonWhitelisted: true`
   - `forbidUnknownValues: true`
-- Sensor-Endpoints haerten Query-Parameter:
+- Sensor-Endpoints härten Query-Parameter:
   - `limit` muss positive Ganzzahl sein und wird auf max. 5000 begrenzt.
   - `order` nur `asc|desc`.
   - Pflichtparameter (`from`, `to`, `bucket`) werden validiert.
@@ -74,8 +74,8 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
 - Neue zentrale Utility `jwt-secret.util.ts`:
   - Start bricht ab, wenn `JWT_SECRET` fehlt oder ein Platzhalter (`CHANGEME_*`) ist.
 - Admin-Login-Hardening umgesetzt:
-  - Fehlversuchszaehler (`ADMIN_MAX_LOGIN_ATTEMPTS`, Standard 5)
-  - Temporaere Sperre nach zu vielen Fehlversuchen (`ADMIN_LOCKOUT_TTL`, Standard 30m)
+  - Fehlversuchszähler (`ADMIN_MAX_LOGIN_ATTEMPTS`, Standard 5)
+  - Temporäre Sperre nach zu vielen Fehlversuchen (`ADMIN_LOCKOUT_TTL`, Standard 30m)
   - Single-Session fuer Admin-Accounts (parallelle Logins werden blockiert)
   - Session-TTL fuer Admin-Sessions (`ADMIN_SESSION_TTL`, Standard 30m)
   - Neuer Logout-Endpunkt (`POST /api/auth/logout`) zum aktiven Freigeben der Admin-Session
@@ -85,22 +85,22 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
 - Login-UI wertet neue Backend-Codes gezielt aus:
   - `ADMIN_ACCOUNT_LOCKED`
   - `ADMIN_SESSION_ACTIVE`
-- Bei beiden Faellen wird eine klare Benutzerhinweismeldung angezeigt statt generischer Fehlertexte.
-- Falls `lockedUntil` oder `activeUntil` vom Backend geliefert wird, zeigt die Login-Seite einen Live-Countdown (`mm:ss`) bis zum naechsten Login-Versuch.
-- Waehrend der Countdown laeuft, ist der Login-Button deaktiviert, um unnoetige Wiederholversuche zu vermeiden.
+- Bei beiden Fällen wird eine klare Benutzerhinweismeldung angezeigt statt generischer Fehlertexte.
+- Falls `lockedUntil` oder `activeUntil` vom Backend geliefert wird, zeigt die Login-Seite einen Live-Countdown (`mm:ss`) bis zum nächsten Login-Versuch.
+- Während der Countdown läuft, ist der Login-Button deaktiviert, um unnötige Wiederholversuche zu vermeiden.
 - Logout ruft jetzt serverseitig `POST /api/auth/logout` auf, damit eine aktive Admin-Session konsistent freigegeben wird.
 
 ### Admin Simulation Lab (neu)
 
 - Im Admin-Bereich gibt es jetzt ein integriertes Simulations-Labor fuer realistische Testdaten von Gateways und Sensoren.
-- Oeffnen auf jeder Admin-Seite moeglich:
+- Oeffnen auf jeder Admin-Seite möglich:
   - `Strg + Umschalt + S`
   - alternativ `Shift + Alt + Klick` auf den Titel `Smart Village Admin`.
 - Funktionsumfang:
   - globale Simulation an/aus,
   - Auto-Runner fuer kontinuierliche Werteerzeugung,
-  - Gateways anlegen, bearbeiten, loeschen und aktiv/inaktiv schalten,
-  - Sensoren anlegen, bearbeiten, loeschen und aktiv/inaktiv schalten,
+  - Gateways anlegen, bearbeiten, löschen und aktiv/inaktiv schalten,
+  - Sensoren anlegen, bearbeiten, löschen und aktiv/inaktiv schalten,
   - Namen, Typen, Koordinaten, Intervalle, Profile und Gateway-Zuordnung frei konfigurierbar,
   - Import aus aktueller Admin-Konfiguration,
   - Testwert-Simulation per Klick.
@@ -108,7 +108,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - `weather`: tageszeitliche Kurven + moderate Schwankung
   - `steady`: sehr ruhige Werte
   - `spiky`: gelegentliche Ausreisser
-  - `random`: stark zufaellige Verteilung
+  - `random`: stark zufällige Verteilung
 - Ausfallmodell integriert:
   - konfigurierbare Ausfall-Chance (%)
   - konfigurierbare Ausfall-Dauer (Sekunden)
@@ -118,7 +118,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - MQTT-Verbindungsstatus (online/offline) direkt in der Ansicht,
   - Auto-Discovery-Publish auf `sv/{accountId}/{deviceId}/config`,
   - Messwert-Publish auf `sv/{accountId}/{deviceId}/sensors/{sensorId}` bei jedem Simulations-Tick.
-- Live-Backend-Bestaetigung in der Sensorliste:
+- Live-Backend-Bestätigung in der Sensorliste:
   - periodischer API-Check der neuesten DB-Readings (`/api/sensor-readings/:sensorId`),
   - Status pro Sensor (`bestaetigt`, `warte auf Bestaetigung`, `noch keine Daten`, `Fehler`),
   - Anzeige einer gemessenen Publish-zu-DB-Latenz in Millisekunden bei erfolgreichem Match.
@@ -143,34 +143,34 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
 - Strikte Datenregel umgesetzt:
   - Das Modell bekommt nur einen serverseitig bereinigten, whitelisten Kontext aus vorhandenen API-Daten (`contextData`).
   - Keine frei erfundenen Werte erlaubt; fehlt etwas im Kontext, soll die Antwort explizit sagen, dass diese Information aktuell nicht verfuegbar ist.
-  - Admin-Kontext darf zusaetzliche technische Felder (z. B. Koordinaten/Device-Zuordnung) enthalten, User-Kontext bleibt auf Public-Daten beschraenkt.
-- User-Kontext enthaelt jetzt immer die aktiv ausgewaehlte Sprache (`locale`/`language`), damit Antworten konsistent in der UI-Sprache erfolgen.
-- Public-Endpoint haertet diese Regel serverseitig: `POST /api/assistant/public/ask` akzeptiert nur Requests mit gueltigem `contextData.locale` (`de|en|fr`), sonst `400 Bad Request`.
+  - Admin-Kontext darf zusätzliche technische Felder (z. B. Koordinaten/Device-Zuordnung) enthalten, User-Kontext bleibt auf Public-Daten beschränkt.
+- User-Kontext enthält jetzt immer die aktiv ausgewählte Sprache (`locale`/`language`), damit Antworten konsistent in der UI-Sprache erfolgen.
+- Public-Endpoint härtet diese Regel serverseitig: `POST /api/assistant/public/ask` akzeptiert nur Requests mit gueltigem `contextData.locale` (`de|en|fr`), sonst `400 Bad Request`.
 - Neuer Admin-Schalter pro Gemeinde: `KI-Hilfe (User)` in den Modul-Einstellungen.
   - Speichert in `VillageFeatures.enableUserAssistant`.
   - Wenn deaktiviert: User-Widget wird in der Public-UI nicht angezeigt und `POST /api/assistant/public/ask` liefert `403 Forbidden`.
-- Frontend-Widget nutzt jetzt die lokalen Assistant-Endpunkte und faellt bei Offline-Lokalmodell auf lokale Kontextanalyse mit Hinweistext zurueck.
+- Frontend-Widget nutzt jetzt die lokalen Assistant-Endpunkte und fällt bei Offline-Lokalmodell auf lokale Kontextanalyse mit Hinweistext zurueck.
 - Neue Backend-Umgebungsvariablen:
   - `LOCAL_LLM_ENABLED` (default: `true`)
   - `LOCAL_LLM_BASE_URL` (default: `http://ollama:11434`)
   - `LOCAL_LLM_MODEL` (default: `llama3.2:1b`)
   - `LOCAL_LLM_TIMEOUT_MS` (default: `12000`)
-- Betrieb jetzt direkt im Docker-Stack moeglich:
+- Betrieb jetzt direkt im Docker-Stack möglich:
   - Neuer Service `smartvillage-ollama` in `infra/docker-compose.yml`.
   - Modell-Pull einmalig per `docker exec smartvillage-ollama ollama pull llama3.2:1b`.
-- Stabilitaets-Fallback:
+- Stabilitäts-Fallback:
   - Wenn das LLM nicht erreichbar ist, liefert der Backend-Assistant automatisch eine einfache regelbasierte Antwort aus dem vorhandenen API-Kontext statt eines Hard-Errors.
 
 ### Startseite: Projekt-Carousel (neu)
 
-- Auf der Landingpage wurde ein vollstaendiges Projekt-Carousel integriert.
+- Auf der Landingpage wurde ein vollständiges Projekt-Carousel integriert.
 - Inhalt:
   - vier Slides fuer reale Projektbereiche (Sensor-Setup, Admin-Workflow, MQTT-Datenfluss, Community-Vorfuehrung),
   - Titel, Kategorie, Beschreibung und Schrittliste pro Slide,
   - Navigation mit Vor/Zurueck-Buttons und Dots,
   - Auto-Rotation (mit Respekt fuer `prefers-reduced-motion`),
   - responsive Layout fuer Desktop und Mobile.
-- Bilder liegen unter `website/public/project-gallery/*.svg` und koennen jederzeit durch echte Projektfotos ersetzt werden (gleiche Dateinamen behalten oder in `LandingPage.jsx` anpassen).
+- Bilder liegen unter `website/public/project-gallery/*.svg` und können jederzeit durch echte Projektfotos ersetzt werden (gleiche Dateinamen behalten oder in `LandingPage.jsx` anpassen).
 
 #### E2E-Abhakcheck: Admin schaltet User-KI aus/an
 
@@ -178,7 +178,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - Als Admin anmelden.
   - In den Admin-Bereich wechseln: `Module` -> Schalter `KI-Hilfe (User)` auf **AN** setzen und speichern.
 2. **User-UI bei AN pruefen**
-  - User-Seite oeffnen.
+  - User-Seite öffnen.
   - Erwartung: KI-Launcher ist sichtbar.
 3. **Public-API bei AN pruefen**
   - `POST /api/assistant/public/ask` mit gueltigem `contextData` (`locale`, `villageId`) senden.
@@ -193,7 +193,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - Erwartung: `403 Forbidden` (`User assistant is disabled by village admin`).
 7. **Regression Sprachkontext pruefen**
   - Bei aktivierter User-KI (`AN`) Anfragen mit `locale=de|en|fr` senden.
-  - Erwartung: Antworten folgen der ausgewaehlten Sprache; fehlendes/ungueltiges `locale` ergibt `400 Bad Request`.
+  - Erwartung: Antworten folgen der ausgewählten Sprache; fehlendes/ungueltiges `locale` ergibt `400 Bad Request`.
 
 ### Sicherheitsvorfall-Logging
 
@@ -205,7 +205,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - `ADMIN_SESSION_BLOCKED`
   - `SESSION_REJECTED`
   - `LOGOUT`
-- Laufzeitverifikation zeigt die protokollierten Vorfaelle mit IP/User-Agent fuer nachtraegliche Sicherheitsanalyse.
+- Laufzeitverifikation zeigt die protokollierten Vorfälle mit IP/User-Agent fuer nachträgliche Sicherheitsanalyse.
 
 ### Incident-Retention (Betrieb)
 
@@ -213,7 +213,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - `backend/scripts/security-incident-retention.js`
 - Dry-Run (Standard):
   - `npm run security:incidents:prune`
-- Effektive Loeschung:
+- Effektive Löschung:
   - `npm run security:incidents:prune -- 90 --apply`
 - Retention-Tage sind konfigurierbar:
   - CLI-Parameter (z. B. `90`) oder Env `SECURITY_INCIDENT_RETENTION_DAYS`.
@@ -222,7 +222,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
 
 - Backend setzt jetzt `helmet()` fuer Sicherheitsheader.
 - CORS wurde von `origin: true` auf explizite Origin-Liste umgestellt (aus `FRONTEND_URL`, fallback localhost).
-- Nginx bekam zusaetzliche Header:
+- Nginx bekam zusätzliche Header:
   - `X-Frame-Options: SAMEORIGIN`
   - `X-Content-Type-Options: nosniff`
   - `Referrer-Policy: strict-origin-when-cross-origin`
@@ -253,7 +253,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - API: max. 100 parallele Verbindungen
   - Login: max. 20 parallele Verbindungen
   - MQTT-WebSocket: max. 20 parallele Verbindungen
-- Harte Limit-Antworten als `429` statt unkontrollierter Backend-Ueberlastung.
+- Harte Limit-Antworten als `429` statt unkontrollierter Backend-Überlastung.
 - Proxy-Timeouts gesetzt (`connect/send/read`) fuer schnellere Entlastung bei problematischen Upstreams.
 
 ### Mega Smoke/Load Test (gestuft)
@@ -284,8 +284,8 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
 
 ### Kernerkenntnisse (kurz)
 
-- Vor Hardening war ein technischer Bruch bei sehr hoher Last sichtbar (`502` bei `/api/health` auf hoher Concurrency), d. h. Backend/Proxy liefen in Ueberlast statt sauberem Backpressure.
-- Nach Hardening reagiert das System unter Flood mit kontrollierten `429` (Rate-Limit), waehrend der Backend-Write-Pfad stabil blieb (keine 5xx im Write-Test).
+- Vor Hardening war ein technischer Bruch bei sehr hoher Last sichtbar (`502` bei `/api/health` auf hoher Concurrency), d. h. Backend/Proxy liefen in Überlast statt sauberem Backpressure.
+- Nach Hardening reagiert das System unter Flood mit kontrollierten `429` (Rate-Limit), während der Backend-Write-Pfad stabil blieb (keine 5xx im Write-Test).
 - DB-Write-Pfad zeigte auch unter hoher Last weiterhin sehr gute Latenzen (P95 deutlich unter 100 ms in den getesteten Stufen).
 
 ### Soak-Test (900s) - Detailauswertung
@@ -301,7 +301,7 @@ Dieses Dokument erfasst die umgesetzten Sicherheits- und Modernisierungsarbeiten
   - p95: 722,1 ms
   - p99: 1310,5 ms
 - Fehlerquote gesamt: 5,95%
-  - Ursache nahezu ausschliesslich Login-Rate-Limit (`/api/auth/login`), nicht Backend-Instabilitaet.
+  - Ursache nahezu ausschliesslich Login-Rate-Limit (`/api/auth/login`), nicht Backend-Instabilität.
 
 Route-Sicht (aus dem Soak-Report):
 
@@ -312,7 +312,7 @@ Route-Sicht (aus dem Soak-Report):
   - 60,02% Fehlerquote, aber ausschliesslich als kontrollierte `429`
   - Zielerfuellung: brute-force/flood wird aktiv ausgebremst.
 
-### DB-Delta waehrend Soak
+### DB-Delta während Soak
 
 Aus `pg_stat_database` (vorher/nachher):
 
@@ -331,13 +331,13 @@ Interpretation:
 - Hohe Puffer-Trefferquote (`blks_hit` sehr hoch, `blks_read` gering) zeigt, dass die DB primär aus Cache bediente.
 - Keine Rollbacks und keine 5xx deuten auf stabile Transaktionsverarbeitung unter Dauerlast.
 
-### Kapazitaetseinschaetzung (aktueller Stand)
+### Kapazitätseinschätzung (aktueller Stand)
 
 - Fuer normale Nutzerlast (ohne Login-Flood) ist der Stack in den Tests stabil und performant.
 - Das aktuell limitierende Element unter extremer Ein-Quell-Last ist bewusst das Edge-Throttling auf Login.
 - Praktische Empfehlung fuer die Studienarbeit:
   - Produktionsnahe Aussage: "Mehrere hundert Requests/s bei stabilen API-Pfaden ohne 5xx, mit kontrolliertem Backpressure via 429 auf sensitiven Endpunkten."
-  - Gleichzeitige aktive Nutzer (grobe Daumenregel bei Polling-/API-Mix): ca. 150-300 aktive Sessions auf einem vergleichbaren Hostprofil, bevor p95 fuer read-lastige Pfade in den deutlich hoeheren dreistelligen ms-Bereich wandert.
+  - Gleichzeitige aktive Nutzer (grobe Daumenregel bei Polling-/API-Mix): ca. 150-300 aktive Sessions auf einem vergleichbaren Hostprofil, bevor p95 fuer read-lastige Pfade in den deutlich höheren dreistelligen ms-Bereich wandert.
   - Login-heavy Peaks werden frueh limitiert (sicherheitsseitig gewollt).
 
 ### Ressourcen- und DB-Snapshot nach Lastlauf
@@ -346,7 +346,7 @@ Interpretation:
   - Backend ca. 54 MiB RAM
   - Nginx ca. 20 MiB RAM
   - Postgres ca. 199 MiB RAM
-- PostgreSQL Aktivitaetszaehler (`pg_stat_database`) zeigen hohe Commit-Last ohne Rollbacks waehrend der Testreihen.
+- PostgreSQL Aktivitätszähler (`pg_stat_database`) zeigen hohe Commit-Last ohne Rollbacks während der Testreihen.
 
 ### Interpretation fuer Produktivbetrieb
 
@@ -364,12 +364,12 @@ Interpretation:
 
 - Backend Build: erfolgreich.
 - Backend Tests: `19/19` Test-Suites erfolgreich (`110/110` Tests).
-- Website Build: erfolgreich (Hinweis auf grosse Chunk-Groesse, kein Fehler).
+- Website Build: erfolgreich (Hinweis auf grosse Chunk-Grösse, kein Fehler).
 - Website Tests: `2/2` Testfiles erfolgreich (`7/7` Tests).
 
-### Vollstaendiger Smoke-Test (Containerlaufzeit)
+### Vollständiger Smoke-Test (Containerlaufzeit)
 
-- Docker-Stack stabil waehrend und nach den Smokes:
+- Docker-Stack stabil während und nach den Smokes:
   - `smartvillage-postgres` healthy
   - `smartvillage-backend` healthy
   - `smartvillage-nginx` healthy
@@ -379,7 +379,7 @@ Interpretation:
   - `GET https://localhost/` -> `200`
   - `GET https://localhost/api/health` -> `200`
   - `GET http://localhost:8000/api/health` -> `200`
-  - Auth-Flow mit Seed-User (`freiburg@smart-village.local`) erfolgreich: Login, `/api/auth/me`, Sensor erstellen, Messwerte schreiben/lesen, Sensor loeschen
+  - Auth-Flow mit Seed-User (`freiburg@smart-village.local`) erfolgreich: Login, `/api/auth/me`, Sensor erstellen, Messwerte schreiben/lesen, Sensor löschen
   - App-API erfolgreich: `/api/app/villages`, `/api/app/villages/:id/config`, `/api/app/villages/:id/initial-data`
   - Mobile-API erfolgreich: `/api/mobile-api/villages`, Detail, Sensoren, Messages, Rideshares, Message-Create
 - Negativ-Smokes erfolgreich abgefangen:
@@ -402,12 +402,12 @@ Interpretation:
 ### Security Scans
 
 - Website: `npm audit` ohne offene Findings.
-- Backend: verbleibend `6 moderate` Findings aus CLI/Schematics-Transitivabhhaengigkeiten (`@nestjs/cli` / Angular Devkit). Keine High/Critical Findings mehr.
+- Backend: verbleibend `6 moderate` Findings aus CLI/Schematics-Transitivabhhängigkeiten (`@nestjs/cli` / Angular Devkit). Keine High/Critical Findings mehr.
 
 ## Docker Compose Status
 
 - Nach Start von Docker Desktop wurde der Endtest erfolgreich ausgefuehrt.
-- `docker compose up -d --build` laeuft sauber durch.
+- `docker compose up -d --build` läuft sauber durch.
 - Alle Services sind danach `healthy`/`up`:
   - `smartvillage-postgres` healthy
   - `smartvillage-backend` healthy
