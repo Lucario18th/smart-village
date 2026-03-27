@@ -3,16 +3,16 @@
 ## Zweck dieses Dokuments
 
 Dieses Dokument beschreibt die neue App-API-Schicht des Smart-Village-Backends.
-Die App-API stellt REST-Endpunkte bereit, ueber die mobile App und Website Daten empfangen.
+Die App-API stellt REST-Endpunkte bereit, über die mobile App und Website Daten empfangen.
 Sie ist unabhängig von der bestehenden Mobile API (`/mobile-api/`) und ersetzt diese nicht.
 
 ## Architekturübersicht
 
-Mobile App und Website kommunizieren mit dem Backend ueber die REST-App-API und aktualisieren Daten in festen Polling-Intervallen.
+Mobile App und Website kommunizieren mit dem Backend über die REST-App-API und aktualisieren Daten in festen Polling-Intervallen.
 
 Wichtige Pfadkonvention:
 - Im Backend ist der Controller unter `@Controller('app')` registriert.
-- Extern sind die Endpunkte ueber den API-Prefix erreichbar: `/api/app/...`.
+- Extern sind die Endpunkte über den API-Prefix erreichbar: `/api/app/...`.
 
 Wichtig: Die App-API liefert nur Gemeinden, deren Account die Freigabe `isPublicAppApiEnabled = true` gesetzt hat.
 Private oder nicht freigegebene Accounts tauchen in `/api/app/villages` nicht auf und ihre Dorf-Endpunkte liefern `404`.
@@ -56,7 +56,7 @@ Vorteile:
 - Die App zeigt nur relevante Inhalte an.
 
 Zusatzlich liefert die App-API pro Gemeinde einen frei pflegbaren Statustext (`statusText`) und einen Informationstext (`infoText`).
-Beide Felder koennen im Adminbereich gepflegt werden und werden an Public-/App-Clients durchgereicht.
+Beide Felder können im Adminbereich gepflegt werden und werden an Public-/App-Clients durchgereicht.
 
 ## Datenmodell-Erweiterungen
 
@@ -316,7 +316,7 @@ Aktuell im App-Client verwendet:
 | `/api/app/village/{villageId}/sensors/#` | Sensordaten-Updates fuer die App |
 
 Hinweis:
-- Weitere App-Topics koennen kuenftig eingefuehrt werden.
+- Weitere App-Topics können kuenftig eingefuehrt werden.
 - In der aktuellen Version ist im produktiven Datenfluss der Sensor-Topic relevant.
 
 ### Publishing-Regeln

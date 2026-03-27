@@ -30,7 +30,7 @@ Gleichzeitig wird automatisch eine Gemeinde für dieses Konto erstellt.
 - `postalCodeId` (Int, erforderlich) – ID der Postleitzahl
 - `villageName` (String, optional) – Name der Gemeinde
 - `accountType` (Enum, optional) – `MUNICIPAL` oder `PRIVATE`
-- `isPublicAppApiEnabled` (Boolean, optional) – darf die Gemeinde in der oeffentlichen App-API erscheinen
+- `isPublicAppApiEnabled` (Boolean, optional) – darf die Gemeinde in der öffentlichen App-API erscheinen
 
 **Ablauf:**
 1. Die E-Mail wird auf Eindeutigkeit geprüft.
@@ -129,13 +129,13 @@ Wird für administrative Endpunkte verwendet (z. B. `DELETE /api/admin/accounts/
 
 ## Account-Einstellungen
 
-Mit `POST /api/auth/account-settings` kann ein eingeloggter Account den Typ und die Freigabe fuer die oeffentliche App-API anpassen.
+Mit `POST /api/auth/account-settings` kann ein eingeloggter Account den Typ und die Freigabe fuer die öffentliche App-API anpassen.
 
 **Eingabe:**
 - `accountType` (`MUNICIPAL` | `PRIVATE`)
 - `isPublicAppApiEnabled` (Boolean)
 
-Diese Einstellungen wirken sich direkt auf die Auslieferung der oeffentlichen App-API (`/api/app/...`) aus.
+Diese Einstellungen wirken sich direkt auf die Auslieferung der öffentlichen App-API (`/api/app/...`) aus.
 
 ## E-Mail-Versand
 

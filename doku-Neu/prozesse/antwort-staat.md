@@ -3,13 +3,13 @@
 ## Ziel dieses Abschnitts
 
 Dieser Abschnitt dokumentiert den Stand der kommunalen Rueckmeldungen zur Studienarbeit.
-Der Fokus liegt auf den Kontaktversuchen und den tatsaechlich eingegangenen Antworten.
+Der Fokus liegt auf den Kontaktversuchen und den tatsächlich eingegangenen Antworten.
 
 ## Kontaktierte Orte
 
 Im Rahmen der Projektarbeit wurden folgende fuenf Kommunen angeschrieben, um Informationen zu vergleichbaren Smart-City-/Smart-Village-Usecases (u. a. im Kontext der Rostock-Besprechung) zu erhalten:
 
-- Stadt Loerrach - info@loerrach.de
+- Stadt Lörrach - info@loerrach.de
 - Stadt Rheinfelden (Baden) - info@rheinfelden-baden.de
 - Stadt Weil am Rhein - stadt@weil-am-rhein.de
 - Gemeinde Ruemmingen - gemeinde@ruemmingen.de

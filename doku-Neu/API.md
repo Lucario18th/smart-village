@@ -3,13 +3,13 @@
 Dieses Dokument ist die kompakte API-Einstiegsseite.
 
 Verbindliche Detailreferenzen:
-- Vollstaendige Endpunktliste: `doku-Neu/api/endpunkte.md`
+- Vollständige Endpunktliste: `doku-Neu/api/endpunkte.md`
 - App-API (Website + App): `doku-Neu/backend/app-api.md`
 
 ## Basis und Routing
 
 - Direkter Backend-Zugriff: `https://localhost:8000`
-- Ueber Nginx (empfohlen im Compose-Setup): `https://localhost`
+- Über Nginx (empfohlen im Compose-Setup): `https://localhost`
 - API-Prefix: `/api`
 - App-API-Prefix: `/api/app`
 
@@ -34,7 +34,7 @@ Verbindliche Detailreferenzen:
 
 1. Website Public-User (`/user`)
 - Nutzt die App-API-Endpunkte unter `/api/app/...`
-- Polling fuer Public-Daten standardmaessig alle 5 Sekunden
+- Polling für Public-Daten standardmässig alle 5 Sekunden
 
 2. Mobile App
 - Nutzt dieselben Kernendpunkte unter `/api/app/...`
@@ -42,12 +42,12 @@ Verbindliche Detailreferenzen:
   - `app/SmartVillageApp/composeApp/src/commonMain/kotlin/de/tif23/studienarbeit/model/constants/Url.kt`
 
 3. Website Admin (`/admin`)
-- Nutzt geschuetzte Endpunkte unter `/api/...` mit JWT
+- Nutzt geschützte Endpunkte unter `/api/...` mit JWT
 
 ## Wichtiger Hinweis zur Mobile API
 
-Die alte Mobile API unter `/mobile-api/` ist bewusst nicht Bestandteil dieser Doku, da sie kuenftig neu gestaltet wird.
+Die alte Mobile API unter `/mobile-api/` ist bewusst nicht Bestandteil dieser Doku, da sie künftig neu gestaltet wird.
 
-## Letzte fachliche Aenderungen
+## Letzte fachliche Änderungen
 
 Siehe `doku-Neu/aenderungen-2026-03-17.md`.

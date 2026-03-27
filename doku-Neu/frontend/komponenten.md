@@ -123,7 +123,7 @@ Die Modul-Schalter sind direkt mit den VillageFeatures-Flags im Backend verknuep
 Beim Laden werden die aktuellen Flags ueber `GET /api/villages/:id/features` abgerufen.
 Beim Speichern werden alle Flags ueber `PATCH /api/villages/:id/features` aktualisiert.
 
-Unter dem Sensordaten-Modul gibt es vier zusaetzliche Schalter fuer die Sensordetail-Sichtbarkeit:
+Unter dem Sensordaten-Modul gibt es vier zusätzliche Schalter fuer die Sensordetail-Sichtbarkeit:
 - Name (showSensorName)
 - Typ (showSensorType)
 - Beschreibung (showSensorDescription)

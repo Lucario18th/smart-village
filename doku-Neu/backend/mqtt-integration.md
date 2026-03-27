@@ -151,7 +151,7 @@ Dieser Prozess ermöglicht es IoT-Geräten, sich automatisch beim System anzumel
 3. Das Backend prüft, ob Gerät `weather-01` existiert und zu einer Gemeinde von Account 1 gehört.
 4. Das Backend prüft, ob Sensor 5 zu diesem Gerät gehört.
 5. Der Messwert wird in der Tabelle `SensorReading` gespeichert.
-6. Im Frontend wird der neue Messwert entweder beim naechsten Polling-Zyklus angezeigt oder sofort ueber die WebSocket-MQTT-Verbindung aktualisiert.
+6. Im Frontend wird der neue Messwert entweder beim nächsten Polling-Zyklus angezeigt oder sofort ueber die WebSocket-MQTT-Verbindung aktualisiert.
 
 ## Entwurfsentscheidungen
 

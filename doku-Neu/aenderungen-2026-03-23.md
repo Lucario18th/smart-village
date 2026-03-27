@@ -1,4 +1,4 @@
-# Aenderungsprotokoll (Stand 2026-03-23)
+# Änderungsprotokoll (Stand 2026-03-23)
 
 Dieses Dokument erfasst die heute vorgenommenen Dokumentationserweiterungen.
 
@@ -23,7 +23,7 @@ Dieses Dokument erfasst die heute vorgenommenen Dokumentationserweiterungen.
   - Abschnitt zur Standard-Server-Instanz und zu Standard-Entwicklungszugang hinzugefuegt.
 
 - `doku-Neu/uebersicht.md`
-  - Abschnitt "Beispiel-Usecases" ergaenzt (Raspberry Pi 5, Rostock-Bezug).
+  - Abschnitt "Beispiel-Usecases" ergänzt (Raspberry Pi 5, Rostock-Bezug).
   - Usecase "Antwort Staat" zusammengefasst.
   - Verweis auf den Studienkontext zu Kommunen aufgenommen.
 
@@ -31,8 +31,8 @@ Dieses Dokument erfasst die heute vorgenommenen Dokumentationserweiterungen.
   - Standard-Server-Instanz und erreichbare Endpunkte/Ports konkretisiert.
   - Standard-Entwicklungsaccount mit Sicherheitswarnung und Erzeugungsschritten dokumentiert.
 
-## Qualitaetsziel
+## Qualitätsziel
 
-- Begriffe gemaess Begriffsverzeichnis verwendet (u. a. Konto/Account, Gemeinde/Village, Sensor, Geraet, SensorReading).
+- Begriffe gemäss Begriffsverzeichnis verwendet (u. a. Konto/Account, Gemeinde/Village, Sensor, Gerät, SensorReading).
 - Interne Links relativ gehalten.
 - Sprache technisch-neutral und in deutscher Fassung konsistent gehalten.

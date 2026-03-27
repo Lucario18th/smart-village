@@ -9,31 +9,26 @@ Alle Dokumente sind in deutscher Sprache verfasst.
 
 Die Dokumentation bildet den folgenden, bereits implementierten Funktionsstand ab:
 
-- Backend- und Website-Abhaengigkeiten wurden umfassend auf aktuelle Versionen angehoben (u. a. Nest 11, React 19, Vite 8).
-- Sicherheits-Hardening umgesetzt: sichere SQL-Ausfuehrung ohne `$queryRawUnsafe`, strengere Request-Validierung, Helmet, restriktiveres CORS, sichere JWT-Secret-Erzwingung.
+- Backend- und Website-Abhängigkeiten wurden umfassend auf aktuelle Versionen angehoben (u. a. Nest 11, React 19, Vite 8).
+- Sicherheits-Hardening umgesetzt: sichere SQL-Ausführung ohne `$queryRawUnsafe`, strengere Request-Validierung, Helmet, restriktiveres CORS, sichere JWT-Secret-Erzwingung.
 - Nginx-Sicherheitsheader wurden erweitert (HSTS, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy).
 - Container-Hardening umgesetzt (Backend-Image mit `npm ci`, `--omit=dev`, Non-Root-User).
 - Offene produktive Geheimnisse in `infra/smartvillage.env` durch Platzhalter ersetzt.
 - Lokale Verifikation erfolgreich: Backend- und Website-Build sowie Tests laufen grün.
 - Docker-Compose-Endtest ist vorbereitet, auf diesem Host aber blockiert solange Docker Desktop/Daemon nicht gestartet ist.
 
-- Sensorfreigabe fuer App/Public erfolgt ueber `Sensor.exposeToApp` (nicht ueber `isActive`).
+- Sensorfreigabe für App/Public erfolgt über `Sensor.exposeToApp` (nicht über `isActive`).
 - Sensoren werden nach ca. 60 Sekunden ohne neue Messwerte als `dataStale` gekennzeichnet.
-- Gemeinde-Status kann als `Village.statusText` persistiert und ueber API/App-API ausgeliefert werden.
+- Gemeinde-Status kann als `Village.statusText` persistiert und über API/App-API ausgeliefert werden.
 - Public-Ansichten verwenden modulbasierte Sichtbarkeit (Feature-Flags), ohne deaktivierte Platzhalter.
-- Website und App aktualisieren Nutzdaten einheitlich ueber Polling auf der App-API (`/api/app/...`).
-- Kartenfilter im Adminbereich werden pro Nutzer/Gemeinde in der Session persistiert und nicht durch Polling zurueckgesetzt.
+- Website und App aktualisieren Nutzdaten einheitlich über Polling auf der App-API (`/api/app/...`).
+- Kartenfilter im Adminbereich werden pro Nutzer/Gemeinde in der Session persistiert und nicht durch Polling zurückgesetzt.
 - Oeffentliche Startseite (`/`) ist als Projekt-Landingpage mit Team-, Rechts- und Projektinformationen umgesetzt.
 - Public-User-Dashboard ist unter `/user` erreichbar; Admin bleibt unter `/admin`.
 - Navigation ist wechselseitig verlinkt: Landingpage <-> User <-> Admin.
 - Darkmode ist systemweit als Standard gesetzt (Website-Initialzustand, Theme-Fallback, Default-Konfiguration).
-- Android-Download-Button auf der Landingpage fuehrt zum konfigurierbaren App-Link (`VITE_ANDROID_APP_URL`) mit Play-Store-Fallback.
+- Android-Download-Button auf der Landingpage führt zum konfigurierbaren App-Link (`VITE_ANDROID_APP_URL`) mit Play-Store-Fallback.
 - Teamdaten und Projektbetreuung sind auf der Landingpage gepflegt (Leon Kühn, Nico Röcker, Manuel Keßler, Alexander Shimaylo; Betreuung: Herr Schenk).
-
-## Hinweis zur Mobile API
-
-Die Mobile API (`/mobile-api/`) wird in dieser Dokumentation bewusst nicht behandelt.
-Sie wird in naher Zukunft vollständig neu gestaltet. Vorhandener Code und bestehende Dokumente zur Mobile API sind daher als veraltet zu betrachten und hier nicht aufgeführt.
 
 ## Dokumentationsstruktur
 
@@ -43,7 +38,7 @@ Die Dokumentation ist in folgende Bereiche aufgeteilt:
 docs/
 ├── README.md                              ← Dieses Dokument (Navigation)
 ├── aenderungen-2026-03-18.md              ← Letzte umgesetzte Änderungen (aktueller Snapshot)
-├── aenderungen-2026-03-15.md              ← Aelterer Snapshot
+├── aenderungen-2026-03-15.md              ← Älterer Snapshot
 ├── aenderungen-2026-03-17.md              ← Vorheriger Snapshot
 ├── uebersicht.md                          ← Projektübersicht
 ├── architektur/
@@ -63,6 +58,11 @@ docs/
 │   ├── uebersicht.md                      ← Frontend-Architektur
 │   ├── komponenten.md                     ← React-Komponentenstruktur
 │   └── api-anbindung.md                   ← API-Client und Hooks
+├── app/
+│   ├── uebersicht.md                      ← App-Übersicht und Systemarchitektur
+│   ├── architektur-entscheidungen.md      ← Architekturentscheidungen der App
+│   ├── api-anbindungen.md                 ← API-Client und Backend-Kommunikation
+│   └── walkthrough.md                     ← Walkthrough der App-Ansichten
 ├── api/
 │   └── endpunkte.md                       ← REST-API-Endpunkte-Referenz
 ├── betrieb/
@@ -79,35 +79,42 @@ docs/
 
 ## Verzeichnis der Dokumente
 
-| Dokument | Beschreibung |
-|----------|-------------|
-| [Aenderungsprotokoll 2026-03-18](aenderungen-2026-03-18.md) | Security- und Versionsupdate ueber Backend, Frontend und Infrastruktur inkl. Test- und Audit-Ergebnisse. |
-| [Aenderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration. |
-| [Aenderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen. |
-| [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten. |
-| [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten. |
-| [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk. |
-| [Datenmodell](architektur/datenmodell.md) | Datenbankschema mit allen Entitäten, Feldern und Beziehungen. |
-| [Authentifizierung](backend/authentifizierung.md) | JWT-basierte Authentifizierung, E-Mail-Verifizierung und Guards. |
-| [Gemeindeverwaltung](backend/gemeinden.md) | Verwaltung von Gemeindedaten (Villages). |
-| [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte. |
-| [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller). |
-| [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung. |
-| [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert). |
-| [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen. |
-| [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche. |
-| [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite. |
-| [Komponentenstruktur](frontend/komponenten.md) | Alle React-Komponenten und ihre Aufgaben. |
-| [API-Anbindung](frontend/api-anbindung.md) | API-Client, Hooks und Zustandsverwaltung im Frontend. |
-| [API-Endpunkte](api/endpunkte.md) | Vollständige Referenz aller REST-Endpunkte (ohne Mobile API). |
-| [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker. |
-| [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise. |
-| [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung. |
-| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden. |
-| [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT. |
-| [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) | Beispielhafter End-to-End-Usecase fuer die Integration eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node. |
+| Dokument | Beschreibung                                                                                                      |
+|----------|-------------------------------------------------------------------------------------------------------------------|
+| [Änderungsprotokoll 2026-03-27](aenderungen-2026-03-27.md) | Hinzufügen der Dokumentation für die App, sowie kleinere Korrekturen.                                             |
+| [Änderungsprotokoll 2026-03-23](aenderungen-2026-03-23.md) | Prozessdokumente für Raspberry Pi Usecase, kommunale Rückmeldung und Studienkontext Kommunen hinzugefügt.         |
+| [Änderungsprotokoll 2026-03-18](aenderungen-2026-03-18.md) | Security- und Versionsupdate ueber Backend, Frontend und Infrastruktur inkl. Test- und Audit-Ergebnisse.          |
+| [Änderungsprotokoll 2026-03-17](aenderungen-2026-03-17.md) | Kompakte Liste der zuletzt umgesetzten Änderungen über Backend, Frontend, Routing, UI und App-Integration.        |
+| [Änderungsprotokoll 2026-03-15](aenderungen-2026-03-15.md) | Vorheriger Snapshot der umgesetzten Änderungen.                                                                   |
+| [Projektübersicht](uebersicht.md) | Was das Projekt ist, welche Anwendungsfälle es gibt und wie die Hauptkomponenten zusammenarbeiten.                |
+| [Systemarchitektur](architektur/system-uebersicht.md) | Überblick über die Architektur mit Modulen, Schichten und Abhängigkeiten.                                         |
+| [Infrastruktur](architektur/infrastruktur.md) | Docker-Compose-Setup, Nginx-Konfiguration und Netzwerk.                                                           |
+| [Datenmodell](architektur/datenmodell.md) | Datenbankschema mit allen Entitäten, Feldern und Beziehungen.                                                     |
+| [Authentifizierung](backend/authentifizierung.md) | JWT-basierte Authentifizierung, E-Mail-Verifizierung und Guards.                                                  |
+| [Gemeindeverwaltung](backend/gemeinden.md) | Verwaltung von Gemeindedaten (Villages).                                                                          |
+| [Sensorverwaltung](backend/sensoren.md) | CRUD-Operationen für Sensoren, Sensortypen und Messwerte.                                                         |
+| [Geräteverwaltung](backend/geraete.md) | Verwaltung von IoT-Geräten (Devices/Controller).                                                                  |
+| [MQTT-Integration](backend/mqtt-integration.md) | Echtzeitdaten-Empfang über MQTT und automatische Geräteerkennung.                                                 |
+| [App-API](backend/app-api.md) | REST-Endpunkte fuer Website und mobile App (Polling-basiert).                                                     |
+| [Admin-Modul](backend/admin-verwaltung.md) | Admin-Funktionen wie Kontolöschung mit kaskadierendem Löschen.                                                    |
+| [Standortsuche](backend/standortsuche.md) | Postleitzahl- und Ortssuche.                                                                                      |
+| [Frontend-Übersicht](frontend/uebersicht.md) | Aufbau des React-Frontends mit Vite.                                                                              |
+| [Komponentenstruktur](frontend/komponenten.md) | Alle React-Komponenten und ihre Aufgaben.                                                                         |
+| [API-Anbindung](frontend/api-anbindung.md) | API-Client, Hooks und Zustandsverwaltung im Frontend.                                                             |
+| [App-Übersicht](app/uebersicht.md) | Systemarchitektur, Ordnerstruktur und verwendete Technologien der App.                                            |
+| [App-Architektur](app/architektur-entscheidungen.md) | Begruendung von zentralen Design- und Architekturentscheidungen der App.                                          |
+| [App-API-Anbindungen](app/api-anbindungen.md) | Beschreibung der API-Clients, DTOs und Polling-Mechanismen der App.                                               |
+| [App-Walkthrough](app/walkthrough.md) | Rundgang durch die visuellen Ansichten der App inkl. Screenshots.                                                 |
+| [API-Endpunkte](api/endpunkte.md) | Vollständige Referenz aller REST-Endpunkte (ohne Mobile API).                                                     |
+| [Deployment](betrieb/deployment.md) | Anleitung zum Starten und Betreiben des Systems mit Docker.                                                       |
+| [Sicherheit](betrieb/sicherheit.md) | Sicherheitsmaßnahmen, VPN-Konzept und Produktionshinweise.                                                        |
+| [Registrierung und Login](prozesse/registrierung-und-login.md) | Ablauf der Benutzerregistrierung und Anmeldung.                                                                   |
+| [Sensor-Datenfluss](prozesse/sensor-datenfluss.md) | Wie Sensordaten in Backend und Clients ueber REST/Polling bereitgestellt werden.                                  |
+| [Auto-Discovery](prozesse/auto-discovery.md) | Automatische Erkennung neuer Geräte und Sensoren über MQTT.                                                       |
+| [Use Case: Raspberry Pi 5](prozesse/use-case-raspberry-pi5.md) | Beispielhafter End-to-End-Usecase fuer die Integration eines Raspberry Pi 5 als IoT-Gateway und Sensor-Node.      |
 | [Use Case: Antwort Staat](prozesse/antwort-staat.md) | Typischer Ablauf, wie eine Gemeinde Informationen und Rueckmeldungen an Buerger ueber die Plattform bereitstellt. |
-| [Studienkontext Kommunen](prozesse/studienkontext-kommunen.md) | Dokumentation der Kontaktversuche mit Kommunen und der Rueckmeldesituation im Projektzeitraum. |
+| [Studienkontext Kommunen](prozesse/studienkontext-kommunen.md) | Dokumentation der Kontaktversuche mit Kommunen und der Rueckmeldesituation im Projektzeitraum.                    |
+| [Abgabe Semester 5](abgabe-semester-5/) | Dokumentation der Abgabe des 5. Semesters: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase.              |
 
 ## Zuordnung bestehender Dokumente
 
@@ -180,13 +187,13 @@ Empfohlener Team-Standard fuer lokale Entwicklung/Tests:
 - Standard-Login (E-Mail): `dev-admin@smart-village.local`
 - Standard-Passwort: `DevOnly-SmartVillage-2026!`
 
-Wichtiger Hinweis: Diese Zugangsdaten sind ausschließlich fuer lokale Entwicklung und Tests vorgesehen. In produktiven Umgebungen muessen solche Testkonten deaktiviert oder entfernt werden, und Passwoerter sind zwingend zu aendern.
+Wichtiger Hinweis: Diese Zugangsdaten sind ausschließlich fuer lokale Entwicklung und Tests vorgesehen. In produktiven Umgebungen muessen solche Testkonten deaktiviert oder entfernt werden, und Passwörter sind zwingend zu ändern.
 
 Anlage des Accounts (wenn noch nicht vorhanden):
 
 1. Frontend unter `https://localhost` aufrufen.
-2. Ueber den Registrierungsprozess ein Konto mit obiger E-Mail anlegen.
-3. Verifizierungscode in MailHog (`http://localhost:8025`) abrufen und bestaetigen.
+2. Über den Registrierungsprozess ein Konto mit obiger E-Mail anlegen.
+3. Verifizierungscode in MailHog (`http://localhost:8025`) abrufen und bestätigen.
 4. Anschliessend normal ueber Login anmelden.
 
 Details zum Registrierungs- und Verifizierungsablauf: [Authentifizierung](backend/authentifizierung.md) und [Registrierung und Login](prozesse/registrierung-und-login.md).

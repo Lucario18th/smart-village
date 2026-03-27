@@ -27,30 +27,32 @@ Diese Seite bietet eine strukturierte Übersicht über alle Dokumente des Projek
 
 **`docs/` — Zentrale Projektdokumentation:**
 
-| Datei | Beschreibung |
-|-------|-------------|
+| Datei | Beschreibung                                                                                                                |
+|-------|-----------------------------------------------------------------------------------------------------------------------------|
 | [`PROJEKT-DOKUMENTATION.md`](PROJEKT-DOKUMENTATION.md) | Hauptdokumentation nach 4MAT: Projektvision, Architektur, Technologieentscheidungen, Endnutzer-Anleitung, Sensorintegration |
-| [`KI-NUTZUNG.md`](KI-NUTZUNG.md) | Dokumentation des KI-Einsatzes: GitHub Copilot, Agent Mode, Prompt-Engineering, Probleme und Erkenntnisse |
-| [`aenderungen-2026-03-24.md`](aenderungen-2026-03-24.md) | Changelog der letzten Änderungen (24.03.2026) |
+| [`KI-NUTZUNG.md`](KI-NUTZUNG.md) | Dokumentation des KI-Einsatzes: GitHub Copilot, Agent Mode, Prompt-Engineering, Probleme und Erkenntnisse                   |
+| [`aenderungen-2026-03-24.md`](aenderungen-2026-03-24.md) | Changelog der letzten größeren Änderungen (24.03.2026)                                                                      |
 
 **`doku-Neu/` — Technische Detaildokumentation (aktueller Stand):**
 
-| Pfad | Beschreibung |
-|------|-------------|
-| [`architektur/`](../doku-Neu/architektur/) | Systemarchitektur, Datenmodell, Infrastruktur-Übersicht |
-| [`api/`](../doku-Neu/api/) | REST-API-Referenz und Endpunkte |
-| [`backend/`](../doku-Neu/backend/) | Backend-Dokumentation: MQTT-Integration, App-API, Module |
-| [`frontend/`](../doku-Neu/frontend/) | Frontend-Dokumentation: Komponenten, State, Routing |
-| [`betrieb/`](../doku-Neu/betrieb/) | Deployment, Sicherheitskonzept, Betriebsanleitungen |
-| [`prozesse/`](../doku-Neu/prozesse/) | Prozessbeschreibungen: Auto-Discovery, Sensor-Onboarding |
-| [`abgabe-semester-5/`](../doku-Neu/abgabe-semester-5/) | Abgabe Semester 5: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase |
-| [`API.md`](../doku-Neu/API.md) | API-Übersichtsdokument |
-| [`uebersicht.md`](../doku-Neu/uebersicht.md) | Projektübersicht |
+| Pfad                                                                 | Beschreibung |
+|----------------------------------------------------------------------|-------------|
+| [`architektur/`](../doku-Neu/architektur/)                           | Systemarchitektur, Datenmodell, Infrastruktur-Übersicht |
+| [`api/`](../doku-Neu/api/)                                           | REST-API-Referenz und Endpunkte |
+| [`app/`](../doku-Neu/app/)                                           | Mobile App-Dokumentation: Architektur, Module, API-Anbindung |
+| [`backend/`](../doku-Neu/backend/)                                   | Backend-Dokumentation: MQTT-Integration, App-API, Module |
+| [`frontend/`](../doku-Neu/frontend/)                                 | Frontend-Dokumentation: Komponenten, State, Routing |
+| [`betrieb/`](../doku-Neu/betrieb/)                                   | Deployment, Sicherheitskonzept, Betriebsanleitungen |
+| [`prozesse/`](../doku-Neu/prozesse/)                                 | Prozessbeschreibungen: Auto-Discovery, Sensor-Onboarding |
+| [`abgabe-semester-5/`](../doku-Neu/abgabe-semester-5/)               | Abgabe Semester 5: Technologierecherche, LoRaWAN-Evaluation, Konzeptphase |
+| [`API.md`](../doku-Neu/API.md)                                       | API-Übersichtsdokument |
+| [`uebersicht.md`](../doku-Neu/uebersicht.md)                         | Projektübersicht |
 | [`aenderungen-2026-03-15.md`](../doku-Neu/aenderungen-2026-03-15.md) | Changelog 15.03.2026 |
 | [`aenderungen-2026-03-17.md`](../doku-Neu/aenderungen-2026-03-17.md) | Changelog 17.03.2026 |
 | [`aenderungen-2026-03-18.md`](../doku-Neu/aenderungen-2026-03-18.md) | Changelog 18.03.2026 |
 | [`aenderungen-2026-03-23.md`](../doku-Neu/aenderungen-2026-03-23.md) | Changelog 23.03.2026 |
-| [`Smart-Village.pdf`](../doku-Neu/Smart-Village.pdf) | PDF-Export der Projektdokumentation |
+| [`aenderungen-2026-03-27.md`](../doku-Neu/aenderungen-2026-03-27.md) | Changelog 24.03.2026 |
+| [`Smart-Village.pdf`](../doku-Neu/Smart-Village.pdf)                 | PDF-Export der Projektdokumentation |
 
 ---
 
